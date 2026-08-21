@@ -15,7 +15,7 @@
    - ID: 20230104038
 
 4. **Kazi Ishmamul Haque**
-   - Email: 
+   - Email: kaziishmamulhaque@gmail.com
    - ID: 20230104040
 
 ## Project Overview
