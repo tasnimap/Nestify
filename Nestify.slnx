@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Nestify.Api/Nestify.Api.csproj" />
+    <Project Path="src/Nestify.Shared/Nestify.Shared.csproj" />
+    <Project Path="src/Nestify.Web/Nestify.Web.csproj" />
+  </Folder>
+</Solution>
