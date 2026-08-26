@@ -5,7 +5,7 @@ var e=!1;const t=async()=>WebAssembly.validate(new Uint8Array([0,97,115,109,1,0,
   "mainAssemblyName": "Nestify.Web",
   "applicationEnvironment": "Development",
   "resources": {
-    "hash": "sha256-Cte08aY31MVvkHKv16et1p5eMNzIqeFmsrENrNJLFfE=",
+    "hash": "sha256-as2XCpWHswVKweV3qIqxUsscEuGr8PBxvTw46PQIflg=",
     "jsModuleNative": [
       {
         "name": "dotnet.native.vzj2a6aakt.js"
@@ -1248,8 +1248,8 @@ var e=!1;const t=async()=>WebAssembly.validate(new Uint8Array([0,97,115,109,1,0,
       },
       {
         "virtualPath": "Nestify.Shared.wasm",
-        "name": "Nestify.Shared.tyeaa6caci.wasm",
-        "hash": "sha256-uzOx19HAXe+ml6xoO1PcRWbwEeuySXprqGbiRX/lr6A=",
+        "name": "Nestify.Shared.mmyk388ma1.wasm",
+        "hash": "sha256-shDPz72LTNWk0DRomcDWDjHg6qBZExFG9nm+NTWWNak=",
         "cache": "force-cache"
       },
       {
@@ -1260,22 +1260,22 @@ var e=!1;const t=async()=>WebAssembly.validate(new Uint8Array([0,97,115,109,1,0,
       },
       {
         "virtualPath": "Nestify.Web.wasm",
-        "name": "Nestify.Web.7o8v4yy080.wasm",
-        "hash": "sha256-p6n+1PeDULZcRh1lRqxTPEcHk3ZqKneb72Wa6B94XCY=",
+        "name": "Nestify.Web.0pncomjoyt.wasm",
+        "hash": "sha256-DJ0bkBYTo2mxgeLYfiYM7QClMoGI2P5167/bQqvdydc=",
         "cache": "force-cache"
       }
     ],
     "pdb": [
       {
         "virtualPath": "Nestify.Shared.pdb",
-        "name": "Nestify.Shared.4lm403omjq.pdb",
-        "hash": "sha256-qMj+mrPV+3iHz7dTYuYusgjOFstEcWjuA0+dJCVqwL4=",
+        "name": "Nestify.Shared.8cwxt0zyq2.pdb",
+        "hash": "sha256-+A4lkPjupnl/hio+ISE1cICYtRLOt2SOpBbsL9f2ic0=",
         "cache": "force-cache"
       },
       {
         "virtualPath": "Nestify.Web.pdb",
-        "name": "Nestify.Web.a72jam6xmo.pdb",
-        "hash": "sha256-5pOegppSc58smTce6n4O6E2qSKjQTa8bxB9aSBz/Fsg=",
+        "name": "Nestify.Web.tkg6io1r35.pdb",
+        "hash": "sha256-k+RnKUITy5vGZ8hk2Yi8GOJUQ2Ogm0jFiBFxaH7SqzU=",
         "cache": "force-cache"
       }
     ],

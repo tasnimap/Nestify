@@ -5,35 +5,103 @@
 @inject IAuthService AuthService
 @inject NavigationManager Navigation
 
-<h3>Log In</h3>
+<PageTitle>Log in | Nestify</PageTitle>
 
-<EditForm Model="_model" OnValidSubmit="HandleLoginAsync">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+<section class="login-shell" aria-labelledby="login-title">
+    <div class="login-intro">
+        <div class="brand-lockup">
+            <span class="brand-mark" aria-hidden="true">N</span>
+            <span>Nestify</span>
+        </div>
+        <div class="intro-copy">
+            <p class="eyebrow">Welcome home</p>
+            <h1>Find your next place to belong.</h1>
+            <p class="intro-text">Your space, your rhythm, your Nestify account.</p>
+        </div>
+        <div class="intro-footer">
+            <span class="footer-line"></span>
+            <span>Simple living starts here.</span>
+        </div>
+    </div>
 
-    <InputText @bind-Value="_model.Email" placeholder="Email" />
-    <InputText @bind-Value="_model.Password" type="password" placeholder="Password" />
+    <div class="login-panel">
+        <div class="panel-heading">
+            <p class="eyebrow">Member access</p>
+            <h2 id="login-title">Log in to Nestify</h2>
+            <p>Pick up where you left off.</p>
+        </div>
 
-    <button type="submit">Log In</button>
-</EditForm>
+        <EditForm Model="_model" OnValidSubmit="HandleLoginAsync" class="login-form">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="validation-summary" />
 
-@if (!string.IsNullOrEmpty(_errorMessage))
-{
-    <p class="text-danger">@_errorMessage</p>
-}
+            <div class="field-group">
+                <label for="email">Email address</label>
+                <InputText id="email" class="form-input" @bind-Value="_model.Email"
+                           placeholder="you@example.com" autocomplete="email" />
+                <ValidationMessage For="@(() => _model.Email)" />
+            </div>
+
+            <div class="field-group">
+                <div class="field-label-row">
+                    <label for="password">Password</label>
+                    <span class="field-hint">Keep it private</span>
+                </div>
+                <InputText id="password" class="form-input" @bind-Value="_model.Password"
+                           type="password" placeholder="Enter your password" autocomplete="current-password" />
+                <ValidationMessage For="@(() => _model.Password)" />
+            </div>
+
+            <button class="login-button" type="submit" disabled="@_isSubmitting">
+                @if (_isSubmitting)
+                {
+                    <span class="button-spinner" aria-hidden="true"></span>
+                    <span>Signing in...</span>
+                }
+                else
+                {
+                    <span>Continue to your Nest</span>
+                    <span aria-hidden="true">&#8594;</span>
+                }
+            </button>
+        </EditForm>
+
+        @if (!string.IsNullOrEmpty(_errorMessage))
+        {
+            <div class="login-error" role="alert">@_errorMessage</div>
+        }
+
+        <p class="panel-footer">Need access? Contact your Nestify administrator.</p>
+    </div>
+</section>
 
 @code {
     private readonly LoginRequestDto _model = new();
     private string? _errorMessage;
+    private bool _isSubmitting;
 
     private async Task HandleLoginAsync()
     {
-        var result = await AuthService.LoginAsync(_model);
-        if (result is null)
+        _isSubmitting = true;
+        _errorMessage = null;
+
+        try
         {
-            _errorMessage = "Invalid email or password.";
-            return;
+            var result = await AuthService.LoginAsync(_model);
+            if (result is null)
+            {
+                _errorMessage = "We couldn't sign you in with those details.";
+                return;
+            }
+            Navigation.NavigateTo("/");
         }
-        Navigation.NavigateTo("/");
+        catch
+        {
+            _errorMessage = "We couldn't reach Nestify. Please try again.";
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
     }
 }

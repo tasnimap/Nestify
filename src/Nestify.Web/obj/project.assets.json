@@ -2230,8 +2230,8 @@
           "framework": "net10.0",
           "targetAlias": "net10.0",
           "projectReferences": {
-            "d:\\Downloads\\3.2 Downloads\\CSE 3200\\Nestify\\src\\Nestify.Shared\\Nestify.Shared.csproj": {
-              "projectPath": "d:\\Downloads\\3.2 Downloads\\CSE 3200\\Nestify\\src\\Nestify.Shared\\Nestify.Shared.csproj"
+            "D:\\Downloads\\3.2 Downloads\\CSE 3200\\Nestify\\src\\Nestify.Shared\\Nestify.Shared.csproj": {
+              "projectPath": "D:\\Downloads\\3.2 Downloads\\CSE 3200\\Nestify\\src\\Nestify.Shared\\Nestify.Shared.csproj"
             }
           }
         }
