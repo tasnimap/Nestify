@@ -44,10 +44,6 @@ D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\ww
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Microsoft.VisualBasic.oawltawhmj.wasm
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Microsoft.Win32.Primitives.n6ylnc1rdo.wasm
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Microsoft.Win32.Registry.205yp9wx9t.wasm
-D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Nestify.Shared.46ua4pmz1c.pdb
-D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Nestify.Shared.aubkeal6fj.wasm
-D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Nestify.Web.cyu2t21qsw.pdb
-D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Nestify.Web.u1sp81x7j6.wasm
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.AppContext.33lgp2bflw.wasm
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.Buffers.g7kq07we8q.wasm
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.Collections.Concurrent.ayt23dc2he.wasm
@@ -219,7 +215,6 @@ D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\ww
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\dotnet.native.vzj2a6aakt.js
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\dotnet.runtime.js.map
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\dotnet.runtime.zbexyp8zrs.js
-D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\dotnet.tbnqxprmuf.js
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\icudt_CJK.tjcz0u77k5.dat
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\icudt_EFIGS.tptq2av103.dat
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\icudt_no_CJK.lfu7j35m59.dat
@@ -230,7 +225,6 @@ D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\ww
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\mscorlib.l31p083pc1.wasm.gz
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.Runtime.Loader.smrevcdjv4.wasm.gz
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.Data.DataSetExtensions.a9dlaxjhfy.wasm.gz
-D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Nestify.Shared.aubkeal6fj.wasm.gz
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.IO.Pipes.6axf1j8g7w.wasm.gz
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.Xml.Linq.4w1i83kr6d.wasm.gz
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.Globalization.moqtkrs3kx.wasm.gz
@@ -267,7 +261,6 @@ D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\ww
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Microsoft.JSInterop.vei8iss1f3.wasm.gz
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.Threading.Timer.23ma43391f.wasm.gz
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.Reflection.Extensions.182qm6arqh.wasm.gz
-D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Nestify.Web.cyu2t21qsw.pdb.gz
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.ObjectModel.i378yy84uu.wasm.gz
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.Runtime.Serialization.Json.4u1byp8ddu.wasm.gz
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.Runtime.Handles.pegxo55rww.wasm.gz
@@ -354,7 +347,6 @@ D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\ww
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.Reflection.DispatchProxy.3vrt3hlgt3.wasm.gz
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.Windows.98z5iu2ekq.wasm.gz
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.Security.Cryptography.OpenSsl.1sxm4ayhhy.wasm.gz
-D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\dotnet.tbnqxprmuf.js.gz
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.Text.Json.e68ojdl57q.wasm.gz
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.Web.sakoricpi1.wasm.gz
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\dotnet.native.vzj2a6aakt.js.gz
@@ -402,8 +394,6 @@ D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\ww
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.Net.HttpListener.l269ngb85c.wasm.gz
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.Numerics.rkirn4ewf6.wasm.gz
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.Net.WebSockets.Client.qeq362432l.wasm.gz
-D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Nestify.Web.u1sp81x7j6.wasm.gz
-D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Nestify.Shared.46ua4pmz1c.pdb.gz
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Microsoft.Extensions.Configuration.Json.ovhjhq0url.wasm.gz
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.Threading.Channels.wty3mw4oue.wasm.gz
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.Security.SecureString.hbgjudeeg7.wasm.gz
@@ -869,7 +859,6 @@ D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\obj\Debug\net10.0\sc
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\obj\Debug\net10.0\Nestify.Web.genruntimeconfig.cache
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\obj\Debug\net10.0\blazor.build.boot-extension.json
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\obj\Debug\net10.0\dotnet.js
-D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\obj\Debug\net10.0\staticwebassets\htmlassetplaceholders\build\rub1cgbsk0.html
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\8j2bo2e1r7-{0}-pw7pg93i7q-pw7pg93i7q.gz
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\pn1kb9bwha-{0}-nk9bgqz024-nk9bgqz024.gz
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\g24tcwh90o-{0}-bqjiyaj88i-bqjiyaj88i.gz
@@ -1129,13 +1118,7 @@ D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\obj\Debug\net10.0\co
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\znpoxp531i-{0}-tjcz0u77k5-tjcz0u77k5.gz
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\4v7whmqyrv-{0}-tptq2av103-tptq2av103.gz
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\7ah91gweci-{0}-lfu7j35m59-lfu7j35m59.gz
-D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\0szzysnbeu-{0}-aubkeal6fj-aubkeal6fj.gz
-D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\uzc3mnelw2-{0}-46ua4pmz1c-46ua4pmz1c.gz
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\vrsfmliby7-{0}-jiityjz7hu-jiityjz7hu.gz
-D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\uly0r66g8i-{0}-u1sp81x7j6-u1sp81x7j6.gz
-D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\663d9gw1p5-{0}-cyu2t21qsw-cyu2t21qsw.gz
-D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\lrd2jakkki-{0}-tbnqxprmuf-tbnqxprmuf.gz
-D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\g7i743nzf3-{0}-1ndmmzrf67-1ndmmzrf67.gz
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\obj\Debug\net10.0\staticwebassets.build.json
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\obj\Debug\net10.0\staticwebassets.build.json.cache
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\obj\Debug\net10.0\staticwebassets.development.json
@@ -1146,3 +1129,20 @@ D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\obj\Debug\net10.0\Ne
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\obj\Debug\net10.0\refint\Nestify.Web.dll
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\obj\Debug\net10.0\Nestify.Web.pdb
 D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\obj\Debug\net10.0\ref\Nestify.Web.dll
+d:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Nestify.Shared.4lm403omjq.pdb
+d:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Nestify.Shared.tyeaa6caci.wasm
+d:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Nestify.Web.7o8v4yy080.wasm
+d:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Nestify.Web.a72jam6xmo.pdb
+d:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\dotnet.rcg952cz7f.js
+d:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Nestify.Shared.tyeaa6caci.wasm.gz
+d:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Nestify.Web.a72jam6xmo.pdb.gz
+d:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\dotnet.rcg952cz7f.js.gz
+d:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Nestify.Web.7o8v4yy080.wasm.gz
+d:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Nestify.Shared.4lm403omjq.pdb.gz
+d:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\obj\Debug\net10.0\staticwebassets\htmlassetplaceholders\build\8nizwmyewy.html
+d:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\0szzysnbeu-{0}-tyeaa6caci-tyeaa6caci.gz
+d:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\uzc3mnelw2-{0}-4lm403omjq-4lm403omjq.gz
+d:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\uly0r66g8i-{0}-7o8v4yy080-7o8v4yy080.gz
+d:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\663d9gw1p5-{0}-a72jam6xmo-a72jam6xmo.gz
+d:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\lrd2jakkki-{0}-rcg952cz7f-rcg952cz7f.gz
+d:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\g7i743nzf3-{0}-v3gdr6gbd0-v3gdr6gbd0.gz
