@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Downloads\\3.2 Downloads\\CSE 3200\\Nestify\\src\\Nestify.Web\\Nestify.Web.csproj": {}
+    "d:\\Downloads\\3.2 Downloads\\CSE 3200\\Nestify\\src\\Nestify.Web\\Nestify.Web.csproj": {}
   },
   "projects": {
-    "D:\\Downloads\\3.2 Downloads\\CSE 3200\\Nestify\\src\\Nestify.Shared\\Nestify.Shared.csproj": {
+    "d:\\Downloads\\3.2 Downloads\\CSE 3200\\Nestify\\src\\Nestify.Shared\\Nestify.Shared.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Downloads\\3.2 Downloads\\CSE 3200\\Nestify\\src\\Nestify.Shared\\Nestify.Shared.csproj",
+        "projectUniqueName": "d:\\Downloads\\3.2 Downloads\\CSE 3200\\Nestify\\src\\Nestify.Shared\\Nestify.Shared.csproj",
         "projectName": "Nestify.Shared",
-        "projectPath": "D:\\Downloads\\3.2 Downloads\\CSE 3200\\Nestify\\src\\Nestify.Shared\\Nestify.Shared.csproj",
+        "projectPath": "d:\\Downloads\\3.2 Downloads\\CSE 3200\\Nestify\\src\\Nestify.Shared\\Nestify.Shared.csproj",
         "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-        "outputPath": "D:\\Downloads\\3.2 Downloads\\CSE 3200\\Nestify\\src\\Nestify.Shared\\obj\\",
+        "outputPath": "d:\\Downloads\\3.2 Downloads\\CSE 3200\\Nestify\\src\\Nestify.Shared\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -341,14 +341,14 @@
         }
       }
     },
-    "D:\\Downloads\\3.2 Downloads\\CSE 3200\\Nestify\\src\\Nestify.Web\\Nestify.Web.csproj": {
+    "d:\\Downloads\\3.2 Downloads\\CSE 3200\\Nestify\\src\\Nestify.Web\\Nestify.Web.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Downloads\\3.2 Downloads\\CSE 3200\\Nestify\\src\\Nestify.Web\\Nestify.Web.csproj",
+        "projectUniqueName": "d:\\Downloads\\3.2 Downloads\\CSE 3200\\Nestify\\src\\Nestify.Web\\Nestify.Web.csproj",
         "projectName": "Nestify.Web",
-        "projectPath": "D:\\Downloads\\3.2 Downloads\\CSE 3200\\Nestify\\src\\Nestify.Web\\Nestify.Web.csproj",
+        "projectPath": "d:\\Downloads\\3.2 Downloads\\CSE 3200\\Nestify\\src\\Nestify.Web\\Nestify.Web.csproj",
         "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-        "outputPath": "D:\\Downloads\\3.2 Downloads\\CSE 3200\\Nestify\\src\\Nestify.Web\\obj\\",
+        "outputPath": "d:\\Downloads\\3.2 Downloads\\CSE 3200\\Nestify\\src\\Nestify.Web\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -366,8 +366,8 @@
             "framework": "net10.0",
             "targetAlias": "net10.0",
             "projectReferences": {
-              "D:\\Downloads\\3.2 Downloads\\CSE 3200\\Nestify\\src\\Nestify.Shared\\Nestify.Shared.csproj": {
-                "projectPath": "D:\\Downloads\\3.2 Downloads\\CSE 3200\\Nestify\\src\\Nestify.Shared\\Nestify.Shared.csproj"
+              "d:\\Downloads\\3.2 Downloads\\CSE 3200\\Nestify\\src\\Nestify.Shared\\Nestify.Shared.csproj": {
+                "projectPath": "d:\\Downloads\\3.2 Downloads\\CSE 3200\\Nestify\\src\\Nestify.Shared\\Nestify.Shared.csproj"
               }
             }
           }
