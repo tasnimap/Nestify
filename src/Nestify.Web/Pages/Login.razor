@@ -1,0 +1,39 @@
+@* Pages/Login.razor *@
+@page "/login"
+@using Nestify.Shared.Dtos.Auth
+@using Nestify.Web.Services.Interfaces
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+
+<h3>Log In</h3>
+
+<EditForm Model="_model" OnValidSubmit="HandleLoginAsync">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <InputText @bind-Value="_model.Email" placeholder="Email" />
+    <InputText @bind-Value="_model.Password" type="password" placeholder="Password" />
+
+    <button type="submit">Log In</button>
+</EditForm>
+
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <p class="text-danger">@_errorMessage</p>
+}
+
+@code {
+    private readonly LoginRequestDto _model = new();
+    private string? _errorMessage;
+
+    private async Task HandleLoginAsync()
+    {
+        var result = await AuthService.LoginAsync(_model);
+        if (result is null)
+        {
+            _errorMessage = "Invalid email or password.";
+            return;
+        }
+        Navigation.NavigateTo("/");
+    }
+}
