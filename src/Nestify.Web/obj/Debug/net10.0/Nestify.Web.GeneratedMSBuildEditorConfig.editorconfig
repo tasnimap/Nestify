@@ -33,10 +33,6 @@ build_property.EnableCodeStyleSeverity =
 build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/Downloads/3.2 Downloads/CSE 3200/Nestify/src/Nestify.Web/Pages/Login.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTG9naW4ucmF6b3I=
-build_metadata.AdditionalFiles.CssScope = 
-
 [D:/Downloads/3.2 Downloads/CSE 3200/Nestify/src/Nestify.Web/_Imports.razor]
 build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
@@ -48,3 +44,7 @@ build_metadata.AdditionalFiles.CssScope = b-02vv3i70os
 [D:/Downloads/3.2 Downloads/CSE 3200/Nestify/src/Nestify.Web/Layout/NavMenu.razor]
 build_metadata.AdditionalFiles.TargetPath = TGF5b3V0XE5hdk1lbnUucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = b-jkcfxc17f0
+
+[D:/Downloads/3.2 Downloads/CSE 3200/Nestify/src/Nestify.Web/Pages/Login.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTG9naW4ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-n4vzyythwz
