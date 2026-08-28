@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Nestify.Web")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d6ae19f478e42b20cc5b1c4d6c0da4dc02fd02a1")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4b5c31733d3ecfbe4a7b728ab3127cbfa1073f80")]
 [assembly: System.Reflection.AssemblyProductAttribute("Nestify.Web")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Nestify.Web")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
