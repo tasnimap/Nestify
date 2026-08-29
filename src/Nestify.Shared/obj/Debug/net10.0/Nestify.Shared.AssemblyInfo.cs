@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Nestify.Shared")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4b5c31733d3ecfbe4a7b728ab3127cbfa1073f80")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8f75dd3b9e08999d9981f422372d77151d83b47c")]
 [assembly: System.Reflection.AssemblyProductAttribute("Nestify.Shared")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Nestify.Shared")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

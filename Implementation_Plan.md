@@ -108,35 +108,64 @@ Explicitly **not** built, so nobody plans around them:
 
 # 1 — Architecture
 
-## 1.1 Solution layout
+## 1.1 Solution layout — frontend / backend / database
 
-Three projects, all already present. **No new projects are added.** **Why:** the existing `.slnx` and teammates' branches already reference this layout; adding projects for architectural purity costs merge pain and buys nothing a folder cannot.
+The project is organised as **three tiers**: a **frontend** (the Blazor WebAssembly client), a **backend** (the ASP.NET Core Web API, plus the shared contract assembly that both tiers compile against), and a **database** tier (PostgreSQL, its EF Core migrations, seed data and operational SQL).
 
 ```
 Nestify.slnx
-└── src/
-    ├── Nestify.Api/            ASP.NET Core Web API (net10.0)
-    │   ├── Controllers/        Thin — bind, authorize, delegate, return
-    │   ├── Services/           Business logic, one service per module
-    │   ├── Data/
-    │   │   ├── NestifyDbContext.cs
-    │   │   ├── Configurations/ IEntityTypeConfiguration<T>, one per entity
-    │   │   ├── Entities/       EF entities — never leave this assembly
-    │   │   ├── Seed/           Area seeder + embedded JSON
-    │   │   └── Migrations/     THE ONLY migrations folder (§12.3)
-    │   ├── Authorization/      Policies, requirements, resource handlers
-    │   ├── Security/           File validation, signed URLs, token service
-    │   └── Ml/                 Training pipeline + prediction service
-    ├── Nestify.Shared/         DTOs + enums ONLY. Referenced by BOTH ends
-    └── Nestify.Web/            Blazor WebAssembly client
-        ├── Pages/  Layout/  Auth/  Services/  wwwroot/
+├── src/
+│   │
+│   │   ══ FRONTEND ══════════════════════════════════════════════
+│   ├── Nestify.Web/                Blazor WebAssembly client (net10.0)
+│   │   ├── Pages/                  Routable pages, one folder per module
+│   │   ├── Components/             Reusable non-routable components
+│   │   ├── Layout/                 MainLayout, NavMenu
+│   │   ├── Auth/                   CustomAuthStateProvider, AuthorizationMessageHandler
+│   │   ├── Services/               Typed HttpClient wrappers, one per module
+│   │   └── wwwroot/                index.html, CSS, static assets, appsettings.json
+│   │
+│   │   ══ BACKEND ═══════════════════════════════════════════════
+│   ├── Nestify.Api/                ASP.NET Core Web API (net10.0)
+│   │   ├── Controllers/            Thin — bind, authorize, delegate, return
+│   │   ├── Services/               Business logic, one service per module
+│   │   ├── Authorization/          Policies, requirements, resource handlers
+│   │   ├── Security/               File validation, signed URLs, token service
+│   │   ├── Ml/                     Training pipeline + prediction service
+│   │   └── Data/                   → the database tier's code-side half (below)
+│   │
+│   └── Nestify.Shared/             DTOs + enums ONLY. Referenced by BOTH tiers
+│
+├── db/                             ══ DATABASE ══════════════════
+│   ├── seed/                       Area dataset JSON (divisions/districts/upazilas) — §5.5
+│   ├── scripts/                    Role grants, maintenance SQL, index checks
+│   └── README.md                   Local PostgreSQL setup + connection string
+│
+└── src/Nestify.Api/Data/           Database access code — lives in the API project
+    ├── NestifyDbContext.cs
+    ├── Configurations/             IEntityTypeConfiguration<T>, one per entity
+    ├── Entities/                   EF entities — never leave this assembly
+    ├── Seed/                       Area seeder; db/seed/*.json linked in as EmbeddedResource
+    └── Migrations/                 THE ONLY migrations folder (§12.3)
 ```
 
-**Layering inside `Nestify.Api` is folder-based, not a Clean Architecture project graph.** **Why:** a four-project onion forces every feature to touch four `.csproj` files, which for four undergraduates on parallel branches multiplies merge conflicts without improving anything a viva examiner will ask about.
+| Tier | Projects / folders | Owns | Talks to |
+|---|---|---|---|
+| **Frontend** | `Nestify.Web` | Rendering, routing, client-side validation, UX gating | Backend over HTTPS + Bearer (§3.1). Never the database. |
+| **Backend** | `Nestify.Api`, `Nestify.Shared` | Authentication, authorization, business rules, file pipeline, ML | Database via EF Core only |
+| **Database** | PostgreSQL, `src/Nestify.Api/Data/`, `db/` | Schema, constraints, indexes, migrations, seed data | Nothing — it is the bottom of the stack |
 
-**`Nestify.Shared` holds DTOs and enums only — no EF entities, no EF packages.** **Why:** it ships into the browser; putting entities there would leak the schema to the client and make it trivially easy to bind an entity to an endpoint (§11.3.5).
+**The three projects already exist; no new .NET projects are added.** The tiers above are a naming and ownership split over the existing layout, plus one new top-level `db/` folder for the artefacts that are neither C# nor browser assets. **Why:** the existing `.slnx` and teammates' branches already reference the three-project layout; adding projects for architectural purity costs merge pain and buys nothing a viva examiner will ask about.
 
-**EF entities never leave `Nestify.Api`.** **Why:** this is the structural guarantee behind mass-assignment prevention — a controller *cannot* accept an entity, because the type is not visible to the client contract.
+**The database tier's *code* lives inside `Nestify.Api/Data/`, not in a separate project.** **Why:** a separate `Nestify.Data` assembly would force every migration to cross a project boundary and would make `dotnet ef` need `--startup-project` on every command — friction for four undergraduates on parallel branches, with no isolation gained that the `Data/` folder does not already give. The tier boundary that actually matters is enforced instead by the two rules below.
+
+**Layering inside `Nestify.Api` is folder-based, not a Clean Architecture project graph.** **Why:** a four-project onion forces every feature to touch four `.csproj` files, which multiplies merge conflicts without improving anything the examiner will ask about.
+
+**`Nestify.Shared` holds DTOs and enums only — no EF entities, no EF packages.** **Why:** it ships into the browser; putting entities there would leak the schema to the frontend and make it trivially easy to bind an entity to an endpoint (§11.3.5).
+
+**EF entities never leave `Nestify.Api`.** **Why:** this is the structural guarantee behind mass-assignment prevention, and it is what makes the frontend/database separation real — a controller *cannot* accept an entity, and the frontend *cannot* name a table, because those types are not visible to the client contract.
+
+**The frontend never holds a connection string.** **Why:** `Nestify.Web/wwwroot/appsettings.json` is downloadable by anyone who loads the site; the only setting it carries is `ApiBaseUrl` (§1.6).
 
 ## 1.2 Component diagram
 
@@ -1372,7 +1401,7 @@ The rejected alternative — shipping the JSON in `wwwroot` and populating dropd
 
 ### Where deserialization happens
 
-**At seed time, on the server, once.** The three JSON files are added to `Nestify.Api/Data/Seed/` as `<EmbeddedResource>`. An `IHostedService` runs on startup, checks `if (!await db.Divisions.AnyAsync())`, and if empty parses and inserts all 566 rows in one transaction, ordered divisions → districts → upazilas to satisfy foreign keys.
+**At seed time, on the server, once.** The three JSON files live in the database tier at `db/seed/` and are linked into `Nestify.Api` as embedded resources — `<EmbeddedResource Include="..\..\db\seed\*.json" LinkBase="Data/Seed" />` — so the dataset is owned by the database tier but still travels inside the API assembly at runtime (§1.1). An `IHostedService` runs on startup, checks `if (!await db.Divisions.AnyAsync())`, and if empty parses and inserts all 566 rows in one transaction, ordered divisions → districts → upazilas to satisfy foreign keys.
 
 **Why embedded resources rather than fetching from GitHub at runtime:** a demo must not depend on network access to a third-party repository, and a startup that silently succeeds with zero areas because GitHub was slow is a bad failure mode. **Why a seeder rather than EF's `HasData`:** 566 rows in `HasData` produce a 566-row migration file that makes every future migration diff unreadable, and any dataset correction rewrites it.
 

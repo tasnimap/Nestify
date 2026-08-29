@@ -104,11 +104,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Downloads\\3.2 Downloads\\CSE 3200\\Nestify\\src\\Nestify.Api\\Nestify.Api.csproj",
+      "projectUniqueName": "D:\\3.2 Materials\\Lab - SD\\Encrypt\\Project\\Nestify\\src\\Nestify.Api\\Nestify.Api.csproj",
       "projectName": "Nestify.Api",
-      "projectPath": "D:\\Downloads\\3.2 Downloads\\CSE 3200\\Nestify\\src\\Nestify.Api\\Nestify.Api.csproj",
+      "projectPath": "D:\\3.2 Materials\\Lab - SD\\Encrypt\\Project\\Nestify\\src\\Nestify.Api\\Nestify.Api.csproj",
       "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-      "outputPath": "D:\\Downloads\\3.2 Downloads\\CSE 3200\\Nestify\\src\\Nestify.Api\\obj\\",
+      "outputPath": "D:\\3.2 Materials\\Lab - SD\\Encrypt\\Project\\Nestify\\src\\Nestify.Api\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -126,8 +126,8 @@
           "framework": "net10.0",
           "targetAlias": "net10.0",
           "projectReferences": {
-            "D:\\Downloads\\3.2 Downloads\\CSE 3200\\Nestify\\src\\Nestify.Shared\\Nestify.Shared.csproj": {
-              "projectPath": "D:\\Downloads\\3.2 Downloads\\CSE 3200\\Nestify\\src\\Nestify.Shared\\Nestify.Shared.csproj"
+            "D:\\3.2 Materials\\Lab - SD\\Encrypt\\Project\\Nestify\\src\\Nestify.Shared\\Nestify.Shared.csproj": {
+              "projectPath": "D:\\3.2 Materials\\Lab - SD\\Encrypt\\Project\\Nestify\\src\\Nestify.Shared\\Nestify.Shared.csproj"
             }
           }
         }
