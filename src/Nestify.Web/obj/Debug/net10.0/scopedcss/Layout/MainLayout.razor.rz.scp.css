@@ -1,0 +1,107 @@
+.layout[b-02vv3i70os] {
+    display: flex;
+    flex-direction: column;
+    min-height: 100dvh;
+}
+
+.layout__body[b-02vv3i70os] {
+    flex: 1;
+    outline: none;
+}
+
+.skip-link[b-02vv3i70os] {
+    position: absolute;
+    left: 1rem;
+    top: -3rem;
+    z-index: 200;
+    padding: .6rem 1rem;
+    border-radius: 8px;
+    background: var(--nx-primary);
+    color: #fff;
+    font-weight: 600;
+    transition: top .18s ease;
+}
+
+.skip-link:focus[b-02vv3i70os] {
+    top: 1rem;
+    text-decoration: none;
+}
+
+/* ---------- footer ---------- */
+
+.site-footer[b-02vv3i70os] {
+    background: var(--nx-bg-deep);
+    color: #b7afd0;
+    padding-block: 3rem 2.25rem;
+}
+
+.site-footer__inner[b-02vv3i70os] {
+    display: grid;
+    gap: 1.75rem;
+}
+
+.site-footer__brand[b-02vv3i70os] {
+    display: flex;
+    align-items: center;
+    gap: .85rem;
+}
+
+.site-footer__mark[b-02vv3i70os] {
+    display: grid;
+    place-items: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    border-radius: 12px 12px 12px 4px;
+    background: var(--nx-primary);
+    color: #fff;
+    font-family: var(--nx-display);
+    font-weight: 700;
+    font-size: 1.35rem;
+}
+
+.site-footer__name[b-02vv3i70os] {
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.05rem;
+}
+
+.site-footer__tag[b-02vv3i70os] {
+    font-size: .85rem;
+    color: #8f88ac;
+}
+
+.site-footer__links[b-02vv3i70os] {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.site-footer__links a[b-02vv3i70os] {
+    color: #cfc8e6;
+    font-size: .92rem;
+    font-weight: 500;
+}
+
+.site-footer__links a:hover[b-02vv3i70os] {
+    color: #fff;
+    text-decoration: none;
+}
+
+.site-footer__legal[b-02vv3i70os] {
+    font-size: .82rem;
+    color: #7d769b;
+    border-top: 1px solid rgba(255, 255, 255, .08);
+    padding-top: 1.5rem;
+}
+
+@media (min-width: 800px) {
+    .site-footer__inner[b-02vv3i70os] {
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        column-gap: 2rem;
+    }
+
+    .site-footer__legal[b-02vv3i70os] {
+        grid-column: 1 / -1;
+    }
+}

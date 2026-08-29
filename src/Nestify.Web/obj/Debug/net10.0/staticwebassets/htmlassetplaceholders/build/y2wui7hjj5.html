@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nestify — Bachelor Life, Unified</title>
+    <meta name="description" content="Nestify unifies housing and roommate search, domestic help hiring, shared expense tracking, and a student marketplace behind one verified account." />
+    <base href="/" />
+    <link href="_framework/dotnet.n6cj6edijf.js" rel="preload" as="script" fetchpriority="high" crossorigin="anonymous" integrity="sha256-kS3QVWVvFYOp5GK9zI2+Zd69RM37Bq3THa/RwYXsld0=" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital@0;1&display=swap" />
+    <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/app.css" />
+    <link rel="stylesheet" href="css/nestify.css" />
+    <link rel="stylesheet" href="css/auth.css" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link href="Nestify.Web.styles.css" rel="stylesheet" />
+    <script type="importmap">{
+  "imports": {
+    "./_framework/Microsoft.DotNet.HotReload.WebAssembly.Browser.lib.module.js": "./_framework/Microsoft.DotNet.HotReload.WebAssembly.Browser.pw7pg93i7q.lib.module.js",
+    "./_framework/blazor.webassembly.js": "./_framework/blazor.webassembly.w3qd1tpl0e.js",
+    "./_framework/dotnet.js": "./_framework/dotnet.n6cj6edijf.js",
+    "./_framework/dotnet.native.js": "./_framework/dotnet.native.vzj2a6aakt.js",
+    "./_framework/dotnet.runtime.js": "./_framework/dotnet.runtime.zbexyp8zrs.js",
+    "./lib/bootstrap/dist/js/bootstrap.js": "./lib/bootstrap/dist/js/bootstrap.2hwmgbhpsk.js",
+    "./lib/bootstrap/dist/js/bootstrap.bundle.js": "./lib/bootstrap/dist/js/bootstrap.bundle.e3dq8qw8ru.js",
+    "./lib/bootstrap/dist/js/bootstrap.bundle.min.js": "./lib/bootstrap/dist/js/bootstrap.bundle.min.hd3gran6i8.js",
+    "./lib/bootstrap/dist/js/bootstrap.esm.js": "./lib/bootstrap/dist/js/bootstrap.esm.3pv8e206mt.js",
+    "./lib/bootstrap/dist/js/bootstrap.esm.min.js": "./lib/bootstrap/dist/js/bootstrap.esm.min.8vyfqsqgz1.js",
+    "./lib/bootstrap/dist/js/bootstrap.min.js": "./lib/bootstrap/dist/js/bootstrap.min.4d85u1mtcx.js"
+  },
+  "scopes": {},
+  "integrity": {
+    "./_framework/Microsoft.DotNet.HotReload.WebAssembly.Browser.lib.module.js": "sha256-SXjI4yVmFuxPXj5BFgLFvyJ2s+GEf0SzOJbLptFgNNs=",
+    "./_framework/Microsoft.DotNet.HotReload.WebAssembly.Browser.pw7pg93i7q.lib.module.js": "sha256-SXjI4yVmFuxPXj5BFgLFvyJ2s+GEf0SzOJbLptFgNNs=",
+    "./_framework/blazor.webassembly.js": "sha256-lDXsDYFgm62F+YUvxES7IOTCXYpiHpU3uR45YdC6mq4=",
+    "./_framework/blazor.webassembly.w3qd1tpl0e.js": "sha256-lDXsDYFgm62F+YUvxES7IOTCXYpiHpU3uR45YdC6mq4=",
+    "./_framework/dotnet.js": "sha256-kS3QVWVvFYOp5GK9zI2+Zd69RM37Bq3THa/RwYXsld0=",
+    "./_framework/dotnet.n6cj6edijf.js": "sha256-kS3QVWVvFYOp5GK9zI2+Zd69RM37Bq3THa/RwYXsld0=",
+    "./_framework/dotnet.native.js": "sha256-RezASHv+dbqV50cFnld76YiLhk4B+BjMAKs/euUdNyE=",
+    "./_framework/dotnet.native.vzj2a6aakt.js": "sha256-RezASHv+dbqV50cFnld76YiLhk4B+BjMAKs/euUdNyE=",
+    "./_framework/dotnet.runtime.js": "sha256-MZMguyke9CroSQl+L/SHIGFkPTD+LtYGXkXjAvwWx40=",
+    "./_framework/dotnet.runtime.zbexyp8zrs.js": "sha256-MZMguyke9CroSQl+L/SHIGFkPTD+LtYGXkXjAvwWx40=",
+    "./lib/bootstrap/dist/js/bootstrap.2hwmgbhpsk.js": "sha256-5rmPSJF6+xg5QLM52q37YHGCvfFfZxX9badjH0IAXJY=",
+    "./lib/bootstrap/dist/js/bootstrap.bundle.e3dq8qw8ru.js": "sha256-ynTbm2MV4fQjTZ4dpULXlv8Q02L5ZYCP4l0nbtE7fcg=",
+    "./lib/bootstrap/dist/js/bootstrap.bundle.js": "sha256-ynTbm2MV4fQjTZ4dpULXlv8Q02L5ZYCP4l0nbtE7fcg=",
+    "./lib/bootstrap/dist/js/bootstrap.bundle.min.hd3gran6i8.js": "sha256-6zfk2L8R3wCgRbZzpkEi7UYC2bc6fYGIgFfNeqyOWnQ=",
+    "./lib/bootstrap/dist/js/bootstrap.bundle.min.js": "sha256-6zfk2L8R3wCgRbZzpkEi7UYC2bc6fYGIgFfNeqyOWnQ=",
+    "./lib/bootstrap/dist/js/bootstrap.esm.3pv8e206mt.js": "sha256-iRfuA6HRATGnpUMM+lIY5f8L1sn6F1t54VdRBesShDk=",
+    "./lib/bootstrap/dist/js/bootstrap.esm.js": "sha256-iRfuA6HRATGnpUMM+lIY5f8L1sn6F1t54VdRBesShDk=",
+    "./lib/bootstrap/dist/js/bootstrap.esm.min.8vyfqsqgz1.js": "sha256-REjSeieVKd00nAKwd6dv7MMhuVKvKctPmLI4iDRs/cc=",
+    "./lib/bootstrap/dist/js/bootstrap.esm.min.js": "sha256-REjSeieVKd00nAKwd6dv7MMhuVKvKctPmLI4iDRs/cc=",
+    "./lib/bootstrap/dist/js/bootstrap.js": "sha256-5rmPSJF6+xg5QLM52q37YHGCvfFfZxX9badjH0IAXJY=",
+    "./lib/bootstrap/dist/js/bootstrap.min.4d85u1mtcx.js": "sha256-aCTIqw9op0XQGYnNe1649V7fnihACD48OP3M8BP2xVM=",
+    "./lib/bootstrap/dist/js/bootstrap.min.js": "sha256-aCTIqw9op0XQGYnNe1649V7fnihACD48OP3M8BP2xVM="
+  }
+}</script>
+</head>
+
+<body>
+    <div id="app"></div>
+
+    <div id="blazor-error-ui">
+        An unhandled error has occurred.
+        <a href="." class="reload">Reload</a>
+        <span class="dismiss">🗙</span>
+    </div>
+    <script src="_framework/blazor.webassembly.w3qd1tpl0e.js"></script>
+</body>
+
+</html>

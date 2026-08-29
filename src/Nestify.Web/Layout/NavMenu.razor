@@ -1,44 +1,69 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">Nestify.Web</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-    </div>
-</div>
+@implements IDisposable
+@inject NavigationManager Navigation
 
-<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
-    <nav class="nav flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="login">
-                <span class="bi bi-box-arrow-in-right" aria-hidden="true"></span> Log In
-            </NavLink>
-        </div>
-    </nav>
-</div>
+<header class="nav">
+    <div class="nx-container nav__inner">
+        <a class="nav__brand" href="" @onclick="Close">
+            <span class="nav__mark" aria-hidden="true">N</span>
+            <span class="nav__word">Nestify</span>
+        </a>
+
+        <button class="nav__toggle"
+                type="button"
+                aria-label="Toggle navigation menu"
+                aria-expanded="@_open.ToString().ToLowerInvariant()"
+                aria-controls="primary-nav"
+                @onclick="Toggle">
+            <span class="nav__toggle-bar @(_open ? "is-open" : null)"></span>
+        </button>
+
+        <nav id="primary-nav" class="nav__panel @(_open ? "nav__panel--open" : null)" aria-label="Primary">
+            <ul class="nav__links">
+                <li>
+                    <NavLink class="nav__link" href="" Match="NavLinkMatch.All" @onclick="Close">Home</NavLink>
+                </li>
+                <li>
+                    <NavLink class="nav__link" href="about" @onclick="Close">About Us</NavLink>
+                </li>
+            </ul>
+            <a class="nx-btn nx-btn--primary nav__cta" href="login" @onclick="Close">
+                <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                    <path d="M10 17l5-5-5-5" />
+                    <path d="M15 12H3" />
+                </svg>
+                Log in
+            </a>
+        </nav>
+    </div>
+</header>
 
 @code {
-    private bool collapseNavMenu = true;
+    private bool _open;
 
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-
-    private void ToggleNavMenu()
+    protected override void OnInitialized()
     {
-        collapseNavMenu = !collapseNavMenu;
+        Navigation.LocationChanged += HandleLocationChanged;
+    }
+
+    private void Toggle() => _open = !_open;
+
+    private void Close()
+    {
+        if (_open) _open = false;
+    }
+
+    private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        if (_open)
+        {
+            _open = false;
+            StateHasChanged();
+        }
+    }
+
+    public void Dispose()
+    {
+        Navigation.LocationChanged -= HandleLocationChanged;
     }
 }
