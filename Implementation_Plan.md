@@ -10,7 +10,6 @@
 | **Detected hosting model** | **Standalone Blazor WebAssembly** — retained (§1.3) |
 | **Solution file** | `Nestify.slnx` (new XML solution format) |
 | **Currency** | Bangladeshi Taka (৳ / BDT) |
-| **ML component owner** | **Ishmam** |
 
 > **Note on document shape.** The original brief asked for fourteen separate files under `docs/plan/`. At the user's explicit direction this is delivered instead as a single consolidated document; the fourteen sections below map one-to-one onto those fourteen files. `docs/plan/` is not created.
 
