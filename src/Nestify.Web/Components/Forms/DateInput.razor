@@ -1,0 +1,103 @@
+@* src/Nestify.Web/Components/Forms/DateInput.razor *@
+@typeparam TValue
+@inherits InputBase<TValue>
+
+<div class="field">
+    @if (!string.IsNullOrEmpty(Label))
+    {
+        <label for="@Id" class="field__label">@Label</label>
+    }
+
+    @if (HelperContent != null)
+    {
+        <div class="field__helper">
+            @HelperContent
+        </div>
+    }
+
+    <div class="field__control @(HasError ? "field__control--error" : "")">
+        <input
+            id="@Id"
+            type="date"
+            class="field__input @CssClass"
+            @attributes="AdditionalAttributes"
+            value="@CurrentValueAsString"
+            @onchange="HandleDateChange"
+            disabled="@Disabled" />
+    </div>
+
+    @if (HasError)
+    {
+        <div class="field__error" role="alert">
+            @foreach (var message in ValidationMessages)
+            {
+                <div>@message</div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private string _id = $"date-{Guid.NewGuid():N}";
+    private List<string> ValidationMessages { get; } = new();
+
+    [Parameter]
+    public string? Label { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    [Parameter]
+    public RenderFragment? HelperContent { get; set; }
+
+    public string Id
+    {
+        get => _id;
+        set => _id = value;
+    }
+
+    private bool HasError => EditContext?.GetValidationMessages(FieldIdentifier).Any() ?? false;
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if (EditContext != null)
+        {
+            ValidationMessages.Clear();
+            ValidationMessages.AddRange(
+                EditContext.GetValidationMessages(FieldIdentifier)
+            );
+        }
+    }
+
+    private async Task HandleDateChange(ChangeEventArgs e)
+    {
+        var value = (string?)e.Value;
+        if (TryParseValueFromString(value, out var result, out var validationError))
+        {
+            CurrentValue = result;
+        }
+        else
+        {
+            CurrentValue = default!;
+        }
+    }
+
+    protected override bool TryParseValueFromString(string? value, out TValue result, out string validationErrorMessage)
+    {
+        if (typeof(TValue) == typeof(DateTime))
+        {
+            if (DateTime.TryParse(value, out var parsedDate))
+            {
+                result = (TValue)(object)parsedDate;
+                validationErrorMessage = string.Empty;
+                return true;
+            }
+        }
+
+        result = default!;
+        validationErrorMessage = "Please enter a valid date.";
+        return false;
+    }
+}

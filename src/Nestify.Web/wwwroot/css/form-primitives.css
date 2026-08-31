@@ -1,0 +1,186 @@
+/* src/Nestify.Web/wwwroot/css/form-primitives.css */
+/* ============================================================
+   Nestify — form primitives
+   Reusable form components following the Nestify design system.
+   ============================================================ */
+
+/* ---------- money input ---------- */
+
+.money-input__control {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.money-input__prefix {
+    position: absolute;
+    left: 1rem;
+    font-weight: 600;
+    color: var(--nx-body);
+    pointer-events: none;
+}
+
+.money-input__field {
+    padding-left: 3rem !important;
+    font-family: 'Courier New', monospace;
+    text-align: right;
+}
+
+/* ---------- money display ---------- */
+
+.money-display {
+    font-weight: 600;
+    font-family: 'Courier New', monospace;
+}
+
+.money-display.positive {
+    color: var(--nx-accent);
+}
+
+.money-display.negative {
+    color: var(--nx-danger);
+}
+
+/* ---------- date input & display ---------- */
+
+.date-display {
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.date-display.relative {
+    color: var(--nx-muted);
+    font-size: 0.9em;
+}
+
+/* ---------- field states & helpers ---------- */
+
+.field__helper {
+    font-size: 0.78rem;
+    color: var(--nx-muted);
+    margin-bottom: 0.5rem;
+}
+
+.field__control--error input,
+.field__control--error textarea,
+.field__control--error select {
+    border-color: var(--nx-danger) !important;
+    background: var(--nx-danger-soft);
+}
+
+.field__action {
+    position: absolute;
+    top: 50%;
+    right: 0.5rem;
+    transform: translateY(-50%);
+    padding: 0.4rem 0.6rem;
+    border: 0;
+    border-radius: 8px;
+    background: var(--nx-primary-soft);
+    color: var(--nx-primary-strong);
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.16s ease;
+}
+
+.field__action:hover {
+    background: var(--nx-border);
+}
+
+/* ---------- select input ---------- */
+
+.field select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b6680' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.8rem center;
+    background-size: 1.2rem;
+    padding-right: 2.5rem;
+}
+
+/* ---------- checkbox & radio ---------- */
+
+.field__check {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    font-size: 0.88rem;
+    color: var(--nx-body);
+    cursor: pointer;
+}
+
+.field__check input[type="checkbox"],
+.field__check input[type="radio"] {
+    width: 1.1rem;
+    height: 1.1rem;
+    margin-top: 0.15rem;
+    flex: none;
+    cursor: pointer;
+    accent-color: var(--nx-primary);
+}
+
+/* ---------- textarea ---------- */
+
+.field textarea {
+    min-height: 8rem;
+    resize: vertical;
+    font-family: inherit;
+    font-size: inherit;
+}
+
+/* ---------- label ---------- */
+
+.field label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--nx-ink);
+    display: block;
+}
+
+.field label.field__label--required::after {
+    content: " *";
+    color: var(--nx-danger);
+}
+
+/* ---------- required indicator ---------- */
+
+.field__required {
+    color: var(--nx-danger);
+    font-weight: 700;
+    margin-left: 0.2rem;
+}
+
+/* ---------- disabled state ---------- */
+
+.field input:disabled,
+.field textarea:disabled,
+.field select:disabled {
+    background-color: var(--nx-bg-alt);
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+/* ---------- focus state ---------- */
+
+.field__input:focus-visible,
+.field textarea:focus-visible,
+.field select:focus-visible {
+    outline: none;
+    border-color: var(--nx-primary);
+    box-shadow: 0 0 0 4px var(--nx-primary-soft);
+}
+
+/* ---------- responsive ---------- */
+
+@media (max-width: 640px) {
+    .money-input__field {
+        font-size: 1.05rem;
+    }
+    
+    .field__input {
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+}

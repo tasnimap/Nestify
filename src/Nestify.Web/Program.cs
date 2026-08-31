@@ -5,8 +5,9 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Nestify.Web;
 using Nestify.Web.Auth;
-using Nestify.Web.Services.Implementations;
+using Nestify.Web.Services;
 using Nestify.Web.Services.Interfaces;
+using Nestify.Web.Services.Implementations;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -25,5 +26,10 @@ builder.Services.AddScoped<CustomAuthStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(sp =>
     sp.GetRequiredService<CustomAuthStateProvider>());
 builder.Services.AddScoped<IAuthService, AuthService>();
+
+// Register utility services
+builder.Services.AddScoped<MoneyFormatterService>();
+builder.Services.AddScoped<DateFormatterService>();
+builder.Services.AddScoped<ToastService>();
 
 await builder.Build().RunAsync();

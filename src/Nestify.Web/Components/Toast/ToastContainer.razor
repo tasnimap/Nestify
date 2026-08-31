@@ -1,0 +1,49 @@
+@* src/Nestify.Web/Components/Toast/ToastContainer.razor *@
+@inject ToastService ToastService
+@implements IDisposable
+
+<div class="toast-container" role="region" aria-live="polite" aria-label="Notifications">
+    @foreach (var toast in ToastService.Toasts)
+    {
+        <div class="toast toast--@toast.Type.ToString().ToLowerInvariant()"
+             data-toast-id="@toast.Id">
+            <div class="toast__inner">
+                @if (!string.IsNullOrEmpty(toast.Title))
+                {
+                    <div class="toast__title">@toast.Title</div>
+                }
+                <div class="toast__message">@toast.Message</div>
+            </div>
+            <button type="button" 
+                    class="toast__dismiss" 
+                    aria-label="Dismiss notification"
+                    @onclick="() => Dismiss(toast.Id)">
+                <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M18 6 6 18M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+    }
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        ToastService.OnToastsChanged += HandleToastsChanged;
+    }
+
+    private void HandleToastsChanged(object? sender, EventArgs e)
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void Dismiss(string toastId)
+    {
+        ToastService.Dismiss(toastId);
+    }
+
+    void IDisposable.Dispose()
+    {
+        ToastService.OnToastsChanged -= HandleToastsChanged;
+    }
+}

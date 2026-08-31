@@ -1,0 +1,29 @@
+@* src/Nestify.Web/Components/Forms/Money/MoneyDisplay.razor *@
+@inject MoneyFormatterService MoneyFormatter
+
+<span class="money-display @CssClass" title="@TooltipTitle">
+    @if (Compact)
+    {
+        @MoneyFormatter.FormatCompact(Amount)
+    }
+    else
+    {
+        @MoneyFormatter.Format(Amount)
+    }
+</span>
+
+@code {
+    [Parameter]
+    public decimal Amount { get; set; }
+
+    [Parameter]
+    public bool Compact { get; set; }
+
+    [Parameter]
+    public string? CssClass { get; set; }
+
+    private string? TooltipTitle
+    {
+        get => Compact ? MoneyFormatter.Format(Amount) : null;
+    }
+}

@@ -1,0 +1,42 @@
+@* src/Nestify.Web/Components/Forms/DateDisplay.razor *@
+@inject DateFormatterService DateFormatter
+
+<span class="date-display @Format @CssClass" title="@FullDateTime">
+    @switch (Format)
+    {
+        case "date":
+            @DateFormatter.FormatDate(DateTime)
+            break;
+        case "datetime":
+            @DateFormatter.FormatDateTime(DateTime)
+            break;
+        case "full":
+            @DateFormatter.FormatFullDateTime(DateTime)
+            break;
+        case "iso":
+            @DateFormatter.FormatIso(DateTime)
+            break;
+        case "relative":
+            @DateFormatter.FormatRelative(DateTime)
+            break;
+        default:
+            @DateFormatter.FormatDate(DateTime)
+            break;
+    }
+</span>
+
+@code {
+    [Parameter]
+    public DateTime DateTime { get; set; } = DateTime.UtcNow;
+
+    /// <summary>
+    /// Format: "date" (default), "datetime", "full", "iso", or "relative"
+    /// </summary>
+    [Parameter]
+    public string Format { get; set; } = "date";
+
+    [Parameter]
+    public string? CssClass { get; set; }
+
+    private string? FullDateTime => DateFormatter.FormatFullDateTime(DateTime);
+}
