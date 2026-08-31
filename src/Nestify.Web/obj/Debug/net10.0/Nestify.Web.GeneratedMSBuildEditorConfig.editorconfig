@@ -18,82 +18,82 @@ build_property.EntryPointFilePath =
 build_property._SupportedPlatformList = browser
 build_property.RootNamespace = Nestify.Web
 build_property.RootNamespace = Nestify.Web
-build_property.ProjectDir = D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\
+build_property.ProjectDir = D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = false
 build_property.RazorLangVersion = 10.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web
+build_property.MSBuildProjectDirectory = D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Web
 build_property._RazorSourceGeneratorDebug = 
 build_property.EffectiveAnalysisLevelStyle = 10.0
 build_property.EnableCodeStyleSeverity = 
 
-[D:/3.2 Materials/Lab - SD/Encrypt/Project/Nestify/src/Nestify.Web/App.razor]
+[D:/Downloads/3.2 Downloads/CSE 3200/Nestify/src/Nestify.Web/App.razor]
 build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/3.2 Materials/Lab - SD/Encrypt/Project/Nestify/src/Nestify.Web/Components/Forms/DateDisplay.razor]
+[D:/Downloads/3.2 Downloads/CSE 3200/Nestify/src/Nestify.Web/Components/Forms/DateDisplay.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xGb3Jtc1xEYXRlRGlzcGxheS5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/3.2 Materials/Lab - SD/Encrypt/Project/Nestify/src/Nestify.Web/Components/Forms/DateInput.razor]
+[D:/Downloads/3.2 Downloads/CSE 3200/Nestify/src/Nestify.Web/Components/Forms/DateInput.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xGb3Jtc1xEYXRlSW5wdXQucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/3.2 Materials/Lab - SD/Encrypt/Project/Nestify/src/Nestify.Web/Components/Forms/Money/MoneyDisplay.razor]
+[D:/Downloads/3.2 Downloads/CSE 3200/Nestify/src/Nestify.Web/Components/Forms/Money/MoneyDisplay.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xGb3Jtc1xNb25leVxNb25leURpc3BsYXkucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/3.2 Materials/Lab - SD/Encrypt/Project/Nestify/src/Nestify.Web/Components/Forms/Money/MoneyInput.razor]
+[D:/Downloads/3.2 Downloads/CSE 3200/Nestify/src/Nestify.Web/Components/Forms/Money/MoneyInput.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xGb3Jtc1xNb25leVxNb25leUlucHV0LnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/3.2 Materials/Lab - SD/Encrypt/Project/Nestify/src/Nestify.Web/Components/Forms/TextInput.razor]
+[D:/Downloads/3.2 Downloads/CSE 3200/Nestify/src/Nestify.Web/Components/Forms/TextInput.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xGb3Jtc1xUZXh0SW5wdXQucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/3.2 Materials/Lab - SD/Encrypt/Project/Nestify/src/Nestify.Web/Components/Toast/ToastContainer.razor]
+[D:/Downloads/3.2 Downloads/CSE 3200/Nestify/src/Nestify.Web/Components/Toast/ToastContainer.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xUb2FzdFxUb2FzdENvbnRhaW5lci5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/3.2 Materials/Lab - SD/Encrypt/Project/Nestify/src/Nestify.Web/Pages/FormsDemo.razor]
+[D:/Downloads/3.2 Downloads/CSE 3200/Nestify/src/Nestify.Web/Pages/FormsDemo.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRm9ybXNEZW1vLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/3.2 Materials/Lab - SD/Encrypt/Project/Nestify/src/Nestify.Web/Pages/Login.razor]
+[D:/Downloads/3.2 Downloads/CSE 3200/Nestify/src/Nestify.Web/Pages/Login.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTG9naW4ucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/3.2 Materials/Lab - SD/Encrypt/Project/Nestify/src/Nestify.Web/Pages/Register.razor]
+[D:/Downloads/3.2 Downloads/CSE 3200/Nestify/src/Nestify.Web/Pages/Register.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUmVnaXN0ZXIucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/3.2 Materials/Lab - SD/Encrypt/Project/Nestify/src/Nestify.Web/_Imports.razor]
+[D:/Downloads/3.2 Downloads/CSE 3200/Nestify/src/Nestify.Web/_Imports.razor]
 build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/3.2 Materials/Lab - SD/Encrypt/Project/Nestify/src/Nestify.Web/Layout/MainLayout.razor]
+[D:/Downloads/3.2 Downloads/CSE 3200/Nestify/src/Nestify.Web/Layout/MainLayout.razor]
 build_metadata.AdditionalFiles.TargetPath = TGF5b3V0XE1haW5MYXlvdXQucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = b-02vv3i70os
 
-[D:/3.2 Materials/Lab - SD/Encrypt/Project/Nestify/src/Nestify.Web/Layout/NavMenu.razor]
+[D:/Downloads/3.2 Downloads/CSE 3200/Nestify/src/Nestify.Web/Layout/NavMenu.razor]
 build_metadata.AdditionalFiles.TargetPath = TGF5b3V0XE5hdk1lbnUucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = b-jkcfxc17f0
 
-[D:/3.2 Materials/Lab - SD/Encrypt/Project/Nestify/src/Nestify.Web/Pages/About.razor]
+[D:/Downloads/3.2 Downloads/CSE 3200/Nestify/src/Nestify.Web/Pages/About.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWJvdXQucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = b-lzevegg8di
 
-[D:/3.2 Materials/Lab - SD/Encrypt/Project/Nestify/src/Nestify.Web/Pages/Contributions.razor]
+[D:/Downloads/3.2 Downloads/CSE 3200/Nestify/src/Nestify.Web/Pages/Contributions.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udHJpYnV0aW9ucy5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = b-etq7wpv1jk
 
-[D:/3.2 Materials/Lab - SD/Encrypt/Project/Nestify/src/Nestify.Web/Pages/Expenses.razor]
+[D:/Downloads/3.2 Downloads/CSE 3200/Nestify/src/Nestify.Web/Pages/Expenses.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRXhwZW5zZXMucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = b-rsdocglwlw
 
-[D:/3.2 Materials/Lab - SD/Encrypt/Project/Nestify/src/Nestify.Web/Pages/Home.razor]
+[D:/Downloads/3.2 Downloads/CSE 3200/Nestify/src/Nestify.Web/Pages/Home.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSG9tZS5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = b-0foq62m2qt
 
@@ -104,3 +104,7 @@ build_metadata.AdditionalFiles.CssScope = b-vd9jzr9bjs
 [D:/Downloads/3.2 Downloads/CSE 3200/Nestify/src/Nestify.Web/Pages/Settlement.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2V0dGxlbWVudC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = b-vwz5qt0of7
+
+[D:/Downloads/3.2 Downloads/CSE 3200/Nestify/src/Nestify.Web/Pages/SettlementPreview.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2V0dGxlbWVudFByZXZpZXcucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-9542p92nzl
