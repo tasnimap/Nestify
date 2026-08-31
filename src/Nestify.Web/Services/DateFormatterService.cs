@@ -8,8 +8,38 @@ namespace Nestify.Web.Services;
 /// </summary>
 public sealed class DateFormatterService
 {
-    private static readonly TimeZoneInfo DhakaTimeZone =
-        TimeZoneInfo.FindSystemTimeZoneById("Bangladesh Standard Time");
+    private static readonly TimeZoneInfo DhakaTimeZone = ResolveDhakaTimeZone();
+
+    private static TimeZoneInfo ResolveDhakaTimeZone()
+    {
+        try
+        {
+            return TimeZoneInfo.FindSystemTimeZoneById("Bangladesh Standard Time");
+        }
+        catch (TimeZoneNotFoundException)
+        {
+            try
+            {
+                return TimeZoneInfo.FindSystemTimeZoneById("Asia/Dhaka");
+            }
+            catch (TimeZoneNotFoundException)
+            {
+                return TimeZoneInfo.CreateCustomTimeZone(
+                    "Asia/Dhaka",
+                    TimeSpan.FromHours(6),
+                    "Bangladesh Standard Time",
+                    "Bangladesh Standard Time");
+            }
+        }
+        catch (InvalidTimeZoneException)
+        {
+            return TimeZoneInfo.CreateCustomTimeZone(
+                "Asia/Dhaka",
+                TimeSpan.FromHours(6),
+                "Bangladesh Standard Time",
+                "Bangladesh Standard Time");
+        }
+    }
 
     /// <summary>
     /// Converts UTC DateTime to Dhaka timezone.

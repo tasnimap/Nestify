@@ -15,7 +15,7 @@ public sealed class MoneyFormatterService
     /// </summary>
     public string Format(decimal amount)
     {
-        var formatted = amount.ToString("N2");
+        var formatted = amount.ToString("N2", System.Globalization.CultureInfo.InvariantCulture);
         return $"{Currency}{formatted}";
     }
 
@@ -26,7 +26,7 @@ public sealed class MoneyFormatterService
     /// </summary>
     public string FormatNumber(decimal amount)
     {
-        return amount.ToString("N2");
+        return amount.ToString("N2", System.Globalization.CultureInfo.InvariantCulture);
     }
 
     /// <summary>

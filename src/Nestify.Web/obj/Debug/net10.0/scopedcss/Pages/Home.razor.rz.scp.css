@@ -145,6 +145,67 @@
     .stats__grid[b-0foq62m2qt] { grid-template-columns: repeat(4, 1fr); }
 }
 
+/* ============ RECENT PAGES ============ */
+
+.recent-pages__head[b-0foq62m2qt] {
+    max-width: 42rem;
+    margin-bottom: 1.5rem;
+}
+
+.recent-pages__grid[b-0foq62m2qt] {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.recent-page-card[b-0foq62m2qt] {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.1rem 1.2rem;
+    background: #fff;
+    border: 1px solid var(--nx-border);
+    border-radius: var(--nx-radius);
+    box-shadow: var(--nx-shadow-sm);
+    color: var(--nx-ink);
+    text-decoration: none;
+    transition: transform .18s ease, box-shadow .18s ease;
+}
+
+.recent-page-card:hover[b-0foq62m2qt] {
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: var(--nx-shadow-md);
+}
+
+.recent-page-card__icon[b-0foq62m2qt] {
+    display: grid;
+    place-items: center;
+    width: 2.8rem;
+    height: 2.8rem;
+    border-radius: 12px;
+    color: #fff;
+    font-weight: 800;
+    font-size: 1rem;
+    flex: none;
+}
+
+.recent-page-card__icon--a[b-0foq62m2qt] { background: linear-gradient(135deg, #7c3aed, #a855f7); }
+.recent-page-card__icon--b[b-0foq62m2qt] { background: linear-gradient(135deg, #0f7a37, #2fb56a); }
+.recent-page-card__icon--c[b-0foq62m2qt] { background: linear-gradient(135deg, #2563a8, #47a0e0); }
+
+.recent-page-card strong[b-0foq62m2qt] {
+    display: block;
+    font-size: 1rem;
+    color: var(--nx-ink);
+}
+
+.recent-page-card p[b-0foq62m2qt] {
+    margin-top: .25rem;
+    font-size: .83rem;
+    color: var(--nx-muted);
+}
+
 /* ============ PROBLEM ============ */
 
 .problem[b-0foq62m2qt] { display: grid; gap: 2rem; }
