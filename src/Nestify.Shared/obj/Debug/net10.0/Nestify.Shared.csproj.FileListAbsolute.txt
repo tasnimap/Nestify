@@ -10,3 +10,15 @@ D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Shared\obj\Debug\n
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Shared\obj\Debug\net10.0\refint\Nestify.Shared.dll
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Shared\obj\Debug\net10.0\Nestify.Shared.pdb
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Shared\obj\Debug\net10.0\ref\Nestify.Shared.dll
+D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Shared\bin\Debug\net10.0\Nestify.Shared.deps.json
+D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Shared\bin\Debug\net10.0\Nestify.Shared.dll
+D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Shared\bin\Debug\net10.0\Nestify.Shared.pdb
+D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Shared\obj\Debug\net10.0\Nestify.Shared.GeneratedMSBuildEditorConfig.editorconfig
+D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Shared\obj\Debug\net10.0\Nestify.Shared.AssemblyInfoInputs.cache
+D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Shared\obj\Debug\net10.0\Nestify.Shared.AssemblyInfo.cs
+D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Shared\obj\Debug\net10.0\Nestify.Shared.csproj.CoreCompileInputs.cache
+D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Shared\obj\Debug\net10.0\Nestify.Shared.sourcelink.json
+D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Shared\obj\Debug\net10.0\Nestify.Shared.dll
+D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Shared\obj\Debug\net10.0\refint\Nestify.Shared.dll
+D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Shared\obj\Debug\net10.0\Nestify.Shared.pdb
+D:\Downloads\3.2 Downloads\CSE 3200\Nestify\src\Nestify.Shared\obj\Debug\net10.0\ref\Nestify.Shared.dll

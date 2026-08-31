@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\3.2 Materials\\Lab - SD\\Encrypt\\Project\\Nestify\\src\\Nestify.Shared\\Nestify.Shared.csproj",
+      "projectUniqueName": "D:\\Downloads\\3.2 Downloads\\CSE 3200\\Nestify\\src\\Nestify.Shared\\Nestify.Shared.csproj",
       "projectName": "Nestify.Shared",
-      "projectPath": "D:\\3.2 Materials\\Lab - SD\\Encrypt\\Project\\Nestify\\src\\Nestify.Shared\\Nestify.Shared.csproj",
+      "projectPath": "D:\\Downloads\\3.2 Downloads\\CSE 3200\\Nestify\\src\\Nestify.Shared\\Nestify.Shared.csproj",
       "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-      "outputPath": "D:\\3.2 Materials\\Lab - SD\\Encrypt\\Project\\Nestify\\src\\Nestify.Shared\\obj\\",
+      "outputPath": "D:\\Downloads\\3.2 Downloads\\CSE 3200\\Nestify\\src\\Nestify.Shared\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",

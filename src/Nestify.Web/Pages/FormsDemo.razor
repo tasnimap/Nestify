@@ -1,0 +1,213 @@
+@* src/Nestify.Web/Pages/FormsDemo.razor *@
+@page "/demo/forms"
+@using System.ComponentModel.DataAnnotations
+@inject MoneyFormatterService MoneyFormatter
+@inject DateFormatterService DateFormatter
+@inject ToastService ToastService
+
+<PageTitle>Form Primitives Demo — Nestify</PageTitle>
+
+<section class="nx-section">
+    <div class="nx-container">
+        <div style="max-width: 800px;">
+            <p class="nx-eyebrow">Components & Utilities</p>
+            <h1>Form Primitives Demo</h1>
+            <p class="nx-lead">Showcasing the reusable form components, money formatting, and date display utilities built for the M3 module.</p>
+        </div>
+    </div>
+</section>
+
+<section class="nx-section">
+    <div class="nx-container">
+        <div style="max-width: 600px;">
+            <h2>Form Components</h2>
+            <p>All components follow the Nestify design system and are fully integrated with Blazor's built-in validation.</p>
+
+            <EditForm Model="@_model" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator />
+
+                <TextInput @bind-Value="_model.Description" 
+                    Label="Description"
+                    Placeholder="Enter a description"
+                    For="@(() => _model.Description)" />
+
+                <MoneyInput @bind-Value="_model.Amount"
+                    Label="Amount (৳)"
+                    Placeholder="0.00"
+                    For="@(() => _model.Amount)" />
+
+                <DateInput @bind-Value="_model.Date"
+                    Label="Date"
+                    For="@(() => _model.Date)" />
+
+                <div class="field">
+                    <label class="field__check">
+                        <input type="checkbox" @bind="_model.IsConfirmed" />
+                        <span>I confirm this information is correct</span>
+                    </label>
+                </div>
+
+                <button type="submit" class="nx-btn nx-btn--primary nx-btn--lg">
+                    Submit
+                </button>
+            </EditForm>
+        </div>
+    </div>
+</section>
+
+<section class="nx-section nx-section--alt">
+    <div class="nx-container">
+        <div style="max-width: 600px;">
+            <h2>Money Formatting Service</h2>
+            <p>All monetary values use `decimal` type and display with ৳ symbol and comma separators.</p>
+
+            <div style="display: grid; gap: 1rem; margin-top: 1.5rem;">
+                <div>
+                    <p style="font-size: 0.85rem; color: var(--nx-muted); margin-bottom: 0.5rem;">Format:</p>
+                    <code style="background: white; padding: 0.75rem; border-radius: 8px; display: block;">
+                        @MoneyFormatter.Format(1234567.89m)
+                    </code>
+                </div>
+
+                <div>
+                    <p style="font-size: 0.85rem; color: var(--nx-muted); margin-bottom: 0.5rem;">Format Compact:</p>
+                    <code style="background: white; padding: 0.75rem; border-radius: 8px; display: block;">
+                        @MoneyFormatter.FormatCompact(1234567.89m)
+                    </code>
+                </div>
+
+                <div>
+                    <p style="font-size: 0.85rem; color: var(--nx-muted); margin-bottom: 0.5rem;">Parse Input:</p>
+                    <code style="background: white; padding: 0.75rem; border-radius: 8px; display: block;">
+                        @if (MoneyFormatter.TryParse("৳1,234.56", out var parsed))
+                        {
+                            @($"Parsed as: {parsed}m")
+                        }
+                    </code>
+                </div>
+            </div>
+
+            <div style="margin-top: 2rem; padding: 1rem; background: white; border: 1px solid var(--nx-border); border-radius: 12px;">
+                <h3 style="font-size: 1rem; margin-bottom: 1rem;">Money Display Component</h3>
+                <div style="display: grid; gap: 1rem;">
+                    <div>
+                        <p style="font-size: 0.85rem; color: var(--nx-muted);">Regular: <MoneyDisplay Amount="2803.44m" /></p>
+                    </div>
+                    <div>
+                        <p style="font-size: 0.85rem; color: var(--nx-muted);">Compact: <MoneyDisplay Amount="1234567.89m" Compact="true" /></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="nx-section">
+    <div class="nx-container">
+        <div style="max-width: 600px;">
+            <h2>Date Formatting Service (Asia/Dhaka)</h2>
+            <p>All timestamps are stored in UTC and displayed in Asia/Dhaka timezone (UTC+6). This ensures settlement month boundaries don't move with the server's locale.</p>
+
+            <div style="display: grid; gap: 1rem; margin-top: 1.5rem;">
+                <div>
+                    <p style="font-size: 0.85rem; color: var(--nx-muted); margin-bottom: 0.5rem;">Date:</p>
+                    <code style="background: white; padding: 0.75rem; border-radius: 8px; display: block;">
+                        @DateFormatter.FormatDate(DateTime.UtcNow)
+                    </code>
+                </div>
+
+                <div>
+                    <p style="font-size: 0.85rem; color: var(--nx-muted); margin-bottom: 0.5rem;">DateTime:</p>
+                    <code style="background: white; padding: 0.75rem; border-radius: 8px; display: block;">
+                        @DateFormatter.FormatDateTime(DateTime.UtcNow)
+                    </code>
+                </div>
+
+                <div>
+                    <p style="font-size: 0.85rem; color: var(--nx-muted); margin-bottom: 0.5rem;">Full DateTime:</p>
+                    <code style="background: white; padding: 0.75rem; border-radius: 8px; display: block;">
+                        @DateFormatter.FormatFullDateTime(DateTime.UtcNow)
+                    </code>
+                </div>
+
+                <div>
+                    <p style="font-size: 0.85rem; color: var(--nx-muted); margin-bottom: 0.5rem;">Relative:</p>
+                    <code style="background: white; padding: 0.75rem; border-radius: 8px; display: block;">
+                        @DateFormatter.FormatRelative(DateTime.UtcNow.AddHours(-2))
+                    </code>
+                </div>
+            </div>
+
+            <div style="margin-top: 2rem; padding: 1rem; background: white; border: 1px solid var(--nx-border); border-radius: 12px;">
+                <h3 style="font-size: 1rem; margin-bottom: 1rem;">Date Display Component</h3>
+                <div style="display: grid; gap: 1rem;">
+                    <div>
+                        <p style="font-size: 0.85rem; color: var(--nx-muted);">Date: <DateDisplay DateTime="DateTime.UtcNow" Format="date" /></p>
+                    </div>
+                    <div>
+                        <p style="font-size: 0.85rem; color: var(--nx-muted);">DateTime: <DateDisplay DateTime="DateTime.UtcNow" Format="datetime" /></p>
+                    </div>
+                    <div>
+                        <p style="font-size: 0.85rem; color: var(--nx-muted);">Relative: <DateDisplay DateTime="DateTime.UtcNow.AddHours(-2)" Format="relative" /></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="nx-section nx-section--alt">
+    <div class="nx-container">
+        <div style="max-width: 600px;">
+            <h2>Toast Service</h2>
+            <p>Display temporary notifications to users. The toast service handles all types: info, success, warning, and error.</p>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem;">
+                <button class="nx-btn nx-btn--primary" @onclick="() => ShowInfoToast()">
+                    Show Info
+                </button>
+                <button class="nx-btn nx-btn--accent" @onclick="() => ShowSuccessToast()">
+                    Show Success
+                </button>
+                <button class="nx-btn nx-btn--ghost" @onclick="() => ShowWarningToast()">
+                    Show Warning
+                </button>
+                <button class="nx-btn nx-btn--primary" style="background: var(--nx-danger);" @onclick="() => ShowErrorToast()">
+                    Show Error
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+@code {
+    private class DemoModel
+    {
+        [Required(ErrorMessage = "Description is required.")]
+        public string Description { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Amount is required.")]
+        [Range(0.01, 1000000, ErrorMessage = "Amount must be between ৳0.01 and ৳1,000,000.")]
+        public decimal Amount { get; set; }
+
+        [Required(ErrorMessage = "Date is required.")]
+        public DateTime Date { get; set; } = DateTime.Today;
+
+        public bool IsConfirmed { get; set; }
+    }
+
+    private readonly DemoModel _model = new();
+
+    private void HandleSubmit()
+    {
+        ToastService.ShowSuccess(
+            $"Form submitted! Amount: {MoneyFormatter.Format(_model.Amount)}, Date: {DateFormatter.FormatDate(_model.Date.ToUniversalTime())}",
+            "Form Submitted"
+        );
+    }
+
+    private void ShowInfoToast() => ToastService.ShowInfo("This is an info message.", "Information");
+    private void ShowSuccessToast() => ToastService.ShowSuccess("Operation completed successfully!", "Success");
+    private void ShowWarningToast() => ToastService.ShowWarning("Please review this warning.", "Warning");
+    private void ShowErrorToast() => ToastService.ShowError("An error occurred.", "Error");
+}
