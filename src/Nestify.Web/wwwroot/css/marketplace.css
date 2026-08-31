@@ -28,6 +28,11 @@
     gap: 1.75rem;
 }
 
+.mk-wrap--narrow {
+    max-width: 960px;
+    margin-inline: auto;
+}
+
 .mk-head {
     display: flex;
     align-items: flex-end;

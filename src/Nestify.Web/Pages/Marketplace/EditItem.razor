@@ -1,0 +1,106 @@
+@page "/marketplace/items/{Id}/edit"
+@inject IMarketplaceService Marketplace
+@inject NavigationManager Nav
+@inject Nestify.Web.Services.ToastService Toast
+
+<PageTitle>Edit listing — Nestify</PageTitle>
+
+<section class="nx-section mk-page">
+    <div class="nx-container mk-wrap mk-wrap--narrow">
+
+        @if (_loading)
+        {
+            <div class="mk-skeleton" style="height:30rem"></div>
+        }
+        else if (_model is null)
+        {
+            <nav class="mk-crumbs">
+                <a href="marketplace">Marketplace</a>
+                <span class="mk-crumbs__sep">/</span>
+                <span>Not available</span>
+            </nav>
+            <MarketplaceEmpty Title="You can't edit this listing"
+                              Message="It doesn't exist, or it isn't one of yours.">
+                <a class="nx-btn nx-btn--primary" href="marketplace/mine">Go to my listings</a>
+            </MarketplaceEmpty>
+        }
+        else
+        {
+            <nav class="mk-crumbs">
+                <a href="marketplace">Marketplace</a>
+                <span class="mk-crumbs__sep">/</span>
+                <a href="marketplace/items/@Id">@_title</a>
+                <span class="mk-crumbs__sep">/</span>
+                <span>Edit</span>
+            </nav>
+
+            <header class="mk-head">
+                <div class="mk-head__titles">
+                    <p class="nx-eyebrow">Marketplace</p>
+                    <h1>Edit listing</h1>
+                    <p class="mk-head__lead">Changes go live straight away. Price, condition and photos are the ones buyers act on.</p>
+                </div>
+            </header>
+
+            <div class="mk-panel">
+                <ItemForm Model="_model" Busy="_busy" SubmitLabel="Save changes"
+                          OnValidSubmit="Submit" OnCancel="Cancel" />
+            </div>
+        }
+    </div>
+</section>
+
+@code {
+    [Parameter] public string Id { get; set; } = string.Empty;
+
+    private MarketplaceItemFormModel? _model;
+    private string _title = string.Empty;
+    private bool _loading = true;
+    private bool _busy;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _loading = true;
+        _model = null;
+        try
+        {
+            var item = await Marketplace.GetItemForEditAsync(Id);
+            if (item is not null)
+            {
+                _model = MarketplaceItemFormModel.FromDetail(item);
+                _title = item.Title;
+            }
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task Submit()
+    {
+        if (_model is null) return;
+        _busy = true;
+        try
+        {
+            var ok = await Marketplace.UpdateItemAsync(Id, _model.ToUpdateDto());
+            if (ok)
+            {
+                Toast.ShowSuccess("Your listing has been updated.", "Changes saved");
+                Nav.NavigateTo($"marketplace/items/{Id}");
+            }
+            else
+            {
+                Toast.ShowError("Couldn't save those changes.", "Something went wrong");
+                _busy = false;
+            }
+        }
+        catch
+        {
+            Toast.ShowError("Couldn't save those changes.", "Something went wrong");
+            _busy = false;
+        }
+    }
+
+    private void Cancel() => Nav.NavigateTo($"marketplace/items/{Id}");
+}
