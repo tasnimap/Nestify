@@ -1,0 +1,188 @@
+@page "/expenses"
+@using System.ComponentModel.DataAnnotations
+@inject ToastService ToastService
+@inject MoneyFormatterService MoneyFormatterService
+
+<PageTitle>Expenses — Nestify</PageTitle>
+
+<section class="nx-section expenses-page">
+    <div class="nx-container expenses-page__wrap">
+        <header class="expenses-page__header">
+            <div>
+                <p class="nx-eyebrow">Shared expenses</p>
+                <h1>September 2026 expenses</h1>
+            </div>
+            <div class="expenses-page__actions">
+                <button type="button" class="nx-btn nx-btn--ghost">Export CSV</button>
+                <button type="button" class="nx-btn nx-btn--primary">Add expense</button>
+            </div>
+        </header>
+
+        <div class="expenses-page__banner @( _isFinalized ? "expenses-page__banner--locked" : "")">
+            @if (_isFinalized)
+            {
+                <strong>Finalized period</strong>
+                <span>This month is locked. Every write control is hidden behind the finalization guard.</span>
+            }
+            else
+            {
+                <strong>Editing enabled</strong>
+                <span>Use a correct entry to preserve the ledger instead of mutating the original expense.</span>
+            }
+        </div>
+
+        <div class="expenses-page__grid">
+            <section class="nx-card expenses-page__panel">
+                <div class="expenses-page__panel-head">
+                    <h2>Expense ledger</h2>
+                    <span class="nx-tag">@_items.Count entries</span>
+                </div>
+
+                <div class="expenses-page__table-wrap">
+                    <table class="expenses-page__table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Paid by</th>
+                                <th>Category</th>
+                                <th>Amount</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in _items)
+                            {
+                                <tr>
+                                    <td><DateDisplay DateTime="item.DateUtc" Format="date" /></td>
+                                    <td>@item.Description</td>
+                                    <td>@item.PaidBy</td>
+                                    <td><span class="expenses-page__chip">@item.Category</span></td>
+                                    <td><MoneyDisplay Amount="item.Amount" /></td>
+                                    <td>
+                                        <button type="button" class="nx-btn nx-btn--ghost expenses-page__correct-btn" @onclick="() => HandleCorrect(item)">
+                                            Correct
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <aside class="nx-card expenses-page__panel expenses-page__panel--form">
+                <div class="expenses-page__panel-head">
+                    <h2>Add expense</h2>
+                    <span class="nx-tag">Append-only</span>
+                </div>
+
+                <EditForm Model="_model" OnValidSubmit="HandleSubmit" class="expenses-page__form">
+                    <DataAnnotationsValidator />
+
+                    <TextInput @bind-Value="_model.Description"
+                               Label="Description"
+                               Placeholder="Gas cylinder refill"
+                               For="@(() => _model.Description)" />
+
+                    <div class="field-row">
+                        <MoneyInput @bind-Value="_model.Amount"
+                                    Label="Amount"
+                                    For="@(() => _model.Amount)" />
+
+                        <DateInput @bind-Value="_model.Date"
+                                   Label="Date"
+                                   For="@(() => _model.Date)" />
+                    </div>
+
+                    <div class="field">
+                        <label for="expense-category">Category</label>
+                        <select id="expense-category" @bind="_model.Category" class="field__input">
+                            <option value="Equal split">Equal split</option>
+                            <option value="Meal based">Meal based</option>
+                            <option value="Utilities">Utilities</option>
+                            <option value="Household">Household</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="expense-paid-by">Paid by</label>
+                        <select id="expense-paid-by" @bind="_model.PaidBy" class="field__input">
+                            <option value="Rafi">Rafi</option>
+                            <option value="Sadia">Sadia</option>
+                            <option value="Tanvir">Tanvir</option>
+                            <option value="Nabil">Nabil</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="nx-btn nx-btn--primary nx-btn--block" disabled="@_isFinalized">
+                        Save expense
+                    </button>
+                </EditForm>
+            </aside>
+        </div>
+    </div>
+</section>
+
+@code {
+    private class ExpenseEntry
+    {
+        public string Description { get; set; } = string.Empty;
+        public decimal Amount { get; set; }
+        public string PaidBy { get; set; } = "Rafi";
+        public string Category { get; set; } = "Equal split";
+        public DateTime DateUtc { get; set; } = DateTime.UtcNow;
+    }
+
+    private class ExpenseFormModel
+    {
+        [Required(ErrorMessage = "Description is required.")]
+        public string Description { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Amount is required.")]
+        [Range(0.01, 1000000, ErrorMessage = "Amount must be greater than ৳0.00.")]
+        public decimal Amount { get; set; }
+
+        [Required(ErrorMessage = "Date is required.")]
+        public DateTime Date { get; set; } = DateTime.UtcNow;
+
+        public string Category { get; set; } = "Equal split";
+        public string PaidBy { get; set; } = "Rafi";
+    }
+
+    private readonly List<ExpenseEntry> _items = new()
+    {
+        new() { Description = "Gas cylinder refill", Amount = 1400.00m, PaidBy = "Rafi", Category = "Equal split", DateUtc = new DateTime(2026, 9, 3, 12, 0, 0, DateTimeKind.Utc) },
+        new() { Description = "Light bulbs + wiring", Amount = 600.00m, PaidBy = "Sadia", Category = "Equal split", DateUtc = new DateTime(2026, 9, 7, 12, 0, 0, DateTimeKind.Utc) },
+        new() { Description = "Internet bill", Amount = 1150.00m, PaidBy = "Tanvir", Category = "Equal split", DateUtc = new DateTime(2026, 9, 10, 12, 0, 0, DateTimeKind.Utc) },
+        new() { Description = "Groceries (1–10 Sep)", Amount = 4500.00m, PaidBy = "Rafi", Category = "Meal based", DateUtc = new DateTime(2026, 9, 12, 12, 0, 0, DateTimeKind.Utc) },
+        new() { Description = "Groceries (11–20 Sep)", Amount = 2800.00m, PaidBy = "Sadia", Category = "Meal based", DateUtc = new DateTime(2026, 9, 20, 12, 0, 0, DateTimeKind.Utc) }
+    };
+
+    private readonly ExpenseFormModel _model = new();
+    private bool _isFinalized = false;
+
+    private void HandleSubmit()
+    {
+        _items.Insert(0, new ExpenseEntry
+        {
+            Description = _model.Description,
+            Amount = _model.Amount,
+            PaidBy = _model.PaidBy,
+            Category = _model.Category,
+            DateUtc = _model.Date.ToUniversalTime()
+        });
+
+        ToastService.ShowSuccess($"Saved {MoneyFormatterService.Format(_model.Amount)} for {_model.Description}.", "Expense added");
+        _model.Description = string.Empty;
+        _model.Amount = 0m;
+        _model.Date = DateTime.UtcNow;
+        _model.PaidBy = "Rafi";
+        _model.Category = "Equal split";
+    }
+
+    private void HandleCorrect(ExpenseEntry item)
+    {
+        ToastService.ShowInfo($"Correcting {item.Description}. This creates a new append-only ledger entry instead of mutating the original record.", "Correcting expense");
+    }
+}

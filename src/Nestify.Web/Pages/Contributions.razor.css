@@ -1,0 +1,176 @@
+.contributions-page {
+    background: linear-gradient(180deg, var(--nx-primary-softer), #fff 20rem);
+}
+
+.contributions-page__wrap {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.contributions-page__header,
+.contributions-page__panel-head,
+.contributions-page__banner {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.contributions-page__header h1 {
+    font-size: clamp(2rem, 4vw, 3rem);
+}
+
+.contributions-page__lead,
+.contributions-page__panel-head p {
+    color: var(--nx-muted);
+}
+
+.contributions-page__actions {
+    display: flex;
+    gap: .75rem;
+    flex-wrap: wrap;
+}
+
+.contributions-page__banner {
+    align-items: center;
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--nx-border);
+    border-left: 4px solid var(--nx-accent);
+    border-radius: 12px;
+    background: var(--nx-accent-soft);
+    color: #0b5c2a;
+}
+
+.contributions-page__banner--locked {
+    border-left-color: var(--nx-primary);
+    background: var(--nx-primary-soft);
+    color: var(--nx-primary-strong);
+}
+
+.contributions-page__summary {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .75rem;
+}
+
+.contributions-page__member-card {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: .75rem;
+    padding: 1rem;
+}
+
+.contributions-page__member-card small {
+    grid-column: 2;
+    color: var(--nx-muted);
+}
+
+.contributions-page__avatar {
+    display: grid;
+    width: 2.5rem;
+    height: 2.5rem;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--nx-primary-soft);
+    color: var(--nx-primary-strong);
+    font-weight: 800;
+}
+
+.contributions-page__member-name {
+    display: block;
+    color: var(--nx-muted);
+    font-size: .85rem;
+}
+
+.contributions-page__grid {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.contributions-page__panel {
+    padding: 1.25rem;
+}
+
+.contributions-page__panel-head {
+    align-items: start;
+    margin-bottom: 1rem;
+}
+
+.contributions-page__panel-head h2 {
+    font-size: 1.25rem;
+}
+
+.contributions-page__panel-head p {
+    margin-top: .25rem;
+    font-size: .9rem;
+}
+
+.contributions-page__table-wrap {
+    overflow-x: auto;
+}
+
+.contributions-page__table {
+    width: 100%;
+    min-width: 760px;
+    border-collapse: collapse;
+}
+
+.contributions-page__table th,
+.contributions-page__table td {
+    padding: .9rem .7rem;
+    border-bottom: 1px solid var(--nx-border);
+    text-align: left;
+    vertical-align: middle;
+}
+
+.contributions-page__table th {
+    color: var(--nx-muted);
+    background: var(--nx-bg-alt);
+    font-size: .8rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.contributions-page__table tfoot th {
+    color: var(--nx-text);
+    background: transparent;
+}
+
+.contributions-page__chip {
+    display: inline-flex;
+    padding: .35rem .65rem;
+    border-radius: 999px;
+    background: var(--nx-primary-soft);
+    color: var(--nx-primary-strong);
+    font-size: .75rem;
+    font-weight: 700;
+}
+
+.contributions-page__amount--negative {
+    color: #a33a32;
+}
+
+.contributions-page__locked-label {
+    color: var(--nx-muted);
+    font-size: .85rem;
+}
+
+.contributions-page__form {
+    display: grid;
+    gap: 1rem;
+}
+
+@media (min-width: 560px) {
+    .contributions-page__summary {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 900px) {
+    .contributions-page__grid {
+        grid-template-columns: 1.55fr .85fr;
+        align-items: start;
+    }
+}

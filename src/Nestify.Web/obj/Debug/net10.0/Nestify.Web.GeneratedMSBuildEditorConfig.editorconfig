@@ -33,6 +33,34 @@ build_property.EnableCodeStyleSeverity =
 build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/3.2 Materials/Lab - SD/Encrypt/Project/Nestify/src/Nestify.Web/Components/Forms/DateDisplay.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xGb3Jtc1xEYXRlRGlzcGxheS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/3.2 Materials/Lab - SD/Encrypt/Project/Nestify/src/Nestify.Web/Components/Forms/DateInput.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xGb3Jtc1xEYXRlSW5wdXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/3.2 Materials/Lab - SD/Encrypt/Project/Nestify/src/Nestify.Web/Components/Forms/Money/MoneyDisplay.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xGb3Jtc1xNb25leVxNb25leURpc3BsYXkucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/3.2 Materials/Lab - SD/Encrypt/Project/Nestify/src/Nestify.Web/Components/Forms/Money/MoneyInput.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xGb3Jtc1xNb25leVxNb25leUlucHV0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/3.2 Materials/Lab - SD/Encrypt/Project/Nestify/src/Nestify.Web/Components/Forms/TextInput.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xGb3Jtc1xUZXh0SW5wdXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/3.2 Materials/Lab - SD/Encrypt/Project/Nestify/src/Nestify.Web/Components/Toast/ToastContainer.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xUb2FzdFxUb2FzdENvbnRhaW5lci5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/3.2 Materials/Lab - SD/Encrypt/Project/Nestify/src/Nestify.Web/Pages/FormsDemo.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRm9ybXNEZW1vLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/3.2 Materials/Lab - SD/Encrypt/Project/Nestify/src/Nestify.Web/Pages/Login.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTG9naW4ucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
@@ -56,6 +84,14 @@ build_metadata.AdditionalFiles.CssScope = b-jkcfxc17f0
 [D:/3.2 Materials/Lab - SD/Encrypt/Project/Nestify/src/Nestify.Web/Pages/About.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWJvdXQucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = b-lzevegg8di
+
+[D:/3.2 Materials/Lab - SD/Encrypt/Project/Nestify/src/Nestify.Web/Pages/Contributions.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udHJpYnV0aW9ucy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-etq7wpv1jk
+
+[D:/3.2 Materials/Lab - SD/Encrypt/Project/Nestify/src/Nestify.Web/Pages/Expenses.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRXhwZW5zZXMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-rsdocglwlw
 
 [D:/3.2 Materials/Lab - SD/Encrypt/Project/Nestify/src/Nestify.Web/Pages/Home.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSG9tZS5yYXpvcg==
