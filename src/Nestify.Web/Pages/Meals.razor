@@ -1,0 +1,236 @@
+@page "/meals"
+@inject ToastService ToastService
+
+<PageTitle>Meal sheet — Nestify</PageTitle>
+
+<section class="nx-section meals-page">
+    <div class="nx-container meals-page__wrap">
+        <header class="meals-page__header">
+            <div>
+                <p class="nx-eyebrow">Shared expenses</p>
+                <h1>September 2026 meal sheet</h1>
+                <p class="nx-lead">Enter each member's daily meals. Every cell carries its own concurrency token.</p>
+            </div>
+            <div class="meals-page__actions">
+                <span class="meals-page__period">30 days · 4 members</span>
+                @if (!_isFinalized)
+                {
+                    <button type="button" class="nx-btn nx-btn--primary" @onclick="SaveChanges">Save changes</button>
+                }
+            </div>
+        </header>
+
+        <div class="meals-page__banner @(_isFinalized ? "meals-page__banner--locked" : "")">
+            @if (_isFinalized)
+            {
+                <strong>Finalized period</strong>
+                <span>This month is locked. Meal counts and correction controls are read-only.</span>
+            }
+            else
+            {
+                <strong>Editing enabled</strong>
+                <span>Unsaved cells keep their local values until the server accepts their fresh row-version token.</span>
+            }
+        </div>
+
+        @if (_conflict is not null)
+        {
+            <section class="meals-page__conflict" role="alert">
+                <div>
+                    <strong>Meal count conflict</strong>
+                    <p>
+                        @_conflict.DateLabel · @_conflict.Member — you entered
+                        <b>@_conflict.Mine.ToString("0.#")</b>, @_conflict.SavedBy saved
+                        <b>@_conflict.Theirs.ToString("0.#")</b> at @_conflict.SavedAt.
+                    </p>
+                </div>
+                <div class="meals-page__conflict-actions">
+                    <button type="button" class="nx-btn nx-btn--ghost" @onclick="KeepMine">Keep mine</button>
+                    <button type="button" class="nx-btn nx-btn--primary" @onclick="KeepTheirs">Keep theirs</button>
+                </div>
+            </section>
+        }
+
+        <section class="nx-card meals-page__panel">
+            <div class="meals-page__panel-head">
+                <div>
+                    <h2>Daily meal counts</h2>
+                    <p>Half meals are supported. Changes are inserted as superseding rows, never edited in place.</p>
+                </div>
+                <span class="nx-tag">@TotalMeals.ToString("0.#") meals</span>
+            </div>
+
+            <div class="meals-page__table-wrap">
+                <table class="meals-page__table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            @foreach (var member in MemberNames)
+                            {
+                                <th>@member</th>
+                            }
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var day in Days)
+                        {
+                            <tr>
+                                <th><DateDisplay DateTime="day" Format="date" /></th>
+                                @foreach (var member in MemberNames)
+                                {
+                                    var key = new CellKey(day.Date, member);
+                                    <td>
+                                        <input class="meals-page__cell"
+                                               type="number"
+                                               min="0"
+                                               max="10"
+                                               step="0.5"
+                                               value="@GetCell(key).Value.ToString("0.#")"
+                                               disabled="@_isFinalized"
+                                               aria-label="@($"{member} meals on {day:dd MMM}")"
+                                               @onchange="eventArgs => ChangeCell(key, eventArgs.Value?.ToString())" />
+                                        <span class="meals-page__token">v@GetCell(key).RowVersion</span>
+                                    </td>
+                                }
+                                <td class="meals-page__row-total">@GetDayTotal(day).ToString("0.#")</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th>Total</th>
+                            @foreach (var member in MemberNames)
+                            {
+                                <th>@GetMemberTotal(member).ToString("0.#")</th>
+                            }
+                            <th>@TotalMeals.ToString("0.#")</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </section>
+    </div>
+</section>
+
+@code {
+    private static readonly string[] MemberNames = ["Rafi", "Sadia", "Tanvir", "Nabil"];
+    private static readonly DateTime[] Days = Enumerable.Range(1, 30)
+        .Select(day => new DateTime(2026, 9, day, 12, 0, 0, DateTimeKind.Utc))
+        .ToArray();
+
+    private sealed class MealCell
+    {
+        public decimal Value { get; set; }
+        public long RowVersion { get; set; }
+    }
+
+    private readonly record struct CellKey(DateTime Date, string Member);
+
+    private sealed class MealConflict
+    {
+        public string DateLabel { get; init; } = string.Empty;
+        public string Member { get; init; } = string.Empty;
+        public decimal Mine { get; init; }
+        public decimal Theirs { get; init; }
+        public string SavedBy { get; init; } = string.Empty;
+        public string SavedAt { get; init; } = string.Empty;
+        public CellKey Key { get; init; }
+    }
+
+    private readonly Dictionary<CellKey, MealCell> _cells = new();
+    private MealConflict? _conflict;
+    private bool _isFinalized = false;
+
+    protected override void OnInitialized()
+    {
+        foreach (var day in Days)
+        {
+            foreach (var member in MemberNames)
+            {
+                _cells[new CellKey(day.Date, member)] = new MealCell
+                {
+                    Value = member switch
+                    {
+                        "Rafi" => 2m,
+                        "Sadia" => 2m,
+                        "Tanvir" when day.Day == 15 => 2m,
+                        "Tanvir" => 1m,
+                        _ => 1m
+                    },
+                    RowVersion = 1000 + day.Day
+                };
+            }
+        }
+    }
+
+    private MealCell GetCell(CellKey key) => _cells[key];
+    private decimal GetDayTotal(DateTime day) => MemberNames.Sum(member => GetCell(new CellKey(day.Date, member)).Value);
+    private decimal GetMemberTotal(string member) => Days.Sum(day => GetCell(new CellKey(day.Date, member)).Value);
+    private decimal TotalMeals => _cells.Values.Sum(cell => cell.Value);
+
+    private void ChangeCell(CellKey key, string? rawValue)
+    {
+        if (_isFinalized || !decimal.TryParse(rawValue, out var value))
+        {
+            return;
+        }
+
+        _cells[key].Value = Math.Clamp(value, 0m, 10m);
+    }
+
+    private void SaveChanges()
+    {
+        var key = new CellKey(new DateTime(2026, 9, 15), "Tanvir");
+        var cell = GetCell(key);
+
+        if (_conflict is null && cell.Value != 2m)
+        {
+            _conflict = new MealConflict
+            {
+                DateLabel = "15 Sep",
+                Member = "Tanvir",
+                Mine = cell.Value,
+                Theirs = 3m,
+                SavedBy = "Sadia",
+                SavedAt = "12:04",
+                Key = key
+            };
+            cell.RowVersion = 2001;
+            ToastService.ShowWarning("Resolve the conflicting meal cell before resubmitting.", "Save paused");
+            return;
+        }
+
+        foreach (var changedCell in _cells.Values)
+        {
+            changedCell.RowVersion++;
+        }
+
+        ToastService.ShowSuccess("Meal counts saved with fresh row-version tokens.", "Meal sheet saved");
+    }
+
+    private void KeepMine()
+    {
+        if (_conflict is null)
+        {
+            return;
+        }
+
+        GetCell(_conflict.Key).RowVersion++;
+        _conflict = null;
+        ToastService.ShowInfo("Your value will be resubmitted with the fresh token.", "Keeping your value");
+    }
+
+    private void KeepTheirs()
+    {
+        if (_conflict is null)
+        {
+            return;
+        }
+
+        GetCell(_conflict.Key).Value = _conflict.Theirs;
+        GetCell(_conflict.Key).RowVersion++;
+        _conflict = null;
+        ToastService.ShowInfo("The saved server value is now shown in the sheet.", "Keeping saved value");
+    }
+}
