@@ -96,3 +96,11 @@ build_metadata.AdditionalFiles.CssScope = b-rsdocglwlw
 [D:/Downloads/3.2 Downloads/CSE 3200/Nestify/src/Nestify.Web/Pages/Home.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSG9tZS5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = b-0foq62m2qt
+
+[D:/Downloads/3.2 Downloads/CSE 3200/Nestify/src/Nestify.Web/Pages/Meals.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTWVhbHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-vd9jzr9bjs
+
+[D:/Downloads/3.2 Downloads/CSE 3200/Nestify/src/Nestify.Web/Pages/Settlement.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2V0dGxlbWVudC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-vwz5qt0of7
