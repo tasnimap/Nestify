@@ -1,0 +1,8 @@
+<span class="mk-badge mk-badge--@MarketplaceView.StatusModifier(Status) @CssClass">
+    @MarketplaceView.Label(Status)
+</span>
+
+@code {
+    [Parameter] public ListingStatus Status { get; set; }
+    [Parameter] public string? CssClass { get; set; }
+}

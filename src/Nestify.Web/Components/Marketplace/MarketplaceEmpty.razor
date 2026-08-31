@@ -1,0 +1,32 @@
+@* Shared empty / not-found / error panel for the marketplace pages. *@
+
+<div class="mk-empty">
+    <div class="mk-empty__art">
+        @if (Icon is not null)
+        {
+            @Icon
+        }
+        else
+        {
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3 7 12 3l9 4-9 4-9-4Z" />
+                <path d="M3 7v10l9 4 9-4V7" />
+                <path d="M12 11v10" />
+            </svg>
+        }
+    </div>
+    <h2>@Title</h2>
+    @if (!string.IsNullOrWhiteSpace(Message))
+    {
+        <p>@Message</p>
+    }
+    @ChildContent
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+    [Parameter] public string? Message { get; set; }
+    [Parameter] public RenderFragment? Icon { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

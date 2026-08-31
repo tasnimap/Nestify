@@ -3,104 +3,12 @@
 
 <PageTitle>About Us — Nestify</PageTitle>
 
-<!-- ============ HEADER ============ -->
-<section class="about-hero">
-    <div class="about-hero__glow" aria-hidden="true"></div>
-    <div class="nx-container">
-        <p class="nx-eyebrow">About us</p>
-        <h1 class="about-hero__title">
-            We're four students building the tool
-            <span class="nx-display-accent">we wish we had.</span>
-        </h1>
-        <p class="about-hero__lead">
-            Nestify started as a shared complaint. Between the four of us we've hunted for mess
-            seats, argued over meal costs, hired household help through word of mouth, and sold
-            furniture to strangers on the internet. Every one of those needed trust, a verified
-            identity, and local knowledge — and no single tool gave us all three. So we're
-            making one.
-        </p>
-    </div>
-</section>
-
-<!-- ============ MISSION ============ -->
-<section class="nx-section nx-section--alt">
-    <div class="nx-container mission">
-        <div>
-            <p class="nx-eyebrow">Our mission</p>
-            <h2 class="nx-section-title">Make everyday bachelor life in Bangladesh less fragmented and more trustworthy.</h2>
-        </div>
-        <div class="mission__body">
-            <p>
-                A university student or young job holder living away from home currently manages
-                four disconnected things across four disconnected channels: finding a seat in a
-                mess or shared house, hiring domestic help, splitting the month's meal and utility
-                costs, and buying or selling second-hand goods.
-            </p>
-            <p>
-                Nestify unifies all four behind <strong>one verified account</strong>, with a
-                shared map of Bangladesh's divisions, districts and upazilas, prices in Taka, and
-                one consistent rule for when personal contact details are allowed to be shared.
-            </p>
-        </div>
-    </div>
-</section>
-
-<!-- ============ OBJECTIVES ============ -->
-<section class="nx-section">
-    <div class="nx-container">
-        <div class="obj__head">
-            <p class="nx-eyebrow">Our objectives</p>
-            <h2 class="nx-section-title">What we're holding ourselves to.</h2>
-        </div>
-
-        <div class="obj__grid">
-            <article class="obj nx-card">
-                <span class="obj__no">01</span>
-                <h3>Unify, don't add another silo</h3>
-                <p>Bring housing, domestic help, expense settlement and the marketplace into one
-                account instead of shipping a fifth app people have to check.</p>
-            </article>
-            <article class="obj nx-card">
-                <span class="obj__no">02</span>
-                <h3>Put verification first</h3>
-                <p>Every listing, request and review is tied to a verified identity, so trust is
-                the default state of the platform — not something users have to negotiate.</p>
-            </article>
-            <article class="obj nx-card">
-                <span class="obj__no">03</span>
-                <h3>Stay local to Bangladesh</h3>
-                <p>Model the real area hierarchy, price everything in Taka, and respect local
-                context like mess culture, <em>khala</em> hiring, and meal-based cost sharing.</p>
-            </article>
-            <article class="obj nx-card">
-                <span class="obj__no">04</span>
-                <h3>Make shared money tamper-evident</h3>
-                <p>Once a month's settlement is finalized it becomes an immutable record; mistakes
-                are fixed with logged corrections, never silent edits.</p>
-            </article>
-            <article class="obj nx-card">
-                <span class="obj__no">05</span>
-                <h3>Protect contact details</h3>
-                <p>Phone numbers and social handles are disclosed only after a real, mutual match —
-                an accepted booking, a confirmed engagement, an accepted buy request.</p>
-            </article>
-            <article class="obj nx-card">
-                <span class="obj__no">06</span>
-                <h3>Work on a mid-range phone</h3>
-                <p>Ship a responsive, accessible interface that stays fast and readable on the
-                devices our users actually carry.</p>
-            </article>
-        </div>
-    </div>
-</section>
-
 <!-- ============ TEAM CAROUSEL ============ -->
-<section class="nx-section nx-section--alt team-section">
+<section class="nx-section team-section">
     <div class="nx-container">
-        <div class="obj__head">
+        <div class="section-head">
             <p class="nx-eyebrow">The team</p>
-            <h2 class="nx-section-title">Four contributors, one module each.</h2>
-            <p class="nx-lead">Meet the people behind Nestify — each owns a module from end to end.</p>
+            <h2 class="nx-section-title">Meet the people behind Nestify.</h2>
         </div>
 
         <!-- 3-D coverflow stage -->
@@ -136,13 +44,13 @@
                             <div class="c3d__footer">
                                 <span class="nx-tag">@member.Focus</span>
                                 <div class="member__links">
-                                    <a href="#" aria-label="@(member.Name + " on GitHub (placeholder)")">
+                                    <a href="#" aria-label="@(member.Name + " on GitHub (placeholder)")" @onclick:stopPropagation>
                                         <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 21.13V25" /></svg>
                                     </a>
-                                    <a href="#" aria-label="@(member.Name + " on LinkedIn (placeholder)")">
+                                    <a href="#" aria-label="@(member.Name + " on LinkedIn (placeholder)")" @onclick:stopPropagation>
                                         <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z" /><rect x="2" y="9" width="4" height="12" /><circle cx="4" cy="4" r="2" /></svg>
                                     </a>
-                                    <a href="#" aria-label="@(member.Name + " by email (placeholder)")">
+                                    <a href="#" aria-label="@(member.Name + " by email (placeholder)")" @onclick:stopPropagation>
                                         <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 7-10 6L2 7" /></svg>
                                     </a>
                                 </div>
@@ -184,17 +92,14 @@
     </div>
 </section>
 
-<!-- ============ SPIRIT ============ -->
-<section class="nx-section spirit-section">
+<!-- ============ MOTIVATION ============ -->
+<section class="nx-section nx-section--alt spirit-section">
     <div class="nx-container">
         <div class="spirit__head">
-            <p class="nx-eyebrow">Our spirit</p>
-            <h2 class="nx-section-title">Built with purpose. Shared with care.</h2>
+            <p class="nx-eyebrow">Our motivation</p>
+            <h2 class="nx-section-title">Solving the fragmented bachelor life.</h2>
             <p class="nx-lead">
-                We didn't start Nestify to build a portfolio piece — we started it because we
-                lived the problem. Every design decision, every trade-off, every late-night
-                commit was driven by one question: <em>would this actually help someone find a
-                place to sleep tonight?</em>
+                University students and young professionals living away from home face a daily struggle: managing housing, meals, domestic help, and buying essentials across disconnected groups and apps. Nestify was built to solve this exact problem by bringing everything into one trusted platform.
             </p>
         </div>
 
@@ -202,16 +107,27 @@
             <div class="spirit__card nx-card">
                 <div class="spirit__icon spirit__icon--trust">
                     <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                        <polyline points="9 12 11 14 15 10" />
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                        <polyline points="9 22 9 12 15 12 15 22" />
                     </svg>
                 </div>
-                <h3>Trust by default</h3>
-                <p>Verification isn't a feature — it's the foundation. Every interaction on Nestify is built on the assumption that real people deserve real accountability.</p>
+                <h3>Housing & Seat Finding</h3>
+                <p>No more scrolling through hundreds of unverified social media posts just to find a single mess seat or sublet. We make discovering your next home simple and secure.</p>
             </div>
 
             <div class="spirit__card nx-card">
                 <div class="spirit__icon spirit__icon--community">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="1" x2="12" y2="23" />
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                    </svg>
+                </div>
+                <h3>Expense & Meal Settlement</h3>
+                <p>Argue less over meal costs. Nestify provides a transparent, immutable record for splitting daily utilities and calculating the per-meal rate at the end of the month.</p>
+            </div>
+
+            <div class="spirit__card nx-card">
+                <div class="spirit__icon spirit__icon--simplicity">
                     <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
                         <circle cx="9" cy="7" r="4" />
@@ -219,34 +135,9 @@
                         <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                     </svg>
                 </div>
-                <h3>Community first</h3>
-                <p>Bangladesh's bachelor communities are tight-knit and resilient. We're building tools that respect that culture rather than trying to replace it with an algorithm.</p>
+                <h3>Helpers & Marketplace</h3>
+                <p>Whether you need to hire reliable domestic help (khala) or sell your second-hand furniture when moving out, you can do it all safely within the same verified ecosystem.</p>
             </div>
-
-            <div class="spirit__card nx-card">
-                <div class="spirit__icon spirit__icon--simplicity">
-                    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10" />
-                        <path d="M8 14s1.5 2 4 2 4-2 4-2" />
-                        <line x1="9" y1="9" x2="9.01" y2="9" stroke-width="3" />
-                        <line x1="15" y1="9" x2="15.01" y2="9" stroke-width="3" />
-                    </svg>
-                </div>
-                <h3>Radical simplicity</h3>
-                <p>Four complex problems, one clean interface. We believe that simplicity is not the absence of complexity — it's the discipline of hiding it well.</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- ============ CTA ============ -->
-<section class="nx-section nx-section--deep about-cta">
-    <div class="nx-container about-cta__inner">
-        <h2>Want to follow along?</h2>
-        <p>Create an account and be one of the first to try Nestify when the modules go live.</p>
-        <div class="about-cta__actions">
-            <a class="nx-btn nx-btn--light nx-btn--lg" href="register">Create your account</a>
-            <a class="nx-btn nx-btn--ghost nx-btn--lg about-cta__ghost" href="">Back to home</a>
         </div>
     </div>
 </section>

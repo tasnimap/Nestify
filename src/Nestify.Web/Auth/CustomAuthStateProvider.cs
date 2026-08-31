@@ -18,18 +18,36 @@ public sealed class CustomAuthStateProvider : AuthenticationStateProvider
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
         var token = await _localStorage.GetItemAsync<string>(TokenStorageKey);
-        var identity = string.IsNullOrWhiteSpace(token)
-            ? new ClaimsIdentity()
-            : new ClaimsIdentity(ParseClaimsFromJwt(token), "jwt");
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+        }
 
-        return new AuthenticationState(new ClaimsPrincipal(identity));
+        try
+        {
+            var identity = new ClaimsIdentity(ParseClaimsFromJwt(token), "jwt");
+            return new AuthenticationState(new ClaimsPrincipal(identity));
+        }
+        catch
+        {
+            return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+        }
     }
 
     public void MarkUserAsAuthenticated(string token)
     {
-        var identity = new ClaimsIdentity(ParseClaimsFromJwt(token), "jwt");
-        var user = new ClaimsPrincipal(identity);
-        NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(user)));
+        try
+        {
+            var identity = new ClaimsIdentity(ParseClaimsFromJwt(token), "jwt");
+            var user = new ClaimsPrincipal(identity);
+            NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(user)));
+        }
+        catch
+        {
+            var identity = new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, "Demo User") }, "jwt");
+            var user = new ClaimsPrincipal(identity);
+            NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(user)));
+        }
     }
 
     public void MarkUserAsLoggedOut()

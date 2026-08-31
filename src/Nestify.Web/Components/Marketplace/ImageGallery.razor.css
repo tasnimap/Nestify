@@ -1,0 +1,78 @@
+.mk-gallery {
+    display: grid;
+    gap: .75rem;
+}
+
+.mk-gallery__main {
+    position: relative;
+}
+
+.mk-gallery__main ::deep .mk-gallery__frame {
+    aspect-ratio: 4 / 3;
+    border: 1px solid var(--nx-border);
+    box-shadow: var(--nx-shadow-sm);
+}
+
+.mk-gallery__nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--nx-border);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .92);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    box-shadow: var(--nx-shadow-sm);
+    cursor: pointer;
+    color: var(--nx-ink);
+    transition: transform .15s ease, background .15s ease;
+}
+
+.mk-gallery__nav:hover { background: #fff; transform: translateY(-50%) scale(1.06); }
+.mk-gallery__nav svg { width: 1.1rem; height: 1.1rem; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.mk-gallery__nav--prev { left: .6rem; }
+.mk-gallery__nav--next { right: .6rem; }
+
+.mk-gallery__count {
+    position: absolute;
+    right: .7rem;
+    bottom: .7rem;
+    padding: .25rem .6rem;
+    border-radius: 999px;
+    background: rgba(23, 16, 43, .55);
+    color: #fff;
+    font-size: .75rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+}
+
+.mk-gallery__strip {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 84px;
+    gap: .5rem;
+    overflow-x: auto;
+    padding-bottom: .25rem;
+    scrollbar-width: thin;
+}
+
+.mk-gallery__thumb {
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    overflow: hidden;
+    background: none;
+    cursor: pointer;
+    transition: border-color .15s ease, transform .15s ease;
+}
+
+.mk-gallery__thumb ::deep .mk-tile { aspect-ratio: 1 / 1; border-radius: 9px; }
+.mk-gallery__thumb ::deep .mk-tile__mono { font-size: 1.6rem; }
+.mk-gallery__thumb:hover { transform: translateY(-2px); }
+.mk-gallery__thumb.is-active { border-color: var(--nx-primary); }

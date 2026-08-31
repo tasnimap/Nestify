@@ -1,0 +1,35 @@
+@* Generated gradient tile for the frontend phase; a real <img> when the seed is
+   an image URL. Deterministic hue per seed so an item always looks the same. *@
+
+<div class="mk-tile @(_isPhoto ? "mk-tile--photo" : null) @CssClass" style="@_hueStyle">
+    @if (_isPhoto)
+    {
+        <img src="@Seed" alt="@(Alt ?? string.Empty)" loading="lazy" />
+    }
+    else
+    {
+        <span class="mk-tile__mono" aria-hidden="true">@MarketplaceView.Monogram(Label ?? Seed)</span>
+        @if (!string.IsNullOrEmpty(Tag))
+        {
+            <span class="mk-tile__tag">@Tag</span>
+        }
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Seed { get; set; } = string.Empty;
+
+    /// <summary>Text the monogram is derived from (usually the item title).</summary>
+    [Parameter] public string? Label { get; set; }
+
+    /// <summary>Small corner tag on generated tiles (usually the category).</summary>
+    [Parameter] public string? Tag { get; set; }
+
+    /// <summary>Alt text used only when <see cref="Seed"/> is a real photo.</summary>
+    [Parameter] public string? Alt { get; set; }
+
+    [Parameter] public string? CssClass { get; set; }
+
+    private bool _isPhoto => MarketplaceView.IsPhoto(Seed);
+    private string _hueStyle => _isPhoto ? string.Empty : $"--mk-h:{MarketplaceView.Hue(Seed)}";
+}

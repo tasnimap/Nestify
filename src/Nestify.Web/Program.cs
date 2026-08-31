@@ -27,6 +27,9 @@ builder.Services.AddScoped<AuthenticationStateProvider>(sp =>
     sp.GetRequiredService<CustomAuthStateProvider>());
 builder.Services.AddScoped<IAuthService, AuthService>();
 
+// M4 · Second-hand marketplace — swap MockMarketplaceService for MarketplaceService when the API lands
+builder.Services.AddScoped<IMarketplaceService, MockMarketplaceService>();
+
 // Register utility services
 builder.Services.AddScoped<MoneyFormatterService>();
 builder.Services.AddScoped<DateFormatterService>();

@@ -1,0 +1,104 @@
+.mk-up {
+    display: grid;
+    gap: .85rem;
+}
+
+.mk-up__zone {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: .9rem;
+    padding: 1.1rem 1.15rem;
+    border: 1.5px dashed var(--nx-border-strong);
+    border-radius: 14px;
+    background: var(--nx-primary-softer);
+    cursor: pointer;
+    transition: border-color .16s ease, background .16s ease;
+}
+
+.mk-up__zone:hover { border-color: var(--nx-primary); background: var(--nx-primary-soft); }
+.mk-up__zone.is-full { cursor: not-allowed; opacity: .6; }
+
+.mk-up__zone ::deep input[type=file] {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: inherit;
+}
+
+.mk-up__zone-icon {
+    display: grid;
+    place-items: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    border-radius: 12px 12px 12px 4px;
+    background: #fff;
+    border: 1px solid var(--nx-border);
+    color: var(--nx-primary);
+    flex: none;
+}
+.mk-up__zone-icon svg { width: 1.3rem; height: 1.3rem; }
+
+.mk-up__zone-text { display: grid; gap: .15rem; font-size: .9rem; }
+.mk-up__zone-text strong { color: var(--nx-ink); }
+.mk-up__zone-text .mk-muted { font-size: .8rem; }
+
+.mk-up__list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: .6rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.mk-up__item {
+    position: relative;
+    display: grid;
+    grid-template-columns: 2.6rem 1fr auto;
+    align-items: center;
+    gap: .5rem;
+    padding: .4rem .5rem;
+    border: 1px solid var(--nx-border);
+    border-radius: 12px;
+    background: #fff;
+}
+
+.mk-up__item ::deep .mk-tile { aspect-ratio: 1 / 1; border-radius: 8px; }
+.mk-up__item ::deep .mk-tile__mono { font-size: 1.1rem; }
+
+.mk-up__name {
+    font-size: .82rem;
+    font-weight: 600;
+    color: var(--nx-ink);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.mk-up__size { font-size: .72rem; color: var(--nx-muted); }
+
+.mk-up__remove {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border: 1px solid var(--nx-border);
+    border-radius: 8px;
+    background: var(--nx-bg-alt);
+    cursor: pointer;
+    color: var(--nx-muted);
+    transition: color .15s ease, border-color .15s ease;
+}
+.mk-up__remove:hover { color: var(--nx-danger); border-color: var(--nx-danger); }
+.mk-up__remove svg { width: .8rem; height: .8rem; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; }
+
+.mk-up__note {
+    display: flex;
+    align-items: flex-start;
+    gap: .45rem;
+    font-size: .78rem;
+    color: var(--nx-muted);
+}
+.mk-up__note .nx-icon { width: 1rem; height: 1rem; flex: none; margin-top: .1rem; }

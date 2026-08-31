@@ -1,0 +1,8 @@
+<span class="mk-badge mk-badge--@MarketplaceView.ConditionModifier(Condition) @CssClass">
+    @MarketplaceView.Label(Condition)
+</span>
+
+@code {
+    [Parameter] public ItemCondition Condition { get; set; }
+    [Parameter] public string? CssClass { get; set; }
+}

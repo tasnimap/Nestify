@@ -1,0 +1,216 @@
+@inject IMarketplaceService Marketplace
+@inject Nestify.Web.Services.MoneyFormatterService Money
+
+@* Shared create/edit form for a marketplace listing. Hosts the ML price-
+   suggestion slot (§10.8) and a live "buyer's view" preview. *@
+
+<EditForm Model="Model" OnValidSubmit="HandleValidSubmit" class="mk-form">
+    <DataAnnotationsValidator />
+
+    <div class="mk-form__grid">
+        <div class="mk-form__fields">
+            <div class="field">
+                <label for="mk-title" class="field__label--required">Title</label>
+                <InputText id="mk-title" class="field__input" @bind-Value="Model.Title"
+                           placeholder="Solid wood study table with drawer" />
+                <ValidationMessage For="@(() => Model.Title)" />
+            </div>
+
+            <div class="field">
+                <label for="mk-desc" class="field__label--required">Description</label>
+                <InputTextArea id="mk-desc" class="field__input" @bind-Value="Model.Description" rows="6"
+                               placeholder="What it is, how long you've used it, any wear, and what's included." />
+                <ValidationMessage For="@(() => Model.Description)" />
+                <p class="field__helper">Plain text only — links and formatting won't render.</p>
+            </div>
+
+            <div class="field-row">
+                <div class="field">
+                    <label for="mk-category">Category</label>
+                    <InputSelect id="mk-category" class="field__input" @bind-Value="Model.Category"
+                                 @bind-Value:after="RefreshSuggestionAsync">
+                        @foreach (var c in _categories)
+                        {
+                            <option value="@c">@MarketplaceView.Label(c)</option>
+                        }
+                    </InputSelect>
+                </div>
+                <div class="field">
+                    <label for="mk-condition">Condition</label>
+                    <InputSelect id="mk-condition" class="field__input" @bind-Value="Model.Condition"
+                                 @bind-Value:after="RefreshSuggestionAsync">
+                        @foreach (var c in _conditions)
+                        {
+                            <option value="@c">@MarketplaceView.Label(c)</option>
+                        }
+                    </InputSelect>
+                </div>
+            </div>
+
+            <div class="field">
+                <label for="mk-price" class="field__label--required">Price (৳)</label>
+                <InputNumber id="mk-price" class="field__input mk-form__price" @bind-Value="Model.PriceBdt" step="50" />
+                <ValidationMessage For="@(() => Model.PriceBdt)" />
+            </div>
+
+            @if (_loadingSuggestion)
+            {
+                <div class="mk-suggest mk-suggest--loading">Estimating a fair price…</div>
+            }
+            else if (_suggestion is not null)
+            {
+                <div class="mk-suggest">
+                    <div class="mk-suggest__head">
+                        <span class="mk-suggest__spark" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                 stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1" />
+                            </svg>
+                        </span>
+                        <div>
+                            <strong>Suggested price</strong>
+                            <p class="mk-muted">@_suggestion.Basis</p>
+                        </div>
+                    </div>
+                    <div class="mk-suggest__band">
+                        <span class="mk-price mk-price--sm">@Money.Format(_suggestion.SuggestedLow)</span>
+                        <span class="mk-suggest__track"><span class="mk-suggest__dot"></span></span>
+                        <span class="mk-price mk-price--sm">@Money.Format(_suggestion.SuggestedHigh)</span>
+                    </div>
+                    <button type="button" class="mk-suggest__use" @onclick="UseSuggestion">
+                        Use @Money.Format(_suggestion.SuggestedPoint)
+                    </button>
+                    <p class="mk-suggest__note">This is advice from recent listings. You set the final price.</p>
+                </div>
+            }
+
+            <div class="field-row">
+                <div class="field">
+                    <label for="mk-division" class="field__label--required">Division</label>
+                    <InputSelect id="mk-division" class="field__input" @bind-Value="Model.Division">
+                        <option value="">Select a division…</option>
+                        @foreach (var d in _divisions)
+                        {
+                            <option value="@d">@d</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => Model.Division)" />
+                </div>
+                <div class="field">
+                    <label for="mk-area" class="field__label--required">Collection area</label>
+                    <InputText id="mk-area" class="field__input" @bind-Value="Model.AreaName"
+                               placeholder="e.g. Nilkhet, Dhaka" />
+                    <ValidationMessage For="@(() => Model.AreaName)" />
+                </div>
+            </div>
+            <p class="field__helper">
+                A division → district → upazila picker replaces these two fields once the shared area
+                component is ready.
+            </p>
+
+            <div class="field">
+                <label>Photos</label>
+                <ImageUploader Value="Model.Images" ValueChanged="OnImagesChanged" />
+            </div>
+        </div>
+
+        <aside class="mk-form__aside">
+            <div class="mk-form__preview">
+                <span class="mk-form__preview-tag">Buyer's view</span>
+                <article class="mk-card mk-form__card">
+                    <div class="mk-card__media">
+                        <MediaTile Seed="@PreviewSeed" Label="@PreviewTitle"
+                                   Tag="@MarketplaceView.CategoryTag(Model.Category)" />
+                        <ConditionBadge Condition="Model.Condition" CssClass="mk-badge--on-media" />
+                    </div>
+                    <div class="mk-card__body">
+                        <h3 class="mk-card__title"><span>@PreviewTitle</span></h3>
+                        <div class="mk-card__meta">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" />
+                            </svg>
+                            <span>@(string.IsNullOrWhiteSpace(Model.AreaName) ? "Area" : Model.AreaName)</span>
+                            <span class="mk-dot"></span>
+                            <span class="mk-nowrap">just now</span>
+                        </div>
+                        <div class="mk-card__price-row">
+                            <span class="mk-price mk-price--sm">@Money.Format(Model.PriceBdt)</span>
+                        </div>
+                        <div class="mk-card__foot">
+                            <span class="mk-card__seller">
+                                <span class="mk-ava">You</span><span>You</span>
+                            </span>
+                            <span class="mk-verified">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M12 2 4 5v6c0 5 3.4 8.9 8 10 4.6-1.1 8-5 8-10V5l-8-3Z" />
+                                    <path d="m8.5 12 2.4 2.4L15.5 10" fill="none" stroke="#fff" stroke-width="2.2"
+                                          stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                <span>Verified</span>
+                            </span>
+                        </div>
+                    </div>
+                </article>
+                <p class="mk-muted mk-form__preview-hint">Updates as you type.</p>
+            </div>
+        </aside>
+    </div>
+
+    <div class="mk-form__foot">
+        <button type="button" class="nx-btn nx-btn--ghost" @onclick="OnCancel" disabled="@Busy">Cancel</button>
+        <button type="submit" class="nx-btn nx-btn--primary" disabled="@Busy">
+            @(Busy ? "Saving…" : SubmitLabel)
+        </button>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter, EditorRequired] public MarketplaceItemFormModel Model { get; set; } = new();
+    [Parameter] public string SubmitLabel { get; set; } = "Publish listing";
+    [Parameter] public bool Busy { get; set; }
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+
+    private readonly MarketplaceCategory[] _categories = Enum.GetValues<MarketplaceCategory>();
+    private readonly ItemCondition[] _conditions = Enum.GetValues<ItemCondition>();
+    private readonly string[] _divisions =
+        { "Dhaka", "Chattogram", "Sylhet", "Rajshahi", "Khulna", "Barishal", "Rangpur", "Mymensingh" };
+
+    private PriceSuggestionDto? _suggestion;
+    private bool _loadingSuggestion;
+
+    private string PreviewTitle => string.IsNullOrWhiteSpace(Model.Title) ? "Your item title" : Model.Title;
+    private string PreviewSeed => Model.Images.FirstOrDefault() ?? $"tile:{PreviewTitle}";
+
+    protected override Task OnInitializedAsync() => RefreshSuggestionAsync();
+
+    private async Task RefreshSuggestionAsync()
+    {
+        _loadingSuggestion = true;
+        try
+        {
+            _suggestion = await Marketplace.GetPriceSuggestionAsync(Model.Category, Model.Condition);
+        }
+        catch
+        {
+            _suggestion = null;
+        }
+        finally
+        {
+            _loadingSuggestion = false;
+        }
+    }
+
+    private void UseSuggestion()
+    {
+        if (_suggestion is not null)
+        {
+            Model.PriceBdt = _suggestion.SuggestedPoint;
+        }
+    }
+
+    private void OnImagesChanged(IReadOnlyList<string> images) => Model.Images = images.ToList();
+
+    private Task HandleValidSubmit() => OnValidSubmit.InvokeAsync();
+}

@@ -1,0 +1,31 @@
+@* Inline "Verified" marker for a person. Renders nothing when the person is not
+   verified unless ShowUnverified is set. Verification here is a trust signal
+   surfaced in the UI only — the server owns the real check. *@
+
+@if (Verified)
+{
+    <span class="mk-verified @CssClass" title="Identity verified by Nestify">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 2 4 5v6c0 5 3.4 8.9 8 10 4.6-1.1 8-5 8-10V5l-8-3Z" />
+            <path d="m8.5 12 2.4 2.4L15.5 10" fill="none" stroke="#fff" stroke-width="2.2"
+                  stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <span>@Text</span>
+    </span>
+}
+else if (ShowUnverified)
+{
+    <span class="mk-verified mk-verified--off @CssClass" title="This person has not completed verification">
+        <svg viewBox="0 0 24 24" aria-hidden="true" style="fill:var(--nx-muted)">
+            <path d="M12 2 4 5v6c0 5 3.4 8.9 8 10 4.6-1.1 8-5 8-10V5l-8-3Z" opacity=".5" />
+        </svg>
+        <span>Not verified</span>
+    </span>
+}
+
+@code {
+    [Parameter] public bool Verified { get; set; }
+    [Parameter] public bool ShowUnverified { get; set; }
+    [Parameter] public string Text { get; set; } = "Verified";
+    [Parameter] public string? CssClass { get; set; }
+}

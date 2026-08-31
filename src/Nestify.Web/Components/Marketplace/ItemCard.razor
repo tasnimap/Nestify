@@ -1,0 +1,55 @@
+@* Browse-grid card. The whole card is a link to the item detail via the title's
+   ::before overlay; the seller line stays non-interactive here. *@
+
+<article class="mk-card @(Item.Status == ListingStatus.Sold ? "mk-card--sold" : null)">
+    <div class="mk-card__media">
+        <MediaTile Seed="@Item.CoverImage" Label="@Item.Title"
+                   Tag="@MarketplaceView.CategoryTag(Item.Category)" Alt="@Item.Title" />
+        <ConditionBadge Condition="Item.Condition" CssClass="mk-badge--on-media" />
+    </div>
+
+    <div class="mk-card__body">
+        <h3 class="mk-card__title">
+            <a href="marketplace/items/@Item.Id">@Item.Title</a>
+        </h3>
+
+        <div class="mk-card__meta">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                <circle cx="12" cy="10" r="3" />
+            </svg>
+            <span>@Item.AreaName</span>
+            <span class="mk-dot"></span>
+            <span class="mk-nowrap">@MarketplaceView.RelativeTime(Item.PostedAtUtc)</span>
+        </div>
+
+        <div class="mk-card__price-row">
+            <span class="mk-price mk-price--sm">@_money.Format(Item.PriceBdt)</span>
+        </div>
+
+        <div class="mk-card__foot">
+            <span class="mk-card__seller">
+                <span class="mk-ava">@MarketplaceView.Initials(Item.SellerDisplayName)</span>
+                <span>@Item.SellerDisplayName</span>
+            </span>
+            @if (Item.SellerVerified)
+            {
+                <span class="mk-verified" title="Identity verified by Nestify">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 2 4 5v6c0 5 3.4 8.9 8 10 4.6-1.1 8-5 8-10V5l-8-3Z" />
+                        <path d="m8.5 12 2.4 2.4L15.5 10" fill="none" stroke="#fff" stroke-width="2.2"
+                              stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <span>Verified</span>
+                </span>
+            }
+        </div>
+    </div>
+</article>
+
+@code {
+    [Parameter, EditorRequired] public MarketplaceItemSummaryDto Item { get; set; } = new();
+
+    [Inject] private Nestify.Web.Services.MoneyFormatterService _money { get; set; } = default!;
+}

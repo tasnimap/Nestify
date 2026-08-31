@@ -17,10 +17,20 @@
                 settlement, and your second-hand deals together — behind a single account
                 you actually trust.
             </p>
-            <div class="hero__actions">
-                <a class="nx-btn nx-btn--primary nx-btn--lg" href="register">Create your account</a>
-                <a class="nx-btn nx-btn--ghost nx-btn--lg" href="about">Meet the team</a>
-            </div>
+            <AuthorizeView>
+                <Authorized>
+                    <div class="hero__actions">
+                        <a class="nx-btn nx-btn--primary nx-btn--lg" href="settlement">Open Settlement Workspace</a>
+                        <a class="nx-btn nx-btn--ghost nx-btn--lg" href="about">Meet the team</a>
+                    </div>
+                </Authorized>
+                <NotAuthorized>
+                    <div class="hero__actions">
+                        <a class="nx-btn nx-btn--primary nx-btn--lg" href="register">Create your account</a>
+                        <a class="nx-btn nx-btn--ghost nx-btn--lg" href="about">Meet the team</a>
+                    </div>
+                </NotAuthorized>
+            </AuthorizeView>
             <ul class="hero__trust">
                 <li>
                     <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
@@ -276,9 +286,19 @@
     <div class="nx-container cta__inner">
         <h2>One verified account. Four everyday problems, solved together.</h2>
         <p>Create your Nestify account and stop juggling five apps to run one household.</p>
-        <div class="cta__actions">
-            <a class="nx-btn nx-btn--light nx-btn--lg" href="register">Get started free</a>
-            <a class="nx-btn nx-btn--ghost nx-btn--lg cta__ghost" href="login">I already have an account</a>
-        </div>
+        <AuthorizeView>
+            <Authorized>
+                <div class="cta__actions">
+                    <a class="nx-btn nx-btn--light nx-btn--lg" href="settlement">Open Settlement Workspace</a>
+                    <a class="nx-btn nx-btn--ghost nx-btn--lg cta__ghost" href="about">Meet the team</a>
+                </div>
+            </Authorized>
+            <NotAuthorized>
+                <div class="cta__actions">
+                    <a class="nx-btn nx-btn--light nx-btn--lg" href="register">Get started free</a>
+                    <a class="nx-btn nx-btn--ghost nx-btn--lg cta__ghost" href="login">I already have an account</a>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
     </div>
 </section>
