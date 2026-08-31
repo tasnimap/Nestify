@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Nestify.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c4072f782f301260a90ddac86dfa40954e648daa")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1533cfcfdad4a46496eabb057d1cfefe8566d00c")]
 [assembly: System.Reflection.AssemblyProductAttribute("Nestify.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Nestify.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
