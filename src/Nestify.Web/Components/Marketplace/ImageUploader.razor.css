@@ -19,7 +19,7 @@
 .mk-up__zone:hover { border-color: var(--nx-primary); background: var(--nx-primary-soft); }
 .mk-up__zone.is-full { cursor: not-allowed; opacity: .6; }
 
-.mk-up__zone :deep(input[type=file]) {
+.mk-up__zone ::deep input[type=file] {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -66,8 +66,8 @@
     background: #fff;
 }
 
-.mk-up__item :deep(.mk-tile) { aspect-ratio: 1 / 1; border-radius: 8px; }
-.mk-up__item :deep(.mk-tile__mono) { font-size: 1.1rem; }
+.mk-up__item ::deep .mk-tile { aspect-ratio: 1 / 1; border-radius: 8px; }
+.mk-up__item ::deep .mk-tile__mono { font-size: 1.1rem; }
 
 .mk-up__name {
     font-size: .82rem;

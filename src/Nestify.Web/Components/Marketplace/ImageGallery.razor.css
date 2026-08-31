@@ -7,7 +7,7 @@
     position: relative;
 }
 
-.mk-gallery__frame {
+.mk-gallery__main ::deep .mk-gallery__frame {
     aspect-ratio: 4 / 3;
     border: 1px solid var(--nx-border);
     box-shadow: var(--nx-shadow-sm);
@@ -72,7 +72,7 @@
     transition: border-color .15s ease, transform .15s ease;
 }
 
-.mk-gallery__thumb :deep(.mk-tile) { aspect-ratio: 1 / 1; border-radius: 9px; }
-.mk-gallery__thumb :deep(.mk-tile__mono) { font-size: 1.6rem; }
+.mk-gallery__thumb ::deep .mk-tile { aspect-ratio: 1 / 1; border-radius: 9px; }
+.mk-gallery__thumb ::deep .mk-tile__mono { font-size: 1.6rem; }
 .mk-gallery__thumb:hover { transform: translateY(-2px); }
 .mk-gallery__thumb.is-active { border-color: var(--nx-primary); }
