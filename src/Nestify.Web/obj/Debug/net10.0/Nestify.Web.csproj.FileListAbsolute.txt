@@ -33,10 +33,6 @@ D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net1
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Microsoft.VisualBasic.oawltawhmj.wasm
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Microsoft.Win32.Primitives.n6ylnc1rdo.wasm
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Microsoft.Win32.Registry.205yp9wx9t.wasm
-D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Nestify.Shared.1tbzukwfwl.pdb
-D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Nestify.Shared.xz8fwmk2gj.wasm
-D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Nestify.Web.dd6hq5kko5.pdb
-D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Nestify.Web.yt5qr6uf9k.wasm
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.AppContext.33lgp2bflw.wasm
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.Buffers.g7kq07we8q.wasm
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.Collections.Concurrent.ayt23dc2he.wasm
@@ -204,7 +200,6 @@ D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net1
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\WindowsBase.nd3r6urbkm.wasm
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\blazor.webassembly.w3qd1tpl0e.js
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\dotnet.js.map
-D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\dotnet.n6cj6edijf.js
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\dotnet.native.nxw7lo0lh5.wasm
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\dotnet.native.vzj2a6aakt.js
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\dotnet.runtime.js.map
@@ -219,7 +214,6 @@ D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net1
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\mscorlib.l31p083pc1.wasm.gz
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.Runtime.Loader.smrevcdjv4.wasm.gz
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.Data.DataSetExtensions.a9dlaxjhfy.wasm.gz
-D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Nestify.Shared.xz8fwmk2gj.wasm.gz
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.IO.Pipes.6axf1j8g7w.wasm.gz
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.Xml.Linq.4w1i83kr6d.wasm.gz
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.Globalization.moqtkrs3kx.wasm.gz
@@ -256,7 +250,6 @@ D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net1
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Microsoft.JSInterop.vei8iss1f3.wasm.gz
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.Threading.Timer.23ma43391f.wasm.gz
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.Reflection.Extensions.182qm6arqh.wasm.gz
-D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Nestify.Web.dd6hq5kko5.pdb.gz
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.ObjectModel.i378yy84uu.wasm.gz
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.Runtime.Serialization.Json.4u1byp8ddu.wasm.gz
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.Runtime.Handles.pegxo55rww.wasm.gz
@@ -343,7 +336,6 @@ D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net1
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.Reflection.DispatchProxy.3vrt3hlgt3.wasm.gz
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.Windows.98z5iu2ekq.wasm.gz
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.Security.Cryptography.OpenSsl.1sxm4ayhhy.wasm.gz
-D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\dotnet.n6cj6edijf.js.gz
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.Text.Json.e68ojdl57q.wasm.gz
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.Web.sakoricpi1.wasm.gz
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\dotnet.native.vzj2a6aakt.js.gz
@@ -391,8 +383,6 @@ D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net1
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.Net.HttpListener.l269ngb85c.wasm.gz
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.Numerics.rkirn4ewf6.wasm.gz
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.Net.WebSockets.Client.qeq362432l.wasm.gz
-D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Nestify.Web.yt5qr6uf9k.wasm.gz
-D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Nestify.Shared.1tbzukwfwl.pdb.gz
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Microsoft.Extensions.Configuration.Json.ovhjhq0url.wasm.gz
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.Threading.Channels.wty3mw4oue.wasm.gz
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\System.Security.SecureString.hbgjudeeg7.wasm.gz
@@ -922,8 +912,6 @@ D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\obj\Debug\net1
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\2s6l8er7nz-{0}-tvxste54aj-tvxste54aj.gz
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\9r91hemg0p-{0}-lyr6nxzwhx-lyr6nxzwhx.gz
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\cgfd6mbebs-{0}-w3qd1tpl0e-w3qd1tpl0e.gz
-D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\lu245dhci8-{0}-z2qs0yvn0t-z2qs0yvn0t.gz
-D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\vea0ozqgzf-{0}-z2qs0yvn0t-z2qs0yvn0t.gz
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\ql4lcnnlwy-{0}-12n6dz54qr-12n6dz54qr.gz
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\h5611pe2y7-{0}-286cdd0mnj-286cdd0mnj.gz
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\jtu5b7p3ca-{0}-o6y2k6vgc3-o6y2k6vgc3.gz
@@ -1132,13 +1120,7 @@ D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\obj\Debug\net1
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\znpoxp531i-{0}-tjcz0u77k5-tjcz0u77k5.gz
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\4v7whmqyrv-{0}-tptq2av103-tptq2av103.gz
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\7ah91gweci-{0}-lfu7j35m59-lfu7j35m59.gz
-D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\0szzysnbeu-{0}-xz8fwmk2gj-xz8fwmk2gj.gz
-D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\uzc3mnelw2-{0}-1tbzukwfwl-1tbzukwfwl.gz
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\vrsfmliby7-{0}-jiityjz7hu-jiityjz7hu.gz
-D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\uly0r66g8i-{0}-yt5qr6uf9k-yt5qr6uf9k.gz
-D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\663d9gw1p5-{0}-dd6hq5kko5-dd6hq5kko5.gz
-D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\lrd2jakkki-{0}-n6cj6edijf-n6cj6edijf.gz
-D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\g7i743nzf3-{0}-god1qm94bd-god1qm94bd.gz
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\obj\Debug\net10.0\staticwebassets.build.json
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\obj\Debug\net10.0\staticwebassets.build.json.cache
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\obj\Debug\net10.0\staticwebassets.development.json
@@ -1149,3 +1131,21 @@ D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\obj\Debug\net1
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\obj\Debug\net10.0\refint\Nestify.Web.dll
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\obj\Debug\net10.0\Nestify.Web.pdb
 D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\obj\Debug\net10.0\ref\Nestify.Web.dll
+D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Nestify.Shared.g129shqp72.pdb
+D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Nestify.Shared.vf9r00c8b7.wasm
+D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Nestify.Shared.vf9r00c8b7.wasm.gz
+D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Nestify.Shared.g129shqp72.pdb.gz
+D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\0szzysnbeu-{0}-vf9r00c8b7-vf9r00c8b7.gz
+D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\uzc3mnelw2-{0}-g129shqp72-g129shqp72.gz
+D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\lu245dhci8-{0}-ugf6vt2s29-ugf6vt2s29.gz
+D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\vea0ozqgzf-{0}-ugf6vt2s29-ugf6vt2s29.gz
+D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Nestify.Web.l4uzgl70ib.pdb
+D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Nestify.Web.xw5w6ypqro.wasm
+D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\dotnet.31u4cpsrpx.js
+D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Nestify.Web.l4uzgl70ib.pdb.gz
+D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\dotnet.31u4cpsrpx.js.gz
+D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\bin\Debug\net10.0\wwwroot\_framework\Nestify.Web.xw5w6ypqro.wasm.gz
+D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\uly0r66g8i-{0}-xw5w6ypqro-xw5w6ypqro.gz
+D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\663d9gw1p5-{0}-l4uzgl70ib-l4uzgl70ib.gz
+D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\lrd2jakkki-{0}-31u4cpsrpx-31u4cpsrpx.gz
+D:\3.2 Materials\Lab - SD\Encrypt\Project\Nestify\src\Nestify.Web\obj\Debug\net10.0\compressed\g7i743nzf3-{0}-kbo251ta34-kbo251ta34.gz
