@@ -1,4 +1,5 @@
 @page "/about"
+@implements IDisposable
 
 <PageTitle>About Us — Nestify</PageTitle>
 
@@ -93,40 +94,147 @@
     </div>
 </section>
 
-<!-- ============ TEAM ============ -->
-<section class="nx-section nx-section--alt">
+<!-- ============ TEAM CAROUSEL ============ -->
+<section class="nx-section nx-section--alt team-section">
     <div class="nx-container">
         <div class="obj__head">
             <p class="nx-eyebrow">The team</p>
             <h2 class="nx-section-title">Four contributors, one module each.</h2>
-            <p class="nx-lead">We split the work so every person owns a module end to end — its
-            pages, its flows, and its demo. Full profiles and photos are placeholders for now.</p>
+            <p class="nx-lead">Meet the people behind Nestify — each owns a module from end to end.</p>
         </div>
 
-        <div class="team__grid">
-            @foreach (var member in _team)
-            {
-                <article class="member nx-card">
-                    <span class="nx-avatar @member.AvatarClass">@member.Initials</span>
-                    <h3>@member.Name</h3>
-                    <p class="member__role">@member.Role</p>
-                    <p class="member__bio">@member.Bio</p>
-                    <div class="member__meta">
-                        <span class="nx-tag">@member.Focus</span>
-                    </div>
-                    <div class="member__links">
-                        <a href="#" aria-label="@(member.Name + " on GitHub (placeholder)")">
-                            <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 21.13V25" /></svg>
-                        </a>
-                        <a href="#" aria-label="@(member.Name + " on LinkedIn (placeholder)")">
-                            <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z" /><rect x="2" y="9" width="4" height="12" /><circle cx="4" cy="4" r="2" /></svg>
-                        </a>
-                        <a href="#" aria-label="@(member.Name + " by email (placeholder)")">
-                            <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 7-10 6L2 7" /></svg>
-                        </a>
-                    </div>
-                </article>
-            }
+        <!-- 3-D coverflow stage -->
+        <div class="c3d" aria-label="Developer showcase" aria-roledescription="carousel">
+            <div class="c3d__stage">
+                @for (int i = 0; i < _team.Length; i++)
+                {
+                    var member = _team[i];
+                    var cardIndex = i;
+                    var pos = GetPosition(cardIndex);
+
+                    <article class="c3d__card @pos"
+                             aria-roledescription="slide"
+                             aria-label="@($"{cardIndex + 1} of {_team.Length}")"
+                             aria-hidden="@(pos != "c3d--active" ? "true" : null)"
+                             @onclick="() => GoTo(cardIndex)">
+
+                        <!-- Photo fills the top of the card -->
+                        <div class="c3d__photo-wrap">
+                            <img class="c3d__photo"
+                                 src="@member.PhotoUrl"
+                                 alt="Photo of @member.Name"
+                                 width="280"
+                                 height="220" />
+                            <div class="c3d__photo-overlay" aria-hidden="true"></div>
+                        </div>
+
+                        <!-- Info lives below the photo -->
+                        <div class="c3d__info">
+                            <h3 class="c3d__name">@member.Name</h3>
+                            <p class="c3d__role">@member.Role</p>
+                            <p class="c3d__bio">@member.Bio</p>
+                            <div class="c3d__footer">
+                                <span class="nx-tag">@member.Focus</span>
+                                <div class="member__links">
+                                    <a href="#" aria-label="@(member.Name + " on GitHub (placeholder)")">
+                                        <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 21.13V25" /></svg>
+                                    </a>
+                                    <a href="#" aria-label="@(member.Name + " on LinkedIn (placeholder)")">
+                                        <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z" /><rect x="2" y="9" width="4" height="12" /><circle cx="4" cy="4" r="2" /></svg>
+                                    </a>
+                                    <a href="#" aria-label="@(member.Name + " by email (placeholder)")">
+                                        <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 7-10 6L2 7" /></svg>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                    </article>
+                }
+            </div>
+
+            <!-- Controls row -->
+            <div class="c3d__controls">
+                <button class="c3d__arrow" @onclick="Prev" aria-label="Previous developer">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6" />
+                    </svg>
+                </button>
+
+                <div class="c3d__dots" role="tablist" aria-label="Slide indicators">
+                    @for (int i = 0; i < _team.Length; i++)
+                    {
+                        var dotIndex = i;
+                        <button class="c3d__dot @(dotIndex == _currentIndex ? "c3d__dot--active" : "")"
+                                role="tab"
+                                aria-selected="@(dotIndex == _currentIndex)"
+                                aria-label="Go to developer @(dotIndex + 1)"
+                                @onclick="() => GoTo(dotIndex)">
+                        </button>
+                    }
+                </div>
+
+                <button class="c3d__arrow" @onclick="Next" aria-label="Next developer">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============ SPIRIT ============ -->
+<section class="nx-section spirit-section">
+    <div class="nx-container">
+        <div class="spirit__head">
+            <p class="nx-eyebrow">Our spirit</p>
+            <h2 class="nx-section-title">Built with purpose. Shared with care.</h2>
+            <p class="nx-lead">
+                We didn't start Nestify to build a portfolio piece — we started it because we
+                lived the problem. Every design decision, every trade-off, every late-night
+                commit was driven by one question: <em>would this actually help someone find a
+                place to sleep tonight?</em>
+            </p>
+        </div>
+
+        <div class="spirit__grid">
+            <div class="spirit__card nx-card">
+                <div class="spirit__icon spirit__icon--trust">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                        <polyline points="9 12 11 14 15 10" />
+                    </svg>
+                </div>
+                <h3>Trust by default</h3>
+                <p>Verification isn't a feature — it's the foundation. Every interaction on Nestify is built on the assumption that real people deserve real accountability.</p>
+            </div>
+
+            <div class="spirit__card nx-card">
+                <div class="spirit__icon spirit__icon--community">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                    </svg>
+                </div>
+                <h3>Community first</h3>
+                <p>Bangladesh's bachelor communities are tight-knit and resilient. We're building tools that respect that culture rather than trying to replace it with an algorithm.</p>
+            </div>
+
+            <div class="spirit__card nx-card">
+                <div class="spirit__icon spirit__icon--simplicity">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+                        <line x1="9" y1="9" x2="9.01" y2="9" stroke-width="3" />
+                        <line x1="15" y1="9" x2="15.01" y2="9" stroke-width="3" />
+                    </svg>
+                </div>
+                <h3>Radical simplicity</h3>
+                <p>Four complex problems, one clean interface. We believe that simplicity is not the absence of complexity — it's the discipline of hiding it well.</p>
+            </div>
         </div>
     </div>
 </section>
@@ -146,28 +254,98 @@
 @code {
     private sealed record Member(
         string Name, string Initials, string AvatarClass,
-        string Role, string Focus, string Bio);
+        string Role, string Focus, string Bio, string PhotoUrl);
 
     private readonly Member[] _team =
     {
         new("Tahmid Mubashira Obonti", "TO", "nx-avatar--a",
             "Expense & settlement module",
             "Meal-cost settlement",
-            "Owns the shared-expense and meal-settlement flows — the month grid, the per-meal rate, and the immutable settlement run. Also builds the shared form and money-formatting primitives."),
+            "Owns the shared-expense and meal-settlement flows — the month grid, the per-meal rate, and the immutable settlement run.",
+            "https://randomuser.me/api/portraits/women/44.jpg"),
 
         new("Tasmia Tabassum Shreoshi", "TS", "nx-avatar--b",
             "Housing & seat listings module",
             "Housing & bookings",
-            "Owns browsing, posting and booking of seats and shared houses, including the eligibility rules and the contact-disclosure card that other modules reuse."),
+            "Owns browsing, posting and booking of seats and shared houses, including the eligibility rules and the contact-disclosure card.",
+            "https://randomuser.me/api/portraits/women/65.jpg"),
 
         new("Tasnima Faruk Prapty", "TP", "nx-avatar--c",
             "Domestic help module & app shell",
             "Helper directory",
-            "Owns the domestic-help directory, the engagement state machine and reviews, plus the app shell — layout, navigation and the home page everyone builds on."),
+            "Owns the domestic-help directory, the engagement state machine and reviews, plus the app shell — layout, navigation and the home page.",
+            "https://randomuser.me/api/portraits/women/47.jpg"),
 
         new("Kazi Ishmamul Haque", "KH", "nx-avatar--d",
             "Marketplace module & design system",
             "Marketplace & UI kit",
-            "Owns the second-hand marketplace and the shared UI kit — design tokens, buttons, cards and the image components — and will lead the price-suggestion model in the backend phase."),
+            "Owns the second-hand marketplace and the shared UI kit — design tokens, buttons, cards and the image components.",
+            "https://randomuser.me/api/portraits/men/32.jpg"),
     };
+
+    // ── Carousel state ──────────────────────────────────────────────────────────
+    private int _currentIndex;
+    private System.Timers.Timer? _timer;
+
+    // Returns a BEM-style position class for a given card index
+    private string GetPosition(int cardIndex)
+    {
+        var pos = (cardIndex - _currentIndex + _team.Length) % _team.Length;
+        return pos switch
+        {
+            0 => "c3d--active",   // front centre
+            1 => "c3d--next",     // right / slightly behind
+            2 => "c3d--behind",   // far back
+            3 => "c3d--prev",     // left / slightly behind
+            _ => "c3d--behind"
+        };
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        _timer = new System.Timers.Timer(4500);
+        _timer.Elapsed += async (_, _) =>
+        {
+            await InvokeAsync(() =>
+            {
+                // Auto-advance without resetting the timer
+                _currentIndex = (_currentIndex + 1) % _team.Length;
+                StateHasChanged();
+            });
+        };
+        _timer.AutoReset = true;
+        _timer.Start();
+    }
+
+    private void ResetTimer()
+    {
+        _timer?.Stop();
+        _timer?.Start();
+    }
+
+    private void Prev()
+    {
+        _currentIndex = (_currentIndex - 1 + _team.Length) % _team.Length;
+        ResetTimer();
+    }
+
+    private void Next()
+    {
+        _currentIndex = (_currentIndex + 1) % _team.Length;
+        ResetTimer();
+    }
+
+    private void GoTo(int index)
+    {
+        _currentIndex = index;
+        ResetTimer();
+    }
+
+    public void Dispose()
+    {
+        _timer?.Stop();
+        _timer?.Dispose();
+    }
 }
