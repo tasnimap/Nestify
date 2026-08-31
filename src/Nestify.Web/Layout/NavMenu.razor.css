@@ -84,6 +84,29 @@
 
 .nav__cta { box-shadow: var(--nx-shadow-sm); }
 
+/* ---------- authenticated user bar ---------- */
+
+.nav__user {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+}
+
+.nav__user-name {
+    font-size: .92rem;
+    font-weight: 600;
+    padding: .35rem .85rem;
+    background: var(--nx-primary-soft);
+    border-radius: 999px;
+    color: var(--nx-primary-strong);
+}
+
+.nav__logout-btn {
+    min-height: 38px;
+    padding: .45rem 1rem;
+    font-size: .88rem;
+}
+
 /* ---------- mobile toggle ---------- */
 
 .nav__toggle {
@@ -149,4 +172,19 @@
     .nav__panel ::deep .nav__link { padding: .8rem .9rem; font-size: 1rem; }
 
     .nav__cta { justify-content: center; }
+
+    .nav__user {
+        flex-direction: column;
+        align-items: stretch;
+        gap: .5rem;
+    }
+
+    .nav__user-name {
+        text-align: center;
+    }
+
+    .nav__logout-btn {
+        width: 100%;
+        justify-content: center;
+    }
 }

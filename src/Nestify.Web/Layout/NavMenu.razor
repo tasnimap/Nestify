@@ -1,5 +1,6 @@
 @implements IDisposable
 @inject NavigationManager Navigation
+@inject Nestify.Web.Services.Interfaces.IAuthService AuthService
 
 <header class="nav">
     <div class="nx-container nav__inner">
@@ -19,21 +20,47 @@
 
         <nav id="primary-nav" class="nav__panel @(_open ? "nav__panel--open" : null)" aria-label="Primary">
             <ul class="nav__links">
-                <li>
-                    <NavLink class="nav__link" href="" Match="NavLinkMatch.All" @onclick="Close">Home</NavLink>
-                </li>
-                <li>
-                    <NavLink class="nav__link" href="about" @onclick="Close">About Us</NavLink>
-                </li>
+                <AuthorizeView>
+                    <NotAuthorized>
+                        <li>
+                            <NavLink class="nav__link" href="" Match="NavLinkMatch.All" @onclick="Close">Home</NavLink>
+                        </li>
+                        <li>
+                            <NavLink class="nav__link" href="about" @onclick="Close">About Us</NavLink>
+                        </li>
+                    </NotAuthorized>
+                </AuthorizeView>
+                <AuthorizeView>
+                    <Authorized>
+                        <li>
+                            <NavLink class="nav__link" href="settlement" @onclick="Close">Settlement</NavLink>
+                        </li>
+                    </Authorized>
+                </AuthorizeView>
             </ul>
-            <a class="nx-btn nx-btn--primary nav__cta" href="login" @onclick="Close">
-                <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
-                    <path d="M10 17l5-5-5-5" />
-                    <path d="M15 12H3" />
-                </svg>
-                Log in
-            </a>
+
+            <AuthorizeView>
+                <Authorized>
+                    <div class="nav__user">
+                        <span class="nav__user-name">
+                            @(context.User.Identity?.Name ?? "User")
+                        </span>
+                        <button class="nx-btn nx-btn--ghost nav__logout-btn" @onclick="HandleLogout">
+                            Log out
+                        </button>
+                    </div>
+                </Authorized>
+                <NotAuthorized>
+                    <a class="nx-btn nx-btn--primary nav__cta" href="login" @onclick="Close">
+                        <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                            <path d="M10 17l5-5-5-5" />
+                            <path d="M15 12H3" />
+                        </svg>
+                        Log in
+                    </a>
+                </NotAuthorized>
+            </AuthorizeView>
         </nav>
     </div>
 </header>
@@ -51,6 +78,13 @@
     private void Close()
     {
         if (_open) _open = false;
+    }
+
+    private async Task HandleLogout()
+    {
+        Close();
+        await AuthService.LogoutAsync();
+        Navigation.NavigateTo("/", forceLoad: false);
     }
 
     private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
