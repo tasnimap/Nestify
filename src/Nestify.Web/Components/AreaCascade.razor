@@ -1,0 +1,109 @@
+@* src/Nestify.Web/Components/AreaCascade.razor *@
+@* Division → district → upazila cascade. One shared instance for M1, M2, M4 (§5.5) —
+   do not copy this into a module folder; add features here instead. *@
+@using Nestify.Shared.Dtos.Area
+@using Nestify.Web.Services.Interfaces
+@inject IAreaService AreaService
+
+<div class="area-cascade">
+    <div class="field">
+        <label class="field__label">Division</label>
+        <select class="field__input" value="@Selection.DivisionId"
+                @onchange="OnDivisionChanged" disabled="@Disabled">
+            <option value="">Select division</option>
+            @foreach (var d in _divisions)
+            {
+                <option value="@d.Id">@d.Name</option>
+            }
+        </select>
+    </div>
+
+    <div class="field">
+        <label class="field__label">District</label>
+        <select class="field__input" value="@Selection.DistrictId"
+                @onchange="OnDistrictChanged"
+                disabled="@(Disabled || Selection.DivisionId is null)">
+            <option value="">Select district</option>
+            @foreach (var d in _districts)
+            {
+                <option value="@d.Id">@d.Name</option>
+            }
+        </select>
+    </div>
+
+    <div class="field">
+        <label class="field__label">Upazila</label>
+        <select class="field__input" value="@Selection.UpazilaId"
+                @onchange="OnUpazilaChanged"
+                disabled="@(Disabled || Selection.DistrictId is null)">
+            <option value="">Select upazila</option>
+            @foreach (var u in _upazilas)
+            {
+                <option value="@u.Id">@u.Name</option>
+            }
+        </select>
+    </div>
+</div>
+
+@code {
+    [Parameter] public AreaSelectionDto Selection { get; set; } = new();
+    [Parameter] public EventCallback<AreaSelectionDto> SelectionChanged { get; set; }
+    [Parameter] public bool Disabled { get; set; }
+
+    private IReadOnlyList<DivisionDto> _divisions = Array.Empty<DivisionDto>();
+    private IReadOnlyList<DistrictDto> _districts = Array.Empty<DistrictDto>();
+    private IReadOnlyList<UpazilaDto> _upazilas = Array.Empty<UpazilaDto>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _divisions = await AreaService.GetDivisionsAsync();
+
+        if (Selection.DivisionId is int divId)
+        {
+            _districts = await AreaService.GetDistrictsAsync(divId);
+        }
+        if (Selection.DistrictId is int distId)
+        {
+            _upazilas = await AreaService.GetUpazilasAsync(distId);
+        }
+    }
+
+    private async Task OnDivisionChanged(ChangeEventArgs e)
+    {
+        var id = ParseId(e.Value);
+        Selection.DivisionId = id;
+        // Clearing the child selection is the whole point of this component (§5.5) —
+        // never let a stale district/upazila survive a division change.
+        Selection.DistrictId = null;
+        Selection.UpazilaId = null;
+        _upazilas = Array.Empty<UpazilaDto>();
+
+        _districts = id is int divId
+            ? await AreaService.GetDistrictsAsync(divId)
+            : Array.Empty<DistrictDto>();
+
+        await SelectionChanged.InvokeAsync(Selection);
+    }
+
+    private async Task OnDistrictChanged(ChangeEventArgs e)
+    {
+        var id = ParseId(e.Value);
+        Selection.DistrictId = id;
+        Selection.UpazilaId = null;
+
+        _upazilas = id is int distId
+            ? await AreaService.GetUpazilasAsync(distId)
+            : Array.Empty<UpazilaDto>();
+
+        await SelectionChanged.InvokeAsync(Selection);
+    }
+
+    private async Task OnUpazilaChanged(ChangeEventArgs e)
+    {
+        Selection.UpazilaId = ParseId(e.Value);
+        await SelectionChanged.InvokeAsync(Selection);
+    }
+
+    private static int? ParseId(object? value)
+        => int.TryParse(value?.ToString(), out var id) ? id : null;
+}
