@@ -1,0 +1,242 @@
+@page "/marketplace/items/{Id}"
+@inject IMarketplaceService Marketplace
+@inject Nestify.Web.Services.MoneyFormatterService Money
+@inject Nestify.Web.Services.ToastService Toast
+@inject NavigationManager Nav
+
+<PageTitle>@(_item?.Title ?? "Listing") — Nestify</PageTitle>
+
+<section class="nx-section mk-page">
+    <div class="nx-container mk-wrap">
+
+        @if (_loading)
+        {
+            <div class="mk-detail">
+                <div class="mk-skeleton" style="aspect-ratio:4/3"></div>
+                <div class="mk-skeleton" style="height:22rem"></div>
+            </div>
+        }
+        else if (_item is null)
+        {
+            <nav class="mk-crumbs">
+                <a href="marketplace">Marketplace</a>
+                <span class="mk-crumbs__sep">/</span>
+                <span>Not available</span>
+            </nav>
+            <MarketplaceEmpty Title="This listing isn't available"
+                              Message="It may have been sold, taken down, or the link is wrong.">
+                <a class="nx-btn nx-btn--primary" href="marketplace">Back to marketplace</a>
+            </MarketplaceEmpty>
+        }
+        else
+        {
+            <nav class="mk-crumbs">
+                <a href="marketplace">Marketplace</a>
+                <span class="mk-crumbs__sep">/</span>
+                <a href="marketplace?category=@_item.Category">@MarketplaceView.Label(_item.Category)</a>
+                <span class="mk-crumbs__sep">/</span>
+                <span>@_item.Title</span>
+            </nav>
+
+            <div class="mk-detail">
+                <div class="mk-detail__main">
+                    <ImageGallery Images="_item.Images" Title="@_item.Title" />
+
+                    <section class="mk-panel mk-detail__about">
+                        <div class="mk-detail__about-head">
+                            <ConditionBadge Condition="_item.Condition" />
+                            <span class="mk-badge mk-badge--good">@MarketplaceView.Label(_item.Category)</span>
+                            @if (_item.Status == ListingStatus.Sold)
+                            {
+                                <ListingStatusBadge Status="_item.Status" />
+                            }
+                        </div>
+                        <h2>Description</h2>
+                        <p class="mk-plain">@_item.Description</p>
+
+                        <div class="mk-specs">
+                            <div class="mk-specs__cell">
+                                <div class="mk-specs__k">Condition</div>
+                                <div class="mk-specs__v">@MarketplaceView.Label(_item.Condition)</div>
+                            </div>
+                            <div class="mk-specs__cell">
+                                <div class="mk-specs__k">Category</div>
+                                <div class="mk-specs__v">@MarketplaceView.Label(_item.Category)</div>
+                            </div>
+                            <div class="mk-specs__cell">
+                                <div class="mk-specs__k">Area</div>
+                                <div class="mk-specs__v">@_item.AreaName</div>
+                            </div>
+                            <div class="mk-specs__cell">
+                                <div class="mk-specs__k">Listed</div>
+                                <div class="mk-specs__v">@MarketplaceView.RelativeTime(_item.PostedAtUtc)</div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="mk-panel mk-seller">
+                        <div class="mk-ava mk-ava--lg">@MarketplaceView.Initials(_item.SellerDisplayName)</div>
+                        <div class="mk-seller__body">
+                            <div class="mk-seller__name">
+                                @_item.SellerDisplayName
+                                <VerifiedBadge Verified="_item.SellerVerified" ShowUnverified="true" CssClass="mk-verified--lg" />
+                            </div>
+                            <p class="mk-muted">@MarketplaceView.MemberSince(_item.SellerJoinedUtc) · @_item.Division</p>
+                        </div>
+                    </section>
+                </div>
+
+                <aside class="mk-buybox">
+                    <div class="mk-buybox__inner">
+                        <p class="mk-price mk-price--lg">@Money.Format(_item.PriceBdt)</p>
+                        <h1 class="mk-buybox__title">@_item.Title</h1>
+                        <p class="mk-buybox__meta">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" />
+                            </svg>
+                            @_item.AreaName
+                        </p>
+
+                        @if (_item.Status == ListingStatus.Sold)
+                        {
+                            <div class="mk-buybox__notice">This item has been marked sold.</div>
+                        }
+                        else if (_item.IsMine)
+                        {
+                            <div class="mk-buybox__owner">
+                                <p class="mk-muted">This is your listing.</p>
+                                <a class="nx-btn nx-btn--primary nx-btn--block" href="marketplace/items/@_item.Id/interests">
+                                    See buyer interest
+                                </a>
+                                <a class="nx-btn nx-btn--ghost nx-btn--block" href="marketplace/items/@_item.Id/edit">Edit listing</a>
+                            </div>
+                        }
+                        else if (_item.HasActiveInterest)
+                        {
+                            <div class="mk-buybox__notice mk-buybox__notice--ok">
+                                You've sent the seller a buy request. Track it on
+                                <a href="buy-interests/mine">your buy requests</a>.
+                            </div>
+                        }
+                        else if (_showInterestForm)
+                        {
+                            <div class="mk-buybox__form">
+                                <label for="mk-interest-msg">Message to the seller</label>
+                                <textarea id="mk-interest-msg" rows="3" maxlength="400"
+                                          placeholder="Say when you can pick it up and ask anything you need to."
+                                          @bind="_interestMessage" @bind:event="oninput"></textarea>
+                                <div class="mk-buybox__form-actions">
+                                    <button class="nx-btn nx-btn--ghost" @onclick="() => _showInterestForm = false" disabled="@_sending">Cancel</button>
+                                    <button class="nx-btn nx-btn--accent" @onclick="SendInterest"
+                                            disabled="@(_sending || string.IsNullOrWhiteSpace(_interestMessage))">
+                                        @(_sending ? "Sending…" : "Send request")
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <button class="nx-btn nx-btn--accent nx-btn--block nx-btn--lg" @onclick="() => _showInterestForm = true">
+                                Buy this item
+                            </button>
+                        }
+
+                        <button class="mk-buybox__report" @onclick="() => _showReport = !_showReport">
+                            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor"
+                                 stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 22V4a1 1 0 0 1 1-1h11l-2 4 2 4H5" />
+                            </svg>
+                            Report this listing
+                        </button>
+
+                        @if (_showReport)
+                        {
+                            <div class="mk-buybox__form">
+                                <label for="mk-report-reason">Reason</label>
+                                <select id="mk-report-reason" @bind="_reportReason">
+                                    <option>Prohibited item</option>
+                                    <option>Misleading description</option>
+                                    <option>Suspected scam</option>
+                                    <option>Wrong category</option>
+                                    <option>Other</option>
+                                </select>
+                                <textarea rows="2" maxlength="300" placeholder="Add any detail (optional)"
+                                          @bind="_reportDetail"></textarea>
+                                <div class="mk-buybox__form-actions">
+                                    <button class="nx-btn nx-btn--ghost" @onclick="() => _showReport = false">Cancel</button>
+                                    <button class="nx-btn nx-btn--primary" @onclick="SubmitReport">Submit report</button>
+                                </div>
+                            </div>
+                        }
+
+                        <p class="mk-buybox__safe">
+                            Contact details are shared only after the seller accepts. Meet in a public place.
+                        </p>
+                    </div>
+                </aside>
+            </div>
+        }
+    </div>
+</section>
+
+@code {
+    [Parameter] public string Id { get; set; } = string.Empty;
+
+    private MarketplaceItemDetailDto? _item;
+    private bool _loading = true;
+
+    private bool _showInterestForm;
+    private string _interestMessage = string.Empty;
+    private bool _sending;
+
+    private bool _showReport;
+    private string _reportReason = "Prohibited item";
+    private string _reportDetail = string.Empty;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _loading = true;
+        _item = null;
+        try
+        {
+            _item = await Marketplace.GetItemAsync(Id);
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task SendInterest()
+    {
+        if (_item is null || string.IsNullOrWhiteSpace(_interestMessage)) return;
+        _sending = true;
+        try
+        {
+            var ok = await Marketplace.ExpressInterestAsync(_item.Id, _interestMessage.Trim());
+            if (ok)
+            {
+                _item.HasActiveInterest = true;
+                _showInterestForm = false;
+                _interestMessage = string.Empty;
+                Toast.ShowSuccess("The seller can now see your request and message.", "Buy request sent");
+            }
+            else
+            {
+                Toast.ShowWarning("Couldn't send that request — you may already have one open.", "Not sent");
+            }
+        }
+        finally
+        {
+            _sending = false;
+        }
+    }
+
+    private void SubmitReport()
+    {
+        _showReport = false;
+        _reportDetail = string.Empty;
+        Toast.ShowInfo("Thanks — our team will review this listing.", "Report submitted");
+    }
+}
