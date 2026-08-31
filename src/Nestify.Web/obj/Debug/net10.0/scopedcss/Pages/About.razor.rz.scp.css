@@ -1,73 +1,8 @@
-/* ============ HEADER ============ */
-
-.about-hero[b-lzevegg8di] {
-    position: relative;
-    overflow: hidden;
-    padding-block: clamp(3rem, 8vw, 5.5rem);
-    background: linear-gradient(180deg, var(--nx-primary-softer), #fff 80%);
-}
-
-.about-hero__glow[b-lzevegg8di] {
-    position: absolute;
-    inset: -30% auto auto -10%;
-    width: 40rem;
-    height: 40rem;
-    background: radial-gradient(circle at 30% 40%, rgba(124, 58, 237, .18), transparent 60%);
-    pointer-events: none;
-}
-
-.about-hero__title[b-lzevegg8di] {
-    position: relative;
-    font-size: clamp(2.2rem, 5.5vw, 3.4rem);
-    line-height: 1.1;
-    max-width: 18ch;
-}
-
-.about-hero__lead[b-lzevegg8di] {
-    position: relative;
-    margin-top: 1.5rem;
-    max-width: 62ch;
-    font-size: clamp(1rem, 2vw, 1.15rem);
-    color: var(--nx-muted);
-}
-
-/* ============ MISSION ============ */
-
-.mission[b-lzevegg8di] { display: grid; gap: 2rem; }
-.mission__body[b-lzevegg8di] { display: grid; gap: 1.15rem; font-size: 1.05rem; }
-.mission__body strong[b-lzevegg8di] { color: var(--nx-ink); }
-
-@media (min-width: 900px) {
-    .mission[b-lzevegg8di] { grid-template-columns: 1fr 1fr; gap: 3.5rem; align-items: start; }
-}
-
-/* ============ OBJECTIVES ============ */
-
-.obj__head[b-lzevegg8di] { max-width: 46rem; margin-bottom: clamp(2rem, 5vw, 3rem); }
-
-.obj__grid[b-lzevegg8di] {
-    display: grid;
-    gap: 1.25rem;
-    grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
-}
-
-.obj[b-lzevegg8di] { padding: 1.75rem; }
-
-.obj__no[b-lzevegg8di] {
-    font-family: var(--nx-display);
-    font-size: 1.35rem;
-    font-weight: 700;
-    color: var(--nx-primary);
-    opacity: .5;
-}
-
-.obj h3[b-lzevegg8di] { font-size: 1.1rem; margin: .6rem 0 .5rem; }
-.obj p[b-lzevegg8di] { font-size: .95rem; color: var(--nx-muted); }
-.obj em[b-lzevegg8di] { font-style: italic; color: var(--nx-primary-strong); }
+/* ============ SHARED ============ */
+.section-head[b-lzevegg8di] { max-width: 46rem; margin-bottom: clamp(2rem, 5vw, 3rem); }
 
 /* ============ 3-D COVERFLOW CAROUSEL ============ */
-
-.team-section[b-lzevegg8di] { overflow: hidden; }
+.team-section[b-lzevegg8di] { overflow: hidden; padding-top: clamp(4rem, 8vw, 6rem); }
 
 /* ---- outer wrapper ---- */
 .c3d[b-lzevegg8di] {
@@ -328,9 +263,9 @@
     .c3d__card[b-lzevegg8di] { width: 260px; }
 }
 
-/* ============ SPIRIT SECTION ============ */
+/* ============ MOTIVATION SECTION ============ */
 
-.spirit-section[b-lzevegg8di] { background: var(--nx-bg); }
+.spirit-section[b-lzevegg8di] { background: var(--nx-bg-alt); }
 
 .spirit__head[b-lzevegg8di] {
     max-width: 52rem;
@@ -378,29 +313,3 @@
 .spirit__icon--trust[b-lzevegg8di]      { background: var(--nx-primary-soft); color: var(--nx-primary); }
 .spirit__icon--community[b-lzevegg8di]  { background: var(--nx-accent-soft);  color: var(--nx-accent);  }
 .spirit__icon--simplicity[b-lzevegg8di] { background: #fff5e5;                color: #d97706;            }
-
-/* ============ CTA ============ */
-
-.about-cta__inner[b-lzevegg8di] { text-align: center; max-width: 42rem; margin-inline: auto; }
-.about-cta__inner h2[b-lzevegg8di] { font-size: clamp(1.7rem, 4vw, 2.4rem); }
-.about-cta__inner p[b-lzevegg8di] { margin-top: 1rem; color: #c6bee2; font-size: 1.05rem; }
-
-.about-cta__actions[b-lzevegg8di] {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    justify-content: center;
-    margin-top: 2rem;
-}
-
-.about-cta__ghost[b-lzevegg8di] {
-    border-color: rgba(255, 255, 255, .35);
-    color: #fff;
-    background: transparent;
-}
-
-.about-cta__ghost:hover[b-lzevegg8di] {
-    border-color: #fff;
-    background: rgba(255, 255, 255, .1);
-    color: #fff;
-}
