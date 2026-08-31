@@ -1,0 +1,156 @@
+@page "/settlement-preview"
+@inject ToastService ToastService
+
+<PageTitle>Settlement preview — Nestify</PageTitle>
+
+<section class="nx-section settlement-preview-page">
+    <div class="nx-container settlement-preview-page__wrap">
+        <header class="settlement-preview-page__header">
+            <div>
+                <p class="nx-eyebrow">M3 workspace</p>
+                <h1>September 2026 settlement preview</h1>
+                <p class="nx-lead">A read-only calculation from the current expenses, contributions, and meal sheet.</p>
+            </div>
+            <span class="settlement-preview-page__period">Draft preview</span>
+        </header>
+
+        <div class="settlement-preview-page__banner">
+            <div>
+                <strong>Ready to review</strong>
+                <span>All member nets balance to ৳0.00. Finalizing will lock this period.</span>
+            </div>
+            <button type="button" class="nx-btn nx-btn--primary" @onclick="FinalizePeriod" disabled="@_isFinalized">
+                @(_isFinalized ? "Period finalized" : "Finalize period")
+            </button>
+        </div>
+
+        <section class="settlement-preview-page__metrics">
+            <article class="nx-card settlement-preview-page__metric">
+                <span>Meal spending</span>
+                <strong><MoneyDisplay Amount="9200.00m" /></strong>
+            </article>
+            <article class="nx-card settlement-preview-page__metric">
+                <span>Total meals</span>
+                <strong>233</strong>
+            </article>
+            <article class="nx-card settlement-preview-page__metric">
+                <span>Per-meal rate</span>
+                <strong>৳39.484979</strong>
+            </article>
+            <article class="nx-card settlement-preview-page__metric">
+                <span>Equal-split costs</span>
+                <strong><MoneyDisplay Amount="3150.00m" /></strong>
+            </article>
+        </section>
+
+        <div class="settlement-preview-page__grid">
+            <section class="nx-card settlement-preview-page__panel">
+                <div class="settlement-preview-page__panel-head">
+                    <div>
+                        <h2>Member positions</h2>
+                        <p>Positive means the house owes the member. Negative means the member owes the house.</p>
+                    </div>
+                    <span class="nx-tag">Σ net = ৳0.00</span>
+                </div>
+
+                <div class="settlement-preview-page__table-wrap">
+                    <table class="settlement-preview-page__table">
+                        <thead>
+                            <tr>
+                                <th>Member</th>
+                                <th>Meals</th>
+                                <th>Meal cost</th>
+                                <th>Equal share</th>
+                                <th>Contributions</th>
+                                <th>Net position</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var line in Lines)
+                            {
+                                <tr>
+                                    <td><strong>@line.Member</strong></td>
+                                    <td>@line.Meals</td>
+                                    <td><MoneyDisplay Amount="line.MealCost" /></td>
+                                    <td><MoneyDisplay Amount="line.EqualShare" /></td>
+                                    <td><MoneyDisplay Amount="line.Contributions" /></td>
+                                    <td class="@(line.Net >= 0 ? "settlement-preview-page__positive" : "settlement-preview-page__negative")">
+                                        <strong>@(line.Net >= 0 ? "+" : "")<MoneyDisplay Amount="line.Net" /></strong>
+                                        @if (line.RoundingAdjustment != 0)
+                                        {
+                                            <small>+৳0.01 residual</small>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="nx-card settlement-preview-page__panel">
+                <div class="settlement-preview-page__panel-head">
+                    <div>
+                        <h2>Transfers</h2>
+                        <p>Greedy matching minimizes this to three transfers.</p>
+                    </div>
+                    <span class="nx-tag">3 transfers</span>
+                </div>
+
+                <ol class="settlement-preview-page__transfers">
+                    @foreach (var transfer in Transfers)
+                    {
+                        <li>
+                            <span class="settlement-preview-page__transfer-number">@transfer.Number</span>
+                            <div>
+                                <strong>@transfer.From → @transfer.To</strong>
+                                <span>@transfer.From owes @transfer.To</span>
+                            </div>
+                            <MoneyDisplay Amount="transfer.Amount" />
+                        </li>
+                    }
+                </ol>
+            </section>
+        </div>
+
+        <p class="settlement-preview-page__footnote">
+            The ৳0.01 rounding residual is assigned deterministically to Tanvir, who has the largest meal cost.
+        </p>
+    </div>
+</section>
+
+@code {
+    private sealed record SettlementLine(
+        string Member,
+        int Meals,
+        decimal MealCost,
+        decimal EqualShare,
+        decimal Contributions,
+        decimal Net,
+        decimal RoundingAdjustment = 0m);
+
+    private sealed record Transfer(int Number, string From, string To, decimal Amount);
+
+    private static readonly SettlementLine[] Lines =
+    [
+        new("Rafi", 62, 2448.07m, 787.50m, 5900.00m, 2664.43m),
+        new("Sadia", 55, 2171.67m, 787.50m, 3400.00m, 440.83m),
+        new("Tanvir", 71, 2803.44m, 787.50m, 1150.00m, -2440.94m, 0.01m),
+        new("Nabil", 45, 1776.82m, 787.50m, 1900.00m, -664.32m)
+    ];
+
+    private static readonly Transfer[] Transfers =
+    [
+        new(1, "Tanvir", "Rafi", 2440.94m),
+        new(2, "Nabil", "Rafi", 223.49m),
+        new(3, "Nabil", "Sadia", 440.83m)
+    ];
+
+    private bool _isFinalized = false;
+
+    private void FinalizePeriod()
+    {
+        _isFinalized = true;
+        ToastService.ShowSuccess("September 2026 is now locked as an immutable settlement.", "Period finalized");
+    }
+}
