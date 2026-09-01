@@ -1,0 +1,260 @@
+@page "/housing/{Id}/bookings"
+@inject IHousingService Housing
+@inject Nestify.Web.Services.ToastService Toast
+@inject Nestify.Web.Services.MoneyFormatterService Money
+@inject NavigationManager Navigation
+
+<PageTitle>Booking requests — Nestify</PageTitle>
+
+<section class="nx-section hs-page">
+    <div class="nx-container hs-wrap hs-wrap--narrow">
+        <nav class="hs-crumbs" aria-label="Breadcrumb">
+            <a href="housing">Housing</a>
+            <span class="hs-crumbs__sep">/</span>
+            <a href="housing/mine">My listings</a>
+            <span class="hs-crumbs__sep">/</span>
+            <span>Booking requests</span>
+        </nav>
+
+        @if (_loading)
+        {
+            <div class="hs-skeleton hs-skeleton--detail"></div>
+        }
+        else
+        {
+            <header class="hs-page__header">
+                <h1>Booking requests</h1>
+                <p>Manage booking requests for <strong>@(_post?.Title ?? "this listing")</strong></p>
+            </header>
+
+            @if (_requesters.Count == 0)
+            {
+                <div class="hs-empty hs-empty--section">
+                    <h2>No booking requests yet</h2>
+                    <p>When someone requests to book your listing, their request will appear here.</p>
+                    <a class="nx-btn nx-btn--primary" href="housing/mine">Back to My listings</a>
+                </div>
+            }
+            else
+            {
+                <div class="hs-requesters-list">
+                    @foreach (var requester in _requesters)
+                    {
+                        <article class="hs-requester-card">
+                            <header class="hs-requester-card__header">
+                                <div class="hs-requester-card__title-section">
+                                    <h3>@requester.RequesterName</h3>
+                                    <span class="hs-badge hs-badge--@HousingView.StatusModifier(requester.Status)">
+                                        @HousingView.Label(requester.Status)
+                                    </span>
+                                </div>
+                                <div class="hs-requester-card__meta">
+                                    <time>@HousingView.RelativeTime(requester.RequestedAtUtc)</time>
+                                </div>
+                            </header>
+
+                            @if (!string.IsNullOrEmpty(requester.Message))
+                            {
+                                <div class="hs-requester-card__message">
+                                    <p>@requester.Message</p>
+                                </div>
+                            }
+
+                            @if (requester.Status == BookingStatus.Accepted)
+                            {
+                                <ContactDisclosureCard Contact="_contacts.GetValueOrDefault(requester.BookingId)" />
+                            }
+
+                            @if (requester.Status == BookingStatus.Pending)
+                            {
+                                <div class="hs-requester-card__actions">
+                                    <button class="nx-btn nx-btn--success" @onclick="() => AcceptRequest(requester.BookingId)" disabled="@_processingId == requester.BookingId">
+                                        @(_processingId == requester.BookingId ? "Accepting..." : "Accept")
+                                    </button>
+                                    <button class="nx-btn nx-btn--ghost" @onclick="() => OpenRejectModal(requester.BookingId)" disabled="@_processingId == requester.BookingId">
+                                        Reject
+                                    </button>
+                                </div>
+                            }
+                        </article>
+                    }
+                </div>
+            }
+        }
+    </div>
+</section>
+
+@if (_showRejectModal)
+{
+    <div class="hs-modal-overlay" @onclick="CloseRejectModal">
+        <div class="hs-modal" @onclick:stopPropagation="true">
+            <header class="hs-modal__header">
+                <h2>Reject booking request</h2>
+                <button type="button" class="hs-modal__close" @onclick="CloseRejectModal" aria-label="Close">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" 
+                         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M18 6 6 18M6 6l12 12" />
+                    </svg>
+                </button>
+            </header>
+
+            <div class="hs-modal__body">
+                <p>You can optionally send a message to the requester explaining why you rejected their request.</p>
+                <div class="field">
+                    <label for="reject-message" class="field__label">Message (optional)</label>
+                    <textarea id="reject-message" class="field__textarea" 
+                              @bind="_rejectMessage" 
+                              placeholder="Thank you for your interest, but..."
+                              rows="4"
+                              disabled="@_processingId == _rejectingBookingId"></textarea>
+                </div>
+            </div>
+
+            <footer class="hs-modal__footer">
+                <button type="button" class="nx-btn nx-btn--ghost" @onclick="CloseRejectModal" disabled="@(_processingId == _rejectingBookingId)">
+                    Cancel
+                </button>
+                <button type="button" class="nx-btn nx-btn--danger" @onclick="SubmitReject" disabled="@(_processingId == _rejectingBookingId)">
+                    @(_processingId == _rejectingBookingId ? "Rejecting..." : "Reject")
+                </button>
+            </footer>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public string Id { get; set; } = string.Empty;
+
+    private HousingPostDetailDto? _post;
+    private List<BookingRequesterDto> _requesters = new();
+    private Dictionary<string, ContactDisclosureDto?> _contacts = new();
+    private bool _loading = true;
+    
+    // Reject modal state
+    private bool _showRejectModal = false;
+    private string _rejectingBookingId = string.Empty;
+    private string _rejectMessage = string.Empty;
+    
+    // Processing state
+    private string? _processingId = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        try
+        {
+            _post = await Housing.GetPostAsync(Id);
+
+            // Load requesters for this post
+            _requesters = (await Housing.GetRequestersAsync(Id)).ToList();
+            
+            // Pre-load contact info for accepted bookings
+            foreach (var requester in _requesters.Where(r => r.Status == BookingStatus.Accepted))
+            {
+                var contact = await Housing.GetBookingContactAsync(requester.BookingId);
+                _contacts[requester.BookingId] = contact;
+            }
+        }
+        catch (Exception ex)
+        {
+            Toast.ShowError($"Failed to load booking requests: {ex.Message}", "Error");
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private void OpenRejectModal(string bookingId)
+    {
+        _rejectingBookingId = bookingId;
+        _rejectMessage = string.Empty;
+        _showRejectModal = true;
+    }
+
+    private void CloseRejectModal()
+    {
+        _showRejectModal = false;
+        _rejectingBookingId = string.Empty;
+        _rejectMessage = string.Empty;
+    }
+
+    private async Task AcceptRequest(string bookingId)
+    {
+        _processingId = bookingId;
+        try
+        {
+            var success = await Housing.AcceptBookingAsync(bookingId);
+            
+            if (success)
+            {
+                Toast.ShowSuccess("Booking request accepted!", "Success");
+                
+                // Update the requester status
+                var requester = _requesters.FirstOrDefault(r => r.BookingId == bookingId);
+                if (requester is not null)
+                {
+                    requester.Status = BookingStatus.Accepted;
+                    // Load contact info for the accepted booking
+                    var contact = await Housing.GetBookingContactAsync(bookingId);
+                    _contacts[bookingId] = contact;
+                }
+            }
+            else
+            {
+                Toast.ShowError("Could not accept this booking request.", "Failed");
+            }
+        }
+        catch (Exception ex)
+        {
+            Toast.ShowError($"Error accepting booking: {ex.Message}", "Error");
+        }
+        finally
+        {
+            _processingId = null;
+        }
+    }
+
+    private async Task SubmitReject()
+    {
+        _processingId = _rejectingBookingId;
+        try
+        {
+            var request = new RejectBookingRequestDto { Message = _rejectMessage };
+            var success = await Housing.RejectBookingAsync(_rejectingBookingId, request);
+            
+            if (success)
+            {
+                Toast.ShowSuccess("Booking request rejected.", "Success");
+                
+                // Update the requester status
+                var requester = _requesters.FirstOrDefault(r => r.BookingId == _rejectingBookingId);
+                if (requester is not null)
+                {
+                    requester.Status = BookingStatus.Rejected;
+                }
+                
+                _showRejectModal = false;
+                _rejectingBookingId = string.Empty;
+                _rejectMessage = string.Empty;
+            }
+            else
+            {
+                Toast.ShowError("Could not reject this booking request.", "Failed");
+            }
+        }
+        catch (Exception ex)
+        {
+            Toast.ShowError($"Error rejecting booking: {ex.Message}", "Error");
+        }
+        finally
+        {
+            _processingId = null;
+        }
+    }
+}
