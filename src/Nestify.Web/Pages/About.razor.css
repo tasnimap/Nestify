@@ -17,8 +17,6 @@
     position: relative;
     width: 100%;
     height: 520px;          /* tall enough for portrait card */
-    perspective: 1100px;
-    perspective-origin: 50% 40%;
 }
 
 /* ---- individual card ---- */
@@ -141,10 +139,6 @@
     color: var(--nx-muted);
     line-height: 1.55;
     margin: .3rem 0 0;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
 }
 
 .c3d__footer {
@@ -243,9 +237,7 @@
 
 /* Mobile: collapse stage height, hide side cards */
 @media (max-width: 640px) {
-    .c3d__stage { height: 460px; }
-
-    .c3d--next,
+    .c3d__stage { height: 490px; }
     .c3d--prev {
         transform: translate(-50%, -50%) translateX(200px) translateZ(-100px) rotateY(-28deg) scale(0.7);
         opacity: 0.45;
@@ -257,8 +249,7 @@
 }
 
 @media (max-width: 400px) {
-    .c3d__stage { height: 430px; }
-    .c3d--next,
+    .c3d__stage { height: 480px; }
     .c3d--prev { opacity: 0; pointer-events: none; }
     .c3d__card { width: 260px; }
 }
