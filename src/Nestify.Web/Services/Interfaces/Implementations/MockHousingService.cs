@@ -1,3 +1,4 @@
+// src/Nestify.Web/Services/Interfaces/Implementations/MockHousingService.cs
 // In-memory fixtures for the frontend phase. Covers the awkward cases: an empty
 // filter result, a single-result filter, a full page, and a not-found id.
 using Nestify.Shared.Dtos.Housing;
@@ -23,10 +24,12 @@ public sealed class MockHousingService : IHousingService
         public bool IsMine { get; init; }
     }
 
+    private readonly IHouseLookupService _houseLookup;
     private readonly List<Post> _posts;
 
-    public MockHousingService()
+    public MockHousingService(IHouseLookupService houseLookup)
     {
+        _houseLookup = houseLookup;
         var now = DateTime.UtcNow;
 
         _posts = new List<Post>
@@ -96,6 +99,9 @@ public sealed class MockHousingService : IHousingService
 
     public Task<HousingPageDto<HousingPostSummaryDto>> BrowseAsync(HousingPostFilterDto filter)
     {
+        // NOTE — mock only: real eligibility (§5.3) is enforced server-side via VisibleTo(viewer),
+        // never client-side. This mock simply excludes Closed posts the way an ineligible/closed
+        // post would be excluded for a seeker, so the Browse page has a realistic set to render.
         var query = _posts.Where(p => p.Status == PostStatus.Active || p.IsMine).AsEnumerable();
 
         if (filter.ListingType is { } lt)
@@ -143,27 +149,72 @@ public sealed class MockHousingService : IHousingService
 
         // A missing id and an ineligible id are indistinguishable by design (§5.3) — both return null,
         // and the page renders the same "not available" state either way.
+        return Task.FromResult(post is null ? null : ToDetail(post));
+    }
+
+    public async Task<string> CreateAsync(CreateHousingPostRequestDto request)
+    {
+        var houses = await _houseLookup.GetManageableHousesAsync();
+        var house = houses.FirstOrDefault(h => h.Id == request.HouseId);
+
+        var post = new Post
+        {
+            Id = $"post-{Guid.NewGuid():N}".Substring(0, 13),
+            Title = request.Title,
+            Description = request.Description,
+            ListingType = request.ListingType,
+            SeatsAvailable = request.SeatsAvailable,
+            MonthlyRent = request.MonthlyRent,
+            AreaName = house?.AreaName ?? "Unknown area",
+            Division = house?.Division ?? "Unknown division",
+            CreatedAtUtc = DateTime.UtcNow,
+            Eligibility = request.Eligibility,
+            IsMine = true
+        };
+
+        _posts.Add(post);
+        return post.Id;
+    }
+
+    public Task<HousingPostDetailDto?> GetPostForEditAsync(string id)
+    {
+        var post = _posts.FirstOrDefault(p => p.Id == id && p.IsMine);
+        return Task.FromResult(post is null ? null : ToDetail(post));
+    }
+
+    public Task<bool> UpdateAsync(string id, UpdateHousingPostRequestDto request)
+    {
+        var post = _posts.FirstOrDefault(p => p.Id == id && p.IsMine);
         if (post is null)
         {
-            return Task.FromResult<HousingPostDetailDto?>(null);
+            return Task.FromResult(false);
         }
 
-        return Task.FromResult<HousingPostDetailDto?>(new HousingPostDetailDto
-        {
-            Id = post.Id,
-            Title = post.Title,
-            Description = post.Description,
-            ListingType = post.ListingType,
-            SeatsAvailable = post.SeatsAvailable,
-            MonthlyRent = post.MonthlyRent,
-            AreaName = post.AreaName,
-            Division = post.Division,
-            Status = post.Status,
-            CreatedAtUtc = post.CreatedAtUtc,
-            Eligibility = post.Eligibility,
-            IsMine = post.IsMine
-        });
+        post.Title = request.Title;
+        post.Description = request.Description;
+        post.ListingType = request.ListingType;
+        post.SeatsAvailable = request.SeatsAvailable;
+        post.MonthlyRent = request.MonthlyRent;
+        post.Eligibility = request.Eligibility;
+
+        return Task.FromResult(true);
     }
+
+    private static HousingPostDetailDto ToDetail(Post post) => new()
+    {
+        Id = post.Id,
+        Title = post.Title,
+        Description = post.Description,
+        ListingType = post.ListingType,
+        SeatsAvailable = post.SeatsAvailable,
+        MonthlyRent = post.MonthlyRent,
+        AreaName = post.AreaName,
+        Division = post.Division,
+        Status = post.Status,
+        CreatedAtUtc = post.CreatedAtUtc,
+        Eligibility = post.Eligibility,
+        IsMine = post.IsMine
+    };
 
     private static HousingPostSummaryDto ToSummary(Post p) => new()
     {

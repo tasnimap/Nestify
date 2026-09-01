@@ -1,0 +1,63 @@
+@* Eligibility requirement builder for /housing/new and /housing/{id}/edit. Every
+   field defaults to "no requirement" — the schema's nullable-means-unconstrained
+   design (§2.5) is mirrored here field for field. *@
+
+<div class="hs-elig">
+    <p class="hs-elig__hint">
+        Leave anything below on "No requirement" to accept any applicant on that trait.
+    </p>
+
+    <div class="field-row">
+        <div class="field">
+            <label for="hs-elig-gender">Gender</label>
+            <InputSelect id="hs-elig-gender" class="field__input" @bind-Value="Value.Gender">
+                <option value="">No requirement</option>
+                <option value="@Gender.Male">Male only</option>
+                <option value="@Gender.Female">Female only</option>
+            </InputSelect>
+        </div>
+
+        <div class="field">
+            <label for="hs-elig-occupation">Occupation</label>
+            <InputSelect id="hs-elig-occupation" class="field__input" @bind-Value="Value.Occupation">
+                <option value="">No requirement</option>
+                <option value="@Occupation.Student">Students only</option>
+                <option value="@Occupation.Working">Working professionals only</option>
+            </InputSelect>
+        </div>
+    </div>
+
+    <div class="field-row">
+        <div class="field">
+            <label for="hs-elig-marital">Marital status</label>
+            <InputSelect id="hs-elig-marital" class="field__input" @bind-Value="Value.MaritalStatus">
+                <option value="">No requirement</option>
+                <option value="@MaritalStatus.Single">Single only</option>
+                <option value="@MaritalStatus.Married">Married only</option>
+            </InputSelect>
+        </div>
+
+        <div class="field">
+            <label>Age range</label>
+            <div class="hs-elig__age">
+                <InputNumber class="field__input" @bind-Value="Value.MinAge" placeholder="Min" min="0" />
+                <span>–</span>
+                <InputNumber class="field__input" @bind-Value="Value.MaxAge" placeholder="Max" min="0" />
+            </div>
+        </div>
+    </div>
+
+    <label class="hs-elig__check">
+        <InputCheckbox @bind-Value="Value.VerifiedOnly" />
+        <span>Verified accounts only</span>
+    </label>
+
+    <label class="hs-elig__check">
+        <InputCheckbox @bind-Value="Value.StudentOnly" />
+        <span>Student ID required</span>
+    </label>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public EligibilityDto Value { get; set; } = new();
+}
