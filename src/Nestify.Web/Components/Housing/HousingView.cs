@@ -30,8 +30,26 @@ public static class HousingView
     public static string StatusModifier(PostStatus status) =>
         status == PostStatus.Active ? "status-active" : "status-closed";
 
+    public static string Label(BookingStatus status) => status switch
+    {
+        BookingStatus.Pending => "Pending",
+        BookingStatus.Accepted => "Accepted",
+        BookingStatus.Rejected => "Rejected",
+        BookingStatus.Withdrawn => "Withdrawn",
+        _ => status.ToString()
+    };
+
+    public static string StatusModifier(BookingStatus status) => status switch
+    {
+        BookingStatus.Pending => "status-pending",
+        BookingStatus.Accepted => "status-accepted",
+        BookingStatus.Rejected => "status-rejected",
+        BookingStatus.Withdrawn => "status-withdrawn",
+        _ => "status-default"
+    };
+
     /// <summary>
-    /// One chip of text per non-null requirement. Rendered as plain text, never markup â€”
+    /// One chip of text per non-null requirement. Rendered as plain text, never markup —
     /// this is descriptive copy about the post, not a client-side eligibility check.
     /// </summary>
     public static IReadOnlyList<string> EligibilityChips(EligibilityDto e)
@@ -57,7 +75,7 @@ public static class HousingView
         }
         if (e.MinAge is { } minAge && e.MaxAge is { } maxAge)
         {
-            chips.Add($"Age {minAge}â€“{maxAge}");
+            chips.Add($"Age {minAge}–{maxAge}");
         }
         else if (e.MinAge is { } onlyMin)
         {

@@ -217,11 +217,19 @@ public sealed class MockHousingService : IHousingService
 
     public Task<IReadOnlyList<MyHousingPostDto>> GetMineAsync()
     {
-        // Booking counts are always 0 here — bookings-core wires them once that data exists.
         var rows = _posts
             .Where(p => p.IsMine)
             .OrderByDescending(p => p.CreatedAtUtc)
-            .Select(p => new MyHousingPostDto { Post = ToSummary(p) })
+            .Select(p =>
+            {
+                var bookings = _bookings.Where(b => b.PostId == p.Id).ToList();
+                return new MyHousingPostDto
+                {
+                    Post = ToSummary(p),
+                    BookingRequestCount = bookings.Count,
+                    PendingBookingRequestCount = bookings.Count(b => b.Status == BookingStatus.Pending)
+                };
+            })
             .ToList();
 
         return Task.FromResult<IReadOnlyList<MyHousingPostDto>>(rows);
@@ -258,6 +266,7 @@ public sealed class MockHousingService : IHousingService
         }
         // Real delete (§3.6), not a soft status — matches the API's hard DELETE + cascade.
         _posts.Remove(post);
+        _bookings.RemoveAll(booking => booking.PostId == id);
         return Task.FromResult(true);
     }
 

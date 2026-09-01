@@ -155,6 +155,10 @@
                         <div class="hs-my-posts__footer">
                             <div class="hs-my-posts__actions">
                                 <a class="nx-btn nx-btn--ghost" href="housing/@postDto.Post.Id">View</a>
+                                @if (postDto.BookingRequestCount > 0)
+                                {
+                                    <a class="nx-btn nx-btn--ghost" href="housing/@postDto.Post.Id/bookings">View Requests (@postDto.BookingRequestCount)</a>
+                                }
                                 <a class="nx-btn nx-btn--ghost" href="housing/@postDto.Post.Id/edit">Edit</a>
                                 @if (postDto.Post.Status == PostStatus.Active)
                                 {

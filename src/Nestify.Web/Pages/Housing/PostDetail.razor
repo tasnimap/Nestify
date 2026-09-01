@@ -85,7 +85,7 @@
                     {
                         <a class="nx-btn nx-btn--ghost" href="housing/@_post.Id/edit">Edit listing</a>
                     }
-                    <button class="nx-btn nx-btn--primary" disabled="@(!CanBook)" @onclick="HandleBook">
+                    <button class="nx-btn nx-btn--primary" disabled="@(!CanBook || _bookingSubmitting)" @onclick="OpenBookingModal">
                         @(_post.Status == PostStatus.Closed ? "Listing closed" : "Book this listing")
                     </button>
                     @if (!_post.IsMine)
@@ -103,11 +103,45 @@
     </div>
 </section>
 
+@if (_showBookingModal)
+{
+    <div class="hs-modal-overlay" @onclick="CloseBookingModal">
+        <div class="hs-modal" @onclick:stopPropagation="true">
+            <header class="hs-modal__header">
+                <h2>Send booking request</h2>
+                <button type="button" class="hs-modal__close" @onclick="CloseBookingModal" aria-label="Close">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path d="M18 6 6 18M6 6l12 12" />
+                    </svg>
+                </button>
+            </header>
+            <div class="hs-modal__body">
+                <p>Tell the manager a bit about yourself.</p>
+                <div class="field">
+                    <label for="booking-message" class="field__label">Your message (optional)</label>
+                    <textarea id="booking-message" class="field__textarea" @bind="_bookingMessage"
+                              placeholder="Tell the manager about yourself..." rows="4"
+                              disabled="@_bookingSubmitting"></textarea>
+                </div>
+            </div>
+            <footer class="hs-modal__footer">
+                <button type="button" class="nx-btn nx-btn--ghost" @onclick="CloseBookingModal" disabled="@_bookingSubmitting">Cancel</button>
+                <button type="button" class="nx-btn nx-btn--primary" @onclick="SubmitBookingRequest" disabled="@_bookingSubmitting">
+                    @(_bookingSubmitting ? "Sending..." : "Send request")
+                </button>
+            </footer>
+        </div>
+    </div>
+}
+
 @code {
     [Parameter] public string Id { get; set; } = string.Empty;
 
     private HousingPostDetailDto? _post;
     private bool _loading = true;
+    private bool _showBookingModal = false;
+    private string _bookingMessage = string.Empty;
+    private bool _bookingSubmitting = false;
 
     private bool CanBook => _post is { Status: PostStatus.Active, IsMine: false };
 
@@ -120,11 +154,45 @@
         _loading = false;
     }
 
-    private void HandleBook()
+    private void OpenBookingModal()
     {
-        // Booking flow (Pending → Accepted → ContactDisclosureCard) is built in F3.
-        // For now this confirms the button state machine without a working backend call.
-        Toast.ShowInfo("Booking requests open up in the next phase of this module.", "Coming soon");
+        _bookingMessage = string.Empty;
+        _showBookingModal = true;
+    }
+
+    private void CloseBookingModal()
+    {
+        _showBookingModal = false;
+        _bookingMessage = string.Empty;
+    }
+
+    private async Task SubmitBookingRequest()
+    {
+        if (_post is null)
+            return;
+
+        _bookingSubmitting = true;
+        try
+        {
+            var success = await Housing.RequestBookingAsync(_post.Id, _bookingMessage);
+            if (success)
+            {
+                Toast.ShowSuccess("Your booking request has been sent!", "Success");
+                CloseBookingModal();
+            }
+            else
+            {
+                Toast.ShowError("Could not send booking request. The listing may have been closed or you've already requested it.", "Failed");
+            }
+        }
+        catch (Exception ex)
+        {
+            Toast.ShowError($"Error sending booking request: {ex.Message}", "Error");
+        }
+        finally
+        {
+            _bookingSubmitting = false;
+        }
     }
 
     private void HandleReport()
