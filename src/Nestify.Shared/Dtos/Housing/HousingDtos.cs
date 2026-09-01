@@ -107,3 +107,40 @@ public sealed class HousingPageDto<T>
     public bool HasPrevious => Page > 1;
     public bool HasNext => Page < TotalPages;
 }
+
+/// <summary>Payload for <c>/housing/new</c>.</summary>
+public sealed class CreateHousingPostRequestDto
+{
+    public string HouseId { get; set; } = string.Empty;
+    public string Title { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public ListingType ListingType { get; set; }
+    public int SeatsAvailable { get; set; }
+    public decimal MonthlyRent { get; set; }
+    public EligibilityDto Eligibility { get; set; } = new();
+}
+
+/// <summary>Payload for <c>/housing/{id}/edit</c>. No HouseId — a post cannot be reparented (§3.6).</summary>
+public sealed class UpdateHousingPostRequestDto
+{
+    public string Title { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public ListingType ListingType { get; set; }
+    public int SeatsAvailable { get; set; }
+    public decimal MonthlyRent { get; set; }
+    public EligibilityDto Eligibility { get; set; } = new();
+}
+
+/// <summary>
+/// TEMPORARY bridge for the house selector on <c>/housing/new</c>, until Obonti's
+/// <c>houses/mine</c> (M3) lands on main. Backed only by <c>MockHouseLookupService</c> —
+/// once the real IHouseService/HouseSummaryDto ships, delete this DTO, IHouseLookupService,
+/// and MockHouseLookupService, and point the selector at the real thing instead.
+/// </summary>
+public sealed class HouseOptionDto
+{
+    public string Id { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public string AreaName { get; set; } = string.Empty;
+    public string Division { get; set; } = string.Empty;
+}

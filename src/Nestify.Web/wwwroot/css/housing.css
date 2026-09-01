@@ -332,3 +332,63 @@
     gap: .75rem;
     flex-wrap: wrap;
 }
+
+/* ---------- create/edit form ---------- */
+
+.hs-panel {
+    background: var(--nx-card);
+    border: 1px solid var(--nx-border);
+    border-radius: var(--nx-radius);
+    box-shadow: var(--nx-shadow-sm);
+    padding: 1.25rem;
+}
+
+.hs-form {
+    display: grid;
+    gap: 1.1rem;
+}
+
+.hs-form__fieldset {
+    display: grid;
+    gap: .75rem;
+    border: 1px solid var(--nx-border);
+    border-radius: var(--nx-radius-sm);
+    padding: 1rem;
+}
+.hs-form__fieldset legend {
+    font-weight: 700;
+    font-size: .9rem;
+    padding-inline: .3rem;
+}
+
+.hs-form__foot {
+    display: flex;
+    justify-content: flex-end;
+    gap: .75rem;
+    padding-top: .5rem;
+    border-top: 1px solid var(--nx-border);
+}
+
+/* ---------- eligibility builder ---------- */
+
+.hs-elig__hint {
+    font-size: .82rem;
+    color: var(--nx-muted);
+    margin: 0;
+}
+
+.hs-elig__age {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+.hs-elig__age input { width: 100%; }
+
+.hs-elig__check {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-size: .9rem;
+    color: var(--nx-body);
+    cursor: pointer;
+}

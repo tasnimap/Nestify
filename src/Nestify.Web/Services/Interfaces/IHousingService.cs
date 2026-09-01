@@ -1,16 +1,7 @@
-// src/Nestify.Web/Services/Interfaces/IHousingService.cs
 using Nestify.Shared.Dtos.Housing;
 
 namespace Nestify.Web.Services.Interfaces;
 
-/// <summary>
-/// The contract M1's pages depend on. Mirrors §3.6 of the implementation plan —
-/// same operations, same DTOs, same return shapes — so the mock and the real
-/// HttpClient implementation are swappable with one line in Program.cs.
-///
-/// F1 scope only (Browse + Detail). Create/edit/mine/bookings are added in F2/F3 —
-/// do not add them here ahead of those pages landing.
-/// </summary>
 public interface IHousingService
 {
     Task<HousingPageDto<HousingPostSummaryDto>> BrowseAsync(HousingPostFilterDto filter);
@@ -21,4 +12,13 @@ public interface IHousingService
     /// "not available" state for both. Never render a 403-style "you're not eligible" message.
     /// </summary>
     Task<HousingPostDetailDto?> GetPostAsync(string id);
+
+    /// <summary>Creates a post under the given house. Returns the new post's id.</summary>
+    Task<string> CreateAsync(CreateHousingPostRequestDto request);
+
+    /// <summary>Owner-only. Returns null if the post doesn't exist or isn't the caller's.</summary>
+    Task<HousingPostDetailDto?> GetPostForEditAsync(string id);
+
+    /// <summary>Owner-only. Returns false if the post doesn't exist or isn't the caller's.</summary>
+    Task<bool> UpdateAsync(string id, UpdateHousingPostRequestDto request);
 }

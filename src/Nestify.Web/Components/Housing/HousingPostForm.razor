@@ -1,0 +1,106 @@
+@* Shared create/edit form for a housing post. HouseOptions is populated (and the
+   selector shown) on Create only — Update has no house field (§3.6, a post cannot
+   be reparented). *@
+
+<EditForm Model="Model" OnValidSubmit="HandleValidSubmit" class="hs-form">
+    <DataAnnotationsValidator />
+
+    @if (HouseOptions is { Count: > 0 })
+    {
+        <div class="field">
+            <label for="hs-house" class="field__label--required">House</label>
+            <select id="hs-house" class="field__input" value="@SelectedHouseId" @onchange="OnHouseChanged">
+                <option value="">Select a house…</option>
+                @foreach (var h in HouseOptions)
+                {
+                    <option value="@h.Id">@h.Name — @h.AreaName, @h.Division</option>
+                }
+            </select>
+            @if (ShowHouseValidation)
+            {
+                <p class="field__error">Pick which house this listing belongs to.</p>
+            }
+        </div>
+    }
+
+    <div class="field">
+        <label for="hs-title" class="field__label--required">Title</label>
+        <InputText id="hs-title" class="field__input" @bind-Value="Model.Title"
+                   placeholder="One seat in a 3-bed flat, Dhanmondi" />
+        <ValidationMessage For="@(() => Model.Title)" />
+    </div>
+
+    <div class="field">
+        <label for="hs-desc" class="field__label--required">Description</label>
+        <InputTextArea id="hs-desc" class="field__input" @bind-Value="Model.Description" rows="6"
+                       placeholder="What the place is like, who else lives there, what's included in rent." />
+        <ValidationMessage For="@(() => Model.Description)" />
+        <p class="field__helper">Plain text only — links and formatting won't render.</p>
+    </div>
+
+    <div class="field-row">
+        <div class="field">
+            <label for="hs-type">Listing type</label>
+            <InputSelect id="hs-type" class="field__input" @bind-Value="Model.ListingType">
+                @foreach (var t in _listingTypes)
+                {
+                    <option value="@t">@HousingView.Label(t)</option>
+                }
+            </InputSelect>
+        </div>
+        <div class="field">
+            <label for="hs-seats" class="field__label--required">Seats available</label>
+            <InputNumber id="hs-seats" class="field__input" @bind-Value="Model.SeatsAvailable" min="1" />
+            <ValidationMessage For="@(() => Model.SeatsAvailable)" />
+        </div>
+    </div>
+
+    <div class="field">
+        <label for="hs-rent" class="field__label--required">Monthly rent (৳)</label>
+        <InputNumber id="hs-rent" class="field__input" @bind-Value="Model.MonthlyRent" step="100" />
+        <ValidationMessage For="@(() => Model.MonthlyRent)" />
+    </div>
+
+    <fieldset class="hs-form__fieldset">
+        <legend>Who can apply</legend>
+        <EligibilityBuilder Value="Model.Eligibility" />
+    </fieldset>
+
+    <div class="hs-form__foot">
+        <button type="button" class="nx-btn nx-btn--ghost" @onclick="OnCancel" disabled="@Busy">Cancel</button>
+        <button type="submit" class="nx-btn nx-btn--primary" disabled="@Busy">
+            @(Busy ? "Saving…" : SubmitLabel)
+        </button>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter, EditorRequired] public HousingPostFormModel Model { get; set; } = new();
+    [Parameter] public IReadOnlyList<HouseOptionDto>? HouseOptions { get; set; }
+    [Parameter] public string SelectedHouseId { get; set; } = string.Empty;
+    [Parameter] public EventCallback<string> SelectedHouseIdChanged { get; set; }
+    [Parameter] public string SubmitLabel { get; set; } = "Publish listing";
+    [Parameter] public bool Busy { get; set; }
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+
+    private readonly ListingType[] _listingTypes = Enum.GetValues<ListingType>();
+    private bool _submitted;
+    private bool ShowHouseValidation => _submitted && string.IsNullOrEmpty(SelectedHouseId);
+
+    private Task OnHouseChanged(ChangeEventArgs e) =>
+        SelectedHouseIdChanged.InvokeAsync(e.Value?.ToString() ?? string.Empty);
+
+    private Task HandleValidSubmit()
+    {
+        _submitted = true;
+
+        // A house is only required when a selector is actually shown (Create, not Edit).
+        if (HouseOptions is { Count: > 0 } && string.IsNullOrEmpty(SelectedHouseId))
+        {
+            return Task.CompletedTask;
+        }
+
+        return OnValidSubmit.InvokeAsync();
+    }
+}
