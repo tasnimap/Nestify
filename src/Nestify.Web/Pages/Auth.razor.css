@@ -1,0 +1,284 @@
+/* ============================================================
+   Nestify — Unified Auth Page (Auth.razor.css)
+   Animated sliding panel card combining login + register.
+   ============================================================ */
+
+/* ── Outer page wrapper ── */
+.auth-wrap {
+    min-height: calc(100dvh - var(--nx-nav-h));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    background: var(--nx-bg-alt);
+}
+
+/* ── The double-wide card ── */
+.auth-card {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: min(900px, 100%);
+    min-height: 600px;
+    background: #fff;
+    border-radius: var(--nx-radius-lg);
+    border: 1px solid var(--nx-border);
+    box-shadow: var(--nx-shadow-lg);
+    overflow: hidden;
+}
+
+/* ── Individual form panels ── */
+.auth-panel {
+    padding: clamp(1.75rem, 4vw, 2.75rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    overflow-y: auto;
+}
+
+/* ── Panel headings ── */
+.auth-panel__head { margin-bottom: 1.75rem; }
+.auth-panel__head h2 { font-size: clamp(1.4rem, 2.5vw, 1.85rem); }
+.auth-panel__head p  { margin-top: .4rem; color: var(--nx-muted); font-size: .95rem; }
+
+/* ── Forms ── */
+.auth-form {
+    display: grid;
+    gap: 1.1rem;
+}
+
+/* ── Field icon support ── */
+.field__icon {
+    position: absolute;
+    left: .9rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1rem;
+    height: 1rem;
+    color: var(--nx-muted);
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    pointer-events: none;
+}
+
+.field__input--icon { padding-left: 2.5rem; }
+
+/* ── Divider ── */
+.auth-divider {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    margin: 1.25rem 0 1rem;
+    color: var(--nx-muted);
+    font-size: .8rem;
+}
+.auth-divider::before,
+.auth-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--nx-border);
+}
+
+/* ── Social buttons ── */
+.social-row {
+    display: flex;
+    gap: .75rem;
+    justify-content: center;
+}
+
+.social-btn {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border: 1.5px solid var(--nx-border-strong);
+    border-radius: 10px;
+    background: #fff;
+    cursor: pointer;
+    transition: border-color .16s ease, box-shadow .16s ease;
+}
+
+.social-btn svg { width: 18px; height: 18px; }
+
+.social-btn:hover {
+    border-color: var(--nx-primary);
+    box-shadow: 0 0 0 3px var(--nx-primary-soft);
+}
+
+/* ── Alert messages ── */
+.auth-alert {
+    padding: .75rem 1rem;
+    border-radius: 10px;
+    border-left: 3px solid var(--nx-danger);
+    background: var(--nx-danger-soft);
+    color: #96201f;
+    font-size: .87rem;
+}
+
+.auth-alert--ok {
+    border-left-color: var(--nx-accent);
+    background: var(--nx-accent-soft);
+    color: #0b5c2a;
+}
+
+/* ── Spinner ── */
+.auth-spinner {
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid rgba(255, 255, 255, .4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: auth-spin .7s linear infinite;
+}
+
+@keyframes auth-spin { to { transform: rotate(360deg); } }
+
+/* ============================================================
+   SLIDING OVERLAY PANEL
+   ============================================================ */
+
+.auth-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;          /* starts covering the LEFT (login) panel */
+    width: 50%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: var(--nx-radius-lg);
+    transition: transform .65s cubic-bezier(.77, 0, .175, 1);
+    z-index: 20;
+    pointer-events: none; /* only the active half gets pointer events */
+}
+
+/* When register mode is active, slide the overlay to the right */
+.auth-card--register .auth-overlay {
+    transform: translateX(100%);
+}
+
+/* The overlay is split into two halves — only the visible one gets pointer events */
+.auth-overlay__half {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2.5rem;
+    background:
+        radial-gradient(circle at 25% 30%, rgba(124, 58, 237, .45), transparent 55%),
+        var(--nx-bg-deep);
+    color: #cfc8e6;
+    pointer-events: none;
+}
+
+.auth-overlay__half--left  { left: -100%; }   /* behind overlay when login mode */
+.auth-overlay__half--right { left: 0; }       /* visible when login mode */
+
+/* In register mode, the overlay has moved right — so left half is now visible */
+.auth-card--register .auth-overlay__half--left  { left: 0; pointer-events: all; }
+.auth-card--register .auth-overlay__half--right { left: 100%; }
+
+/* In login mode, right half is visible */
+.auth-card:not(.auth-card--register) .auth-overlay__half--right { pointer-events: all; }
+
+.auth-overlay__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+    max-width: 22rem;
+}
+
+.auth-overlay__logo {
+    display: inline-flex;
+    align-items: center;
+    gap: .6rem;
+    font-family: var(--nx-display);
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.auth-mark {
+    display: grid;
+    place-items: center;
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 10px 10px 10px 3px;
+    background: var(--nx-primary);
+    color: #fff;
+    font-size: 1.1rem;
+    font-family: var(--nx-display);
+    font-weight: 700;
+}
+
+.auth-overlay__content h2 {
+    color: #fff;
+    font-size: clamp(1.3rem, 2.5vw, 1.75rem);
+    line-height: 1.2;
+    margin: 0;
+}
+
+.auth-overlay__content p {
+    font-size: .92rem;
+    color: #b7afd0;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.auth-overlay__btn {
+    margin-top: .5rem;
+    padding: .75rem 2.25rem;
+    border-radius: 999px;
+    border: 2px solid #fff;
+    background: transparent;
+    color: #fff;
+    font: inherit;
+    font-size: .95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .2s ease, color .2s ease;
+}
+
+.auth-overlay__btn:hover {
+    background: #fff;
+    color: var(--nx-primary-strong);
+}
+
+/* ============================================================
+   MOBILE — stack vertically, hide overlay panel
+   ============================================================ */
+@media (max-width: 700px) {
+    .auth-card {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto;
+    }
+
+    /* Show only the active panel */
+    .auth-panel--login    { display: flex; }
+    .auth-panel--register { display: none; }
+
+    .auth-card--register .auth-panel--login    { display: none; }
+    .auth-card--register .auth-panel--register { display: flex; }
+
+    /* Hide the overlay on mobile — use a simple switch link instead */
+    .auth-overlay { display: none; }
+
+    /* Mobile toggle link at the bottom of each panel */
+    .auth-panel--login::after {
+        content: "Don'\''t have an account? Create one";
+        display: block;
+        margin-top: 1.25rem;
+        padding-top: 1.25rem;
+        border-top: 1px solid var(--nx-border);
+        text-align: center;
+        font-size: .9rem;
+        color: var(--nx-muted);
+    }
+}
