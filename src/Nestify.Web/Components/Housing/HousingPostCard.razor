@@ -1,0 +1,39 @@
+@* Browse-grid card. Shows area, rent, seats and listing type per §4 of the
+   Project_Distribution. The whole title links to the detail page. *@
+@inject Nestify.Web.Services.MoneyFormatterService Money
+
+<article class="hs-card @(Post.Status == PostStatus.Closed ? "hs-card--closed" : null)">
+    <div class="hs-card__top">
+        <span class="hs-chip hs-chip--type">@HousingView.ShortLabel(Post.ListingType)</span>
+        @if (Post.Status == PostStatus.Closed)
+        {
+            <span class="hs-chip hs-chip--closed">Closed</span>
+        }
+    </div>
+
+    <h3 class="hs-card__title">
+        <a href="housing/@Post.Id">@Post.Title</a>
+    </h3>
+
+    <div class="hs-card__meta">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+            <circle cx="12" cy="10" r="3" />
+        </svg>
+        <span>@Post.AreaName, @Post.Division</span>
+        <span class="hs-dot"></span>
+        <span class="hs-nowrap">@HousingView.RelativeTime(Post.CreatedAtUtc)</span>
+    </div>
+
+    <div class="hs-card__foot">
+        <span class="hs-price">@Money.Format(Post.MonthlyRent)<span class="hs-price__unit">/mo</span></span>
+        <span class="hs-seats">
+            @Post.SeatsAvailable @(Post.SeatsAvailable == 1 ? "seat" : "seats")
+        </span>
+    </div>
+</article>
+
+@code {
+    [Parameter, EditorRequired] public HousingPostSummaryDto Post { get; set; } = new();
+}

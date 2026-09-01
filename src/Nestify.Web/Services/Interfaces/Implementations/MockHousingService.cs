@@ -24,12 +24,26 @@ public sealed class MockHousingService : IHousingService
         public bool IsMine { get; init; }
     }
 
+    private sealed class Booking
+    {
+        public required string Id { get; init; }
+        public required string PostId { get; init; }
+        public required string RequesterName { get; init; }
+        public required string RequesterEmail { get; init; }
+        public required string RequesterPhone { get; init; }
+        public BookingStatus Status { get; set; } = BookingStatus.Pending;
+        public string? Message { get; set; }
+        public DateTime RequestedAtUtc { get; set; }
+    }
+
     private readonly IHouseLookupService _houseLookup;
     private readonly List<Post> _posts;
+    private readonly List<Booking> _bookings;
 
     public MockHousingService(IHouseLookupService houseLookup)
     {
         _houseLookup = houseLookup;
+        _bookings = new List<Booking>();
         var now = DateTime.UtcNow;
 
         _posts = new List<Post>
@@ -102,7 +116,8 @@ public sealed class MockHousingService : IHousingService
         // NOTE — mock only: real eligibility (§5.3) is enforced server-side via VisibleTo(viewer),
         // never client-side. This mock simply excludes Closed posts the way an ineligible/closed
         // post would be excluded for a seeker, so the Browse page has a realistic set to render.
-        var query = _posts.Where(p => p.Status == PostStatus.Active || p.IsMine).AsEnumerable();
+        // Only show active posts to everyone - closed posts are managed in MyPosts page only.
+        var query = _posts.Where(p => p.Status == PostStatus.Active).AsEnumerable();
 
         if (filter.ListingType is { } lt)
         {
@@ -198,6 +213,201 @@ public sealed class MockHousingService : IHousingService
         post.Eligibility = request.Eligibility;
 
         return Task.FromResult(true);
+    }
+
+    public Task<IReadOnlyList<MyHousingPostDto>> GetMineAsync()
+    {
+        // Booking counts are always 0 here — bookings-core wires them once that data exists.
+        var rows = _posts
+            .Where(p => p.IsMine)
+            .OrderByDescending(p => p.CreatedAtUtc)
+            .Select(p => new MyHousingPostDto { Post = ToSummary(p) })
+            .ToList();
+
+        return Task.FromResult<IReadOnlyList<MyHousingPostDto>>(rows);
+    }
+
+    public Task<bool> CloseAsync(string id)
+    {
+        var post = _posts.FirstOrDefault(p => p.Id == id && p.IsMine);
+        if (post is null || post.Status != PostStatus.Active)
+        {
+            return Task.FromResult(false);
+        }
+        post.Status = PostStatus.Closed;
+        return Task.FromResult(true);
+    }
+
+    public Task<bool> ReopenAsync(string id)
+    {
+        var post = _posts.FirstOrDefault(p => p.Id == id && p.IsMine);
+        if (post is null || post.Status != PostStatus.Closed)
+        {
+            return Task.FromResult(false);
+        }
+        post.Status = PostStatus.Active;
+        return Task.FromResult(true);
+    }
+
+    public Task<bool> DeleteAsync(string id)
+    {
+        var post = _posts.FirstOrDefault(p => p.Id == id && p.IsMine);
+        if (post is null)
+        {
+            return Task.FromResult(false);
+        }
+        // Real delete (§3.6), not a soft status — matches the API's hard DELETE + cascade.
+        _posts.Remove(post);
+        return Task.FromResult(true);
+    }
+
+    public Task<bool> RequestBookingAsync(string postId, string? message)
+    {
+        var post = _posts.FirstOrDefault(p => p.Id == postId);
+        
+        // Cannot book if post doesn't exist, is closed, or is the caller's own
+        if (post is null || post.Status != PostStatus.Active || post.IsMine)
+        {
+            return Task.FromResult(false);
+        }
+
+        // Check if a Pending or Accepted request already exists (mock assumes current user is "RequesterName")
+        if (_bookings.Any(b => b.PostId == postId && (b.Status == BookingStatus.Pending || b.Status == BookingStatus.Accepted)))
+        {
+            return Task.FromResult(false);
+        }
+
+        var booking = new Booking
+        {
+            Id = $"booking-{Guid.NewGuid():N}".Substring(0, 17),
+            PostId = postId,
+            RequesterName = "Current User",
+            RequesterEmail = "user@example.com",
+            RequesterPhone = "+8801700000000",
+            Status = BookingStatus.Pending,
+            Message = message,
+            RequestedAtUtc = DateTime.UtcNow
+        };
+
+        _bookings.Add(booking);
+        return Task.FromResult(true);
+    }
+
+    public Task<IReadOnlyList<BookingRequesterDto>> GetRequestersAsync(string postId)
+    {
+        var post = _posts.FirstOrDefault(p => p.Id == postId && p.IsMine);
+        if (post is null)
+        {
+            return Task.FromResult<IReadOnlyList<BookingRequesterDto>>(new List<BookingRequesterDto>());
+        }
+
+        var requesters = _bookings
+            .Where(b => b.PostId == postId)
+            .Select(b => new BookingRequesterDto
+            {
+                BookingId = b.Id,
+                RequesterName = b.RequesterName,
+                RequestedAtUtc = b.RequestedAtUtc,
+                Status = b.Status,
+                Message = b.Message
+            })
+            .ToList();
+
+        return Task.FromResult<IReadOnlyList<BookingRequesterDto>>(requesters);
+    }
+
+    public Task<bool> AcceptBookingAsync(string bookingId)
+    {
+        var booking = _bookings.FirstOrDefault(b => b.Id == bookingId);
+        if (booking is null || booking.Status != BookingStatus.Pending)
+        {
+            return Task.FromResult(false);
+        }
+
+        // Verify the post belongs to the current user
+        var post = _posts.FirstOrDefault(p => p.Id == booking.PostId && p.IsMine);
+        if (post is null)
+        {
+            return Task.FromResult(false);
+        }
+
+        booking.Status = BookingStatus.Accepted;
+        return Task.FromResult(true);
+    }
+
+    public Task<bool> RejectBookingAsync(string bookingId, RejectBookingRequestDto request)
+    {
+        var booking = _bookings.FirstOrDefault(b => b.Id == bookingId);
+        if (booking is null || booking.Status != BookingStatus.Pending)
+        {
+            return Task.FromResult(false);
+        }
+
+        // Verify the post belongs to the current user
+        var post = _posts.FirstOrDefault(p => p.Id == booking.PostId && p.IsMine);
+        if (post is null)
+        {
+            return Task.FromResult(false);
+        }
+
+        booking.Status = BookingStatus.Rejected;
+        if (request.Message is not null)
+        {
+            booking.Message = request.Message;
+        }
+        return Task.FromResult(true);
+    }
+
+    public Task<ContactDisclosureDto?> GetBookingContactAsync(string bookingId)
+    {
+        var booking = _bookings.FirstOrDefault(b => b.Id == bookingId);
+        
+        // Return contact only if booking is Accepted
+        if (booking is null || booking.Status != BookingStatus.Accepted)
+        {
+            return Task.FromResult<ContactDisclosureDto?>(null);
+        }
+
+        var post = _posts.FirstOrDefault(p => p.Id == booking.PostId);
+        if (post is null)
+        {
+            return Task.FromResult<ContactDisclosureDto?>(null);
+        }
+
+        // Return contact only if caller is a party to it (owner or requester)
+        // In mock, we always allow it if accepted
+        var contact = new ContactDisclosureDto
+        {
+            Name = booking.RequesterName,
+            Email = booking.RequesterEmail,
+            Phone = booking.RequesterPhone
+        };
+
+        return Task.FromResult<ContactDisclosureDto?>(contact);
+    }
+
+    public Task<IReadOnlyList<MyBookingDto>> GetMyBookingsAsync()
+    {
+        // Mock assumes current user is "Current User" (the requester)
+        var bookings = _bookings
+            .Where(b => b.RequesterName == "Current User")
+            .OrderByDescending(b => b.RequestedAtUtc)
+            .Select(b =>
+            {
+                var post = _posts.FirstOrDefault(p => p.Id == b.PostId);
+                return new MyBookingDto
+                {
+                    BookingId = b.Id,
+                    Post = post is not null ? ToSummary(post) : new HousingPostSummaryDto(),
+                    Status = b.Status,
+                    RequestedAtUtc = b.RequestedAtUtc,
+                    Message = b.Message,
+                    ManagerName = b.Status == BookingStatus.Accepted ? "Manager Name" : null
+                };
+            })
+            .ToList();
+
+        return Task.FromResult<IReadOnlyList<MyBookingDto>>(bookings);
     }
 
     private static HousingPostDetailDto ToDetail(Post post) => new()
