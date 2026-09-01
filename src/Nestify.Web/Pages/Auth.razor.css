@@ -13,13 +13,18 @@
     background: var(--nx-bg-alt);
 }
 
-/* ── The double-wide card ── */
+/* ── The double-wide card ──
+   --split is the LOGIN column's share of the card width. The
+   register column, the sliding overlay and its two halves all
+   derive from it, so the purple edge always lands exactly on the
+   column seam. Register gets the larger share. */
 .auth-card {
+    --split: 43%;
     position: relative;
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    width: min(900px, 100%);
-    min-height: 600px;
+    grid-template-columns: var(--split) 1fr;
+    width: min(1080px, 100%);
+    min-height: 660px;
     background: #fff;
     border-radius: var(--nx-radius-lg);
     border: 1px solid var(--nx-border);
@@ -29,22 +34,26 @@
 
 /* ── Individual form panels ── */
 .auth-panel {
-    padding: clamp(1.75rem, 4vw, 2.75rem);
+    padding: clamp(2.25rem, 4vw, 3.25rem) clamp(1.75rem, 4vw, 2.75rem);
     display: flex;
     flex-direction: column;
+    justify-content: center;
     overflow-y: auto;
 }
 
 /* ── Panel headings ── */
-.auth-panel__head { margin-bottom: 1.75rem; }
+.auth-panel__head { margin-bottom: 2.25rem; }
 .auth-panel__head h2 { font-size: clamp(1.4rem, 2.5vw, 1.85rem); }
-.auth-panel__head p  { margin-top: .4rem; color: var(--nx-muted); font-size: .95rem; }
+.auth-panel__head p  { margin-top: .5rem; color: var(--nx-muted); font-size: .95rem; }
 
-/* ── Forms ── */
-.auth-form {
-    display: grid;
-    gap: 1.1rem;
-}
+/* ── Forms ──
+   The grid + gap for .auth-form lives in the global auth.css: this
+   scoped file can't attach to the <form> that <EditForm> renders,
+   and .field-row must share the exact same gap value. */
+
+/* Extra breathing room between the checkbox row and the submit button */
+.auth-form .field__check { margin-bottom: .6rem; }
+.auth-form button[type="submit"] { margin-top: .9rem; }
 
 /* ── Field icon support ── */
 .field__icon {
@@ -62,8 +71,6 @@
     stroke-linejoin: round;
     pointer-events: none;
 }
-
-.field__input--icon { padding-left: 2.5rem; }
 
 /* ── Alert messages ── */
 .auth-alert {
@@ -94,51 +101,90 @@
 @keyframes auth-spin { to { transform: rotate(360deg); } }
 
 /* ============================================================
-   SLIDING OVERLAY — clip-path approach
-   The overlay always covers the FULL card (inset: 0).
-   clip-path restricts the VISIBLE purple area to one half.
-   No form content ever peeks through during the animation.
+   SLIDING OVERLAY — full-cover curtain wipe
+   The purple overlay always fills the whole card (inset: 0).
+   A clip-path keeps only one half visible in each resting mode.
+   While switching, a keyframe drives the clip to FULL coverage
+   at the midpoint, so the card is completely hidden before the
+   other half is revealed — nothing underneath ever peeks through
+   during the transition.
+
+   pointer-events: auto means clicks on the purple area are
+   swallowed and never reach the form hidden beneath it. clip-path
+   also removes the hidden half from hit-testing, so the form on
+   the visible side stays fully interactive.
    ============================================================ */
 
 .auth-overlay {
     position: absolute;
     inset: 0;
     z-index: 20;
-    pointer-events: none;          /* forms underneath stay interactive */
+    pointer-events: auto;          /* eats clicks over the covered form */
     background:
         radial-gradient(circle at 30% 25%, rgba(124, 58, 237, .45), transparent 55%),
         var(--nx-bg-deep);
-    /* Login mode: clip reveals ONLY the right half (register panel) */
-    clip-path: inset(0 0 0 50%);
-    transition: clip-path .65s cubic-bezier(.77, 0, .175, 1);
+    /* Login mode: only the register column (right of the seam) is covered */
+    clip-path: inset(0 0 0 var(--split));
 }
 
-/* Register mode: clip reveals ONLY the left half (login panel) */
+/* Register mode: only the login column (left of the seam) is covered */
 .auth-card--register .auth-overlay {
-    clip-path: inset(0 50% 0 0);
+    clip-path: inset(0 calc(100% - var(--split)) 0 0);
 }
 
-/* ── Two content areas, left and right ── */
+/* While toggling, run the curtain wipe instead of a plain clip tween */
+.auth-card--anim-to-register .auth-overlay {
+    animation: auth-curtain-to-register .72s cubic-bezier(.77, 0, .175, 1) both;
+}
+
+.auth-card--anim-to-login .auth-overlay {
+    animation: auth-curtain-to-login .72s cubic-bezier(.77, 0, .175, 1) both;
+}
+
+@keyframes auth-curtain-to-register {
+    0%        { clip-path: inset(0 0 0 var(--split)); }            /* register column */
+    45%, 55%  { clip-path: inset(0 0 0 0); }                       /* whole card covered */
+    100%      { clip-path: inset(0 calc(100% - var(--split)) 0 0); } /* login column */
+}
+
+@keyframes auth-curtain-to-login {
+    0%        { clip-path: inset(0 calc(100% - var(--split)) 0 0); }
+    45%, 55%  { clip-path: inset(0 0 0 0); }
+    100%      { clip-path: inset(0 0 0 var(--split)); }
+}
+
+/* ── Two content areas — each matches its column's width ── */
 .auth-overlay__half {
     position: absolute;
     top: 0;
-    width: 50%;
     height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
     padding: 2.5rem;
+    transition: opacity .3s ease;
 }
 
-.auth-overlay__half--left  { left: 0; }
-.auth-overlay__half--right { right: 0; }
+/* Only the half matching the current mode is shown; the other is
+   faded out so the brief full-cover moment reads as a clean panel. */
+.auth-overlay__half--left  { left: 0;  width: var(--split);            opacity: 0; }
+.auth-overlay__half--right { right: 0; width: calc(100% - var(--split)); opacity: 1; }
+
+.auth-card--register .auth-overlay__half--left  { opacity: 1; }
+.auth-card--register .auth-overlay__half--right { opacity: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+    .auth-card--anim-to-register .auth-overlay,
+    .auth-card--anim-to-login .auth-overlay { animation: none; }
+    .auth-overlay__half { transition: none; }
+}
 
 .auth-overlay__content {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1.25rem;
+    gap: 1.5rem;
     max-width: 22rem;
     color: #cfc8e6;
 }
@@ -200,6 +246,29 @@
     color: var(--nx-primary-strong);
 }
 
+/* ── Inline text switch — only needed when the overlay is hidden ── */
+.auth-switch-inline {
+    display: none;
+    margin-top: 1.4rem;
+    padding-top: 1.4rem;
+    border-top: 1px solid var(--nx-border);
+    text-align: center;
+    font-size: .9rem;
+    color: var(--nx-muted);
+}
+
+.auth-switch-inline__btn {
+    border: 0;
+    background: none;
+    padding: 0;
+    font: inherit;
+    font-weight: 700;
+    color: var(--nx-primary-strong);
+    cursor: pointer;
+}
+
+.auth-switch-inline__btn:hover { text-decoration: underline; }
+
 /* ============================================================
    MOBILE — stack forms, hide overlay
    ============================================================ */
@@ -215,6 +284,7 @@
     .auth-card--register .auth-panel--login    { display: none; }
     .auth-card--register .auth-panel--register { display: flex; }
 
-    /* Hide overlay on mobile */
+    /* Overlay makes no sense stacked — hide it and use the inline switch */
     .auth-overlay { display: none; }
+    .auth-switch-inline { display: block; }
 }

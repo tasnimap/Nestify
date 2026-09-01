@@ -123,16 +123,28 @@
     margin-top: 1.75rem;
 }
 
+/* Vertical rhythm between fields. Defined here (not in the
+   component-scoped file) because the scoped selector can't reach
+   the <form> that <EditForm> renders — and .field-row below must
+   use the exact same value so a wrapped row keeps the same gap. */
+.auth-form {
+    display: grid;
+    gap: var(--auth-field-gap, 1.5rem);
+}
+
+/* Two-up when the CONTAINER can fit both comfortably, otherwise
+   the fields stack so the value stays readable. auto-fit keys off
+   the actual available width, not the viewport, so this works
+   inside the narrower register column too. row-gap is pinned to
+   the same token as .auth-form so the wrapped layout matches. */
 .field-row {
     display: grid;
-    gap: 1.15rem;
+    column-gap: 1.5rem;
+    row-gap: var(--auth-field-gap, 1.5rem);
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
 }
 
-@media (min-width: 520px) {
-    .field-row { grid-template-columns: 1fr 1fr; }
-}
-
-.field { display: grid; gap: .4rem; }
+.field { display: grid; gap: .5rem; }
 
 .field label {
     font-size: .82rem;
@@ -156,8 +168,8 @@
 
 .field__input {
     width: 100%;
-    min-height: 3rem;
-    padding: .8rem 1rem;
+    min-height: 3.25rem;
+    padding: .9rem 1rem;
     border: 1.5px solid var(--nx-border-strong);
     border-radius: 11px;
     font: inherit;
@@ -167,7 +179,13 @@
     transition: border-color .16s ease, box-shadow .16s ease;
 }
 
-.field__control .field__input { padding-right: 4.25rem; }
+/* Icon sits inside .field__control — pad the text clear of it.
+   (Auth.razor.css is component-scoped and can't reach the <input>
+   rendered by <InputText>, so this rule has to live here.) */
+.field__input--icon { padding-left: 2.6rem; }
+
+/* Only reserve space on the right when a Show/Hide toggle is present. */
+.field__control:has(.field__toggle) .field__input { padding-right: 4.5rem; }
 
 .field__input::placeholder { color: #9a94ac; }
 
@@ -216,6 +234,59 @@
     color: var(--nx-danger);
     font-size: .8rem;
     font-weight: 500;
+}
+
+/* ---------- segmented choice (e.g. account type) ---------- */
+
+.seg {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .35rem;
+    padding: .35rem;
+    background: var(--nx-bg-alt);
+    border: 1.5px solid var(--nx-border-strong);
+    border-radius: 12px;
+}
+
+.seg__option {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.6rem;
+    padding: .5rem .75rem;
+    border-radius: 9px;
+    font-size: .88rem;
+    font-weight: 600;
+    text-align: center;
+    color: var(--nx-body);
+    cursor: pointer;
+    transition: background .15s ease, color .15s ease, box-shadow .15s ease;
+}
+
+.seg__option input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    margin: 0;
+    cursor: pointer;
+}
+
+.seg__option:hover { color: var(--nx-ink); }
+
+.seg__option:has(input:checked) {
+    background: #fff;
+    color: var(--nx-primary-strong);
+    box-shadow: var(--nx-shadow-sm);
+}
+
+.seg__option:has(input:focus-visible) {
+    outline: 2px solid var(--nx-primary);
+    outline-offset: 2px;
+}
+
+@media (max-width: 360px) {
+    .seg { grid-template-columns: 1fr; }
 }
 
 .auth__alert {

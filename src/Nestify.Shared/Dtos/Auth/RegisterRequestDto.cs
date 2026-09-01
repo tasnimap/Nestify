@@ -7,5 +7,7 @@ public sealed class RegisterRequestDto
     public string Email { get; set; } = string.Empty;
     public string Phone { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
-    public string StudentId { get; set; } = string.Empty;
+
+    /// <summary>"User" or "DomesticHelp" — which kind of account to create.</summary>
+    public string AccountType { get; set; } = "User";
 }

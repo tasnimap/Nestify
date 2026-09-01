@@ -10,7 +10,7 @@
 <PageTitle>@(_showRegister ? "Create an account" : "Log in") — Nestify</PageTitle>
 
 <div class="auth-wrap">
-    <div class="auth-card @(_showRegister ? "auth-card--register" : "")">
+    <div class="auth-card @(_showRegister ? "auth-card--register" : "") @_animClass">
 
         <!-- ── Left: Login form ── -->
         <div class="auth-panel auth-panel--login">
@@ -69,6 +69,11 @@
                     }
                     else { <span>Log in</span> }
                 </button>
+
+                <p class="auth-switch-inline">
+                    New to Nestify?
+                    <button type="button" class="auth-switch-inline__btn" @onclick="SwitchToRegister">Create an account</button>
+                </p>
             </EditForm>
         </div>
 
@@ -81,6 +86,7 @@
 
             <EditForm Model="_register" OnValidSubmit="HandleRegisterAsync" class="auth-form" novalidate>
                 <DataAnnotationsValidator />
+
 
                 <div class="field">
                     <label for="r-name">Full name</label>
@@ -115,10 +121,11 @@
                 </div>
 
                 <div class="field">
-                    <label for="r-sid">Student / National ID</label>
-                    <InputText id="r-sid" @bind-Value="_register.StudentId" class="field__input"
-                               placeholder="Used for verification" />
-                    <ValidationMessage For="@(() => _register.StudentId)" class="field__error" />
+                    <label for="r-role">Register as</label>
+                    <InputSelect id="r-role" @bind-Value="_register.AccountType" class="field__input">
+                        <option value="@RegisterRole.User">User</option>
+                        <option value="@RegisterRole.DomesticHelp">Domestic Help</option>
+                    </InputSelect>
                 </div>
 
                 <div class="field-row">
@@ -140,9 +147,14 @@
                     <div class="field">
                         <label for="r-confirm">Confirm password</label>
                         <div class="field__control">
-                            <InputText id="r-confirm" @bind-Value="_register.ConfirmPassword" class="field__input"
-                                       type="@(_showRegPwd ? "text" : "password")"
+                            <svg class="field__icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+                            <InputText id="r-confirm" @bind-Value="_register.ConfirmPassword" class="field__input field__input--icon"
+                                       type="@(_showRegConfirm ? "text" : "password")"
                                        autocomplete="new-password" placeholder="Re-enter password" />
+                            <button type="button" class="field__toggle" @onclick="() => _showRegConfirm = !_showRegConfirm"
+                                    aria-label="@(_showRegConfirm ? "Hide" : "Show") password">
+                                @(_showRegConfirm ? "Hide" : "Show")
+                            </button>
                         </div>
                         <ValidationMessage For="@(() => _register.ConfirmPassword)" class="field__error" />
                     </div>
@@ -167,6 +179,11 @@
                     }
                     else { <span>Create account</span> }
                 </button>
+
+                <p class="auth-switch-inline">
+                    Already have an account?
+                    <button type="button" class="auth-switch-inline__btn" @onclick="SwitchToLogin">Log in</button>
+                </p>
             </EditForm>
         </div>
 
@@ -207,9 +224,27 @@
 
 @code {
     // ── Toggle ───────────────────────────────────────────────────────────────────
+    // _animClass drives the full-cover curtain wipe. The two class names alternate
+    // on every switch (you can only ever move to the opposite mode), so the CSS
+    // animation re-triggers each time without needing a timer to clear it.
     private bool _showRegister;
-    private void SwitchToLogin()    { _showRegister = false; _loginMsg = null; }
-    private void SwitchToRegister() { _showRegister = true;  _registerMsg = null; }
+    private string _animClass = "";
+
+    private void SwitchToLogin()
+    {
+        if (!_showRegister) return;
+        _showRegister = false;
+        _animClass    = "auth-card--anim-to-login";
+        _loginMsg     = null;
+    }
+
+    private void SwitchToRegister()
+    {
+        if (_showRegister) return;
+        _showRegister = true;
+        _animClass    = "auth-card--anim-to-register";
+        _registerMsg  = null;
+    }
 
     // ── Login ────────────────────────────────────────────────────────────────────
     private sealed class LoginModel
@@ -250,8 +285,12 @@
     }
 
     // ── Register ─────────────────────────────────────────────────────────────────
+    public enum RegisterRole { User, DomesticHelp }
+
     private sealed class RegisterModel
     {
+        public RegisterRole AccountType { get; set; } = RegisterRole.User;
+
         [Required(ErrorMessage = "Enter your full name.")]
         [StringLength(120, MinimumLength = 2, ErrorMessage = "Name must be 2 to 120 characters.")]
         public string Name { get; set; } = string.Empty;
@@ -263,10 +302,6 @@
         [Required(ErrorMessage = "Enter your phone number.")]
         [RegularExpression(@"^01[0-9]{9}$", ErrorMessage = "Enter an 11-digit number starting with 01.")]
         public string Phone { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "Enter your student or national ID.")]
-        [StringLength(40, MinimumLength = 4, ErrorMessage = "ID must be 4 to 40 characters.")]
-        public string StudentId { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Choose a password.")]
         [StringLength(100, MinimumLength = 8, ErrorMessage = "Password must be at least 8 characters.")]
@@ -282,6 +317,7 @@
 
     private readonly RegisterModel _register = new();
     private bool _showRegPwd;
+    private bool _showRegConfirm;
     private bool _registerBusy;
     private bool _registerError = true;
     private string? _registerMsg;
@@ -295,11 +331,11 @@
         {
             var result = await AuthService.RegisterAsync(new RegisterRequestDto
             {
-                Name      = _register.Name,
-                Email     = _register.Email,
-                Phone     = _register.Phone,
-                Password  = _register.Password,
-                StudentId = _register.StudentId,
+                Name        = _register.Name,
+                Email       = _register.Email,
+                Phone       = _register.Phone,
+                Password    = _register.Password,
+                AccountType = _register.AccountType == RegisterRole.DomesticHelp ? "DomesticHelp" : "User",
             });
             if (result is null) { _registerMsg = "We could not create your account with those details."; return; }
             _registerError = false;
