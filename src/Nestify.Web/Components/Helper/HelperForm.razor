@@ -1,0 +1,68 @@
+@using Nestify.Shared.Dtos.Area
+@using Nestify.Shared.Dtos.Helpers
+
+<EditForm Model="Model" OnValidSubmit="HandleSubmit">
+    <div class="hs-lens__row">
+        <span class="hs-lens__label">Services</span>
+        <div class="hs-seg hs-seg--wrap">
+            @foreach (var s in _serviceTypes)
+            {
+                var selected = Model.Services.Contains(s);
+                <button type="button" class="hs-seg__opt @(selected ? "hs-seg__opt--active" : null)"
+                        @onclick="() => ToggleService(s)">@s</button>
+            }
+        </div>
+    </div>
+
+    <div class="hs-lens__row">
+        <label class="hs-lens__label" for="hf-availability">Availability window</label>
+        <input id="hf-availability" type="text" placeholder="e.g. Sat-Thu, 8am-2pm"
+               @bind="Model.AvailabilityWindow" />
+    </div>
+
+    <div class="hs-lens__row">
+        <label class="hs-lens__label" for="hf-rate">Monthly rate (৳)</label>
+        <input id="hf-rate" type="number" min="0" step="500" @bind="Model.MonthlyRate" />
+    </div>
+
+    <div class="hs-lens__row">
+        <span class="hs-lens__label">Area</span>
+        <AreaCascade Selection="_areaSelection" SelectionChanged="OnAreaChanged" />
+    </div>
+
+    <button type="submit" class="nx-btn nx-btn--primary" disabled="@_submitting">
+        @(_submitting ? "Saving..." : SubmitLabel)
+    </button>
+</EditForm>
+
+@code {
+    [Parameter, EditorRequired] public HelperRegistrationDto Model { get; set; } = default!;
+    [Parameter] public string SubmitLabel { get; set; } = "Save";
+    [Parameter] public EventCallback OnSubmit { get; set; }
+
+    private readonly ServiceType[] _serviceTypes = Enum.GetValues<ServiceType>();
+    private AreaSelectionDto _areaSelection = new();
+    private bool _submitting;
+
+    private void ToggleService(ServiceType s)
+    {
+        if (!Model.Services.Remove(s))
+        {
+            Model.Services.Add(s);
+        }
+    }
+
+    private void OnAreaChanged(AreaSelectionDto selection)
+    {
+        Model.DivisionId = selection.DivisionId;
+        Model.DistrictId = selection.DistrictId;
+        Model.UpazilaId = selection.UpazilaId;
+    }
+
+    private async Task HandleSubmit()
+    {
+        _submitting = true;
+        await OnSubmit.InvokeAsync();
+        _submitting = false;
+    }
+}

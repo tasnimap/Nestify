@@ -1,0 +1,36 @@
+<div class="rt-stars" role="img" aria-label="@AriaLabel">
+    @for (var i = 1; i <= 5; i++)
+    {
+        var filled = i <= Math.Round(Value);
+        var star = i;
+        @if (ReadOnly)
+        {
+            <span class="rt-star @(filled ? "rt-star--filled" : null)">★</span>
+        }
+        else
+        {
+            <button type="button" class="rt-star rt-star--input @(filled ? "rt-star--filled" : null)"
+                    @onclick="() => SetValue(star)">★</button>
+        }
+    }
+    @if (ShowCount && Count is not null)
+    {
+        <span class="rt-count">(@Count)</span>
+    }
+</div>
+
+@code {
+    [Parameter] public double Value { get; set; }
+    [Parameter] public int? Count { get; set; }
+    [Parameter] public bool ReadOnly { get; set; } = true;
+    [Parameter] public bool ShowCount { get; set; } = true;
+    [Parameter] public EventCallback<int> ValueChanged { get; set; }
+
+    private string AriaLabel => $"{Value:0.0} out of 5 stars" + (Count is { } c ? $", {c} reviews" : "");
+
+    private Task SetValue(int v)
+    {
+        Value = v;
+        return ValueChanged.InvokeAsync(v);
+    }
+}

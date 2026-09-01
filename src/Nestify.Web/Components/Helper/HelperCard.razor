@@ -1,0 +1,29 @@
+@using Nestify.Shared.Dtos.Helpers
+@using Nestify.Web.Components
+<a class="hs-card" href="helpers/@Helper.Id">
+    <div class="hs-card__body">
+        <h3 class="hs-card__title">@Helper.Name</h3>
+        <p class="hs-card__services">@string.Join(", ", Helper.Services)</p>
+        <RatingStars Value="Helper.RatingAverage" Count="Helper.RatingCount" />
+        <p class="hs-card__rate">৳@Helper.MonthlyRate.ToString("N0") /mo</p>
+        <p class="hs-card__area">
+            @Helper.AreaName
+            @if (Helper.Distance is not null)
+            {
+                <span> · @DistanceLabel(Helper.Distance.Value)</span>
+            }
+        </p>
+    </div>
+</a>
+
+@code {
+    [Parameter, EditorRequired] public HelperSummaryDto Helper { get; set; } = default!;
+
+    private static string DistanceLabel(DistanceBand band) => band switch
+    {
+        DistanceBand.Within1Km => "within 1 km",
+        DistanceBand.Within2Km => "within 2 km",
+        DistanceBand.Within5Km => "within 5 km",
+        _ => "over 5 km"
+    };
+}
