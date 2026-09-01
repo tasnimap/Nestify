@@ -31,6 +31,7 @@
                             <img class="c3d__photo"
                                  src="@member.PhotoUrl"
                                  alt="Photo of @member.Name"
+                                 style="object-position: @member.ObjectPosition;"
                                  width="280"
                                  height="220" />
                             <div class="c3d__photo-overlay" aria-hidden="true"></div>
@@ -39,10 +40,16 @@
                         <!-- Info lives below the photo -->
                         <div class="c3d__info">
                             <h3 class="c3d__name">@member.Name</h3>
-                            <p class="c3d__role">@member.Role</p>
-                            <p class="c3d__bio">@member.Bio</p>
+                            @if (!string.IsNullOrEmpty(member.Role))
+                            {
+                                <p class="c3d__role">@member.Role</p>
+                            }
+                            <p class="c3d__bio" style="white-space: pre-line;">@member.Bio</p>
                             <div class="c3d__footer">
-                                <span class="nx-tag">@member.Focus</span>
+                                @if (!string.IsNullOrEmpty(member.Focus))
+                                {
+                                    <span class="nx-tag">@member.Focus</span>
+                                }
                                 <div class="member__links">
                                     <a href="#" aria-label="@(member.Name + " on GitHub (placeholder)")" @onclick:stopPropagation>
                                         <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 21.13V25" /></svg>
@@ -145,33 +152,36 @@
 @code {
     private sealed record Member(
         string Name, string Initials, string AvatarClass,
-        string Role, string Focus, string Bio, string PhotoUrl);
+        string Role, string Focus, string Bio, string PhotoUrl, string ObjectPosition = "center top");
 
     private readonly Member[] _team =
     {
         new("Tahmid Mubashira Obonti", "TO", "nx-avatar--a",
-            "Expense & settlement module",
-            "Meal-cost settlement",
-            "Owns the shared-expense and meal-settlement flows — the month grid, the per-meal rate, and the immutable settlement run.",
-            "https://randomuser.me/api/portraits/women/44.jpg"),
+            "",
+            "",
+            "Undergrad Student (CSE), Ahsanullah University of Science & Technology.\nWeb Developer.",
+            "https://res.cloudinary.com/dait0sacc/image/upload/v1788277354/obonti1_eqfemo.jpg",
+            "center 15%"),
 
         new("Tasmia Tabassum Shreoshi", "TS", "nx-avatar--b",
-            "Housing & seat listings module",
-            "Housing & bookings",
-            "Owns browsing, posting and booking of seats and shared houses, including the eligibility rules and the contact-disclosure card.",
-            "https://randomuser.me/api/portraits/women/65.jpg"),
+            "",
+            "",
+            "Undergrad Student (CSE), Ahsanullah University of Science & Technology.\nWeb Developer.",
+            "https://res.cloudinary.com/dait0sacc/image/upload/v1788277354/Shreoshi_cpy_oaj3ho.jpg",
+            "center"),
 
         new("Tasnima Faruk Prapty", "TP", "nx-avatar--c",
-            "Domestic help module & app shell",
-            "Helper directory",
-            "Owns the domestic-help directory, the engagement state machine and reviews, plus the app shell — layout, navigation and the home page.",
-            "https://randomuser.me/api/portraits/women/47.jpg"),
+            "",
+            "",
+            "Undergrad Student (CSE), Ahsanullah University of Science & Technology.\nWeb Developer.",
+            "https://res.cloudinary.com/dait0sacc/image/upload/v1788277355/prapty_cpy_u6dphe.jpg",
+            "center"),
 
         new("Kazi Ishmamul Haque", "KH", "nx-avatar--d",
-            "Marketplace module & design system",
-            "Marketplace & UI kit",
-            "Owns the second-hand marketplace and the shared UI kit — design tokens, buttons, cards and the image components.",
-            "https://randomuser.me/api/portraits/men/32.jpg"),
+            "",
+            "",
+            "Undergrad Student (CSE), Ahsanullah University of Science & Technology.\nWeb Developer.",
+            "https://res.cloudinary.com/dait0sacc/image/upload/v1788275541/ishmam_ypvfj5.jpg"),
     };
 
     // ── Carousel state ──────────────────────────────────────────────────────────

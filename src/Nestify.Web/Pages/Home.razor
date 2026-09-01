@@ -110,34 +110,6 @@
     </div>
 </section>
 
-<!-- ============ RECENT PAGES ============ -->
-<section class="nx-section nx-section--alt recent-pages">
-    <div class="nx-container">
-        <div class="recent-pages__head">
-            <p class="nx-eyebrow">Recent pages</p>
-            <h2 class="nx-section-title">Jump back into the parts you were reviewing.</h2>
-        </div>
-
-        <div class="recent-pages__grid">
-            <a class="recent-page-card" href="demo/forms">
-                <span class="recent-page-card__icon recent-page-card__icon--b">F</span>
-                <div>
-                    <strong>Form primitives demo</strong>
-                    <p>Money, date, validation, and toasts.</p>
-                </div>
-            </a>
-
-            <a class="recent-page-card" href="about">
-                <span class="recent-page-card__icon recent-page-card__icon--c">N</span>
-                <div>
-                    <strong>About us</strong>
-                    <p>Project goals and module ownership.</p>
-                </div>
-            </a>
-        </div>
-    </div>
-</section>
-
 <!-- ============ PROBLEM ============ -->
 <section class="nx-section">
     <div class="nx-container problem">
@@ -160,54 +132,126 @@
     </div>
 </section>
 
-<!-- ============ FEATURES ============ -->
-<section class="nx-section">
+<!-- ============ SERVICES SHOWCASE ============ -->
+<section class="nx-section svc-section">
     <div class="nx-container">
         <div class="features__head">
-            <p class="nx-eyebrow">What's inside</p>
-            <h2 class="nx-section-title">One account. Four modules that actually fit together.</h2>
-            <p class="nx-lead">Each module solves a problem on its own — and shares the same verified
-            identity, the same area map, and the same contact-safety rules with the others.</p>
+            <p class="nx-eyebrow">Our services</p>
+            <h2 class="nx-section-title">Everything a bachelor needs, in one place.</h2>
+            <p class="nx-lead">Four real problems. Four connected modules. One verified account to rule them all.</p>
         </div>
 
-        <div class="features__grid">
-            <article class="feature nx-card">
-                <span class="feature__icon feature__icon--a">
-                    <svg class="nx-icon" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5" /><path d="M5 9.5V21h14V9.5" /><path d="M9.5 21v-6h5v6" /></svg>
-                </span>
-                <h3>Housing &amp; seat listings</h3>
-                <p>Browse seats, shared rooms and whole houses by area and budget. Post a vacancy,
-                set eligibility, and accept requests — contact details unlock only when you accept.</p>
-            </article>
-
-            <article class="feature nx-card">
-                <span class="feature__icon feature__icon--b">
-                    <svg class="nx-icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4 4-6 8-6s8 2 8 6" /></svg>
-                </span>
-                <h3>Domestic help directory</h3>
-                <p>Find a verified <em>khala</em> or <em>bua</em> near you, filtered by service, rate and
-                availability. Reviews are unlocked only by a real, completed engagement.</p>
-            </article>
-
-            <a class="feature nx-card feature--link" href="settlement">
-                <span class="feature__icon feature__icon--c">
-                    <svg class="nx-icon" viewBox="0 0 24 24"><path d="M12 3v18" /><path d="M5 8h9a3 3 0 0 1 0 6H8" /></svg>
-                </span>
-                <h3>Shared expense &amp; meal settlement</h3>
-                <p>Log equal-split costs and meal purchases. Nestify computes the per-meal rate and
-                who owes whom, then locks the month as an immutable record.</p>
-                <span class="feature__link-label">Open settlement workspace →</span>
-            </a>
-
-            <article class="feature nx-card">
-                <span class="feature__icon feature__icon--d">
-                    <svg class="nx-icon" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" /><path d="M3 6h18" /><path d="M16 10a4 4 0 0 1-8 0" /></svg>
-                </span>
-                <h3>Second-hand marketplace</h3>
-                <p>Post and find used furniture, books and appliances by category, condition and area.
-                Buyer and seller both carry a verified badge before any deal is made.</p>
-            </article>
+        <!-- Service 1 — Housing: image LEFT, text RIGHT -->
+        <div class="svc-row">
+            <div class="svc-row__img-wrap">
+                <img
+                    class="svc-row__img"
+                    src="https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=800&auto=format&fit=crop&q=75"
+                    alt="A spacious family apartment bedroom with a master bed"
+                    loading="lazy"
+                    width="640" height="420" />
+                <span class="svc-row__badge svc-row__badge--a">Housing</span>
+            </div>
+            <div class="svc-row__body">
+                <p class="nx-eyebrow">Module 1</p>
+                <h3 class="svc-row__title">Find your next seat or shared house</h3>
+                <p class="svc-row__lead">
+                    Tired of scrolling through stale Facebook posts? Browse verified mess seats,
+                    sub-lets, and shared houses in your area — with rent in Taka, occupancy,
+                    and eligibility all up front. Contact details are released only once your
+                    request is accepted.
+                </p>
+                <ul class="svc-row__bullets">
+                    <li>Filter by division, district &amp; upazila</li>
+                    <li>See rent, deposit &amp; available date instantly</li>
+                    <li>Safe contact disclosure after matching</li>
+                </ul>
+            </div>
         </div>
+
+        <!-- Service 2 — Domestic Help: text LEFT, image RIGHT -->
+        <div class="svc-row svc-row--flip">
+            <div class="svc-row__img-wrap">
+                <img
+                    class="svc-row__img"
+                    src="images/khala.jpg"
+                    alt="A smiling woman from Bangladesh cooking in a flat"
+                    loading="lazy"
+                    width="640" height="420" />
+                <span class="svc-row__badge svc-row__badge--b">Domestic Help</span>
+            </div>
+            <div class="svc-row__body">
+                <p class="nx-eyebrow">Module 2</p>
+                <h3 class="svc-row__title">Hire a trusted <em>khala</em> or <em>bua</em></h3>
+                <p class="svc-row__lead">
+                    Finding reliable domestic help used to mean asking neighbours and hoping for
+                    the best. Nestify's verified helper directory shows ratings, services offered,
+                    hourly or monthly rate, and availability — all earned through real, completed
+                    engagements.
+                </p>
+                <ul class="svc-row__bullets">
+                    <li>Verified helper profiles with photo</li>
+                    <li>Reviews locked to real engagements only</li>
+                    <li>Book, confirm &amp; rate in one place</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Service 3 — Cost Settlement: image LEFT, text RIGHT -->
+        <div class="svc-row">
+            <div class="svc-row__img-wrap">
+                <img
+                    class="svc-row__img"
+                    src="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&auto=format&fit=crop&q=75"
+                    alt="Monthly shared expense ledger, calculator, and cost settlement"
+                    loading="lazy"
+                    width="640" height="420" />
+                <span class="svc-row__badge svc-row__badge--c">Cost Settlement</span>
+            </div>
+            <div class="svc-row__body">
+                <p class="nx-eyebrow">Module 3</p>
+                <h3 class="svc-row__title">End the monthly cost &amp; expense arguments</h3>
+                <p class="svc-row__lead">
+                    Log shared flat expenses, groceries, utilities, and meal purchases throughout the month.
+                    At close, Nestify automatically calculates shared splits and who owes whom —
+                    down to the last Taka. Once finalised, the record is locked and
+                    tamper-evident.
+                </p>
+                <ul class="svc-row__bullets">
+                    <li>Automatic calculation of shared dues &amp; splits</li>
+                    <li>Immutable monthly expense &amp; settlement record</li>
+                    <li>Every transaction logged with clear audit trail</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Service 4 — Marketplace: text LEFT, image RIGHT -->
+        <div class="svc-row svc-row--flip">
+            <div class="svc-row__img-wrap">
+                <img
+                    class="svc-row__img"
+                    src="https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?w=800&auto=format&fit=crop&q=75"
+                    alt="Study table, chair, and room essentials listed for sale"
+                    loading="lazy"
+                    width="640" height="420" />
+                <span class="svc-row__badge svc-row__badge--d">Marketplace</span>
+            </div>
+            <div class="svc-row__body">
+                <p class="nx-eyebrow">Module 4</p>
+                <h3 class="svc-row__title">Buy &amp; sell second-hand, safely</h3>
+                <p class="svc-row__lead">
+                    Moving out? List your furniture, fan, or textbooks in minutes. Every buyer
+                    and seller on Nestify carries a verified badge — so you know exactly who
+                    you're dealing with before any number is exchanged.
+                </p>
+                <ul class="svc-row__bullets">
+                    <li>Browse by category, condition &amp; area</li>
+                    <li>Verified badge on every profile</li>
+                    <li>AI price suggestion to list fairly</li>
+                </ul>
+            </div>
+        </div>
+
     </div>
 </section>
 
@@ -239,45 +283,6 @@
                 and the record can't be quietly edited later.</p>
             </li>
         </ol>
-    </div>
-</section>
-
-<!-- ============ TESTIMONIALS ============ -->
-<section class="nx-section">
-    <div class="nx-container">
-        <div class="features__head">
-            <p class="nx-eyebrow">Why people want this</p>
-            <h2 class="nx-section-title">Built from the frustrations of actual mess life.</h2>
-        </div>
-
-        <div class="quotes">
-            <figure class="quote nx-card">
-                <blockquote>"I found my current seat through a Facebook post that was three weeks
-                old. A verified listing with the area and rent up front would have saved me a month."</blockquote>
-                <figcaption>
-                    <span class="nx-avatar nx-avatar--a">RK</span>
-                    <span><strong>Rafiul Karim</strong><br />3rd-year student, Dhaka</span>
-                </figcaption>
-            </figure>
-
-            <figure class="quote nx-card">
-                <blockquote>"Every month the meal-cost argument took an hour and someone always felt
-                cheated. A per-meal rate the whole house can see would end that."</blockquote>
-                <figcaption>
-                    <span class="nx-avatar nx-avatar--b">ST</span>
-                    <span><strong>Sneha Tabassum</strong><br />House manager, Rajshahi</span>
-                </figcaption>
-            </figure>
-
-            <figure class="quote nx-card">
-                <blockquote>"Selling my old furniture before moving meant handing my number to
-                strangers. Doing it between verified accounts feels a lot safer."</blockquote>
-                <figcaption>
-                    <span class="nx-avatar nx-avatar--d">MH</span>
-                    <span><strong>Mahin Hasan</strong><br />Job holder, Chattogram</span>
-                </figcaption>
-            </figure>
-        </div>
     </div>
 </section>
 
