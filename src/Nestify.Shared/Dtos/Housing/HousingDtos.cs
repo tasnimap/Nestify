@@ -13,6 +13,14 @@ public enum PostStatus
     Closed
 }
 
+public enum BookingStatus
+{
+    Pending,
+    Accepted,
+    Rejected,
+    Withdrawn
+}
+
 public enum Gender
 {
     Male,
@@ -143,4 +151,61 @@ public sealed class HouseOptionDto
     public string Name { get; set; } = string.Empty;
     public string AreaName { get; set; } = string.Empty;
     public string Division { get; set; } = string.Empty;
+}
+
+/// <summary>
+/// Row on <c>/housing/mine</c> (§3.6 <c>housing-posts/mine</c>, deliberately bypasses
+/// <c>VisibleTo</c> so an owner sees their own post regardless of its requirements).
+/// The booking counts are wired up once bookings-core lands — until then they read 0.
+/// </summary>
+public sealed class MyHousingPostDto
+{
+    public HousingPostSummaryDto Post { get; set; } = new();
+    public int BookingRequestCount { get; set; }
+    public int PendingBookingRequestCount { get; set; }
+}
+
+/// <summary>
+/// Booking request info shown to a post manager (§11.4.4). Never carries contact —
+/// see GetBookingContactAsync for PII disclosure (§11.4.2).
+/// </summary>
+public sealed class BookingRequesterDto
+{
+    public string BookingId { get; set; } = string.Empty;
+    public string RequesterName { get; set; } = string.Empty;
+    public DateTime RequestedAtUtc { get; set; }
+    public BookingStatus Status { get; set; } = BookingStatus.Pending;
+    public string? Message { get; set; }
+}
+
+/// <summary>
+/// Payload for rejecting a booking request.
+/// </summary>
+public sealed class RejectBookingRequestDto
+{
+    public string? Message { get; set; }
+}
+
+/// <summary>
+/// Contact disclosure for an Accepted booking (§11.4.2). Only returns when the
+/// booking is Accepted and the caller is a party to it (requester or post manager).
+/// </summary>
+public sealed class ContactDisclosureDto
+{
+    public string Name { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string Phone { get; set; } = string.Empty;
+}
+
+/// <summary>
+/// Seeker's view of their own booking request (§11.4 for seeker-side flow).
+/// </summary>
+public sealed class MyBookingDto
+{
+    public string BookingId { get; set; } = string.Empty;
+    public HousingPostSummaryDto Post { get; set; } = new();
+    public BookingStatus Status { get; set; } = BookingStatus.Pending;
+    public DateTime RequestedAtUtc { get; set; }
+    public string? Message { get; set; }
+    public string? ManagerName { get; set; } // Populated only when Status == Accepted
 }
