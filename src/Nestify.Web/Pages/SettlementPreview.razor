@@ -1,5 +1,6 @@
 @page "/settlement-preview"
 @inject ToastService ToastService
+@inject SettlementWorkspaceService SettlementWorkspace
 
 <PageTitle>Settlement preview — Nestify</PageTitle>
 
@@ -17,29 +18,29 @@
         <div class="settlement-preview-page__banner">
             <div>
                 <strong>Ready to review</strong>
-                <span>All member nets balance to ৳0.00. Finalizing will lock this period.</span>
+                <span>Current member nets balance to <MoneyDisplay Amount="Settlement.NetTotal" />. Finalizing will lock this period.</span>
             </div>
-            <button type="button" class="nx-btn nx-btn--primary" @onclick="FinalizePeriod" disabled="@_isFinalized">
-                @(_isFinalized ? "Period finalized" : "Finalize period")
+            <button type="button" class="nx-btn nx-btn--primary" @onclick="FinalizePeriod" disabled="@SettlementWorkspace.IsFinalized">
+                @(SettlementWorkspace.IsFinalized ? "Period finalized" : "Finalize period")
             </button>
         </div>
 
         <section class="settlement-preview-page__metrics">
             <article class="nx-card settlement-preview-page__metric">
                 <span>Meal spending</span>
-                <strong><MoneyDisplay Amount="9200.00m" /></strong>
+                <strong><MoneyDisplay Amount="Settlement.MealSpending" /></strong>
             </article>
             <article class="nx-card settlement-preview-page__metric">
                 <span>Total meals</span>
-                <strong>233</strong>
+                <strong>@Settlement.TotalMeals.ToString("0.#")</strong>
             </article>
             <article class="nx-card settlement-preview-page__metric">
                 <span>Per-meal rate</span>
-                <strong>৳39.484979</strong>
+                <strong>৳@Settlement.PerMealRate.ToString("0.000000")</strong>
             </article>
             <article class="nx-card settlement-preview-page__metric">
                 <span>Equal-split costs</span>
-                <strong><MoneyDisplay Amount="3150.00m" /></strong>
+                <strong><MoneyDisplay Amount="Settlement.EqualSplitCosts" /></strong>
             </article>
         </section>
 
@@ -50,7 +51,7 @@
                         <h2>Member positions</h2>
                         <p>Positive means the house owes the member. Negative means the member owes the house.</p>
                     </div>
-                    <span class="nx-tag">Σ net = ৳0.00</span>
+                    <span class="nx-tag">Σ net = @MoneyText(Settlement.NetTotal)</span>
                 </div>
 
                 <div class="settlement-preview-page__table-wrap">
@@ -66,11 +67,11 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var line in Lines)
+                            @foreach (var line in Settlement.Lines)
                             {
                                 <tr>
                                     <td><strong>@line.Member</strong></td>
-                                    <td>@line.Meals</td>
+                                    <td>@line.Meals.ToString("0.#")</td>
                                     <td><MoneyDisplay Amount="line.MealCost" /></td>
                                     <td><MoneyDisplay Amount="line.EqualShare" /></td>
                                     <td><MoneyDisplay Amount="line.Contributions" /></td>
@@ -78,7 +79,7 @@
                                         <strong>@(line.Net >= 0 ? "+" : "")<MoneyDisplay Amount="line.Net" /></strong>
                                         @if (line.RoundingAdjustment != 0)
                                         {
-                                            <small>+৳0.01 residual</small>
+                                            <small>@MoneyText(line.RoundingAdjustment) residual</small>
                                         }
                                     </td>
                                 </tr>
@@ -94,11 +95,11 @@
                         <h2>Transfers</h2>
                         <p>Greedy matching minimizes this to three transfers.</p>
                     </div>
-                    <span class="nx-tag">3 transfers</span>
+                    <span class="nx-tag">@Settlement.Transfers.Count transfers</span>
                 </div>
 
                 <ol class="settlement-preview-page__transfers">
-                    @foreach (var transfer in Transfers)
+                    @foreach (var transfer in Settlement.Transfers)
                     {
                         <li>
                             <span class="settlement-preview-page__transfer-number">@transfer.Number</span>
@@ -113,44 +114,27 @@
             </section>
         </div>
 
-        <p class="settlement-preview-page__footnote">
-            The ৳0.01 rounding residual is assigned deterministically to Tanvir, who has the largest meal cost.
-        </p>
+        @if (ResidualLine is not null)
+        {
+            <p class="settlement-preview-page__footnote">
+                The @MoneyText(ResidualLine.RoundingAdjustment) rounding residual is assigned deterministically to @ResidualLine.Member, who has the largest meal cost.
+            </p>
+        }
     </div>
 </section>
 
 @code {
-    private sealed record SettlementLine(
-        string Member,
-        int Meals,
-        decimal MealCost,
-        decimal EqualShare,
-        decimal Contributions,
-        decimal Net,
-        decimal RoundingAdjustment = 0m);
+    private SettlementWorkspaceService.SettlementResult Settlement => SettlementWorkspace.CalculateSettlement();
 
-    private sealed record Transfer(int Number, string From, string To, decimal Amount);
+    private SettlementWorkspaceService.SettlementLine? ResidualLine =>
+        Settlement.Lines.FirstOrDefault(line => line.RoundingAdjustment != 0m);
 
-    private static readonly SettlementLine[] Lines =
-    [
-        new("Rafi", 62, 2448.07m, 787.50m, 5900.00m, 2664.43m),
-        new("Sadia", 55, 2171.67m, 787.50m, 3400.00m, 440.83m),
-        new("Tanvir", 71, 2803.44m, 787.50m, 1150.00m, -2440.94m, 0.01m),
-        new("Nabil", 45, 1776.82m, 787.50m, 1900.00m, -664.32m)
-    ];
-
-    private static readonly Transfer[] Transfers =
-    [
-        new(1, "Tanvir", "Rafi", 2440.94m),
-        new(2, "Nabil", "Rafi", 223.49m),
-        new(3, "Nabil", "Sadia", 440.83m)
-    ];
-
-    private bool _isFinalized = false;
+    private static string MoneyText(decimal amount) =>
+        amount < 0m ? $"-৳{Math.Abs(amount):N2}" : $"৳{amount:N2}";
 
     private void FinalizePeriod()
     {
-        _isFinalized = true;
+        SettlementWorkspace.FinalizePeriod();
         ToastService.ShowSuccess("September 2026 is now locked as an immutable settlement.", "Period finalized");
     }
 }
