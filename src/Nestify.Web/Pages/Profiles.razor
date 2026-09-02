@@ -1,0 +1,277 @@
+@page "/profiles"
+@page "/profiles/{Kind}"
+
+<PageTitle>@ActiveProfile.Title - Nestify</PageTitle>
+
+<section class="nx-section profile-page">
+    <div class="nx-container profile-wrap">
+        <header class="profile-head">
+            <div>
+                <p class="nx-eyebrow">Profiles</p>
+                <h1>@ActiveProfile.Title</h1>
+                <p class="profile-head__lead">@ActiveProfile.Summary</p>
+            </div>
+            <nav class="profile-tabs" aria-label="Profile types">
+                @foreach (var profile in ProfileTypes)
+                {
+                    <a class="profile-tab @(profile.Key == ActiveKey ? "profile-tab--active" : null)"
+                       href="@($"profiles/{profile.Key}")">
+                        @profile.ShortLabel
+                    </a>
+                }
+            </nav>
+        </header>
+
+        <div class="profile-hero profile-hero--@ActiveProfile.Key">
+            <div class="profile-identity">
+                <div class="profile-avatar">@ActiveProfile.Initials</div>
+                <div>
+                    <p class="profile-kicker">@ActiveProfile.RoleLabel</p>
+                    <h2>@ActiveProfile.Name</h2>
+                    <p>@ActiveProfile.Location</p>
+                </div>
+            </div>
+            <div class="profile-badges" aria-label="Status">
+                @foreach (var badge in ActiveProfile.Badges)
+                {
+                    <span>@badge</span>
+                }
+            </div>
+        </div>
+
+        <div class="profile-grid">
+            <section class="profile-panel profile-panel--wide">
+                <h3>@ActiveProfile.PrimarySectionTitle</h3>
+                <div class="profile-fields">
+                    @foreach (var field in ActiveProfile.Fields)
+                    {
+                        <div class="profile-field">
+                            <span>@field.Label</span>
+                            <strong>@field.Value</strong>
+                        </div>
+                    }
+                </div>
+            </section>
+
+            <section class="profile-panel">
+                <h3>Contact</h3>
+                <div class="profile-contact">
+                    @foreach (var item in ActiveProfile.Contact)
+                    {
+                        <p>
+                            <span>@item.Label</span>
+                            <strong>@item.Value</strong>
+                        </p>
+                    }
+                </div>
+            </section>
+
+            <section class="profile-panel">
+                <h3>Permissions</h3>
+                <ul class="profile-list">
+                    @foreach (var permission in ActiveProfile.Permissions)
+                    {
+                        <li>@permission</li>
+                    }
+                </ul>
+            </section>
+
+            <section class="profile-panel profile-panel--wide">
+                <h3>Activity</h3>
+                <div class="profile-metrics">
+                    @foreach (var metric in ActiveProfile.Metrics)
+                    {
+                        <div class="profile-metric">
+                            <strong>@metric.Value</strong>
+                            <span>@metric.Label</span>
+                        </div>
+                    }
+                </div>
+            </section>
+
+            <section class="profile-panel">
+                <h3>Plan Guardrails</h3>
+                <ul class="profile-list">
+                    @foreach (var rule in ActiveProfile.Guardrails)
+                    {
+                        <li>@rule</li>
+                    }
+                </ul>
+            </section>
+        </div>
+    </div>
+</section>
+
+@code {
+    [Parameter] public string? Kind { get; set; }
+
+    private string ActiveKey { get; set; } = "bachelor";
+    private ProfileModel ActiveProfile => ProfileTypes.First(p => p.Key == ActiveKey);
+
+    protected override void OnParametersSet()
+    {
+        var requested = Kind?.Trim().ToLowerInvariant();
+        ActiveKey = ProfileTypes.Any(p => p.Key == requested) ? requested! : "bachelor";
+    }
+
+    private static readonly ProfileModel[] ProfileTypes =
+    [
+        new(
+            Key: "bachelor",
+            ShortLabel: "Bachelor",
+            Title: "Bachelor User Profile",
+            RoleLabel: "User",
+            Name: "Rafi Hasan",
+            Initials: "RH",
+            Location: "Mirpur, Dhaka",
+            Summary: "A verified bachelor account for students or job holders who need housing, meal-cost sharing, helper hiring, and marketplace access.",
+            PrimarySectionTitle: "Identity",
+            Badges: ["Verified", "Student", "House member"],
+            Fields:
+            [
+                new("Full name", "Rafi Hasan"),
+                new("Email", "rafi.hasan@example.com"),
+                new("Date of birth", "2002-04-18"),
+                new("Gender", "Male"),
+                new("Occupation", "Student"),
+                new("Profile area", "Mirpur")
+            ],
+            Contact:
+            [
+                new("Phone", "+880 1711-000000"),
+                new("WhatsApp", "+880 1711-000000"),
+                new("Facebook", "rafi.hasan")
+            ],
+            Permissions:
+            [
+                "Browse eligible housing posts",
+                "Create booking requests after verification",
+                "Join house expense and meal workflows",
+                "Post and manage marketplace listings"
+            ],
+            Metrics:
+            [
+                new("2", "Active bookings"),
+                new("1", "House membership"),
+                new("18", "Meals this month"),
+                new("3", "Marketplace interests")
+            ],
+            Guardrails:
+            [
+                "Contact details are shown only after an approved disclosure transition.",
+                "The user cannot self-verify because profile update DTOs omit verification flags.",
+                "House roles come from house memberships, not global Identity roles."
+            ]),
+        new(
+            Key: "maid",
+            ShortLabel: "Maid",
+            Title: "Maid Profile",
+            RoleLabel: "DomesticHelper",
+            Name: "Shamima Akter",
+            Initials: "SA",
+            Location: "Uttara, Dhaka",
+            Summary: "A domestic helper profile with service area, availability, monthly rates, verification status, and engagement history.",
+            PrimarySectionTitle: "Helper Details",
+            Badges: ["Verified helper", "Active", "4.8 rating"],
+            Fields:
+            [
+                new("Display name", "Shamima Akter"),
+                new("Services", "Cooking, Cleaning, Laundry"),
+                new("Monthly rate", "BDT 8,000"),
+                new("Availability", "7:00 AM - 11:00 AM"),
+                new("Experience", "6 years"),
+                new("Service radius", "3 km")
+            ],
+            Contact:
+            [
+                new("Phone", "Hidden until engagement confirmation"),
+                new("WhatsApp", "Hidden until engagement confirmation"),
+                new("Messenger", "Hidden until engagement confirmation")
+            ],
+            Permissions:
+            [
+                "Edit only her own helper profile",
+                "Confirm or cancel assigned engagements",
+                "Receive reviews only from completed engagements",
+                "Remain a normal User in addition to DomesticHelper"
+            ],
+            Metrics:
+            [
+                new("14", "Completed jobs"),
+                new("22", "Reviews"),
+                new("4.8", "Average rating"),
+                new("3", "Open requests")
+            ],
+            Guardrails:
+            [
+                "One helper profile is allowed per account.",
+                "Helper edit routes are addressed as /helpers/me to avoid IDOR.",
+                "Reviews are tied to engagements, so anonymous review bombing is blocked."
+            ]),
+        new(
+            Key: "admin",
+            ShortLabel: "Admin",
+            Title: "Admin Profile",
+            RoleLabel: "Admin",
+            Name: "Nestify Admin",
+            Initials: "NA",
+            Location: "Operations Console",
+            Summary: "An administrative account for verification decisions, report resolution, user bans, audit review, and ML retraining controls.",
+            PrimarySectionTitle: "Administrative Scope",
+            Badges: ["Seeded account", "Audit logged", "Least privilege"],
+            Fields:
+            [
+                new("Email", "admin@nestify.local"),
+                new("Role source", "Seeded configuration"),
+                new("Verification queue", "Pending requests"),
+                new("Reports queue", "Open reports"),
+                new("Audit log", "Read-only history"),
+                new("ML retrain", "Admin-triggered")
+            ],
+            Contact:
+            [
+                new("Phone", "Internal only"),
+                new("Recovery", "Managed outside public profile"),
+                new("Document access", "120-second signed tokens")
+            ],
+            Permissions:
+            [
+                "Approve or reject verification requests",
+                "Resolve reports and hide or remove content",
+                "Ban users with mandatory audit reasons",
+                "Trigger price model retraining"
+            ],
+            Metrics:
+            [
+                new("9", "Pending verifications"),
+                new("4", "Open reports"),
+                new("37", "Audit events"),
+                new("1", "Active ML model")
+            ],
+            Guardrails:
+            [
+                "There is no self-service endpoint that grants Admin.",
+                "Every admin decision writes an audit log in the same transaction.",
+                "Admin has no designed access to private household financial data."
+            ])
+    ];
+
+    private sealed record ProfileModel(
+        string Key,
+        string ShortLabel,
+        string Title,
+        string RoleLabel,
+        string Name,
+        string Initials,
+        string Location,
+        string Summary,
+        string PrimarySectionTitle,
+        string[] Badges,
+        ProfilePair[] Fields,
+        ProfilePair[] Contact,
+        string[] Permissions,
+        ProfilePair[] Metrics,
+        string[] Guardrails);
+
+    private sealed record ProfilePair(string Label, string Value);
+}
