@@ -501,3 +501,182 @@
 .hs-muted { 
     color: var(--nx-muted); 
 }
+
+/* ---------- booking status badges ---------- */
+
+.hs-badge--pending { background: #fff4d6; color: #8a5a00; border-color: #f2dc9c; }
+.hs-badge--accepted { background: var(--nx-accent-soft); color: #0b5c2a; border-color: #bfe6cd; }
+.hs-badge--rejected { background: var(--nx-danger-soft); color: var(--nx-danger); border-color: #f3c9c9; }
+.hs-badge--withdrawn { background: var(--nx-bg-alt); color: var(--nx-muted); border-color: var(--nx-border); }
+
+/* ---------- quoted message inside a row ---------- */
+
+.hs-row__message {
+    margin: 0;
+    padding: .7rem .9rem;
+    background: var(--nx-bg-alt);
+    border-left: 3px solid var(--nx-border-strong);
+    border-radius: 0 var(--nx-radius-sm) var(--nx-radius-sm) 0;
+    color: var(--nx-body);
+    font-size: .88rem;
+    line-height: 1.5;
+}
+.hs-row__message-label {
+    display: block;
+    font-size: .74rem;
+    font-weight: 700;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+    color: var(--nx-muted);
+    margin-bottom: .3rem;
+}
+
+/* ---------- nested requesters panel (My posts) ---------- */
+
+.hs-requesters {
+    display: grid;
+    gap: .75rem;
+    margin-top: .75rem;
+    padding-top: .9rem;
+    border-top: 1px solid var(--nx-border);
+}
+
+.hs-requester {
+    display: grid;
+    gap: .6rem;
+    padding: .9rem 1rem;
+    background: var(--nx-bg-alt);
+    border: 1px solid var(--nx-border);
+    border-radius: var(--nx-radius-sm);
+}
+
+.hs-requester__top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.hs-requester__info { display: grid; gap: .2rem; min-width: 0; }
+.hs-requester__name { font-weight: 700; color: var(--nx-ink); font-size: .92rem; }
+.hs-requester__date { font-size: .78rem; color: var(--nx-muted); }
+
+.hs-requester__message {
+    margin: 0;
+    padding: .6rem .8rem;
+    background: var(--nx-card);
+    border: 1px solid var(--nx-border);
+    border-radius: var(--nx-radius-sm);
+    color: var(--nx-body);
+    font-size: .85rem;
+    line-height: 1.5;
+}
+
+.hs-requester__actions {
+    display: flex;
+    gap: .5rem;
+    flex-wrap: wrap;
+}
+
+.hs-requesters__loading,
+.hs-requesters__empty {
+    color: var(--nx-muted);
+    font-size: .88rem;
+    padding: .5rem 0;
+}
+
+/* ---------- modal (booking request / reject request) ---------- */
+
+.hs-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 18, 22, .45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    z-index: 60;
+}
+
+.hs-modal {
+    width: 100%;
+    max-width: 460px;
+    max-height: calc(100vh - 3rem);
+    overflow-y: auto;
+    background: var(--nx-card);
+    border-radius: var(--nx-radius);
+    box-shadow: var(--nx-shadow-lg, 0 20px 50px rgba(15, 18, 22, .25));
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+}
+
+.hs-modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.1rem 1.25rem;
+    border-bottom: 1px solid var(--nx-border);
+}
+.hs-modal__header h2 { font-size: 1.05rem; margin: 0; }
+
+.hs-modal__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+    border: none;
+    background: none;
+    color: var(--nx-muted);
+    cursor: pointer;
+    flex: none;
+}
+.hs-modal__close:hover { background: var(--nx-bg-alt); color: var(--nx-ink); }
+.hs-modal__close svg { width: 1.1rem; height: 1.1rem; }
+
+.hs-modal__body {
+    display: grid;
+    gap: .75rem;
+    padding: 1.25rem;
+    color: var(--nx-body);
+    font-size: .92rem;
+}
+
+.hs-modal__footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: .75rem;
+    padding: 1rem 1.25rem;
+    border-top: 1px solid var(--nx-border);
+}
+
+/* ---------- form field (used inside modals) ---------- */
+
+.field { display: grid; gap: .4rem; }
+
+.field__label {
+    font-size: .82rem;
+    font-weight: 700;
+    color: var(--nx-body);
+}
+
+.field__textarea {
+    width: 100%;
+    padding: .65rem .8rem;
+    border: 1px solid var(--nx-border);
+    border-radius: var(--nx-radius-sm);
+    font: inherit;
+    resize: vertical;
+    background: var(--nx-bg);
+    color: var(--nx-ink);
+}
+.field__textarea:focus-visible {
+    outline: 2px solid var(--nx-ring);
+    outline-offset: 1px;
+}
+.field__textarea:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
