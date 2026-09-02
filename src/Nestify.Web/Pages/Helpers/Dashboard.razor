@@ -1,0 +1,147 @@
+@page "/helpers/dashboard"
+@using Nestify.Shared.Dtos.Helpers
+@using Nestify.Web.Components
+@inject IHelperService Helpers
+
+<PageTitle>Helper Dashboard — Nestify</PageTitle>
+
+<section class="nx-section hs-page">
+    <div class="nx-container hs-wrap hs-wrap--narrow">
+        <h1>My helper dashboard</h1>
+
+        @if (_loading)
+        {
+            <div class="hs-skeleton hs-skeleton--detail"></div>
+        }
+        else if (_profile is null)
+        {
+            <div class="hs-empty hs-empty--page">
+                <h2>You haven't registered as a helper yet</h2>
+                <a class="nx-btn nx-btn--primary" href="helpers/register">Become a helper</a>
+            </div>
+        }
+        else
+        {
+            <div class="hs-detail__head">
+                <h2>@_profile.Name</h2>
+                <div class="hs-detail__meta">
+                    <RatingStars Value="_profile.RatingAverage" Count="_profile.RatingCount" />
+                    <span class="hs-dot"></span>
+                    <span>@string.Join(", ", _profile.Services)</span>
+                </div>
+                <a class="nx-btn nx-btn--ghost" href="helpers/me">Edit profile</a>
+            </div>
+
+            <section class="hs-detail__section">
+                <h2>Incoming requests</h2>
+                @if (_incoming.Count == 0)
+                {
+                    <p>No pending requests right now.</p>
+                }
+                else
+                {
+                    @foreach (var e in _incoming)
+                    {
+                        <div class="hs-review">
+                            <div class="hs-review__head">
+                                <strong>@e.ClientName</strong>
+                                <span class="hs-badge">Requested</span>
+                            </div>
+                            <button class="nx-btn nx-btn--primary" @onclick="() => Confirm(e.Id)">Confirm</button>
+                        </div>
+                    }
+                }
+            </section>
+
+            <section class="hs-detail__section">
+                <h2>Active engagements</h2>
+                @if (_active.Count == 0)
+                {
+                    <p>No active engagements.</p>
+                }
+                else
+                {
+                    @foreach (var e in _active)
+                    {
+                        <div class="hs-review">
+                            <div class="hs-review__head">
+                                <strong>@e.ClientName</strong>
+                                <span class="hs-badge">@e.Status</span>
+                            </div>
+                            @if (!e.HelperMarkedComplete)
+                            {
+                                <button class="nx-btn nx-btn--ghost" @onclick="() => MarkComplete(e.Id)">Mark complete</button>
+                            }
+                            else
+                            {
+                                <p><em>Waiting for client to confirm completion.</em></p>
+                            }
+                        </div>
+                    }
+                }
+            </section>
+
+            <section class="hs-detail__section">
+                <h2>Reviews received</h2>
+                @if (_reviews is null || _reviews.Items.Count == 0)
+                {
+                    <p>No reviews yet.</p>
+                }
+                else
+                {
+                    @foreach (var r in _reviews.Items)
+                    {
+                        <div class="hs-review">
+                            <div class="hs-review__head">
+                                <strong>@r.ReviewerName</strong>
+                                <RatingStars Value="r.Rating" ShowCount="false" />
+                            </div>
+                            <p>@r.Comment</p>
+                        </div>
+                    }
+                }
+            </section>
+        }
+    </div>
+</section>
+
+@code {
+    private HelperDetailDto? _profile;
+    private HelperPageDto<ReviewDto>? _reviews;
+    private List<EngagementDto> _incoming = new();
+    private List<EngagementDto> _active = new();
+    private bool _loading = true;
+
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        _profile = await Helpers.GetMyProfileAsync();
+
+        if (_profile is not null)
+        {
+            var all = await Helpers.GetMyEngagementsAsync();
+            var mine = all.Where(e => e.MyRole == EngagementRole.Helper).ToList();
+
+            _incoming = mine.Where(e => e.Status == EngagementStatus.Requested).ToList();
+            _active = mine.Where(e => e.Status is EngagementStatus.HelperConfirmed or EngagementStatus.Active).ToList();
+
+            _reviews = await Helpers.GetReviewsAsync(_profile.Id);
+        }
+
+        _loading = false;
+    }
+
+    private async Task Confirm(string id)
+    {
+        await Helpers.ConfirmEngagementAsync(id);
+        await LoadAsync();
+    }
+
+    private async Task MarkComplete(string id)
+    {
+        await Helpers.MarkCompleteAsync(id);
+        await LoadAsync();
+    }
+}
