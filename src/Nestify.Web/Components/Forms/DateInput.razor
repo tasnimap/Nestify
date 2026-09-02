@@ -1,4 +1,5 @@
 @* src/Nestify.Web/Components/Forms/DateInput.razor *@
+@using System.Globalization
 @typeparam TValue
 @inherits InputBase<TValue>
 
@@ -71,7 +72,7 @@
         }
     }
 
-    private async Task HandleDateChange(ChangeEventArgs e)
+    private void HandleDateChange(ChangeEventArgs e)
     {
         var value = (string?)e.Value;
         if (TryParseValueFromString(value, out var result, out var validationError))
@@ -84,11 +85,53 @@
         }
     }
 
+    protected override string? FormatValueAsString(TValue? value)
+    {
+        if (value is null)
+        {
+            return string.Empty;
+        }
+
+        if (typeof(TValue) == typeof(DateTime))
+        {
+            var date = (DateTime)(object)value;
+            return date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+        }
+
+        if (typeof(TValue) == typeof(DateOnly))
+        {
+            var date = (DateOnly)(object)value;
+            return date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+        }
+
+        return base.FormatValueAsString(value);
+    }
+
     protected override bool TryParseValueFromString(string? value, out TValue result, out string validationErrorMessage)
     {
         if (typeof(TValue) == typeof(DateTime))
         {
-            if (DateTime.TryParse(value, out var parsedDate))
+            if (DateTime.TryParseExact(
+                value,
+                "yyyy-MM-dd",
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.None,
+                out var parsedDate))
+            {
+                result = (TValue)(object)parsedDate;
+                validationErrorMessage = string.Empty;
+                return true;
+            }
+        }
+
+        if (typeof(TValue) == typeof(DateOnly))
+        {
+            if (DateOnly.TryParseExact(
+                value,
+                "yyyy-MM-dd",
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.None,
+                out var parsedDate))
             {
                 result = (TValue)(object)parsedDate;
                 validationErrorMessage = string.Empty;

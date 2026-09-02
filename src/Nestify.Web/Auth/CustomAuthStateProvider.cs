@@ -1,5 +1,6 @@
 // Auth/CustomAuthStateProvider.cs
 using System.Security.Claims;
+using System.Text.Json;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 
@@ -60,10 +61,32 @@ public sealed class CustomAuthStateProvider : AuthenticationStateProvider
     {
         var payload = jwt.Split('.')[1];
         var jsonBytes = ParseBase64WithoutPadding(payload);
-        var keyValuePairs = System.Text.Json.JsonSerializer
-            .Deserialize<Dictionary<string, object>>(jsonBytes)!;
+        var keyValuePairs = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(jsonBytes)!;
 
-        return keyValuePairs.Select(kvp => new Claim(kvp.Key, kvp.Value.ToString() ?? string.Empty));
+        return keyValuePairs.SelectMany(kvp => CreateClaims(kvp.Key, kvp.Value));
+    }
+
+    private static IEnumerable<Claim> CreateClaims(string sourceType, JsonElement value)
+    {
+        var claimType = sourceType switch
+        {
+            "name" => ClaimTypes.Name,
+            "email" => ClaimTypes.Email,
+            "role" => ClaimTypes.Role,
+            _ => sourceType
+        };
+
+        if (value.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var item in value.EnumerateArray())
+            {
+                yield return new Claim(claimType, item.ToString());
+            }
+
+            yield break;
+        }
+
+        yield return new Claim(claimType, value.ToString());
     }
 
     private static byte[] ParseBase64WithoutPadding(string base64)

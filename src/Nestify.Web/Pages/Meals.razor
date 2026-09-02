@@ -1,5 +1,7 @@
 @page "/meals"
+@using System.Globalization
 @inject ToastService ToastService
+@inject SettlementWorkspaceService SettlementWorkspace
 
 <PageTitle>Meal sheet — Nestify</PageTitle>
 
@@ -12,16 +14,16 @@
                 <p class="nx-lead">Enter each member's daily meals. Every cell carries its own concurrency token.</p>
             </div>
             <div class="meals-page__actions">
-                <span class="meals-page__period">30 days · 4 members</span>
-                @if (!_isFinalized)
+                <span class="meals-page__period">@SettlementWorkspace.Days.Count days · @SettlementWorkspace.MemberNames.Count members</span>
+                @if (!SettlementWorkspace.IsFinalized)
                 {
                     <button type="button" class="nx-btn nx-btn--primary" @onclick="SaveChanges">Save changes</button>
                 }
             </div>
         </header>
 
-        <div class="meals-page__banner @(_isFinalized ? "meals-page__banner--locked" : "")">
-            @if (_isFinalized)
+        <div class="meals-page__banner @(SettlementWorkspace.IsFinalized ? "meals-page__banner--locked" : "")">
+            @if (SettlementWorkspace.IsFinalized)
             {
                 <strong>Finalized period</strong>
                 <span>This month is locked. Meal counts and correction controls are read-only.</span>
@@ -65,7 +67,7 @@
                     <thead>
                         <tr>
                             <th>Date</th>
-                            @foreach (var member in MemberNames)
+                            @foreach (var member in SettlementWorkspace.MemberNames)
                             {
                                 <th>@member</th>
                             }
@@ -73,13 +75,13 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var day in Days)
+                        @foreach (var day in SettlementWorkspace.Days)
                         {
                             <tr>
                                 <th><DateDisplay DateTime="day" Format="date" /></th>
-                                @foreach (var member in MemberNames)
+                                @foreach (var member in SettlementWorkspace.MemberNames)
                                 {
-                                    var key = new CellKey(day.Date, member);
+                                    var key = new SettlementWorkspaceService.MealCellKey(DateOnly.FromDateTime(day), member);
                                     <td>
                                         <input class="meals-page__cell"
                                                type="number"
@@ -87,7 +89,7 @@
                                                max="10"
                                                step="0.5"
                                                value="@GetCell(key).Value.ToString("0.#")"
-                                               disabled="@_isFinalized"
+                                               disabled="@SettlementWorkspace.IsFinalized"
                                                aria-label="@($"{member} meals on {day:dd MMM}")"
                                                @onchange="eventArgs => ChangeCell(key, eventArgs.Value?.ToString())" />
                                         <span class="meals-page__token">v@GetCell(key).RowVersion</span>
@@ -100,7 +102,7 @@
                     <tfoot>
                         <tr>
                             <th>Total</th>
-                            @foreach (var member in MemberNames)
+                            @foreach (var member in SettlementWorkspace.MemberNames)
                             {
                                 <th>@GetMemberTotal(member).ToString("0.#")</th>
                             }
@@ -114,19 +116,6 @@
 </section>
 
 @code {
-    private static readonly string[] MemberNames = ["Rafi", "Sadia", "Tanvir", "Nabil"];
-    private static readonly DateTime[] Days = Enumerable.Range(1, 30)
-        .Select(day => new DateTime(2026, 9, day, 12, 0, 0, DateTimeKind.Utc))
-        .ToArray();
-
-    private sealed class MealCell
-    {
-        public decimal Value { get; set; }
-        public long RowVersion { get; set; }
-    }
-
-    private readonly record struct CellKey(DateTime Date, string Member);
-
     private sealed class MealConflict
     {
         public string DateLabel { get; init; } = string.Empty;
@@ -135,53 +124,32 @@
         public decimal Theirs { get; init; }
         public string SavedBy { get; init; } = string.Empty;
         public string SavedAt { get; init; } = string.Empty;
-        public CellKey Key { get; init; }
+        public SettlementWorkspaceService.MealCellKey Key { get; init; }
     }
 
-    private readonly Dictionary<CellKey, MealCell> _cells = new();
     private MealConflict? _conflict;
-    private bool _isFinalized = false;
 
-    protected override void OnInitialized()
+    private SettlementWorkspaceService.MealCell GetCell(SettlementWorkspaceService.MealCellKey key) =>
+        SettlementWorkspace.GetMealCell(key);
+
+    private decimal GetDayTotal(DateTime day) => SettlementWorkspace.GetDayMealTotal(day);
+    private decimal GetMemberTotal(string member) => SettlementWorkspace.GetMemberMealTotal(member);
+    private decimal TotalMeals => SettlementWorkspace.TotalMeals;
+
+    private void ChangeCell(SettlementWorkspaceService.MealCellKey key, string? rawValue)
     {
-        foreach (var day in Days)
-        {
-            foreach (var member in MemberNames)
-            {
-                _cells[new CellKey(day.Date, member)] = new MealCell
-                {
-                    Value = member switch
-                    {
-                        "Rafi" => 2m,
-                        "Sadia" => 2m,
-                        "Tanvir" when day.Day == 15 => 2m,
-                        "Tanvir" => 1m,
-                        _ => 1m
-                    },
-                    RowVersion = 1000 + day.Day
-                };
-            }
-        }
-    }
-
-    private MealCell GetCell(CellKey key) => _cells[key];
-    private decimal GetDayTotal(DateTime day) => MemberNames.Sum(member => GetCell(new CellKey(day.Date, member)).Value);
-    private decimal GetMemberTotal(string member) => Days.Sum(day => GetCell(new CellKey(day.Date, member)).Value);
-    private decimal TotalMeals => _cells.Values.Sum(cell => cell.Value);
-
-    private void ChangeCell(CellKey key, string? rawValue)
-    {
-        if (_isFinalized || !decimal.TryParse(rawValue, out var value))
+        if (SettlementWorkspace.IsFinalized ||
+            !decimal.TryParse(rawValue, NumberStyles.Number, CultureInfo.InvariantCulture, out var value))
         {
             return;
         }
 
-        _cells[key].Value = Math.Clamp(value, 0m, 10m);
+        SettlementWorkspace.ChangeMealCell(key, value);
     }
 
     private void SaveChanges()
     {
-        var key = new CellKey(new DateTime(2026, 9, 15), "Tanvir");
+        var key = new SettlementWorkspaceService.MealCellKey(new DateOnly(2026, 9, 15), "Tanvir");
         var cell = GetCell(key);
 
         if (_conflict is null && cell.Value != 2m)
@@ -196,16 +164,12 @@
                 SavedAt = "12:04",
                 Key = key
             };
-            cell.RowVersion = 2001;
+            SettlementWorkspace.MarkMealConflictServerVersion(key);
             ToastService.ShowWarning("Resolve the conflicting meal cell before resubmitting.", "Save paused");
             return;
         }
 
-        foreach (var changedCell in _cells.Values)
-        {
-            changedCell.RowVersion++;
-        }
-
+        SettlementWorkspace.MarkMealsSaved();
         ToastService.ShowSuccess("Meal counts saved with fresh row-version tokens.", "Meal sheet saved");
     }
 
@@ -216,7 +180,7 @@
             return;
         }
 
-        GetCell(_conflict.Key).RowVersion++;
+        SettlementWorkspace.MarkMealConflictServerVersion(_conflict.Key);
         _conflict = null;
         ToastService.ShowInfo("Your value will be resubmitted with the fresh token.", "Keeping your value");
     }
@@ -229,7 +193,8 @@
         }
 
         GetCell(_conflict.Key).Value = _conflict.Theirs;
-        GetCell(_conflict.Key).RowVersion++;
+        GetCell(_conflict.Key).IsDirty = false;
+        SettlementWorkspace.MarkMealConflictServerVersion(_conflict.Key);
         _conflict = null;
         ToastService.ShowInfo("The saved server value is now shown in the sheet.", "Keeping saved value");
     }
