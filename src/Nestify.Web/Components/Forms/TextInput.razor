@@ -97,8 +97,15 @@
 
     protected override bool TryParseValueFromString(string? value, out TValue result, out string validationErrorMessage)
     {
+        if (typeof(TValue) == typeof(string))
+        {
+            result = (TValue)(object)(value ?? string.Empty);
+            validationErrorMessage = string.Empty;
+            return true;
+        }
+
         result = default!;
-        validationErrorMessage = string.Empty;
-        return true;
+        validationErrorMessage = $"{GetType()} does not support values of type {typeof(TValue)}.";
+        return false;
     }
 }
