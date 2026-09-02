@@ -1,13 +1,14 @@
 @page "/helpers/dashboard"
+@attribute [Authorize(Roles = "DomesticHelp,DomesticHelper,Maid,Admin")]
 @using Nestify.Shared.Dtos.Helpers
 @using Nestify.Web.Components
 @inject IHelperService Helpers
 
-<PageTitle>Helper Dashboard — Nestify</PageTitle>
+<PageTitle>Maid Dashboard — Nestify</PageTitle>
 
 <section class="nx-section hs-page">
     <div class="nx-container hs-wrap hs-wrap--narrow">
-        <h1>My helper dashboard</h1>
+        <h1>My maid dashboard</h1>
 
         @if (_loading)
         {

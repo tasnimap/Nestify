@@ -32,24 +32,41 @@
                 </AuthorizeView>
                 <AuthorizeView>
                     <Authorized>
-                        <li>
-                            <NavLink class="nav__link" href="housing" @onclick="Close">Housing</NavLink>
-                        </li>
-                        <li>
-                            <NavLink class="nav__link" href="helpers" @onclick="Close">Domestic Help</NavLink>
-                        </li>
-                        <li>
-                            <NavLink class="nav__link" href="helpers/dashboard" @onclick="Close">My Dashboard</NavLink>
-                        </li>
-                        <li>
-                            <NavLink class="nav__link" href="marketplace" @onclick="Close">Marketplace</NavLink>
-                        </li>
-                        <li>
-                            <NavLink class="nav__link" href="profile" @onclick="Close">Profile</NavLink>
-                        </li>
-                        <li>            
-                            <NavLink class="nav__link" href="settlement" @onclick="Close">Settlement</NavLink>
-                        </li>
+                        @if (context.User.IsInRole("User") || context.User.IsInRole("Admin") || context.User.IsInRole("DomesticHelp") || context.User.IsInRole("DomesticHelper") || context.User.IsInRole("Maid"))
+                        {
+                            <li>
+                                <NavLink class="nav__link" href="helpers" @onclick="Close">Domestic Help</NavLink>
+                            </li>
+                            <li>
+                                <NavLink class="nav__link" href="marketplace" @onclick="Close">Marketplace</NavLink>
+                            </li>
+                            <li>
+                                <NavLink class="nav__link" href="profile" @onclick="Close">Profile</NavLink>
+                            </li>
+                        }
+
+                        @if (context.User.IsInRole("DomesticHelp") || context.User.IsInRole("DomesticHelper") || context.User.IsInRole("Maid"))
+                        {
+                            <li>
+                                <NavLink class="nav__link" href="helpers/dashboard" @onclick="Close">My Dashboard</NavLink>
+                            </li>
+                        }
+                        else
+                        {
+                            <li>
+                                <NavLink class="nav__link" href="dashboard" @onclick="Close">My Dashboard</NavLink>
+                            </li>
+                        }
+
+                        @if (context.User.IsInRole("User") || context.User.IsInRole("Admin"))
+                        {
+                            <li>
+                                <NavLink class="nav__link" href="housing" @onclick="Close">Housing</NavLink>
+                            </li>
+                            <li>
+                                <NavLink class="nav__link" href="settlement" @onclick="Close">Settlement</NavLink>
+                            </li>
+                        }
                     </Authorized>
                 </AuthorizeView>
             </ul>

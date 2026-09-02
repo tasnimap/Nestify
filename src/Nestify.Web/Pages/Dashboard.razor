@@ -1,0 +1,84 @@
+@page "/dashboard"
+@attribute [Authorize(Roles = "User,Admin")]
+@using System.Security.Claims
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Navigation
+
+<PageTitle>User Dashboard — Nestify</PageTitle>
+
+<section class="nx-section">
+    <div class="nx-container">
+        <header style="margin-bottom: 2rem;">
+            <p class="nx-eyebrow">Dashboard</p>
+            <h1>Welcome back, @DisplayName</h1>
+            <p class="nx-lead">Here is your overview of the activities that matter most for your home and household.</p>
+        </header>
+
+        <div class="profile-grid">
+            <section class="profile-panel">
+                <h3>Household</h3>
+                <ul class="profile-list">
+                    <li>2 active housing matches</li>
+                    <li>1 booking waiting for confirmation</li>
+                    <li>1 maintenance request in review</li>
+                </ul>
+            </section>
+
+            <section class="profile-panel">
+                <h3>Marketplace</h3>
+                <ul class="profile-list">
+                    <li>3 saved listings</li>
+                    <li>2 new offers this week</li>
+                    <li>1 sale pending delivery</li>
+                </ul>
+            </section>
+
+            <section class="profile-panel">
+                <h3>Settlement</h3>
+                <ul class="profile-list">
+                    <li>Current balance: ৳2,480</li>
+                    <li>Meal sheet updated</li>
+                    <li>Next review on 15 Sep</li>
+                </ul>
+            </section>
+
+            <section class="profile-panel profile-panel--wide">
+                <h3>Quick actions</h3>
+                <div class="profile-metrics">
+                    <div class="profile-metric">
+                        <strong>Housing</strong>
+                        <span>Browse homes</span>
+                    </div>
+                    <div class="profile-metric">
+                        <strong>Marketplace</strong>
+                        <span>Open listings</span>
+                    </div>
+                    <div class="profile-metric">
+                        <strong>Settlement</strong>
+                        <span>Track costs</span>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</section>
+
+@code {
+    private string DisplayName { get; set; } = "User";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated != true)
+        {
+            Navigation.NavigateTo("/login", replace: true);
+            return;
+        }
+
+        DisplayName = user.FindFirst(ClaimTypes.Name)?.Value
+            ?? user.FindFirst("name")?.Value
+            ?? "User";
+    }
+}

@@ -1,4 +1,5 @@
 @page "/housing"
+@attribute [Authorize(Roles = "User,Admin")]
 @using Nestify.Shared.Dtos.Area
 @inject IHousingService Housing
 

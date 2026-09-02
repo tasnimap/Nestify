@@ -278,7 +278,8 @@
                 Password = _login.Password,
             });
             if (result is null) { _loginMsg = "We could not sign you in with those details."; return; }
-            Navigation.NavigateTo("/profile");
+            var isHelper = result.Role is "DomesticHelp" or "DomesticHelper" or "Maid" or "Helper";
+            Navigation.NavigateTo(isHelper ? "/helpers/dashboard" : "/dashboard");
         }
         catch { _loginMsg = "We could not reach Nestify right now. Try again in a moment."; }
         finally { _loginBusy = false; }
@@ -340,7 +341,8 @@
             if (result is null) { _registerMsg = "We could not create your account with those details."; return; }
             _registerError = false;
             _registerMsg   = "Account created! Taking you to your dashboard...";
-            Navigation.NavigateTo("/profile");
+            var isHelper = result.Role is "DomesticHelp" or "DomesticHelper" or "Maid" or "Helper";
+            Navigation.NavigateTo(isHelper ? "/helpers/dashboard" : "/dashboard");
         }
         catch { _registerMsg = "We could not reach Nestify right now. Try again in a moment."; }
         finally { _registerBusy = false; }
