@@ -8,13 +8,13 @@ public sealed class MockHelperService : IHelperService
     private sealed class Helper
     {
         public required string Id { get; init; }
+        public required string UserId { get; init; }   // <-- replaces IsMine
         public required string Name { get; set; }
         public List<ServiceType> Services { get; set; } = new();
         public decimal MonthlyRate { get; set; }
         public string AvailabilityWindow { get; set; } = string.Empty;
         public required string AreaName { get; set; }
         public DistanceBand? Distance { get; set; }
-        public bool IsMine { get; init; }
         public List<ReviewDto> Reviews { get; set; } = new();
 
         public double RatingAverage => Reviews.Count == 0 ? 0 : Reviews.Average(r => r.Rating);
@@ -25,9 +25,10 @@ public sealed class MockHelperService : IHelperService
     {
         public required string Id { get; init; }
         public required string HelperId { get; init; }
+        public required string HelperUserId { get; init; }   // who the helper side actually is
         public required string HelperName { get; init; }
+        public required string ClientUserId { get; init; }   // who the client side actually is
         public required string ClientName { get; init; }
-        public EngagementRole MyRole { get; set; }
         public EngagementStatus Status { get; set; }
         public DateTime CreatedAtUtc { get; init; }
         public bool ClientMarkedComplete { get; set; }
@@ -35,18 +36,20 @@ public sealed class MockHelperService : IHelperService
         public bool Reviewed { get; set; }
     }
 
+    private readonly ICurrentUserService _currentUser;
     private readonly List<Helper> _helpers;
     private readonly List<Engagement> _engagements;
 
-    public MockHelperService()
+    public MockHelperService(ICurrentUserService currentUser)
     {
+        _currentUser = currentUser;
         var now = DateTime.UtcNow;
 
         _helpers = new List<Helper>
         {
             new()
             {
-                Id = "helper-rina", Name = "Rina Begum",
+                Id = "helper-rina", UserId = "user-rina", Name = "Rina Begum",
                 Services = new() { ServiceType.Cooking, ServiceType.Cleaning },
                 MonthlyRate = 4500m, AvailabilityWindow = "Sat-Thu, 8am-2pm",
                 AreaName = "Dhanmondi", Distance = DistanceBand.Within1Km,
@@ -58,7 +61,7 @@ public sealed class MockHelperService : IHelperService
             },
             new()
             {
-                Id = "helper-shirin", Name = "Shirin Akter",
+                Id = "helper-shirin", UserId = "user-shirin", Name = "Shirin Akter",
                 Services = new() { ServiceType.Babysitting, ServiceType.ElderCare },
                 MonthlyRate = 6000m, AvailabilityWindow = "Sun-Fri, full day",
                 AreaName = "Mirpur", Distance = DistanceBand.Within2Km,
@@ -66,7 +69,7 @@ public sealed class MockHelperService : IHelperService
             },
             new()
             {
-                Id = "helper-jasim", Name = "Jasim Uddin",
+                Id = "helper-jasim", UserId = "user-jasim", Name = "Jasim Uddin",
                 Services = new() { ServiceType.Laundry, ServiceType.General },
                 MonthlyRate = 3000m, AvailabilityWindow = "Sat-Thu, evenings",
                 AreaName = "Mohammadpur", Distance = DistanceBand.Within5Km,
@@ -75,13 +78,22 @@ public sealed class MockHelperService : IHelperService
                     new ReviewDto { ReviewerName = "Fahim", Rating = 3, Comment = "Okay, needed reminders.", CreatedAtUtc = now.AddDays(-5) }
                 }
             },
+            // Seed one helper profile per teammate so "SwitchTo" has something to find.
             new()
             {
-                Id = "helper-me", Name = "Prapty (My profile)",
+                Id = "helper-prapty", UserId = "user-prapty", Name = "Prapty",
                 Services = new() { ServiceType.Cooking },
                 MonthlyRate = 4000m, AvailabilityWindow = "Sat-Wed, 9am-1pm",
                 AreaName = "Uttara", Distance = null,
-                IsMine = true, Reviews = new()
+                Reviews = new()
+            },
+            new()
+            {
+                Id = "helper-shreoshi", UserId = "user-shreoshi", Name = "Shreoshi",
+                Services = new() { ServiceType.Cleaning, ServiceType.General },
+                MonthlyRate = 3500m, AvailabilityWindow = "Fri-Wed, mornings",
+                AreaName = "Bashundhara", Distance = null,
+                Reviews = new()
             }
         };
 
@@ -89,36 +101,42 @@ public sealed class MockHelperService : IHelperService
         {
             new()
             {
-                Id = "eng-1", HelperId = "helper-rina", HelperName = "Rina Begum",
-                ClientName = "You", MyRole = EngagementRole.Client,
+                Id = "eng-1", HelperId = "helper-rina", HelperUserId = "user-rina", HelperName = "Rina Begum",
+                ClientUserId = "user-prapty", ClientName = "Prapty",
                 Status = EngagementStatus.Requested, CreatedAtUtc = now.AddDays(-1)
             },
             new()
             {
-                Id = "eng-2", HelperId = "helper-shirin", HelperName = "Shirin Akter",
-                ClientName = "You", MyRole = EngagementRole.Client,
+                Id = "eng-2", HelperId = "helper-shirin", HelperUserId = "user-shirin", HelperName = "Shirin Akter",
+                ClientUserId = "user-prapty", ClientName = "Prapty",
                 Status = EngagementStatus.Active, CreatedAtUtc = now.AddDays(-15),
                 ClientMarkedComplete = true, HelperMarkedComplete = false
             },
             new()
             {
-                Id = "eng-3", HelperId = "helper-jasim", HelperName = "Jasim Uddin",
-                ClientName = "You", MyRole = EngagementRole.Client,
+                Id = "eng-3", HelperId = "helper-jasim", HelperUserId = "user-jasim", HelperName = "Jasim Uddin",
+                ClientUserId = "user-prapty", ClientName = "Prapty",
                 Status = EngagementStatus.Completed, CreatedAtUtc = now.AddDays(-30),
                 ClientMarkedComplete = true, HelperMarkedComplete = true
             },
             new()
             {
-                Id = "eng-4", HelperId = "helper-me", HelperName = "Prapty (My profile)",
-                ClientName = "Nadia", MyRole = EngagementRole.Helper,
+                Id = "eng-4", HelperId = "helper-prapty", HelperUserId = "user-prapty", HelperName = "Prapty",
+                ClientUserId = "user-nadia", ClientName = "Nadia",
                 Status = EngagementStatus.HelperConfirmed, CreatedAtUtc = now.AddDays(-3)
+            },
+            new()
+            {
+                Id = "eng-5", HelperId = "helper-shreoshi", HelperUserId = "user-shreoshi", HelperName = "Shreoshi",
+                ClientUserId = "user-tanvir", ClientName = "Tanvir",
+                Status = EngagementStatus.Requested, CreatedAtUtc = now.AddDays(-2)
             }
         };
     }
 
     public Task<HelperPageDto<HelperSummaryDto>> BrowseAsync(HelperFilterDto filter)
     {
-        var query = _helpers.Where(h => !h.IsMine).AsEnumerable();
+        var query = _helpers.Where(h => h.UserId != _currentUser.UserId).AsEnumerable();
 
         if (filter.ServiceType is { } svc)
         {
@@ -149,7 +167,7 @@ public sealed class MockHelperService : IHelperService
         var items = all
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .Select(ToSummary)
+            .Select(h => ToSummary(h))
             .ToList();
 
         return Task.FromResult(new HelperPageDto<HelperSummaryDto>
@@ -169,24 +187,26 @@ public sealed class MockHelperService : IHelperService
 
     public Task<HelperDetailDto?> GetMyProfileAsync()
     {
-        var helper = _helpers.FirstOrDefault(h => h.IsMine);
+        var helper = _helpers.FirstOrDefault(h => h.UserId == _currentUser.UserId);
         return Task.FromResult(helper is null ? null : ToDetail(helper));
     }
 
     public Task<HelperDetailDto> RegisterAsync(HelperRegistrationDto dto)
     {
+        // Remove any existing profile for the current user, then add a fresh one.
+        _helpers.RemoveAll(h => h.UserId == _currentUser.UserId);
+
         var helper = new Helper
         {
-            Id = "helper-me",
-            Name = "Prapty (My profile)",
+            Id = $"helper-{_currentUser.UserId}",
+            UserId = _currentUser.UserId,
+            Name = _currentUser.DisplayName,
             Services = dto.Services,
             MonthlyRate = dto.MonthlyRate,
             AvailabilityWindow = dto.AvailabilityWindow,
-            AreaName = "Uttara",
-            IsMine = true
+            AreaName = "Uttara"
         };
 
-        _helpers.RemoveAll(h => h.IsMine);
         _helpers.Add(helper);
 
         return Task.FromResult(ToDetail(helper));
@@ -194,7 +214,7 @@ public sealed class MockHelperService : IHelperService
 
     public Task<HelperDetailDto> UpdateProfileAsync(HelperRegistrationDto dto)
     {
-        var helper = _helpers.First(h => h.IsMine);
+        var helper = _helpers.First(h => h.UserId == _currentUser.UserId);
         helper.Services = dto.Services;
         helper.MonthlyRate = dto.MonthlyRate;
         helper.AvailabilityWindow = dto.AvailabilityWindow;
@@ -221,7 +241,12 @@ public sealed class MockHelperService : IHelperService
 
     public Task<List<EngagementDto>> GetMyEngagementsAsync()
     {
-        var items = _engagements.Select(ToEngagementDto).ToList();
+        var uid = _currentUser.UserId;
+        var items = _engagements
+            .Where(e => e.ClientUserId == uid || e.HelperUserId == uid)
+            .Select(e => ToEngagementDto(e, uid))
+            .ToList();
+
         return Task.FromResult(items);
     }
 
@@ -232,15 +257,16 @@ public sealed class MockHelperService : IHelperService
         {
             Id = Guid.NewGuid().ToString(),
             HelperId = helper.Id,
+            HelperUserId = helper.UserId,
             HelperName = helper.Name,
-            ClientName = "You",
-            MyRole = EngagementRole.Client,
+            ClientUserId = _currentUser.UserId,
+            ClientName = _currentUser.DisplayName,
             Status = EngagementStatus.Requested,
             CreatedAtUtc = DateTime.UtcNow
         };
         _engagements.Add(engagement);
 
-        return Task.FromResult(ToEngagementDto(engagement));
+        return Task.FromResult(ToEngagementDto(engagement, _currentUser.UserId));
     }
 
     public Task<EngagementDto> ConfirmEngagementAsync(string engagementId)
@@ -248,14 +274,14 @@ public sealed class MockHelperService : IHelperService
         var engagement = _engagements.First(e => e.Id == engagementId);
         engagement.Status = EngagementStatus.HelperConfirmed;
 
-        return Task.FromResult(ToEngagementDto(engagement));
+        return Task.FromResult(ToEngagementDto(engagement, _currentUser.UserId));
     }
 
     public Task<EngagementDto> MarkCompleteAsync(string engagementId)
     {
         var engagement = _engagements.First(e => e.Id == engagementId);
 
-        if (engagement.MyRole == EngagementRole.Client)
+        if (_currentUser.UserId == engagement.ClientUserId)
         {
             engagement.ClientMarkedComplete = true;
         }
@@ -273,7 +299,7 @@ public sealed class MockHelperService : IHelperService
             engagement.Status = EngagementStatus.Active;
         }
 
-        return Task.FromResult(ToEngagementDto(engagement));
+        return Task.FromResult(ToEngagementDto(engagement, _currentUser.UserId));
     }
 
     public Task SubmitReviewAsync(string engagementId, int rating, string comment)
@@ -293,7 +319,7 @@ public sealed class MockHelperService : IHelperService
         return Task.CompletedTask;
     }
 
-    private static HelperSummaryDto ToSummary(Helper h) => new()
+    private HelperSummaryDto ToSummary(Helper h) => new()
     {
         Id = h.Id,
         Name = h.Name,
@@ -305,7 +331,7 @@ public sealed class MockHelperService : IHelperService
         Distance = h.Distance
     };
 
-    private static HelperDetailDto ToDetail(Helper h) => new()
+    private HelperDetailDto ToDetail(Helper h) => new()
     {
         Id = h.Id,
         Name = h.Name,
@@ -316,20 +342,22 @@ public sealed class MockHelperService : IHelperService
         RatingCount = h.RatingCount,
         AreaName = h.AreaName,
         Distance = h.Distance,
-        IsMine = h.IsMine
+        IsMine = h.UserId == _currentUser.UserId
     };
 
-    private static EngagementDto ToEngagementDto(Engagement e) => new()
+    private static EngagementDto ToEngagementDto(Engagement e, string currentUserId) => new()
     {
         Id = e.Id,
         HelperId = e.HelperId,
         HelperName = e.HelperName,
         ClientName = e.ClientName,
-        MyRole = e.MyRole,
+        MyRole = currentUserId == e.HelperUserId ? EngagementRole.Helper : EngagementRole.Client,
         Status = e.Status,
         CreatedAtUtc = e.CreatedAtUtc,
         ClientMarkedComplete = e.ClientMarkedComplete,
         HelperMarkedComplete = e.HelperMarkedComplete,
-        CanReview = e.Status == EngagementStatus.Completed && e.MyRole == EngagementRole.Client && !e.Reviewed
+        CanReview = e.Status == EngagementStatus.Completed
+                    && currentUserId == e.ClientUserId
+                    && !e.Reviewed
     };
 }

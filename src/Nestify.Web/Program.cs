@@ -27,6 +27,9 @@ builder.Services.AddScoped<AuthenticationStateProvider>(sp =>
     sp.GetRequiredService<CustomAuthStateProvider>());
 builder.Services.AddScoped<IAuthService, AuthService>();
 
+// Dev-only mock "who's logged in" state — must be Singleton so it survives page navigation
+builder.Services.AddSingleton<ICurrentUserService, MockCurrentUserService>();
+
 // M1 · Area cascade — swap MockAreaService for AreaService when the API lands
 builder.Services.AddScoped<IAreaService, MockAreaService>();
 builder.Services.AddScoped<IHousingService, MockHousingService>();
