@@ -278,7 +278,7 @@
                 Password = _login.Password,
             });
             if (result is null) { _loginMsg = "We could not sign you in with those details."; return; }
-            Navigation.NavigateTo("/");
+            Navigation.NavigateTo("/profile");
         }
         catch { _loginMsg = "We could not reach Nestify right now. Try again in a moment."; }
         finally { _loginBusy = false; }
@@ -340,7 +340,7 @@
             if (result is null) { _registerMsg = "We could not create your account with those details."; return; }
             _registerError = false;
             _registerMsg   = "Account created! Taking you to your dashboard...";
-            Navigation.NavigateTo("/");
+            Navigation.NavigateTo("/profile");
         }
         catch { _registerMsg = "We could not reach Nestify right now. Try again in a moment."; }
         finally { _registerBusy = false; }

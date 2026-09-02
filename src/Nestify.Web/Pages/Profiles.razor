@@ -1,117 +1,223 @@
 @page "/profiles"
 @page "/profiles/{Kind}"
+@page "/profile"
+@using System.Security.Claims
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Navigation
 
 <PageTitle>@ActiveProfile.Title - Nestify</PageTitle>
 
-<section class="nx-section profile-page">
-    <div class="nx-container profile-wrap">
-        <header class="profile-head">
-            <div>
-                <p class="nx-eyebrow">Profiles</p>
-                <h1>@ActiveProfile.Title</h1>
-                <p class="profile-head__lead">@ActiveProfile.Summary</p>
-            </div>
-            <nav class="profile-tabs" aria-label="Profile types">
-                @foreach (var profile in ProfileTypes)
-                {
-                    <a class="profile-tab @(profile.Key == ActiveKey ? "profile-tab--active" : null)"
-                       href="@($"profiles/{profile.Key}")">
-                        @profile.ShortLabel
-                    </a>
-                }
-            </nav>
-        </header>
-
-        <div class="profile-hero profile-hero--@ActiveProfile.Key">
-            <div class="profile-identity">
-                <div class="profile-avatar">@ActiveProfile.Initials</div>
+@if (!_loading)
+{
+    <section class="nx-section profile-page">
+        <div class="nx-container profile-wrap">
+            <header class="profile-head">
                 <div>
-                    <p class="profile-kicker">@ActiveProfile.RoleLabel</p>
-                    <h2>@ActiveProfile.Name</h2>
-                    <p>@ActiveProfile.Location</p>
+                    <p class="nx-eyebrow">My Profile</p>
+                    <h1>@ActiveProfile.Title</h1>
+                    <p class="profile-head__lead">@ActiveProfile.Summary</p>
+                </div>
+                <div class="profile-route-note">
+                    @ActiveProfile.ShortLabel account
+                </div>
+            </header>
+
+            <div class="profile-hero profile-hero--@ActiveProfile.Key">
+                <div class="profile-identity">
+                    <div class="profile-avatar">@DisplayInitials</div>
+                    <div>
+                        <p class="profile-kicker">@ActiveProfile.RoleLabel</p>
+                        <h2>@DisplayName</h2>
+                        <p>@ActiveProfile.Location</p>
+                    </div>
+                </div>
+                <div class="profile-badges" aria-label="Status">
+                    @foreach (var badge in ActiveProfile.Badges)
+                    {
+                        <span>@badge</span>
+                    }
                 </div>
             </div>
-            <div class="profile-badges" aria-label="Status">
-                @foreach (var badge in ActiveProfile.Badges)
-                {
-                    <span>@badge</span>
-                }
+
+            <div class="profile-grid">
+                <section class="profile-panel profile-panel--wide">
+                    <h3>@ActiveProfile.PrimarySectionTitle</h3>
+                    <div class="profile-fields">
+                        @foreach (var field in ActiveFields)
+                        {
+                            <div class="profile-field">
+                                <span>@field.Label</span>
+                                <strong>@field.Value</strong>
+                            </div>
+                        }
+                    </div>
+                </section>
+
+                <section class="profile-panel">
+                    <h3>Contact</h3>
+                    <div class="profile-contact">
+                        @foreach (var item in ActiveContact)
+                        {
+                            <p>
+                                <span>@item.Label</span>
+                                <strong>@item.Value</strong>
+                            </p>
+                        }
+                    </div>
+                </section>
+
+                <section class="profile-panel">
+                    <h3>Permissions</h3>
+                    <ul class="profile-list">
+                        @foreach (var permission in ActiveProfile.Permissions)
+                        {
+                            <li>@permission</li>
+                        }
+                    </ul>
+                </section>
+
+                <section class="profile-panel profile-panel--wide">
+                    <h3>Activity</h3>
+                    <div class="profile-metrics">
+                        @foreach (var metric in ActiveProfile.Metrics)
+                        {
+                            <div class="profile-metric">
+                                <strong>@metric.Value</strong>
+                                <span>@metric.Label</span>
+                            </div>
+                        }
+                    </div>
+                </section>
+
+                <section class="profile-panel">
+                    <h3>Plan Guardrails</h3>
+                    <ul class="profile-list">
+                        @foreach (var rule in ActiveProfile.Guardrails)
+                        {
+                            <li>@rule</li>
+                        }
+                    </ul>
+                </section>
             </div>
         </div>
-
-        <div class="profile-grid">
-            <section class="profile-panel profile-panel--wide">
-                <h3>@ActiveProfile.PrimarySectionTitle</h3>
-                <div class="profile-fields">
-                    @foreach (var field in ActiveProfile.Fields)
-                    {
-                        <div class="profile-field">
-                            <span>@field.Label</span>
-                            <strong>@field.Value</strong>
-                        </div>
-                    }
-                </div>
-            </section>
-
-            <section class="profile-panel">
-                <h3>Contact</h3>
-                <div class="profile-contact">
-                    @foreach (var item in ActiveProfile.Contact)
-                    {
-                        <p>
-                            <span>@item.Label</span>
-                            <strong>@item.Value</strong>
-                        </p>
-                    }
-                </div>
-            </section>
-
-            <section class="profile-panel">
-                <h3>Permissions</h3>
-                <ul class="profile-list">
-                    @foreach (var permission in ActiveProfile.Permissions)
-                    {
-                        <li>@permission</li>
-                    }
-                </ul>
-            </section>
-
-            <section class="profile-panel profile-panel--wide">
-                <h3>Activity</h3>
-                <div class="profile-metrics">
-                    @foreach (var metric in ActiveProfile.Metrics)
-                    {
-                        <div class="profile-metric">
-                            <strong>@metric.Value</strong>
-                            <span>@metric.Label</span>
-                        </div>
-                    }
-                </div>
-            </section>
-
-            <section class="profile-panel">
-                <h3>Plan Guardrails</h3>
-                <ul class="profile-list">
-                    @foreach (var rule in ActiveProfile.Guardrails)
-                    {
-                        <li>@rule</li>
-                    }
-                </ul>
-            </section>
-        </div>
-    </div>
-</section>
+    </section>
+}
 
 @code {
     [Parameter] public string? Kind { get; set; }
 
     private string ActiveKey { get; set; } = "bachelor";
+    private bool _loading = true;
+    private ClaimsPrincipal? _user;
     private ProfileModel ActiveProfile => ProfileTypes.First(p => p.Key == ActiveKey);
+    private string DisplayName => GetClaimValue(ClaimTypes.Name, "name")
+        ?? ActiveProfile.Name;
+    private string DisplayEmail => GetClaimValue(ClaimTypes.Email, "email")
+        ?? "Not provided";
+    private string DisplayInitials => CreateInitials(DisplayName);
+    private IEnumerable<ProfilePair> ActiveFields => ActiveProfile.Fields.Select(ResolveField);
+    private IEnumerable<ProfilePair> ActiveContact => ActiveProfile.Contact.Select(ResolveField);
 
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
-        var requested = Kind?.Trim().ToLowerInvariant();
-        ActiveKey = ProfileTypes.Any(p => p.Key == requested) ? requested! : "bachelor";
+        _loading = true;
+
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        _user = authState.User;
+
+        if (_user.Identity?.IsAuthenticated != true)
+        {
+            Navigation.NavigateTo("/login", replace: true);
+            return;
+        }
+
+        var allowedProfileKey = GetProfileKeyFor(_user);
+        var requestedProfileKey = NormalizeProfileKey(Kind);
+
+        if (requestedProfileKey is not null && requestedProfileKey != allowedProfileKey)
+        {
+            ActiveKey = allowedProfileKey;
+            _loading = false;
+            Navigation.NavigateTo($"/profiles/{allowedProfileKey}", replace: true);
+            return;
+        }
+
+        ActiveKey = requestedProfileKey ?? allowedProfileKey;
+        _loading = false;
+    }
+
+    private static string GetProfileKeyFor(ClaimsPrincipal user)
+    {
+        var roles = user.Claims
+            .Where(c => string.Equals(c.Type, ClaimTypes.Role, StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(c.Type, "role", StringComparison.OrdinalIgnoreCase))
+            .Select(c => c.Value);
+
+        if (roles.Any(IsAdminRole))
+        {
+            return "admin";
+        }
+
+        if (roles.Any(IsMaidRole))
+        {
+            return "maid";
+        }
+
+        return "bachelor";
+    }
+
+    private static bool IsAdminRole(string role) =>
+        string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase);
+
+    private static bool IsMaidRole(string role) =>
+        string.Equals(role, "DomesticHelper", StringComparison.OrdinalIgnoreCase) ||
+        string.Equals(role, "DomesticHelp", StringComparison.OrdinalIgnoreCase) ||
+        string.Equals(role, "Maid", StringComparison.OrdinalIgnoreCase);
+
+    private static string? NormalizeProfileKey(string? kind)
+    {
+        var value = kind?.Trim().ToLowerInvariant();
+        return value switch
+        {
+            "user" or "bachelor" => "bachelor",
+            "maid" or "helper" or "domestichelp" or "domestic-helper" or "domestichelper" => "maid",
+            "admin" => "admin",
+            _ => null
+        };
+    }
+
+    private string? GetClaimValue(params string[] claimTypes)
+    {
+        if (_user is null)
+        {
+            return null;
+        }
+
+        return _user.Claims
+            .FirstOrDefault(c => claimTypes.Any(t => string.Equals(c.Type, t, StringComparison.OrdinalIgnoreCase)))
+            ?.Value;
+    }
+
+    private ProfilePair ResolveField(ProfilePair field)
+    {
+        return field.Label switch
+        {
+            "Full name" or "Display name" => field with { Value = DisplayName },
+            "Email" => field with { Value = DisplayEmail },
+            "Phone" when ActiveKey == "bachelor" => field with { Value = GetClaimValue("phone_number", ClaimTypes.MobilePhone, ClaimTypes.HomePhone) ?? field.Value },
+            _ => field
+        };
+    }
+
+    private static string CreateInitials(string name)
+    {
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        if (parts.Length == 0)
+        {
+            return "U";
+        }
+
+        return string.Concat(parts.Take(2).Select(p => char.ToUpperInvariant(p[0])));
     }
 
     private static readonly ProfileModel[] ProfileTypes =

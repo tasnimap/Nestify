@@ -26,6 +26,17 @@
     font-size: 1rem;
 }
 
+.profile-route-note {
+    justify-self: start;
+    padding: .65rem .85rem;
+    border: 1px solid var(--nx-border-strong);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--nx-primary-strong);
+    font-size: .82rem;
+    font-weight: 800;
+}
+
 .profile-tabs {
     display: flex;
     flex-wrap: wrap;
@@ -246,6 +257,10 @@
 @media (min-width: 760px) {
     .profile-head {
         grid-template-columns: 1fr auto;
+    }
+
+    .profile-route-note {
+        justify-self: end;
     }
 
     .profile-hero {

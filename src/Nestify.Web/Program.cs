@@ -43,5 +43,6 @@ builder.Services.AddScoped<IMarketplaceService, MockMarketplaceService>();
 builder.Services.AddScoped<MoneyFormatterService>();
 builder.Services.AddScoped<DateFormatterService>();
 builder.Services.AddScoped<ToastService>();
+builder.Services.AddScoped<SettlementWorkspaceService>();
 
 await builder.Build().RunAsync();

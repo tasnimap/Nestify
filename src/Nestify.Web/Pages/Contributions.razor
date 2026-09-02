@@ -2,6 +2,7 @@
 @using System.ComponentModel.DataAnnotations
 @inject ToastService ToastService
 @inject MoneyFormatterService MoneyFormatterService
+@inject SettlementWorkspaceService SettlementWorkspace
 
 <PageTitle>Contributions — Nestify</PageTitle>
 
@@ -15,15 +16,15 @@
             </div>
             <div class="contributions-page__actions">
                 <button type="button" class="nx-btn nx-btn--ghost">Export CSV</button>
-                @if (!_isFinalized)
+                @if (!SettlementWorkspace.IsFinalized)
                 {
                     <a class="nx-btn nx-btn--primary" href="#contribution-form">Add contribution</a>
                 }
             </div>
         </header>
 
-        <div class="contributions-page__banner @(_isFinalized ? "contributions-page__banner--locked" : "")">
-            @if (_isFinalized)
+        <div class="contributions-page__banner @(SettlementWorkspace.IsFinalized ? "contributions-page__banner--locked" : "")">
+            @if (SettlementWorkspace.IsFinalized)
             {
                 <strong>Finalized period</strong>
                 <span>This month is locked. Contributions are read-only and correction controls are hidden.</span>
@@ -36,13 +37,13 @@
         </div>
 
         <div class="contributions-page__summary">
-            @foreach (var member in MemberNames)
+            @foreach (var member in SettlementWorkspace.MemberNames)
             {
                 <article class="nx-card contributions-page__member-card">
                     <span class="contributions-page__avatar">@member[0]</span>
                     <div>
                         <span class="contributions-page__member-name">@member</span>
-                        <strong><MoneyDisplay Amount="GetTotal(member)" /></strong>
+                        <strong><MoneyDisplay Amount="SettlementWorkspace.GetContributionTotal(member)" /></strong>
                     </div>
                     <small>contributed</small>
                 </article>
@@ -56,7 +57,7 @@
                         <h2>Contribution ledger</h2>
                         <p>Every payment remains visible, including correcting entries.</p>
                     </div>
-                    <span class="nx-tag">@_items.Count entries</span>
+                    <span class="nx-tag">@SettlementWorkspace.Contributions.Count entries</span>
                 </div>
 
                 <div class="contributions-page__table-wrap">
@@ -72,7 +73,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var item in _items)
+                            @foreach (var item in SettlementWorkspace.Contributions)
                             {
                                 <tr>
                                     <td><DateDisplay DateTime="item.PaidOnUtc" Format="date" /></td>
@@ -83,7 +84,7 @@
                                         <MoneyDisplay Amount="item.Amount" />
                                     </td>
                                     <td>
-                                        @if (!_isFinalized)
+                                        @if (!SettlementWorkspace.IsFinalized)
                                         {
                                             <button type="button" class="nx-btn nx-btn--ghost contributions-page__correct-btn"
                                                     @onclick="() => HandleCorrect(item)">
@@ -101,7 +102,7 @@
                         <tfoot>
                             <tr>
                                 <th colspan="4">Total contributions</th>
-                                <th><MoneyDisplay Amount="TotalContributions" /></th>
+                                <th><MoneyDisplay Amount="SettlementWorkspace.TotalContributions" /></th>
                                 <th></th>
                             </tr>
                         </tfoot>
@@ -109,7 +110,7 @@
                 </div>
             </section>
 
-            @if (!_isFinalized)
+            @if (!SettlementWorkspace.IsFinalized)
             {
                 <aside class="nx-card contributions-page__panel contributions-page__panel--form" id="contribution-form">
                     <div class="contributions-page__panel-head">
@@ -125,7 +126,7 @@
                         <div class="field">
                             <label for="contribution-member">Member</label>
                             <select id="contribution-member" @bind="_model.Member" class="field__input">
-                                @foreach (var member in MemberNames)
+                                @foreach (var member in SettlementWorkspace.MemberNames)
                                 {
                                     <option value="@member">@member</option>
                                 }
@@ -155,17 +156,6 @@
 </section>
 
 @code {
-    private static readonly string[] MemberNames = ["Rafi", "Sadia", "Tanvir", "Nabil"];
-
-    private sealed class ContributionEntry
-    {
-        public string Member { get; set; } = string.Empty;
-        public decimal Amount { get; set; }
-        public string Source { get; set; } = string.Empty;
-        public string Note { get; set; } = string.Empty;
-        public DateTime PaidOnUtc { get; set; }
-    }
-
     private sealed class ContributionFormModel
     {
         [Required]
@@ -175,40 +165,17 @@
         public decimal Amount { get; set; }
 
         [Required]
-        public DateTime PaidOn { get; set; } = DateTime.UtcNow;
+        public DateTime PaidOn { get; set; } = SettlementWorkspaceService.GetDefaultFormDate();
 
         [Required(ErrorMessage = "Add a short note for this payment.")]
         public string Note { get; set; } = string.Empty;
     }
 
-    private readonly List<ContributionEntry> _items =
-    [
-        new() { Member = "Rafi", Amount = 1400.00m, Source = "Expense", Note = "Gas cylinder refill", PaidOnUtc = new(2026, 9, 3, 12, 0, 0, DateTimeKind.Utc) },
-        new() { Member = "Sadia", Amount = 600.00m, Source = "Expense", Note = "Light bulbs + wiring", PaidOnUtc = new(2026, 9, 7, 12, 0, 0, DateTimeKind.Utc) },
-        new() { Member = "Tanvir", Amount = 1150.00m, Source = "Expense", Note = "Internet bill", PaidOnUtc = new(2026, 9, 10, 12, 0, 0, DateTimeKind.Utc) },
-        new() { Member = "Rafi", Amount = 4500.00m, Source = "Expense", Note = "Groceries (1–10 Sep)", PaidOnUtc = new(2026, 9, 12, 12, 0, 0, DateTimeKind.Utc) },
-        new() { Member = "Sadia", Amount = 2800.00m, Source = "Expense", Note = "Groceries (11–20 Sep)", PaidOnUtc = new(2026, 9, 20, 12, 0, 0, DateTimeKind.Utc) },
-        new() { Member = "Nabil", Amount = 2500.00m, Source = "Direct cash", Note = "September cash top-up", PaidOnUtc = new(2026, 9, 21, 12, 0, 0, DateTimeKind.Utc) }
-    ];
-
     private readonly ContributionFormModel _model = new();
-    private bool _isFinalized = false;
-    private decimal TotalContributions => _items.Sum(item => item.Amount);
-
-    private decimal GetTotal(string member) => _items
-        .Where(item => item.Member == member)
-        .Sum(item => item.Amount);
 
     private void HandleSubmit()
     {
-        _items.Insert(0, new ContributionEntry
-        {
-            Member = _model.Member,
-            Amount = _model.Amount,
-            Source = "Direct cash",
-            Note = _model.Note,
-            PaidOnUtc = _model.PaidOn.ToUniversalTime()
-        });
+        SettlementWorkspace.AddContribution(_model.Member, _model.Amount, _model.Note, _model.PaidOn);
 
         ToastService.ShowSuccess(
             $"Saved {MoneyFormatterService.Format(_model.Amount)} for {_model.Member}.",
@@ -216,10 +183,10 @@
 
         _model.Amount = 0m;
         _model.Note = string.Empty;
-        _model.PaidOn = DateTime.UtcNow;
+        _model.PaidOn = SettlementWorkspaceService.GetDefaultFormDate();
     }
 
-    private void HandleCorrect(ContributionEntry item)
+    private void HandleCorrect(SettlementWorkspaceService.ContributionEntry item)
     {
         ToastService.ShowInfo(
             $"Correcting {item.Note}. This creates a new append-only contribution entry.",

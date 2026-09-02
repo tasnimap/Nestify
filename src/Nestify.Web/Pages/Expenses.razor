@@ -2,6 +2,7 @@
 @using System.ComponentModel.DataAnnotations
 @inject ToastService ToastService
 @inject MoneyFormatterService MoneyFormatterService
+@inject SettlementWorkspaceService SettlementWorkspace
 
 <PageTitle>Expenses — Nestify</PageTitle>
 
@@ -14,12 +15,15 @@
             </div>
             <div class="expenses-page__actions">
                 <button type="button" class="nx-btn nx-btn--ghost">Export CSV</button>
-                <button type="button" class="nx-btn nx-btn--primary">Add expense</button>
+                @if (!SettlementWorkspace.IsFinalized)
+                {
+                    <a class="nx-btn nx-btn--primary" href="#expense-form">Add expense</a>
+                }
             </div>
         </header>
 
-        <div class="expenses-page__banner @( _isFinalized ? "expenses-page__banner--locked" : "")">
-            @if (_isFinalized)
+        <div class="expenses-page__banner @(SettlementWorkspace.IsFinalized ? "expenses-page__banner--locked" : "")">
+            @if (SettlementWorkspace.IsFinalized)
             {
                 <strong>Finalized period</strong>
                 <span>This month is locked. Every write control is hidden behind the finalization guard.</span>
@@ -35,7 +39,7 @@
             <section class="nx-card expenses-page__panel">
                 <div class="expenses-page__panel-head">
                     <h2>Expense ledger</h2>
-                    <span class="nx-tag">@_items.Count entries</span>
+                    <span class="nx-tag">@SettlementWorkspace.Expenses.Count entries</span>
                 </div>
 
                 <div class="expenses-page__table-wrap">
@@ -51,7 +55,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var item in _items)
+                            @foreach (var item in SettlementWorkspace.Expenses)
                             {
                                 <tr>
                                     <td><DateDisplay DateTime="item.DateUtc" Format="date" /></td>
@@ -60,9 +64,16 @@
                                     <td><span class="expenses-page__chip">@item.Category</span></td>
                                     <td><MoneyDisplay Amount="item.Amount" /></td>
                                     <td>
-                                        <button type="button" class="nx-btn nx-btn--ghost expenses-page__correct-btn" @onclick="() => HandleCorrect(item)">
-                                            Correct
-                                        </button>
+                                        @if (!SettlementWorkspace.IsFinalized)
+                                        {
+                                            <button type="button" class="nx-btn nx-btn--ghost expenses-page__correct-btn" @onclick="() => HandleCorrect(item)">
+                                                Correct
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <span>Locked</span>
+                                        }
                                     </td>
                                 </tr>
                             }
@@ -71,7 +82,9 @@
                 </div>
             </section>
 
-            <aside class="nx-card expenses-page__panel expenses-page__panel--form">
+            @if (!SettlementWorkspace.IsFinalized)
+            {
+            <aside class="nx-card expenses-page__panel expenses-page__panel--form" id="expense-form">
                 <div class="expenses-page__panel-head">
                     <h2>Add expense</h2>
                     <span class="nx-tag">Append-only</span>
@@ -108,32 +121,24 @@
                     <div class="field">
                         <label for="expense-paid-by">Paid by</label>
                         <select id="expense-paid-by" @bind="_model.PaidBy" class="field__input">
-                            <option value="Rafi">Rafi</option>
-                            <option value="Sadia">Sadia</option>
-                            <option value="Tanvir">Tanvir</option>
-                            <option value="Nabil">Nabil</option>
+                            @foreach (var member in SettlementWorkspace.MemberNames)
+                            {
+                                <option value="@member">@member</option>
+                            }
                         </select>
                     </div>
 
-                    <button type="submit" class="nx-btn nx-btn--primary nx-btn--block" disabled="@_isFinalized">
+                    <button type="submit" class="nx-btn nx-btn--primary nx-btn--block">
                         Save expense
                     </button>
                 </EditForm>
             </aside>
+            }
         </div>
     </div>
 </section>
 
 @code {
-    private class ExpenseEntry
-    {
-        public string Description { get; set; } = string.Empty;
-        public decimal Amount { get; set; }
-        public string PaidBy { get; set; } = "Rafi";
-        public string Category { get; set; } = "Equal split";
-        public DateTime DateUtc { get; set; } = DateTime.UtcNow;
-    }
-
     private class ExpenseFormModel
     {
         [Required(ErrorMessage = "Description is required.")]
@@ -144,44 +149,32 @@
         public decimal Amount { get; set; }
 
         [Required(ErrorMessage = "Date is required.")]
-        public DateTime Date { get; set; } = DateTime.UtcNow;
+        public DateTime Date { get; set; } = SettlementWorkspaceService.GetDefaultFormDate();
 
         public string Category { get; set; } = "Equal split";
         public string PaidBy { get; set; } = "Rafi";
     }
 
-    private readonly List<ExpenseEntry> _items = new()
-    {
-        new() { Description = "Gas cylinder refill", Amount = 1400.00m, PaidBy = "Rafi", Category = "Equal split", DateUtc = new DateTime(2026, 9, 3, 12, 0, 0, DateTimeKind.Utc) },
-        new() { Description = "Light bulbs + wiring", Amount = 600.00m, PaidBy = "Sadia", Category = "Equal split", DateUtc = new DateTime(2026, 9, 7, 12, 0, 0, DateTimeKind.Utc) },
-        new() { Description = "Internet bill", Amount = 1150.00m, PaidBy = "Tanvir", Category = "Equal split", DateUtc = new DateTime(2026, 9, 10, 12, 0, 0, DateTimeKind.Utc) },
-        new() { Description = "Groceries (1–10 Sep)", Amount = 4500.00m, PaidBy = "Rafi", Category = "Meal based", DateUtc = new DateTime(2026, 9, 12, 12, 0, 0, DateTimeKind.Utc) },
-        new() { Description = "Groceries (11–20 Sep)", Amount = 2800.00m, PaidBy = "Sadia", Category = "Meal based", DateUtc = new DateTime(2026, 9, 20, 12, 0, 0, DateTimeKind.Utc) }
-    };
-
     private readonly ExpenseFormModel _model = new();
-    private bool _isFinalized = false;
 
     private void HandleSubmit()
     {
-        _items.Insert(0, new ExpenseEntry
-        {
-            Description = _model.Description,
-            Amount = _model.Amount,
-            PaidBy = _model.PaidBy,
-            Category = _model.Category,
-            DateUtc = _model.Date.ToUniversalTime()
-        });
+        SettlementWorkspace.AddExpense(
+            _model.Description,
+            _model.Amount,
+            _model.PaidBy,
+            _model.Category,
+            _model.Date);
 
         ToastService.ShowSuccess($"Saved {MoneyFormatterService.Format(_model.Amount)} for {_model.Description}.", "Expense added");
         _model.Description = string.Empty;
         _model.Amount = 0m;
-        _model.Date = DateTime.UtcNow;
+        _model.Date = SettlementWorkspaceService.GetDefaultFormDate();
         _model.PaidBy = "Rafi";
         _model.Category = "Equal split";
     }
 
-    private void HandleCorrect(ExpenseEntry item)
+    private void HandleCorrect(SettlementWorkspaceService.ExpenseEntry item)
     {
         ToastService.ShowInfo($"Correcting {item.Description}. This creates a new append-only ledger entry instead of mutating the original record.", "Correcting expense");
     }

@@ -48,7 +48,11 @@ public sealed class AuthService : IAuthService
         }
 
         // Mock auth response for preview/demo
-        var mockResult = CreateMockAuthResponse(request.Email, request.Name);
+        var mockRole = string.Equals(request.AccountType, "DomesticHelp", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(request.AccountType, "DomesticHelper", StringComparison.OrdinalIgnoreCase)
+            ? "DomesticHelp"
+            : "User";
+        var mockResult = CreateMockAuthResponse(request.Email, request.Name, mockRole);
         await PersistSessionAsync(mockResult);
         return mockResult;
     }
@@ -84,7 +88,7 @@ public sealed class AuthService : IAuthService
             displayName = "Demo User";
         }
 
-        var mockResult = CreateMockAuthResponse(request.Email, displayName);
+        var mockResult = CreateMockAuthResponse(request.Email, displayName, InferMockRoleFromEmail(request.Email));
         await PersistSessionAsync(mockResult);
         return mockResult;
     }
@@ -104,14 +108,14 @@ public sealed class AuthService : IAuthService
             new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", auth.Token);
     }
 
-    private static AuthResponseDto CreateMockAuthResponse(string email, string name)
+    private static AuthResponseDto CreateMockAuthResponse(string email, string name, string role)
     {
         var claims = new Dictionary<string, object>
         {
             { "sub", Guid.NewGuid().ToString() },
             { "email", email },
             { "name", name },
-            { "role", "Member" },
+            { "role", role },
             { "exp", DateTimeOffset.UtcNow.AddDays(7).ToUnixTimeSeconds() }
         };
 
@@ -131,8 +135,28 @@ public sealed class AuthService : IAuthService
             Token = token,
             UserId = claims["sub"].ToString()!,
             Name = name,
-            Role = "Member",
+            Role = role,
             ExpiresAtUtc = DateTime.UtcNow.AddDays(7)
         };
+    }
+
+    private static string InferMockRoleFromEmail(string email)
+    {
+        var localPart = email.Split('@')[0].ToLowerInvariant();
+        if (localPart.Contains("admin"))
+        {
+            return "Admin";
+        }
+
+        if (localPart.Contains("maid") ||
+            localPart.Contains("helper") ||
+            localPart.Contains("domestic") ||
+            localPart.Contains("khala") ||
+            localPart.Contains("bua"))
+        {
+            return "DomesticHelp";
+        }
+
+        return "User";
     }
 }
