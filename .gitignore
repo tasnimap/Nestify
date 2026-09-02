@@ -33,3 +33,8 @@ publish/
 ## OS generated files
 .DS_Store
 Thumbs.db
+
+## Local environment / secrets
+.env
+.env.*
+!.env.example
