@@ -43,133 +43,119 @@
         }
         else
         {
-            <div class="hs-my-posts">
+            <div class="hs-rows">
                 @foreach (var postDto in _posts)
                 {
-                    <article class="hs-my-posts__card nx-card">
-                        <div class="hs-my-posts__head">
-                            <div class="hs-my-posts__titles">
-                                <h2>
+                    <article class="hs-row @(postDto.Post.Status != PostStatus.Active ? "hs-row--muted" : null)">
+                        <div class="hs-row__top">
+                            <div class="hs-row__grow">
+                                <h2 class="hs-row__title">
                                     <a href="housing/@postDto.Post.Id">@postDto.Post.Title</a>
                                 </h2>
-                                <p class="hs-my-posts__meta">
-                                    <span class="hs-my-posts__location">📍 @postDto.Post.AreaName, @postDto.Post.Division</span>
-                                    <span class="hs-my-posts__type">@HousingView.Label(postDto.Post.ListingType)</span>
-                                    <span class="hs-my-posts__status @(postDto.Post.Status == PostStatus.Active ? "hs-my-posts__status--active" : "hs-my-posts__status--closed")">
+                                <div class="hs-row__badges">
+                                    <span class="hs-chip hs-chip--type">@HousingView.Label(postDto.Post.ListingType)</span>
+                                    <span class="hs-badge @(postDto.Post.Status == PostStatus.Active ? "hs-badge--status-active" : "hs-badge--status-closed")">
                                         @postDto.Post.Status
                                     </span>
-                                </p>
+                                    @if (postDto.PendingBookingRequestCount > 0)
+                                    {
+                                        <span class="hs-count-pill">@postDto.PendingBookingRequestCount pending</span>
+                                    }
+                                </div>
+                                <div class="hs-row__meta">
+                                    <span>📍 @postDto.Post.AreaName, @postDto.Post.Division</span>
+                                </div>
                             </div>
-                            <div class="hs-my-posts__price">
-                                <span class="hs-my-posts__rent">৳@postDto.Post.MonthlyRent/mo</span>
+                            <div class="hs-price hs-price--sm">
+                                ৳@postDto.Post.MonthlyRent<span class="hs-price__unit">/mo</span>
                             </div>
                         </div>
 
-                        <div class="hs-my-posts__body">
-                            <div class="hs-my-posts__stats">
-                                <div class="hs-my-posts__stat">
-                                    <span class="hs-my-posts__stat-label">Seats available</span>
-                                    <span class="hs-my-posts__stat-value">@postDto.Post.SeatsAvailable</span>
-                                </div>
-                                <div class="hs-my-posts__stat">
-                                    <span class="hs-my-posts__stat-label">Total requests</span>
-                                    <span class="hs-my-posts__stat-value">@postDto.BookingRequestCount</span>
-                                </div>
-                                <div class="hs-my-posts__stat">
-                                    <span class="hs-my-posts__stat-label">Pending</span>
-                                    <span class="hs-my-posts__stat-value">@postDto.PendingBookingRequestCount</span>
-                                </div>
-                            </div>
+                        <div class="hs-row__stats">
+                            <span class="hs-stat"><strong>@postDto.Post.SeatsAvailable</strong>&nbsp;seats available</span>
+                            <span class="hs-stat"><strong>@postDto.BookingRequestCount</strong>&nbsp;total requests</span>
+                            <span class="hs-stat"><strong>@postDto.PendingBookingRequestCount</strong>&nbsp;pending</span>
+                        </div>
 
-                            @if (postDto.BookingRequestCount > 0)
+                        @if (postDto.BookingRequestCount > 0)
+                        {
+                            @if (_expandedPostId == postDto.Post.Id)
                             {
-                                <div class="hs-my-posts__requesters">
-                                    <h3>Booking Requests</h3>
-                                    @if (_expandedPostId == postDto.Post.Id)
-                                    {
-                                        @if (_requestersLoading)
+                                @if (_requestersLoading)
+                                {
+                                    <p class="hs-requesters__loading">Loading requests…</p>
+                                }
+                                else if (_currentRequesters.Count == 0)
+                                {
+                                    <p class="hs-requesters__empty">No booking requests found.</p>
+                                }
+                                else
+                                {
+                                    <div class="hs-requesters">
+                                        @foreach (var requester in _currentRequesters)
                                         {
-                                            <p>Loading requests…</p>
-                                        }
-                                        else if (_currentRequesters.Count == 0)
-                                        {
-                                            <p>No booking requests found.</p>
-                                        }
-                                        else
-                                        {
-                                            <div class="hs-requesters">
-                                                @foreach (var requester in _currentRequesters)
+                                            <div class="hs-requester">
+                                                <div class="hs-requester__top">
+                                                    <div class="hs-requester__info">
+                                                        <p class="hs-requester__name">@requester.RequesterName</p>
+                                                        <p class="hs-requester__date">Requested @requester.RequestedAtUtc.ToString("g")</p>
+                                                    </div>
+                                                    <span class="hs-badge @GetRequesterBadgeClass(requester.Status)">@requester.Status</span>
+                                                </div>
+                                                @if (!string.IsNullOrEmpty(requester.Message))
                                                 {
-                                                    <div class="hs-requester">
-                                                        <div class="hs-requester__info">
-                                                            <p class="hs-requester__name">@requester.RequesterName</p>
-                                                            <p class="hs-requester__date">Requested @requester.RequestedAtUtc.ToString("g")</p>
-                                                            @if (!string.IsNullOrEmpty(requester.Message))
-                                                            {
-                                                                <p class="hs-requester__message">@requester.Message</p>
-                                                            }
-                                                        </div>
-                                                        <div class="hs-requester__status">
-                                                            <span class="hs-requester__badge @(requester.Status == BookingStatus.Pending ? "hs-requester__badge--pending" : "hs-requester__badge--" + requester.Status.ToString().ToLower())">
-                                                                @requester.Status
-                                                            </span>
-                                                        </div>
-                                                        @if (requester.Status == BookingStatus.Pending)
-                                                        {
-                                                            <div class="hs-requester__actions">
-                                                                <button type="button" class="nx-btn nx-btn--primary nx-btn--sm" 
-                                                                        @onclick="() => AcceptBooking(requester.BookingId)">
-                                                                    Accept
-                                                                </button>
-                                                                <button type="button" class="nx-btn nx-btn--ghost nx-btn--sm" 
-                                                                        @onclick="() => RejectBooking(requester.BookingId)">
-                                                                    Reject
-                                                                </button>
-                                                            </div>
-                                                        }
-                                                        else if (requester.Status == BookingStatus.Accepted)
-                                                        {
-                                                            <div class="hs-requester__actions">
-                                                                <button type="button" class="nx-btn nx-btn--ghost nx-btn--sm" 
-                                                                        @onclick="() => ViewContact(requester.BookingId)">
-                                                                    View Contact
-                                                                </button>
-                                                            </div>
-                                                        }
+                                                    <p class="hs-requester__message">@requester.Message</p>
+                                                }
+                                                @if (requester.Status == BookingStatus.Pending)
+                                                {
+                                                    <div class="hs-requester__actions">
+                                                        <button type="button" class="nx-btn nx-btn--primary nx-btn--sm" 
+                                                                @onclick="() => AcceptBooking(requester.BookingId)">
+                                                            Accept
+                                                        </button>
+                                                        <button type="button" class="nx-btn nx-btn--ghost nx-btn--sm" 
+                                                                @onclick="() => RejectBooking(requester.BookingId)">
+                                                            Reject
+                                                        </button>
+                                                    </div>
+                                                }
+                                                else if (requester.Status == BookingStatus.Accepted)
+                                                {
+                                                    <div class="hs-requester__actions">
+                                                        <button type="button" class="nx-btn nx-btn--ghost nx-btn--sm" 
+                                                                @onclick="() => ViewContact(requester.BookingId)">
+                                                            View contact
+                                                        </button>
                                                     </div>
                                                 }
                                             </div>
                                         }
-                                    }
-                                    else
-                                    {
-                                        <button type="button" class="nx-btn nx-btn--ghost" 
-                                                @onclick="() => LoadRequesters(postDto.Post.Id)">
-                                            View requests
-                                        </button>
-                                    }
-                                </div>
+                                    </div>
+                                }
                             }
-                        </div>
+                        }
 
-                        <div class="hs-my-posts__footer">
-                            <div class="hs-my-posts__actions">
-                                <a class="nx-btn nx-btn--ghost" href="housing/@postDto.Post.Id">View</a>
-                                @if (postDto.BookingRequestCount > 0)
-                                {
-                                    <a class="nx-btn nx-btn--ghost" href="housing/@postDto.Post.Id/bookings">View Requests (@postDto.BookingRequestCount)</a>
-                                }
-                                <a class="nx-btn nx-btn--ghost" href="housing/@postDto.Post.Id/edit">Edit</a>
-                                @if (postDto.Post.Status == PostStatus.Active)
-                                {
-                                    <button type="button" class="nx-btn nx-btn--ghost" @onclick="() => ClosePost(postDto.Post.Id)">Close</button>
-                                }
-                                else
-                                {
-                                    <button type="button" class="nx-btn nx-btn--ghost" @onclick="() => ReopenPost(postDto.Post.Id)">Reopen</button>
-                                }
-                                <button type="button" class="nx-btn nx-btn--ghost nx-btn--danger" @onclick="() => DeletePost(postDto.Post.Id)">Delete</button>
-                            </div>
+                        <div class="hs-row__actions">
+                            <a class="nx-btn nx-btn--ghost" href="housing/@postDto.Post.Id">View</a>
+                            @if (postDto.BookingRequestCount > 0)
+                            {
+                                <button type="button" class="nx-btn nx-btn--ghost" 
+                                        @onclick="() => LoadRequesters(postDto.Post.Id)">
+                                    @(_expandedPostId == postDto.Post.Id ? "Hide requests" : "Preview requests")
+                                </button>
+                                <a class="nx-btn nx-btn--ghost" href="housing/@postDto.Post.Id/bookings">View all (@postDto.BookingRequestCount)</a>
+                            }
+                            <a class="nx-btn nx-btn--ghost" href="housing/@postDto.Post.Id/edit">Edit</a>
+                            <span class="hs-row__actions-spacer"></span>
+                            @if (postDto.Post.Status == PostStatus.Active)
+                            {
+                                <button type="button" class="nx-btn nx-btn--ghost" @onclick="() => ClosePost(postDto.Post.Id)">Close</button>
+                            }
+                            else
+                            {
+                                <button type="button" class="nx-btn nx-btn--ghost" @onclick="() => ReopenPost(postDto.Post.Id)">Reopen</button>
+                            }
+                            <button type="button" class="nx-btn nx-btn--ghost hs-danger-btn" @onclick="() => DeletePost(postDto.Post.Id)">Delete</button>
                         </div>
                     </article>
                 }
@@ -374,4 +360,13 @@
         // In a real app, you'd show a confirmation dialog
         return true;
     }
+
+    private string GetRequesterBadgeClass(BookingStatus status) => status switch
+    {
+        BookingStatus.Pending => "hs-badge--pending",
+        BookingStatus.Accepted => "hs-badge--accepted",
+        BookingStatus.Rejected => "hs-badge--rejected",
+        BookingStatus.Withdrawn => "hs-badge--withdrawn",
+        _ => ""
+    };
 }

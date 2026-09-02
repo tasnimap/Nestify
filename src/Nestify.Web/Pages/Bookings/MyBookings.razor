@@ -39,65 +39,55 @@
         }
         else
         {
-            <div class="hs-my-bookings">
+            <div class="hs-rows">
                 @foreach (var booking in _bookings)
                 {
-                    <article class="hs-booking-card nx-card">
-                        <div class="hs-booking-card__head">
-                            <div class="hs-booking-card__titles">
-                                <h2>
+                    <article class="hs-row">
+                        <div class="hs-row__top">
+                            <div class="hs-row__grow">
+                                <h2 class="hs-row__title">
                                     <a href="housing/@booking.Post.Id">@booking.Post.Title</a>
                                 </h2>
-                                <p class="hs-booking-card__meta">
-                                    <span class="hs-booking-card__location">📍 @booking.Post.AreaName, @booking.Post.Division</span>
-                                    <span class="hs-booking-card__type">@HousingView.Label(booking.Post.ListingType)</span>
-                                </p>
+                                <div class="hs-row__badges">
+                                    <span class="hs-chip hs-chip--type">@HousingView.Label(booking.Post.ListingType)</span>
+                                    <span class="hs-badge @(GetStatusClass(booking.Status))">@booking.Status</span>
+                                </div>
+                                <div class="hs-row__meta">
+                                    <span>📍 @booking.Post.AreaName, @booking.Post.Division</span>
+                                    <span class="hs-dot"></span>
+                                    <span>Requested @booking.RequestedAtUtc.ToString("g")</span>
+                                </div>
                             </div>
-                            <div class="hs-booking-card__price">
-                                <span class="hs-booking-card__rent">৳@booking.Post.MonthlyRent/mo</span>
+                            <div class="hs-price hs-price--sm">
+                                ৳@booking.Post.MonthlyRent<span class="hs-price__unit">/mo</span>
                             </div>
                         </div>
 
-                        <div class="hs-booking-card__body">
-                            <div class="hs-booking-card__info">
-                                <div class="hs-booking-card__row">
-                                    <span class="hs-booking-card__label">Status</span>
-                                    <span class="hs-booking-card__badge @(GetStatusClass(booking.Status))">
-                                        @booking.Status
-                                    </span>
-                                </div>
-                                <div class="hs-booking-card__row">
-                                    <span class="hs-booking-card__label">Requested</span>
-                                    <span>@booking.RequestedAtUtc.ToString("g")</span>
-                                </div>
-                                @if (!string.IsNullOrEmpty(booking.Message))
-                                {
-                                    <div class="hs-booking-card__row">
-                                        <span class="hs-booking-card__label">Your message</span>
-                                        <p class="hs-booking-card__message">@booking.Message</p>
-                                    </div>
-                                }
-                            </div>
-                        </div>
+                        @if (!string.IsNullOrEmpty(booking.Message))
+                        {
+                            <p class="hs-row__message">
+                                <span class="hs-row__message-label">Your message</span>
+                                @booking.Message
+                            </p>
+                        }
 
-                        <div class="hs-booking-card__footer">
-                            <div class="hs-booking-card__actions">
-                                <a class="nx-btn nx-btn--ghost" href="housing/@booking.Post.Id">View listing</a>
-                                @if (booking.Status == BookingStatus.Accepted)
-                                {
-                                    <button type="button" class="nx-btn nx-btn--ghost" 
-                                            @onclick="() => ViewManagerContact(booking.BookingId)">
-                                        View manager contact
-                                    </button>
-                                }
-                                @if (booking.Status == BookingStatus.Pending)
-                                {
-                                    <button type="button" class="nx-btn nx-btn--ghost nx-btn--danger" 
-                                            @onclick="() => WithdrawBooking(booking.BookingId)">
-                                        Withdraw request
-                                    </button>
-                                }
-                            </div>
+                        <div class="hs-row__actions">
+                            <a class="nx-btn nx-btn--ghost" href="housing/@booking.Post.Id">View listing</a>
+                            @if (booking.Status == BookingStatus.Accepted)
+                            {
+                                <button type="button" class="nx-btn nx-btn--ghost" 
+                                        @onclick="() => ViewManagerContact(booking.BookingId)">
+                                    View manager contact
+                                </button>
+                            }
+                            @if (booking.Status == BookingStatus.Pending)
+                            {
+                                <span class="hs-row__actions-spacer"></span>
+                                <button type="button" class="nx-btn nx-btn--ghost hs-danger-btn" 
+                                        @onclick="() => WithdrawBooking(booking.BookingId)">
+                                    Withdraw request
+                                </button>
+                            }
                         </div>
                     </article>
                 }
@@ -160,10 +150,10 @@
 
     private string GetStatusClass(BookingStatus status) => status switch
     {
-        BookingStatus.Pending => "hs-booking-card__badge--pending",
-        BookingStatus.Accepted => "hs-booking-card__badge--accepted",
-        BookingStatus.Rejected => "hs-booking-card__badge--rejected",
-        BookingStatus.Withdrawn => "hs-booking-card__badge--withdrawn",
+        BookingStatus.Pending => "hs-badge--pending",
+        BookingStatus.Accepted => "hs-badge--accepted",
+        BookingStatus.Rejected => "hs-badge--rejected",
+        BookingStatus.Withdrawn => "hs-badge--withdrawn",
         _ => ""
     };
 }
