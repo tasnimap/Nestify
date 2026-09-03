@@ -281,7 +281,7 @@
             var isHelper = result.Role is "DomesticHelp" or "DomesticHelper" or "Maid" or "Helper";
             Navigation.NavigateTo(isHelper ? "/helpers/dashboard" : "/dashboard");
         }
-        catch { _loginMsg = "We could not reach Nestify right now. Try again in a moment."; }
+        catch (Exception ex) { _loginMsg = ex.Message; }
         finally { _loginBusy = false; }
     }
 
@@ -344,7 +344,7 @@
             var isHelper = result.Role is "DomesticHelp" or "DomesticHelper" or "Maid" or "Helper";
             Navigation.NavigateTo(isHelper ? "/helpers/dashboard" : "/dashboard");
         }
-        catch { _registerMsg = "We could not reach Nestify right now. Try again in a moment."; }
+        catch (Exception ex) { _registerError = true; _registerMsg = ex.Message; }
         finally { _registerBusy = false; }
     }
 }

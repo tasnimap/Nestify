@@ -15,16 +15,21 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 var apiBaseUrl = builder.Configuration["ApiBaseUrl"]!;
 
-builder.Services.AddScoped(sp => new HttpClient
-{
-    BaseAddress = new Uri(apiBaseUrl)
-});
-
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<CustomAuthStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(sp =>
     sp.GetRequiredService<CustomAuthStateProvider>());
+
+// HttpClient that automatically sends the stored bearer token on every API call.
+builder.Services.AddScoped<AuthorizationMessageHandler>();
+builder.Services.AddScoped(sp =>
+{
+    var handler = sp.GetRequiredService<AuthorizationMessageHandler>();
+    handler.InnerHandler = new HttpClientHandler();
+    return new HttpClient(handler) { BaseAddress = new Uri(apiBaseUrl) };
+});
+
 builder.Services.AddScoped<IAuthService, AuthService>();
 
 // Dev-only mock "who's logged in" state — must be Singleton so it survives page navigation
