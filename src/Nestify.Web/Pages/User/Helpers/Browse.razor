@@ -1,0 +1,224 @@
+@using Nestify.Web.Components.Helper
+@page "/helpers"
+@attribute [Authorize(Roles = "User")]
+@using Nestify.Shared.Dtos.Area
+@using Nestify.Shared.Dtos.Helpers
+@inject IHelperService Helpers
+
+<PageTitle>Domestic Help — Nestify</PageTitle>
+
+<section class="nx-section hs-page">
+    <div class="nx-container hs-wrap">
+        <header class="hs-head">
+            <div class="hs-head__titles">
+                <p class="nx-eyebrow">M2 · Domestic Help</p>
+                <h1>Trusted khala & bua, <span class="nx-display-accent">near where you already live.</span></h1>
+                <p class="hs-head__lead">
+                    Browse helpers registered on Nestify, rated by real engagements. Exact location is shown
+                    only after a helper confirms your request.
+                </p>
+            </div>
+            <div class="hs-head__actions">
+                <a class="nx-btn nx-btn--ghost" href="engagements/mine">My engagements</a>
+                <a class="nx-btn nx-btn--primary" href="helpers/register">
+                    <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+                    Become a helper
+                </a>
+            </div>
+        </header>
+
+        <div class="hs-browse">
+            <aside class="hs-lens" aria-label="Filter helpers">
+                <div class="hs-lens__row">
+                    <span class="hs-lens__label">Area</span>
+                    <AreaCascade Selection="_areaSelection" SelectionChanged="OnAreaChanged" />
+                </div>
+
+                <div class="hs-lens__row">
+                    <span class="hs-lens__label">Service</span>
+                    <div class="hs-seg hs-seg--wrap">
+                        <button type="button" class="hs-seg__opt @(_filter.ServiceType is null ? "hs-seg__opt--active" : null)"
+                                @onclick="() => SetServiceType(null)">Any</button>
+                        @foreach (var s in _serviceTypes)
+                        {
+                            <button type="button" class="hs-seg__opt @(_filter.ServiceType == s ? "hs-seg__opt--active" : null)"
+                                    @onclick="() => SetServiceType(s)">@s</button>
+                        }
+                    </div>
+                </div>
+
+                <div class="hs-lens__row">
+                    <label class="hs-lens__label" for="hp-max-rate">Max rate (৳/mo)</label>
+                    <input id="hp-max-rate" type="number" min="0" step="500" placeholder="No limit" inputmode="numeric"
+                           value="@_filter.MaxMonthlyRate" @onchange="OnMaxRate" />
+                </div>
+
+                <div class="hs-lens__row">
+                    <span class="hs-lens__label">Sort</span>
+                    <select value="@_filter.Sort" @onchange="OnSortChanged">
+                        <option value="@HelperSortOption.RatingDesc">Rating</option>
+                        <option value="@HelperSortOption.RateAsc">Rate: Low to High</option>
+                        <option value="@HelperSortOption.RateDesc">Rate: High to Low</option>
+                        <option value="@HelperSortOption.DistanceAsc">Nearest</option>
+                    </select>
+                </div>
+
+                @if (HasActiveFilters)
+                {
+                    <button type="button" class="hs-lens__clear" @onclick="ClearFilters">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6 18 18M6 18 18 6" /></svg>
+                        Clear all filters
+                    </button>
+                }
+            </aside>
+
+            <div class="hs-results">
+                <p class="hs-results__count">
+                    @if (_loading)
+                    {
+                        <span>Loading helpers…</span>
+                    }
+                    else if (_page is not null)
+                    {
+                        <span><strong>@_page.TotalCount</strong> @(_page.TotalCount == 1 ? "helper" : "helpers")</span>
+                    }
+                </p>
+
+                @if (_loading)
+                {
+                    <div class="hs-grid">
+                        @for (var i = 0; i < 6; i++)
+                        {
+                            <div class="hs-skeleton hs-skeleton--card"></div>
+                        }
+                    </div>
+                }
+                else if (_error)
+                {
+                    <div class="hs-empty">
+                        <h3>Couldn't load helpers</h3>
+                        <p>Something went wrong. Try again in a moment.</p>
+                        <button class="nx-btn nx-btn--primary" @onclick="LoadAsync">Retry</button>
+                    </div>
+                }
+                else if (_page is null || _page.Items.Count == 0)
+                {
+                    <div class="hs-empty">
+                        <h3>No helpers match those filters</h3>
+                        <p>Try a different area, service, or widen the rate range.</p>
+                        @if (HasActiveFilters)
+                        {
+                            <button class="nx-btn nx-btn--ghost" @onclick="ClearFilters">Clear filters</button>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="hs-grid">
+                        @foreach (var helper in _page.Items)
+                        {
+                            <HelperCard Helper="helper" />
+                        }
+                    </div>
+
+                    @if (_page.TotalPages > 1)
+                    {
+                        <nav class="hs-pager" aria-label="Pagination">
+                            <button class="nx-btn nx-btn--ghost" disabled="@(!_page.HasPrevious)" @onclick="PrevPage">Previous</button>
+                            <span class="hs-pager__pages">Page @_page.Page of @_page.TotalPages</span>
+                            <button class="nx-btn nx-btn--ghost" disabled="@(!_page.HasNext)" @onclick="NextPage">Next</button>
+                        </nav>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+@code {
+    private readonly ServiceType[] _serviceTypes = Enum.GetValues<ServiceType>();
+
+    private AreaSelectionDto _areaSelection = new();
+    private HelperFilterDto _filter = new();
+    private HelperPageDto<HelperSummaryDto>? _page;
+    private bool _loading = true;
+    private bool _error;
+
+    private bool HasActiveFilters =>
+        _filter.ServiceType is not null || _filter.MaxMonthlyRate is not null ||
+        _filter.DivisionId is not null || _filter.DistrictId is not null || _filter.UpazilaId is not null;
+
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        _error = false;
+        try
+        {
+            _page = await Helpers.BrowseAsync(_filter);
+        }
+        catch
+        {
+            _error = true;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private Task ApplyAsync()
+    {
+        _filter.Page = 1;
+        return LoadAsync();
+    }
+
+    private Task OnAreaChanged(AreaSelectionDto selection)
+    {
+        _filter.DivisionId = selection.DivisionId;
+        _filter.DistrictId = selection.DistrictId;
+        _filter.UpazilaId = selection.UpazilaId;
+        return ApplyAsync();
+    }
+
+    private Task SetServiceType(ServiceType? t)
+    {
+        _filter.ServiceType = t;
+        return ApplyAsync();
+    }
+
+    private Task OnMaxRate(ChangeEventArgs e)
+    {
+        _filter.MaxMonthlyRate = decimal.TryParse(e.Value?.ToString(), out var v) && v > 0 ? v : null;
+        return ApplyAsync();
+    }
+
+    private Task OnSortChanged(ChangeEventArgs e)
+    {
+        if (Enum.TryParse<HelperSortOption>(e.Value?.ToString(), out var sort))
+        {
+            _filter.Sort = sort;
+        }
+        return ApplyAsync();
+    }
+
+    private Task ClearFilters()
+    {
+        _areaSelection = new AreaSelectionDto();
+        _filter = new HelperFilterDto();
+        return LoadAsync();
+    }
+
+    private Task PrevPage()
+    {
+        if (_page?.HasPrevious == true) { _filter.Page--; return LoadAsync(); }
+        return Task.CompletedTask;
+    }
+
+    private Task NextPage()
+    {
+        if (_page?.HasNext == true) { _filter.Page++; return LoadAsync(); }
+        return Task.CompletedTask;
+    }
+}

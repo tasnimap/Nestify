@@ -1,0 +1,24 @@
+@inject NavigationManager Navigation
+
+@* Sends an authenticated person who hit a page outside their interface back to
+   their own home, and an anonymous visitor to the login page. *@
+
+@code {
+    [CascadingParameter] private Task<AuthenticationState>? AuthState { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var target = "/login";
+
+        if (AuthState is not null)
+        {
+            var user = (await AuthState).User;
+            if (user.Identity?.IsAuthenticated == true)
+            {
+                target = "/" + RoleRoutes.HomeFor(user);
+            }
+        }
+
+        Navigation.NavigateTo(target, replace: true);
+    }
+}

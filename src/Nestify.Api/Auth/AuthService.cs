@@ -8,9 +8,10 @@ namespace Nestify.Api.Auth;
 
 public sealed class AuthService
 {
-    private const short RoleUser = 1;
-    private const short RoleDomesticHelper = 2;
-    private const short RoleAdmin = 3;
+    // account_type on the users row decides which interface the client shows.
+    private const short AccountUser = 1;
+    private const short AccountDomesticHelper = 2;
+    private const short AccountAdmin = 3;
 
     private readonly DbConnectionFactory _db;
     private readonly JwtTokenService _tokens;
@@ -35,7 +36,7 @@ public sealed class AuthService
         }
 
         var isHelper = request.AccountType is "DomesticHelp" or "DomesticHelper";
-        short accountType = isHelper ? RoleDomesticHelper : RoleUser;
+        short accountType = isHelper ? AccountDomesticHelper : AccountUser;
 
         using var connection = await _db.OpenAsync();
 
@@ -65,7 +66,7 @@ public sealed class AuthService
             new { userId, accountType },
             transaction);
 
-        var role = isHelper ? "DomesticHelper" : "User";
+        var role = RoleFor(accountType);
         var response = await IssueTokensAsync(connection, transaction, userId, name, email, role, null, ip);
 
         transaction.Commit();
@@ -91,7 +92,7 @@ public sealed class AuthService
             return (null, "Incorrect email or password.");
         }
 
-        var role = await ResolveRoleAsync(connection, null, user.Id, user.AccountType);
+        var role = RoleFor(user.AccountType);
 
         using var transaction = connection.BeginTransaction();
         var response = await IssueTokensAsync(connection, transaction, user.Id, user.FullName, user.Email, role, null, ip);
@@ -155,7 +156,7 @@ public sealed class AuthService
             new { id = token.UserId },
             transaction);
 
-        var role = await ResolveRoleAsync(connection, transaction, user.Id, user.AccountType);
+        var role = RoleFor(user.AccountType);
 
         var (response, newTokenId) = await IssueRefreshTokenAsync(
             connection, transaction, user.Id, user.FullName, user.Email, role, familyRoot, ip);
@@ -262,21 +263,12 @@ public sealed class AuthService
         return (response, newTokenId);
     }
 
-    private static async Task<string> ResolveRoleAsync(
-        IDbConnection connection, IDbTransaction? transaction, long userId, short accountType)
+    private static string RoleFor(short accountType) => accountType switch
     {
-        var isAdmin = await connection.ExecuteScalarAsync<bool>(
-            "SELECT EXISTS(SELECT 1 FROM user_roles WHERE user_id = @userId AND role_id = @adminRole)",
-            new { userId, adminRole = RoleAdmin },
-            transaction);
-
-        if (isAdmin)
-        {
-            return "Admin";
-        }
-
-        return accountType == RoleDomesticHelper ? "DomesticHelper" : "User";
-    }
+        AccountAdmin => "Admin",
+        AccountDomesticHelper => "DomesticHelper",
+        _ => "User"
+    };
 
     // Revokes every live token whose family root is the given id (the root itself has family_id IS NULL).
     private static async Task RevokeFamilyAsync(IDbConnection connection, IDbTransaction? transaction, long familyRoot)

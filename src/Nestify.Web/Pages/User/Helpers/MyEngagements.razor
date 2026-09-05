@@ -1,0 +1,130 @@
+@page "/engagements/mine"
+@attribute [Authorize(Roles = "User")]
+@using Nestify.Shared.Dtos.Helpers
+@using Nestify.Web.Components
+@inject IHelperService Helpers
+@inject Nestify.Web.Services.ToastService Toast
+
+<PageTitle>My Engagements — Nestify</PageTitle>
+
+<section class="nx-section hs-page">
+    <div class="nx-container hs-wrap hs-wrap--narrow">
+        <h1>My engagements</h1>
+        <p>Requests you've made as a client, and requests you've received as a helper.</p>
+
+        @if (_loading)
+        {
+            <div class="hs-skeleton hs-skeleton--detail"></div>
+        }
+        else if (_engagements.Count == 0)
+        {
+            <div class="hs-empty">
+                <h3>No engagements yet</h3>
+                <p>Request a helper, or wait for a client to reach out.</p>
+            </div>
+        }
+        else
+        {
+            @foreach (var e in _engagements)
+            {
+                <div class="hs-review">
+                    <div class="hs-review__head">
+                        <strong>@(e.MyRole == EngagementRole.Client ? e.HelperName : e.ClientName)</strong>
+                        <span class="hs-badge">@StatusLabel(e)</span>
+                    </div>
+                    <p>Role: @e.MyRole</p>
+
+                    @if (e.MyRole == EngagementRole.Helper && e.Status == EngagementStatus.Requested)
+                    {
+                        <button class="nx-btn nx-btn--primary" @onclick="() => Confirm(e.Id)">Confirm</button>
+                    }
+
+                    @if (e.Status is EngagementStatus.HelperConfirmed or EngagementStatus.Active)
+                    {
+                        var myDone = e.MyRole == EngagementRole.Client ? e.ClientMarkedComplete : e.HelperMarkedComplete;
+                        if (myDone)
+                        {
+                            <p><em>You marked complete — waiting for the other side.</em></p>
+                        }
+                        else
+                        {
+                            <button class="nx-btn nx-btn--ghost" @onclick="() => MarkComplete(e.Id)">Mark complete</button>
+                        }
+                    }
+
+                    @if (e.CanReview)
+                    {
+                        <button class="nx-btn nx-btn--ghost" @onclick="() => OpenReview(e)">Leave a review</button>
+                    }
+                </div>
+            }
+        }
+
+        @if (_reviewTarget is not null)
+        {
+            <div class="hs-detail__section">
+                <h2>Review @_reviewTarget.HelperName</h2>
+                <RatingStars Value="_reviewRating" ReadOnly="false" ShowCount="false" ValueChanged="v => _reviewRating = v" />
+                <textarea @bind="_reviewComment" placeholder="How was your experience?"></textarea>
+                <button class="nx-btn nx-btn--primary" @onclick="SubmitReview">Submit review</button>
+                <button class="nx-btn nx-btn--ghost" @onclick="() => _reviewTarget = null">Cancel</button>
+            </div>
+        }
+    </div>
+</section>
+
+@code {
+    private List<EngagementDto> _engagements = new();
+    private bool _loading = true;
+
+    private EngagementDto? _reviewTarget;
+    private int _reviewRating = 5;
+    private string _reviewComment = string.Empty;
+
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        _engagements = await Helpers.GetMyEngagementsAsync();
+        _loading = false;
+    }
+
+    private static string StatusLabel(EngagementDto e) => e.Status switch
+    {
+        EngagementStatus.Requested => "Requested",
+        EngagementStatus.Declined => "Declined",
+        EngagementStatus.HelperConfirmed => "Confirmed",
+        EngagementStatus.Active => "Active",
+        EngagementStatus.Completed => "Completed",
+        _ => e.Status.ToString()
+    };
+
+    private async Task Confirm(string id)
+    {
+        await Helpers.ConfirmEngagementAsync(id);
+        await LoadAsync();
+    }
+
+    private async Task MarkComplete(string id)
+    {
+        await Helpers.MarkCompleteAsync(id);
+        await LoadAsync();
+    }
+
+    private void OpenReview(EngagementDto e)
+    {
+        _reviewTarget = e;
+        _reviewRating = 5;
+        _reviewComment = string.Empty;
+    }
+
+    private async Task SubmitReview()
+    {
+        if (_reviewTarget is null) return;
+        await Helpers.SubmitReviewAsync(_reviewTarget.Id, _reviewRating, _reviewComment);
+        Toast.ShowInfo("Review submitted.", "Thanks!");
+        _reviewTarget = null;
+        await LoadAsync();
+    }
+}

@@ -22,64 +22,45 @@
             <ul class="nav__links">
                 <AuthorizeView>
                     <NotAuthorized>
-                        <li>
-                            <NavLink class="nav__link" href="" Match="NavLinkMatch.All" @onclick="Close">Home</NavLink>
-                        </li>
-                        <li>
-                            <NavLink class="nav__link" href="about" @onclick="Close">About Us</NavLink>
-                        </li>
+                        <li><NavLink class="nav__link" href="" Match="NavLinkMatch.All" @onclick="Close">Home</NavLink></li>
+                        <li><NavLink class="nav__link" href="about" @onclick="Close">About Us</NavLink></li>
                     </NotAuthorized>
-                </AuthorizeView>
-                <AuthorizeView>
                     <Authorized>
-                        @if (context.User.IsInRole("User") || context.User.IsInRole("Admin") || context.User.IsInRole("DomesticHelp") || context.User.IsInRole("DomesticHelper") || context.User.IsInRole("Maid"))
-                        {
-                            <li>
-                                <NavLink class="nav__link" href="helpers" @onclick="Close">Domestic Help</NavLink>
-                            </li>
-                            <li>
-                                <NavLink class="nav__link" href="marketplace" @onclick="Close">Marketplace</NavLink>
-                            </li>
-                            <li>
-                                <NavLink class="nav__link" href="profile" @onclick="Close">Profile</NavLink>
-                            </li>
-                        }
-
-                        @if (context.User.IsInRole("DomesticHelp") || context.User.IsInRole("DomesticHelper") || context.User.IsInRole("Maid"))
-                        {
-                            <li>
-                                <NavLink class="nav__link" href="helpers/dashboard" @onclick="Close">My Dashboard</NavLink>
-                            </li>
-                        }
-                        else
-                        {
-                            <li>
-                                <NavLink class="nav__link" href="dashboard" @onclick="Close">My Dashboard</NavLink>
-                            </li>
-                        }
-
-                        @if (context.User.IsInRole("User") || context.User.IsInRole("Admin"))
-                        {
-                            <li>
-                                <NavLink class="nav__link" href="housing" @onclick="Close">Housing</NavLink>
-                            </li>
-                            <li>
-                                <NavLink class="nav__link" href="settlement" @onclick="Close">Settlement</NavLink>
-                            </li>
-                        }
+                        <li><NavLink class="nav__link" href="housing" @onclick="Close">Housing</NavLink></li>
+                        <li><NavLink class="nav__link" href="helpers" @onclick="Close">Domestic Help</NavLink></li>
+                        <li><NavLink class="nav__link" href="marketplace" @onclick="Close">Marketplace</NavLink></li>
+                        <li><NavLink class="nav__link" href="settlement" @onclick="Close">Settlement</NavLink></li>
                     </Authorized>
                 </AuthorizeView>
             </ul>
 
             <AuthorizeView>
                 <Authorized>
-                    <div class="nav__user">
-                        <span class="nav__user-name">
-                            @(context.User.Identity?.Name ?? "User")
-                        </span>
-                        <button class="nx-btn nx-btn--ghost nav__logout-btn" @onclick="HandleLogout">
-                            Log out
+                    <div class="nav__account">
+                        <button class="nav__account-trigger"
+                                type="button"
+                                aria-haspopup="true"
+                                aria-expanded="@_menuOpen.ToString().ToLowerInvariant()"
+                                @onclick="ToggleMenu">
+                            <span class="nav__avatar" aria-hidden="true">@Initials(context.User.Identity?.Name)</span>
+                            <span class="nav__account-name">@(context.User.Identity?.Name ?? "Profile")</span>
+                            <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
                         </button>
+
+                        @if (_menuOpen)
+                        {
+                            <div class="role-menu" role="menu">
+                                <p class="role-menu__name">Signed in as @(context.User.Identity?.Name ?? "User")</p>
+                                <a role="menuitem" href="profile" @onclick="CloseAll">
+                                    <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                                    View profile
+                                </a>
+                                <button role="menuitem" class="role-menu__danger" type="button" @onclick="HandleLogout">
+                                    <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><path d="m16 17 5-5-5-5" /><path d="M21 12H9" /></svg>
+                                    Log out
+                                </button>
+                            </div>
+                        }
                     </div>
                 </Authorized>
                 <NotAuthorized>
@@ -99,6 +80,7 @@
 
 @code {
     private bool _open;
+    private bool _menuOpen;
 
     protected override void OnInitialized()
     {
@@ -106,24 +88,41 @@
     }
 
     private void Toggle() => _open = !_open;
+    private void ToggleMenu() => _menuOpen = !_menuOpen;
 
     private void Close()
     {
         if (_open) _open = false;
     }
 
+    private void CloseAll()
+    {
+        _open = false;
+        _menuOpen = false;
+    }
+
     private async Task HandleLogout()
     {
-        Close();
+        CloseAll();
         await AuthService.LogoutAsync();
         Navigation.NavigateTo("/", forceLoad: false);
     }
 
+    private static string Initials(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return "U";
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return parts.Length == 1
+            ? parts[0][..1].ToUpperInvariant()
+            : (parts[0][..1] + parts[^1][..1]).ToUpperInvariant();
+    }
+
     private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
     {
-        if (_open)
+        if (_open || _menuOpen)
         {
             _open = false;
+            _menuOpen = false;
             StateHasChanged();
         }
     }

@@ -278,8 +278,7 @@
                 Password = _login.Password,
             });
             if (result is null) { _loginMsg = "We could not sign you in with those details."; return; }
-            var isHelper = result.Role is "DomesticHelp" or "DomesticHelper" or "Maid" or "Helper";
-            Navigation.NavigateTo(isHelper ? "/helpers/dashboard" : "/dashboard");
+            Navigation.NavigateTo("/" + RoleRoutes.HomeFor(result.Role), forceLoad: true);
         }
         catch (Exception ex) { _loginMsg = ex.Message; }
         finally { _loginBusy = false; }
@@ -340,9 +339,8 @@
             });
             if (result is null) { _registerMsg = "We could not create your account with those details."; return; }
             _registerError = false;
-            _registerMsg   = "Account created! Taking you to your dashboard...";
-            var isHelper = result.Role is "DomesticHelp" or "DomesticHelper" or "Maid" or "Helper";
-            Navigation.NavigateTo(isHelper ? "/helpers/dashboard" : "/dashboard");
+            _registerMsg   = "Account created! Taking you in...";
+            Navigation.NavigateTo("/" + RoleRoutes.HomeFor(result.Role), forceLoad: true);
         }
         catch (Exception ex) { _registerError = true; _registerMsg = ex.Message; }
         finally { _registerBusy = false; }

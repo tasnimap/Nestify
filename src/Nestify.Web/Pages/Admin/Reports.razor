@@ -1,0 +1,70 @@
+@page "/admin/reports"
+@layout AdminLayout
+@attribute [Authorize(Roles = "Admin")]
+@using Nestify.Shared.Dtos.Admin
+@inject IAdminService Admin
+@inject Nestify.Web.Services.ToastService Toast
+
+<PageTitle>Reports — Nestify Admin</PageTitle>
+
+<div class="rc-page">
+    <header class="rc-head">
+        <h1>Content reports</h1>
+        <p>Review reported listings, posts and reviews, then take action or dismiss.</p>
+    </header>
+
+    <section class="rc-panel rc-panel--wide">
+        @if (_items is null)
+        {
+            <p class="rc-row__meta">Loading…</p>
+        }
+        else if (_items.Count == 0)
+        {
+            <div class="rc-empty"><h3>Nothing reported</h3><p>No open reports right now.</p></div>
+        }
+        else
+        {
+            <ul class="rc-list">
+                @foreach (var r in _items)
+                {
+                    <li class="rc-row">
+                        <div class="rc-row__main">
+                            <p class="rc-row__title">@r.TargetLabel</p>
+                            <p class="rc-row__meta">
+                                @r.TargetType · @r.Reason · reported by @r.ReportedBy · @r.CreatedUtc.ToLocalTime().ToString("dd MMM")
+                            </p>
+                        </div>
+                        @if (r.Status == ReportStatus.Open)
+                        {
+                            <div class="rc-row__actions">
+                                <button class="nx-btn nx-btn--primary" @onclick="() => Resolve(r, true)">Take action</button>
+                                <button class="nx-btn nx-btn--ghost" @onclick="() => Resolve(r, false)">Dismiss</button>
+                            </div>
+                        }
+                        else
+                        {
+                            <span class="rc-badge @(r.Status == ReportStatus.Resolved ? "rc-badge--ok" : "rc-badge--muted")">
+                                <span class="rc-badge__dot"></span>@r.Status
+                            </span>
+                        }
+                    </li>
+                }
+            </ul>
+        }
+    </section>
+</div>
+
+@code {
+    private List<ModerationReportDto>? _items;
+
+    protected override async Task OnInitializedAsync() => await Load();
+
+    private async Task Load() => _items = await Admin.GetReportsAsync();
+
+    private async Task Resolve(ModerationReportDto r, bool actionTaken)
+    {
+        await Admin.ResolveReportAsync(r.Id, actionTaken);
+        Toast.ShowInfo(actionTaken ? "Action recorded." : "Report dismissed.", "Reports");
+        await Load();
+    }
+}

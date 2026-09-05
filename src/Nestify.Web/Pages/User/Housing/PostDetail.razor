@@ -1,0 +1,204 @@
+@page "/housing/{Id}"
+@attribute [Authorize(Roles = "User")]
+@inject IHousingService Housing
+@inject Nestify.Web.Services.ToastService Toast
+@inject Nestify.Web.Services.MoneyFormatterService Money
+
+<PageTitle>@(_post?.Title ?? "Housing") — Nestify</PageTitle>
+
+<section class="nx-section hs-page">
+    <div class="nx-container hs-wrap hs-wrap--narrow">
+        <nav class="hs-crumbs" aria-label="Breadcrumb">
+            <a href="housing">Housing</a>
+            <span class="hs-crumbs__sep">/</span>
+            <span>@(_post?.Title ?? "Listing")</span>
+        </nav>
+
+        @if (_loading)
+        {
+            <div class="hs-skeleton hs-skeleton--detail"></div>
+        }
+        else if (_post is null)
+        {
+            @* Not-found covers both a bad id and an id the viewer isn't eligible for (§5.3).
+               Never render "you don't match this post" — this is the only state either way. *@
+            <div class="hs-empty hs-empty--page">
+                <h2>This post is not available</h2>
+                <p>It may have been closed, removed, or the link may be out of date.</p>
+                <a class="nx-btn nx-btn--primary" href="housing">Back to Housing</a>
+            </div>
+        }
+        else
+        {
+            <article class="hs-detail">
+                <header class="hs-detail__head">
+                    <div class="hs-detail__badges">
+                        <span class="hs-chip hs-chip--type">@HousingView.Label(_post.ListingType)</span>
+                        <span class="hs-badge hs-badge--@HousingView.StatusModifier(_post.Status)">
+                            @HousingView.Label(_post.Status)
+                        </span>
+                    </div>
+                    <h1>@_post.Title</h1>
+                    <div class="hs-detail__meta">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                            <circle cx="12" cy="10" r="3" />
+                        </svg>
+                        <span>@_post.AreaName, @_post.Division</span>
+                        <span class="hs-dot"></span>
+                        <span>Posted @HousingView.RelativeTime(_post.CreatedAtUtc)</span>
+                    </div>
+                </header>
+
+                <div class="hs-detail__stats">
+                    <div class="hs-stat">
+                        <span class="hs-stat__value">@Money.Format(_post.MonthlyRent)</span>
+                        <span class="hs-stat__label">per month</span>
+                    </div>
+                    <div class="hs-stat">
+                        <span class="hs-stat__value">@_post.SeatsAvailable</span>
+                        <span class="hs-stat__label">@(_post.SeatsAvailable == 1 ? "seat available" : "seats available")</span>
+                    </div>
+                </div>
+
+                <section class="hs-detail__section">
+                    <h2>About this listing</h2>
+                    @* Plain text only — never MarkupString (§11.5.2). *@
+                    <p class="hs-detail__description">@_post.Description</p>
+                </section>
+
+                @if (!_post.Eligibility.IsEmpty)
+                {
+                    <section class="hs-detail__section">
+                        <h2>Who can apply</h2>
+                        <div class="hs-chips">
+                            @foreach (var chip in HousingView.EligibilityChips(_post.Eligibility))
+                            {
+                                <span class="hs-chip">@chip</span>
+                            }
+                        </div>
+                    </section>
+                }
+
+                <div class="hs-detail__actions">
+                    @if (_post.IsMine)
+                    {
+                        <a class="nx-btn nx-btn--ghost" href="housing/@_post.Id/edit">Edit listing</a>
+                    }
+                    <button class="nx-btn nx-btn--primary" disabled="@(!CanBook || _bookingSubmitting)" @onclick="OpenBookingModal">
+                        @(_post.Status == PostStatus.Closed ? "Listing closed" : "Book this listing")
+                    </button>
+                    @if (!_post.IsMine)
+                    {
+                        <button class="nx-btn nx-btn--ghost" @onclick="HandleReport">
+                            <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 9v4M12 17h.01M10.3 3.9 2.6 17a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" />
+                            </svg>
+                            Report
+                        </button>
+                    }
+                </div>
+            </article>
+        }
+    </div>
+</section>
+
+@if (_showBookingModal)
+{
+    <div class="hs-modal-overlay" @onclick="CloseBookingModal">
+        <div class="hs-modal" @onclick:stopPropagation="true">
+            <header class="hs-modal__header">
+                <h2>Send booking request</h2>
+                <button type="button" class="hs-modal__close" @onclick="CloseBookingModal" aria-label="Close">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path d="M18 6 6 18M6 6l12 12" />
+                    </svg>
+                </button>
+            </header>
+            <div class="hs-modal__body">
+                <p>Tell the manager a bit about yourself.</p>
+                <div class="field">
+                    <label for="booking-message" class="field__label">Your message (optional)</label>
+                    <textarea id="booking-message" class="field__textarea" @bind="_bookingMessage"
+                              placeholder="Tell the manager about yourself..." rows="4"
+                              disabled="@_bookingSubmitting"></textarea>
+                </div>
+            </div>
+            <footer class="hs-modal__footer">
+                <button type="button" class="nx-btn nx-btn--ghost" @onclick="CloseBookingModal" disabled="@_bookingSubmitting">Cancel</button>
+                <button type="button" class="nx-btn nx-btn--primary" @onclick="SubmitBookingRequest" disabled="@_bookingSubmitting">
+                    @(_bookingSubmitting ? "Sending..." : "Send request")
+                </button>
+            </footer>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public string Id { get; set; } = string.Empty;
+
+    private HousingPostDetailDto? _post;
+    private bool _loading = true;
+    private bool _showBookingModal = false;
+    private string _bookingMessage = string.Empty;
+    private bool _bookingSubmitting = false;
+
+    private bool CanBook => _post is { Status: PostStatus.Active, IsMine: false };
+
+    protected override Task OnParametersSetAsync() => LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        _post = await Housing.GetPostAsync(Id);
+        _loading = false;
+    }
+
+    private void OpenBookingModal()
+    {
+        _bookingMessage = string.Empty;
+        _showBookingModal = true;
+    }
+
+    private void CloseBookingModal()
+    {
+        _showBookingModal = false;
+        _bookingMessage = string.Empty;
+    }
+
+    private async Task SubmitBookingRequest()
+    {
+        if (_post is null)
+            return;
+
+        _bookingSubmitting = true;
+        try
+        {
+            var success = await Housing.RequestBookingAsync(_post.Id, _bookingMessage);
+            if (success)
+            {
+                Toast.ShowSuccess("Your booking request has been sent!", "Success");
+                CloseBookingModal();
+            }
+            else
+            {
+                Toast.ShowError("Could not send booking request. The listing may have been closed or you've already requested it.", "Failed");
+            }
+        }
+        catch (Exception ex)
+        {
+            Toast.ShowError($"Error sending booking request: {ex.Message}", "Error");
+        }
+        finally
+        {
+            _bookingSubmitting = false;
+        }
+    }
+
+    private void HandleReport()
+    {
+        // ReportDialog is owned by Ishmam (§2) and wired in during F4 polish.
+        Toast.ShowInfo("Reporting will be wired up once the shared ReportDialog lands.", "Coming soon");
+    }
+}

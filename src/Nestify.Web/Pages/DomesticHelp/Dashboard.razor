@@ -1,0 +1,191 @@
+@page "/helpers/dashboard"
+@layout HelperLayout
+@attribute [Authorize(Roles = "DomesticHelper,DomesticHelp,Maid,Helper")]
+@using Nestify.Shared.Dtos.Helpers
+@using Nestify.Web.Components
+@inject IHelperService Helpers
+
+<PageTitle>Helper dashboard — Nestify</PageTitle>
+
+<div class="rc-page rc-page--user">
+    <header class="rc-head">
+        <h1>Your work overview</h1>
+        <p>Requests, active jobs and feedback from the families you work with.</p>
+    </header>
+
+    @if (_loading)
+    {
+        <div class="hs-skeleton hs-skeleton--detail"></div>
+    }
+    else if (_profile is null)
+    {
+        <div class="rc-panel">
+            <div class="rc-empty">
+                <h3>Set up your helper profile</h3>
+                <p>Add your services, availability and rate so families in your area can find and book you.</p>
+                <p style="margin-top:1.25rem;">
+                    <a class="nx-btn nx-btn--accent" href="helpers/register">Create helper profile</a>
+                </p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="rc-stats">
+            <div class="rc-stat rc-stat--warn">
+                <p class="rc-stat__label">Open requests</p>
+                <p class="rc-stat__value">@_incoming.Count</p>
+                <p class="rc-stat__hint">Waiting for you to confirm</p>
+            </div>
+            <div class="rc-stat rc-stat--accent">
+                <p class="rc-stat__label">Active jobs</p>
+                <p class="rc-stat__value">@_active.Count</p>
+                <p class="rc-stat__hint">Currently in progress</p>
+            </div>
+            <div class="rc-stat rc-stat--ok">
+                <p class="rc-stat__label">Completed</p>
+                <p class="rc-stat__value">@_completedCount</p>
+                <p class="rc-stat__hint">All time</p>
+            </div>
+            <div class="rc-stat">
+                <p class="rc-stat__label">Rating</p>
+                <p class="rc-stat__value">@_profile.RatingAverage.ToString("0.0")</p>
+                <p class="rc-stat__hint">@_profile.RatingCount review(s)</p>
+            </div>
+        </div>
+
+        <div class="rc-grid">
+            <section class="rc-panel">
+                <h2>Incoming requests</h2>
+                @if (_incoming.Count == 0)
+                {
+                    <p class="rc-row__meta">No pending requests right now.</p>
+                }
+                else
+                {
+                    <ul class="rc-list">
+                        @foreach (var e in _incoming)
+                        {
+                            <li class="rc-row">
+                                <div class="rc-row__main">
+                                    <p class="rc-row__title">@e.ClientName</p>
+                                    <p class="rc-row__meta">Requested @Ago(e.CreatedAtUtc)</p>
+                                </div>
+                                <div class="rc-row__actions">
+                                    <button class="nx-btn nx-btn--accent" @onclick="() => Confirm(e.Id)">Confirm</button>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                }
+            </section>
+
+            <section class="rc-panel">
+                <h2>Active jobs</h2>
+                @if (_active.Count == 0)
+                {
+                    <p class="rc-row__meta">Nothing active at the moment.</p>
+                }
+                else
+                {
+                    <ul class="rc-list">
+                        @foreach (var e in _active)
+                        {
+                            <li class="rc-row">
+                                <div class="rc-row__main">
+                                    <p class="rc-row__title">@e.ClientName</p>
+                                    <p class="rc-row__meta">@e.Status</p>
+                                </div>
+                                <div class="rc-row__actions">
+                                    @if (!e.HelperMarkedComplete)
+                                    {
+                                        <button class="nx-btn nx-btn--ghost" @onclick="() => MarkComplete(e.Id)">Mark complete</button>
+                                    }
+                                    else
+                                    {
+                                        <span class="rc-badge rc-badge--muted">Waiting for client</span>
+                                    }
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                }
+            </section>
+
+            <section class="rc-panel rc-panel--wide">
+                <h2>Recent reviews</h2>
+                @if (_reviews is null || _reviews.Items.Count == 0)
+                {
+                    <p class="rc-row__meta">No reviews yet.</p>
+                }
+                else
+                {
+                    <ul class="rc-list">
+                        @foreach (var r in _reviews.Items)
+                        {
+                            <li class="rc-row">
+                                <div class="rc-row__main">
+                                    <p class="rc-row__title">@r.ReviewerName</p>
+                                    <p class="rc-row__meta">@r.Comment</p>
+                                </div>
+                                <RatingStars Value="r.Rating" ShowCount="false" />
+                            </li>
+                        }
+                    </ul>
+                }
+            </section>
+        </div>
+    }
+</div>
+
+@code {
+    private HelperDetailDto? _profile;
+    private HelperPageDto<ReviewDto>? _reviews;
+    private List<EngagementDto> _incoming = new();
+    private List<EngagementDto> _active = new();
+    private int _completedCount;
+    private bool _loading = true;
+
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        _profile = await Helpers.GetMyProfileAsync();
+
+        if (_profile is not null)
+        {
+            var mine = (await Helpers.GetMyEngagementsAsync())
+                .Where(e => e.MyRole == EngagementRole.Helper)
+                .ToList();
+
+            _incoming = mine.Where(e => e.Status == EngagementStatus.Requested).ToList();
+            _active = mine.Where(e => e.Status is EngagementStatus.HelperConfirmed or EngagementStatus.Active).ToList();
+            _completedCount = mine.Count(e => e.Status == EngagementStatus.Completed);
+
+            _reviews = await Helpers.GetReviewsAsync(_profile.Id);
+        }
+
+        _loading = false;
+    }
+
+    private async Task Confirm(string id)
+    {
+        await Helpers.ConfirmEngagementAsync(id);
+        await LoadAsync();
+    }
+
+    private async Task MarkComplete(string id)
+    {
+        await Helpers.MarkCompleteAsync(id);
+        await LoadAsync();
+    }
+
+    private static string Ago(DateTime utc)
+    {
+        var span = DateTime.UtcNow - utc;
+        if (span.TotalDays >= 1) return $"{(int)span.TotalDays}d ago";
+        if (span.TotalHours >= 1) return $"{(int)span.TotalHours}h ago";
+        return "just now";
+    }
+}

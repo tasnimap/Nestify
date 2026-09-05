@@ -1,0 +1,58 @@
+@page "/helpers/me"
+@layout HelperLayout
+@attribute [Authorize(Roles = "DomesticHelper,DomesticHelp,Maid,Helper")]
+@using Nestify.Shared.Dtos.Helpers
+@using Nestify.Web.Components.Helper
+@inject IHelperService Helpers
+@inject Nestify.Web.Services.ToastService Toast
+
+<PageTitle>My Helper Profile — Nestify</PageTitle>
+
+<section class="nx-section hs-page">
+    <div class="nx-container hs-wrap hs-wrap--narrow">
+        <h1>My helper profile</h1>
+
+        @if (_loading)
+        {
+            <div class="hs-skeleton hs-skeleton--detail"></div>
+        }
+        else if (_model is null)
+        {
+            <div class="hs-empty hs-empty--page">
+                <h2>You haven't registered as a helper yet</h2>
+                <a class="nx-btn nx-btn--primary" href="helpers/register">Become a helper</a>
+            </div>
+        }
+        else
+        {
+            <HelperForm Model="_model" SubmitLabel="Save changes" OnSubmit="HandleSubmit" />
+        }
+    </div>
+</section>
+
+@code {
+    private HelperRegistrationDto? _model;
+    private bool _loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var profile = await Helpers.GetMyProfileAsync();
+        if (profile is not null)
+        {
+            _model = new HelperRegistrationDto
+            {
+                Services = profile.Services,
+                AvailabilityWindow = profile.AvailabilityWindow,
+                MonthlyRate = profile.MonthlyRate
+            };
+        }
+        _loading = false;
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (_model is null) return;
+        await Helpers.UpdateProfileAsync(_model);
+        Toast.ShowInfo("Profile updated.", "Saved");
+    }
+}

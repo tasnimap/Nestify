@@ -1,0 +1,373 @@
+@page "/housing/mine"
+@attribute [Authorize(Roles = "User")]
+@using Nestify.Shared.Dtos.Housing
+@inject IHousingService Housing
+@inject NavigationManager Nav
+@inject ToastService Toast
+
+<PageTitle>My listings — Nestify</PageTitle>
+
+<section class="nx-section hs-page">
+    <div class="nx-container hs-wrap">
+        <header class="hs-head">
+            <div class="hs-head__titles">
+                <p class="nx-eyebrow">M1 · Housing</p>
+                <h1>My listings</h1>
+                <p class="hs-head__lead">
+                    Manage the seats and houses you've posted on Nestify. Review booking requests and keep your listings up to date.
+                </p>
+            </div>
+            
+            <div class="hs-head__actions">
+                <a class="nx-btn nx-btn--ghost" href="housing">Browse listings</a>
+                <a class="nx-btn nx-btn--ghost" href="bookings/mine">My bookings</a>
+                <a class="nx-btn nx-btn--primary" href="housing/new">
+                    <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+                    Post a listing
+                </a>
+            </div>
+        </header>
+
+        @if (_loading)
+        {
+            <div style="padding: 2rem 0;">
+                <p>Loading your listings…</p>
+            </div>
+        }
+        else if (_posts.Count == 0)
+        {
+            <div class="hs-empty hs-empty--page">
+                <h2>You haven't posted any listings yet</h2>
+                <p>Start by creating your first post to share a seat or house on Nestify.</p>
+                <a class="nx-btn nx-btn--primary" href="housing/new">Create a listing</a>
+            </div>
+        }
+        else
+        {
+            <div class="hs-rows">
+                @foreach (var postDto in _posts)
+                {
+                    <article class="hs-row @(postDto.Post.Status != PostStatus.Active ? "hs-row--muted" : null)">
+                        <div class="hs-row__top">
+                            <div class="hs-row__grow">
+                                <h2 class="hs-row__title">
+                                    <a href="housing/@postDto.Post.Id">@postDto.Post.Title</a>
+                                </h2>
+                                <div class="hs-row__badges">
+                                    <span class="hs-chip hs-chip--type">@HousingView.Label(postDto.Post.ListingType)</span>
+                                    <span class="hs-badge @(postDto.Post.Status == PostStatus.Active ? "hs-badge--status-active" : "hs-badge--status-closed")">
+                                        @postDto.Post.Status
+                                    </span>
+                                    @if (postDto.PendingBookingRequestCount > 0)
+                                    {
+                                        <span class="hs-count-pill">@postDto.PendingBookingRequestCount pending</span>
+                                    }
+                                </div>
+                                <div class="hs-row__meta">
+                                    <span>📍 @postDto.Post.AreaName, @postDto.Post.Division</span>
+                                </div>
+                            </div>
+                            <div class="hs-price hs-price--sm">
+                                ৳@postDto.Post.MonthlyRent<span class="hs-price__unit">/mo</span>
+                            </div>
+                        </div>
+
+                        <div class="hs-row__stats">
+                            <span class="hs-stat"><strong>@postDto.Post.SeatsAvailable</strong>&nbsp;seats available</span>
+                            <span class="hs-stat"><strong>@postDto.BookingRequestCount</strong>&nbsp;total requests</span>
+                            <span class="hs-stat"><strong>@postDto.PendingBookingRequestCount</strong>&nbsp;pending</span>
+                        </div>
+
+                        @if (postDto.BookingRequestCount > 0)
+                        {
+                            @if (_expandedPostId == postDto.Post.Id)
+                            {
+                                @if (_requestersLoading)
+                                {
+                                    <p class="hs-requesters__loading">Loading requests…</p>
+                                }
+                                else if (_currentRequesters.Count == 0)
+                                {
+                                    <p class="hs-requesters__empty">No booking requests found.</p>
+                                }
+                                else
+                                {
+                                    <div class="hs-requesters">
+                                        @foreach (var requester in _currentRequesters)
+                                        {
+                                            <div class="hs-requester">
+                                                <div class="hs-requester__top">
+                                                    <div class="hs-requester__info">
+                                                        <p class="hs-requester__name">@requester.RequesterName</p>
+                                                        <p class="hs-requester__date">Requested @requester.RequestedAtUtc.ToString("g")</p>
+                                                    </div>
+                                                    <span class="hs-badge @GetRequesterBadgeClass(requester.Status)">@requester.Status</span>
+                                                </div>
+                                                @if (!string.IsNullOrEmpty(requester.Message))
+                                                {
+                                                    <p class="hs-requester__message">@requester.Message</p>
+                                                }
+                                                @if (requester.Status == BookingStatus.Pending)
+                                                {
+                                                    <div class="hs-requester__actions">
+                                                        <button type="button" class="nx-btn nx-btn--primary nx-btn--sm" 
+                                                                @onclick="() => AcceptBooking(requester.BookingId)">
+                                                            Accept
+                                                        </button>
+                                                        <button type="button" class="nx-btn nx-btn--ghost nx-btn--sm" 
+                                                                @onclick="() => RejectBooking(requester.BookingId)">
+                                                            Reject
+                                                        </button>
+                                                    </div>
+                                                }
+                                                else if (requester.Status == BookingStatus.Accepted)
+                                                {
+                                                    <div class="hs-requester__actions">
+                                                        <button type="button" class="nx-btn nx-btn--ghost nx-btn--sm" 
+                                                                @onclick="() => ViewContact(requester.BookingId)">
+                                                            View contact
+                                                        </button>
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            }
+                        }
+
+                        <div class="hs-row__actions">
+                            <a class="nx-btn nx-btn--ghost" href="housing/@postDto.Post.Id">View</a>
+                            @if (postDto.BookingRequestCount > 0)
+                            {
+                                <button type="button" class="nx-btn nx-btn--ghost" 
+                                        @onclick="() => LoadRequesters(postDto.Post.Id)">
+                                    @(_expandedPostId == postDto.Post.Id ? "Hide requests" : "Preview requests")
+                                </button>
+                                <a class="nx-btn nx-btn--ghost" href="housing/@postDto.Post.Id/bookings">View all (@postDto.BookingRequestCount)</a>
+                            }
+                            <a class="nx-btn nx-btn--ghost" href="housing/@postDto.Post.Id/edit">Edit</a>
+                            <span class="hs-row__actions-spacer"></span>
+                            @if (postDto.Post.Status == PostStatus.Active)
+                            {
+                                <button type="button" class="nx-btn nx-btn--ghost" @onclick="() => ClosePost(postDto.Post.Id)">Close</button>
+                            }
+                            else
+                            {
+                                <button type="button" class="nx-btn nx-btn--ghost" @onclick="() => ReopenPost(postDto.Post.Id)">Reopen</button>
+                            }
+                            <button type="button" class="nx-btn nx-btn--ghost hs-danger-btn" @onclick="() => DeletePost(postDto.Post.Id)">Delete</button>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    </div>
+</section>
+
+@code {
+    private List<MyHousingPostDto> _posts = new();
+    private bool _loading = true;
+    private string? _expandedPostId;
+    private List<BookingRequesterDto> _currentRequesters = new();
+    private bool _requestersLoading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPosts();
+    }
+
+    private async Task LoadPosts()
+    {
+        _loading = true;
+        try
+        {
+            _posts = (await Housing.GetMineAsync()).ToList();
+        }
+        catch
+        {
+            Toast.ShowError($"Failed to load your listings.", "Error");
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task LoadRequesters(string postId)
+    {
+        if (_expandedPostId == postId)
+        {
+            _expandedPostId = null;
+            return;
+        }
+
+        _expandedPostId = postId;
+        _requestersLoading = true;
+        try
+        {
+            _currentRequesters = (await Housing.GetRequestersAsync(postId)).ToList();
+        }
+        catch
+        {
+            Toast.ShowError($"Failed to load booking requests.", "Error");
+        }
+        finally
+        {
+            _requestersLoading = false;
+        }
+    }
+
+    private async Task AcceptBooking(string bookingId)
+    {
+        try
+        {
+            var ok = await Housing.AcceptBookingAsync(bookingId);
+            if (ok)
+            {
+                Toast.ShowSuccess("Booking request accepted.", "Success");
+                // Reload current requesters
+                if (_expandedPostId != null)
+                {
+                    _currentRequesters = (await Housing.GetRequestersAsync(_expandedPostId)).ToList();
+                }
+            }
+            else
+            {
+                Toast.ShowError("Could not accept this booking request.", "Failed");
+            }
+        }
+        catch
+        {
+            Toast.ShowError($"An error occurred.", "Failed");
+        }
+    }
+
+    private async Task RejectBooking(string bookingId)
+    {
+        try
+        {
+            var ok = await Housing.RejectBookingAsync(bookingId, new RejectBookingRequestDto { Message = null });
+            if (ok)
+            {
+                Toast.ShowSuccess("Booking request rejected.", "Success");
+                // Reload current requesters
+                if (_expandedPostId != null)
+                {
+                    _currentRequesters = (await Housing.GetRequestersAsync(_expandedPostId)).ToList();
+                }
+            }
+            else
+            {
+                Toast.ShowError("Could not reject this booking request.", "Failed");
+            }
+        }
+        catch
+        {
+            Toast.ShowError($"An error occurred.", "Failed");
+        }
+    }
+
+    private async Task ViewContact(string bookingId)
+    {
+        try
+        {
+            var contact = await Housing.GetBookingContactAsync(bookingId);
+            if (contact != null)
+            {
+                Toast.ShowInfo($"Name: {contact.Name}\nEmail: {contact.Email}\nPhone: {contact.Phone}", "Contact Info");
+            }
+            else
+            {
+                Toast.ShowWarning("Contact information is not available.", "Not Available");
+            }
+        }
+        catch
+        {
+            Toast.ShowError($"Failed to retrieve contact information.", "Error");
+        }
+    }
+
+    private async Task ClosePost(string postId)
+    {
+        try
+        {
+            var ok = await Housing.CloseAsync(postId);
+            if (ok)
+            {
+                Toast.ShowSuccess("Listing closed.", "Success");
+                await LoadPosts();
+            }
+            else
+            {
+                Toast.ShowError("Could not close this listing.", "Failed");
+            }
+        }
+        catch
+        {
+            Toast.ShowError($"An error occurred.", "Failed");
+        }
+    }
+
+    private async Task ReopenPost(string postId)
+    {
+        try
+        {
+            var ok = await Housing.ReopenAsync(postId);
+            if (ok)
+            {
+                Toast.ShowSuccess("Listing reopened.", "Success");
+                await LoadPosts();
+            }
+            else
+            {
+                Toast.ShowError("Could not reopen this listing.", "Failed");
+            }
+        }
+        catch
+        {
+            Toast.ShowError($"An error occurred.", "Failed");
+        }
+    }
+
+    private async Task DeletePost(string postId)
+    {
+        if (!await ConfirmDelete())
+        {
+            return;
+        }
+
+        try
+        {
+            var ok = await Housing.DeleteAsync(postId);
+            if (ok)
+            {
+                Toast.ShowSuccess("Listing deleted.", "Success");
+                await LoadPosts();
+            }
+            else
+            {
+                Toast.ShowError("Could not delete this listing.", "Failed");
+            }
+        }
+        catch
+        {
+            Toast.ShowError($"An error occurred.", "Failed");
+        }
+    }
+
+    private async Task<bool> ConfirmDelete()
+    {
+        // In a real app, you'd show a confirmation dialog
+        return true;
+    }
+
+    private string GetRequesterBadgeClass(BookingStatus status) => status switch
+    {
+        BookingStatus.Pending => "hs-badge--pending",
+        BookingStatus.Accepted => "hs-badge--accepted",
+        BookingStatus.Rejected => "hs-badge--rejected",
+        BookingStatus.Withdrawn => "hs-badge--withdrawn",
+        _ => ""
+    };
+}

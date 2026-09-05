@@ -1,0 +1,271 @@
+@page "/marketplace"
+@attribute [Authorize(Roles = "User")]
+@inject IMarketplaceService Marketplace
+
+<PageTitle>Marketplace — Nestify</PageTitle>
+
+<section class="nx-section mk-page">
+    <div class="nx-container mk-wrap">
+        <header class="mk-head">
+            <div class="mk-head__titles">
+                <p class="nx-eyebrow">M4 · Marketplace</p>
+                <h1>Second-hand things, <span class="nx-display-accent">between people you can place.</span></h1>
+                <p class="mk-head__lead">
+                    Furniture, books and appliances from other verified bachelors in your division.
+                    Every seller carries the same identity check you do.
+                </p>
+            </div>
+            <div class="mk-head__actions">
+                <a class="nx-btn nx-btn--ghost" href="buy-interests/mine">My buy requests</a>
+                <a class="nx-btn nx-btn--ghost" href="marketplace/mine">My listings</a>
+                <a class="nx-btn nx-btn--primary" href="marketplace/sell">
+                    <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+                    Post an item
+                </a>
+            </div>
+        </header>
+
+        <div class="mk-browse">
+            <aside class="mk-lens" aria-label="Filter listings">
+                <div class="mk-lens__row">
+                    <label class="mk-lens__label" for="mk-search">Search</label>
+                    <div class="mk-lens__search">
+                        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor"
+                             stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>
+                        <input id="mk-search" type="search" placeholder="table, cycle, Miyako…"
+                               value="@_filter.Search"
+                               @onchange="OnSearchChange" />
+                    </div>
+                </div>
+
+                <div class="mk-lens__row">
+                    <span class="mk-lens__label">Category</span>
+                    <div class="mk-chips">
+                        <button type="button" class="mk-chip @(_filter.Category is null ? "mk-chip--active" : null)"
+                                @onclick="() => SetCategory(null)">All</button>
+                        @foreach (var c in _categories)
+                        {
+                            <button type="button" class="mk-chip @(_filter.Category == c ? "mk-chip--active" : null)"
+                                    @onclick="() => SetCategory(c)">@MarketplaceView.Label(c)</button>
+                        }
+                    </div>
+                </div>
+
+                <div class="mk-lens__row">
+                    <span class="mk-lens__label">Condition</span>
+                    <div class="mk-seg mk-seg--wrap">
+                        <button type="button" class="mk-seg__opt @(_filter.Condition is null ? "mk-seg__opt--active" : null)"
+                                @onclick="() => SetCondition(null)">Any</button>
+                        @foreach (var cond in _conditions)
+                        {
+                            <button type="button" class="mk-seg__opt @(_filter.Condition == cond ? "mk-seg__opt--active" : null)"
+                                    @onclick="() => SetCondition(cond)">@MarketplaceView.Label(cond)</button>
+                        }
+                    </div>
+                </div>
+
+                <div class="mk-lens__row">
+                    <span class="mk-lens__label">Price range (৳)</span>
+                    <div class="mk-lens__price">
+                        <input type="number" min="0" step="100" placeholder="Min" inputmode="numeric"
+                               value="@_filter.MinPrice" @onchange="OnMinPrice" aria-label="Minimum price" />
+                        <span class="mk-lens__dash">–</span>
+                        <input type="number" min="0" step="100" placeholder="Max" inputmode="numeric"
+                               value="@_filter.MaxPrice" @onchange="OnMaxPrice" aria-label="Maximum price" />
+                    </div>
+                </div>
+
+                <div class="mk-lens__row">
+                    <label class="mk-lens__label" for="mk-division">Division</label>
+                    <select id="mk-division" class="mk-lens__select" @onchange="OnDivision">
+                        <option value="">All Bangladesh</option>
+                        @foreach (var d in _divisions)
+                        {
+                            <option value="@d" selected="@(_filter.Division == d)">@d</option>
+                        }
+                    </select>
+                </div>
+
+                @if (HasActiveFilters)
+                {
+                    <button type="button" class="mk-lens__clear" @onclick="ClearFilters">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6 18 18M6 18 18 6" /></svg>
+                        Clear all filters
+                    </button>
+                }
+            </aside>
+
+            <div class="mk-results">
+                <div class="mk-results__bar">
+                    <p class="mk-results__count">
+                        @if (_loading)
+                        {
+                            <span>Loading listings…</span>
+                        }
+                        else if (_page is not null)
+                        {
+                            <span><strong>@_page.TotalCount</strong> @(_page.TotalCount == 1 ? "item" : "items")</span>
+                        }
+                    </p>
+                    <div class="mk-seg">
+                        @foreach (var s in _sorts)
+                        {
+                            <button type="button" class="mk-seg__opt @(_filter.Sort == s ? "mk-seg__opt--active" : null)"
+                                    @onclick="() => SetSort(s)">@MarketplaceView.ShortLabel(s)</button>
+                        }
+                    </div>
+                </div>
+
+                @if (_loading)
+                {
+                    <div class="mk-grid">
+                        @for (var i = 0; i < 6; i++)
+                        {
+                            <div class="mk-skeleton mk-skeleton--card"></div>
+                        }
+                    </div>
+                }
+                else if (_error)
+                {
+                    <MarketplaceEmpty Title="Couldn't load listings"
+                                      Message="Something went wrong reaching the marketplace. Try again in a moment.">
+                        <button class="nx-btn nx-btn--primary" @onclick="LoadAsync">Retry</button>
+                    </MarketplaceEmpty>
+                }
+                else if (_page is null || _page.Items.Count == 0)
+                {
+                    <MarketplaceEmpty Title="Nothing matches those filters"
+                                      Message="No active listing fits this combination yet. Widen the price range or clear a filter.">
+                        @if (HasActiveFilters)
+                        {
+                            <button class="nx-btn nx-btn--ghost" @onclick="ClearFilters">Clear filters</button>
+                        }
+                    </MarketplaceEmpty>
+                }
+                else
+                {
+                    <div class="mk-grid">
+                        @foreach (var item in _page.Items)
+                        {
+                            <ItemCard Item="item" />
+                        }
+                    </div>
+
+                    @if (_page.TotalPages > 1)
+                    {
+                        <nav class="mk-pager" aria-label="Pagination">
+                            <button class="nx-btn nx-btn--ghost" disabled="@(!_page.HasPrevious)" @onclick="PrevPage">Previous</button>
+                            <span class="mk-pager__pages">Page @_page.Page of @_page.TotalPages</span>
+                            <button class="nx-btn nx-btn--ghost" disabled="@(!_page.HasNext)" @onclick="NextPage">Next</button>
+                        </nav>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+@code {
+    private readonly MarketplaceCategory[] _categories = Enum.GetValues<MarketplaceCategory>();
+    private readonly ItemCondition[] _conditions = Enum.GetValues<ItemCondition>();
+    private readonly MarketplaceSort[] _sorts = Enum.GetValues<MarketplaceSort>();
+    private readonly string[] _divisions =
+        { "Dhaka", "Chattogram", "Sylhet", "Rajshahi", "Khulna", "Barishal", "Rangpur", "Mymensingh" };
+
+    private MarketplaceItemFilterDto _filter = new();
+    private MarketplacePageDto<MarketplaceItemSummaryDto>? _page;
+    private bool _loading = true;
+    private bool _error;
+
+    private bool HasActiveFilters =>
+        !string.IsNullOrWhiteSpace(_filter.Search) || _filter.Category is not null ||
+        _filter.Condition is not null || _filter.MinPrice is not null ||
+        _filter.MaxPrice is not null || !string.IsNullOrWhiteSpace(_filter.Division);
+
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        _error = false;
+        try
+        {
+            _page = await Marketplace.BrowseAsync(_filter);
+        }
+        catch
+        {
+            _error = true;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private Task ApplyAsync()
+    {
+        _filter.Page = 1;
+        return LoadAsync();
+    }
+
+    private Task OnSearchChange(ChangeEventArgs e)
+    {
+        _filter.Search = e.Value?.ToString();
+        return ApplyAsync();
+    }
+
+    private Task SetCategory(MarketplaceCategory? c)
+    {
+        _filter.Category = _filter.Category == c ? null : c;
+        return ApplyAsync();
+    }
+
+    private Task SetCondition(ItemCondition? cond)
+    {
+        _filter.Condition = cond;
+        return ApplyAsync();
+    }
+
+    private Task SetSort(MarketplaceSort s)
+    {
+        _filter.Sort = s;
+        return ApplyAsync();
+    }
+
+    private Task OnMinPrice(ChangeEventArgs e)
+    {
+        _filter.MinPrice = decimal.TryParse(e.Value?.ToString(), out var v) && v > 0 ? v : null;
+        return ApplyAsync();
+    }
+
+    private Task OnMaxPrice(ChangeEventArgs e)
+    {
+        _filter.MaxPrice = decimal.TryParse(e.Value?.ToString(), out var v) && v > 0 ? v : null;
+        return ApplyAsync();
+    }
+
+    private Task OnDivision(ChangeEventArgs e)
+    {
+        var v = e.Value?.ToString();
+        _filter.Division = string.IsNullOrWhiteSpace(v) ? null : v;
+        return ApplyAsync();
+    }
+
+    private Task ClearFilters()
+    {
+        _filter = new MarketplaceItemFilterDto { Sort = _filter.Sort };
+        return LoadAsync();
+    }
+
+    private Task PrevPage()
+    {
+        if (_page?.HasPrevious == true) { _filter.Page--; return LoadAsync(); }
+        return Task.CompletedTask;
+    }
+
+    private Task NextPage()
+    {
+        if (_page?.HasNext == true) { _filter.Page++; return LoadAsync(); }
+        return Task.CompletedTask;
+    }
+}

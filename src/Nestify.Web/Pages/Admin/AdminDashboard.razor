@@ -1,0 +1,73 @@
+@page "/admin"
+@layout AdminLayout
+@attribute [Authorize(Roles = "Admin")]
+@using Nestify.Shared.Dtos.Admin
+@inject IAdminService Admin
+
+<PageTitle>Admin dashboard — Nestify</PageTitle>
+
+<div class="rc-page">
+    <header class="rc-head">
+        <h1>Operations overview</h1>
+        <p>Queues that need attention and the latest actions on the platform.</p>
+    </header>
+
+    @if (_data is null)
+    {
+        <p class="rc-row__meta">Loading…</p>
+    }
+    else
+    {
+        <div class="rc-stats">
+            <div class="rc-stat rc-stat--warn">
+                <p class="rc-stat__label">Pending verifications</p>
+                <p class="rc-stat__value">@_data.PendingVerifications</p>
+                <p class="rc-stat__hint"><a href="admin/verifications">Review queue</a></p>
+            </div>
+            <div class="rc-stat rc-stat--warn">
+                <p class="rc-stat__label">Open reports</p>
+                <p class="rc-stat__value">@_data.OpenReports</p>
+                <p class="rc-stat__hint"><a href="admin/reports">Moderate</a></p>
+            </div>
+            <div class="rc-stat rc-stat--ok">
+                <p class="rc-stat__label">Active users</p>
+                <p class="rc-stat__value">@_data.ActiveUsers</p>
+                <p class="rc-stat__hint"><a href="admin/users">Manage users</a></p>
+            </div>
+            <div class="rc-stat rc-stat--danger" style="border-left:4px solid var(--nx-danger);">
+                <p class="rc-stat__label">Banned</p>
+                <p class="rc-stat__value">@_data.BannedUsers</p>
+                <p class="rc-stat__hint">Enforced by admins</p>
+            </div>
+        </div>
+
+        <section class="rc-panel rc-panel--wide">
+            <h2>Recent activity</h2>
+            @if (_data.RecentActivity.Count == 0)
+            {
+                <p class="rc-row__meta">No recorded activity yet.</p>
+            }
+            else
+            {
+                <ul class="rc-list">
+                    @foreach (var a in _data.RecentActivity)
+                    {
+                        <li class="rc-row">
+                            <div class="rc-row__main">
+                                <p class="rc-row__title">@a.Action</p>
+                                <p class="rc-row__meta">@a.Detail</p>
+                            </div>
+                            <span class="rc-row__meta">@a.WhenUtc.ToLocalTime().ToString("dd MMM, HH:mm")</span>
+                        </li>
+                    }
+                </ul>
+            }
+        </section>
+    }
+</div>
+
+@code {
+    private AdminOverviewDto? _data;
+
+    protected override async Task OnInitializedAsync() => _data = await Admin.GetOverviewAsync();
+}

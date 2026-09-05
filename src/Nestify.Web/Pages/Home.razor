@@ -17,13 +17,29 @@
                 settlement, and your second-hand deals together — behind a single account
                 you actually trust.
             </p>
-            <AuthorizeView>
+            <AuthorizeView Roles="User">
                 <Authorized>
                     <div class="hero__actions">
-                        <a class="nx-btn nx-btn--primary nx-btn--lg" href="settlement">Open Settlement Workspace</a>
-                        <a class="nx-btn nx-btn--ghost nx-btn--lg" href="about">Meet the team</a>
+                        <a class="nx-btn nx-btn--primary nx-btn--lg" href="housing">Browse housing</a>
+                        <a class="nx-btn nx-btn--ghost nx-btn--lg" href="settlement">Settlement workspace</a>
                     </div>
                 </Authorized>
+            </AuthorizeView>
+            <AuthorizeView Roles="DomesticHelper,DomesticHelp,Maid,Helper">
+                <Authorized>
+                    <div class="hero__actions">
+                        <a class="nx-btn nx-btn--primary nx-btn--lg" href="helpers/dashboard">Go to my dashboard</a>
+                    </div>
+                </Authorized>
+            </AuthorizeView>
+            <AuthorizeView Roles="Admin">
+                <Authorized>
+                    <div class="hero__actions">
+                        <a class="nx-btn nx-btn--primary nx-btn--lg" href="admin">Open admin console</a>
+                    </div>
+                </Authorized>
+            </AuthorizeView>
+            <AuthorizeView>
                 <NotAuthorized>
                     <div class="hero__actions">
                         <a class="nx-btn nx-btn--primary nx-btn--lg" href="register">Create your account</a>
