@@ -42,7 +42,7 @@ builder.Services.AddScoped<IHousingService, MockHousingService>();
 // Delete this line + IHouseLookupService + MockHouseLookupService once that's on main.
 builder.Services.AddScoped<IHouseLookupService, MockHouseLookupService>();
 
-builder.Services.AddScoped<IHelperService, MockHelperService>();
+builder.Services.AddScoped<IHelperService, HelperService>();
 
 // M4 · Second-hand marketplace — swap MockMarketplaceService for MarketplaceService when the API lands
 builder.Services.AddScoped<IMarketplaceService, MockMarketplaceService>();
