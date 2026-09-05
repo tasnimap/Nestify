@@ -1,9 +1,10 @@
 @inject Nestify.Web.Services.ToastService Toast
 
-@* Frontend-phase image picker. It records file names and shows size/type hints,
-   but performs NO real upload — the seller's photos are validated and stored
-   server-side in a later phase (§11.5.3). The limits shown here are UX guidance,
-   never a guarantee. *@
+@* Frontend-phase image picker, shared by the housing and marketplace post forms.
+   A picked file is shrunk in the browser and kept as a data URL so the listing
+   preview shows the real picture; NOTHING is uploaded yet — the photos are
+   validated and stored server-side in a later phase (§11.5.3). The limits shown
+   here are UX guidance, never a guarantee. *@
 
 <div class="mk-up">
     <label class="mk-up__zone @(_full ? "is-full" : null)">
@@ -62,9 +63,12 @@
 
     protected override void OnInitialized()
     {
-        foreach (var seed in Value)
+        // Photos already on the listing (the edit form) show as saved rows. A data
+        // URL has no readable name, so number them instead.
+        for (var i = 0; i < Value.Count; i++)
         {
-            var name = seed.StartsWith("tile:") ? seed[5..].Replace('-', ' ') : seed;
+            var seed = Value[i];
+            var name = seed.StartsWith("tile:") ? seed[5..].Replace('-', ' ') : $"Photo {i + 1}";
             _items.Add(new Entry(seed, name, "saved"));
         }
     }
@@ -84,8 +88,7 @@
                 continue;
             }
 
-            var seed = $"tile:{System.IO.Path.GetFileNameWithoutExtension(file.Name)}-{Guid.NewGuid().ToString("N")[..4]}";
-            _items.Add(new Entry(seed, file.Name, FormatSize(file.Size)));
+            _items.Add(new Entry(await ToPreviewAsync(file), file.Name, FormatSize(file.Size)));
         }
 
         if (rejected > 0)
@@ -94,6 +97,26 @@
         }
 
         await PushAsync();
+    }
+
+    // Shrink in the browser and keep the bytes as a data URL. A file that will not
+    // decode (a renamed non-image, say) falls back to a generated tile.
+    private async Task<string> ToPreviewAsync(IBrowserFile file)
+    {
+        try
+        {
+            var resized = await file.RequestImageFileAsync("image/jpeg", 900, 900);
+            using var buffer = new MemoryStream();
+            await using (var stream = resized.OpenReadStream(MaxBytes))
+            {
+                await stream.CopyToAsync(buffer);
+            }
+            return "data:image/jpeg;base64," + Convert.ToBase64String(buffer.ToArray());
+        }
+        catch
+        {
+            return $"tile:{System.IO.Path.GetFileNameWithoutExtension(file.Name)}-{Guid.NewGuid().ToString("N")[..4]}";
+        }
     }
 
     private async Task Remove(Entry entry)

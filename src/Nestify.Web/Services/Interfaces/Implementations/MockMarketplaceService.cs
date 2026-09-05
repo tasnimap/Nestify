@@ -1,4 +1,4 @@
-// src/Nestify.Web/Services/Implementations/MockMarketplaceService.cs
+﻿// src/Nestify.Web/Services/Implementations/MockMarketplaceService.cs
 // In-memory fixtures for the frontend phase. Deliberately covers the awkward
 // cases: an empty search result, a single-result search, a full page, a
 // not-found id, a sold listing, an already-answered interest.
@@ -31,6 +31,20 @@ public sealed class MockMarketplaceService : IMarketplaceService
         public DateTime SellerJoinedUtc { get; init; }
         public List<string> Images { get; set; } = new();
         public int ViewCount { get; set; }
+    }
+
+    // Placeholder photos for the frontend phase. loremflickr returns a picture
+    // that matches the keyword, so a listing shows something that actually looks
+    // like the thing being sold; the lock number picks a fixed photo out of that
+    // keyword instead of a new one on every request. Real uploads replace these
+    // later (§11.5.3).
+    private static class Photos
+    {
+        private static string Url(string keyword, int photo) =>
+            $"https://loremflickr.com/900/675/{keyword}?lock={photo}";
+
+        public static List<string> Of(string keyword, params int[] photos) =>
+            photos.Select(n => Url(keyword, n)).ToList();
     }
 
     private sealed class Interest
@@ -68,7 +82,7 @@ public sealed class MockMarketplaceService : IMarketplaceService
                 Division = "Dhaka", AreaName = "New Market, Dhaka", PostedAtUtc = now.AddHours(-6),
                 SellerId = "seller-arif", SellerName = "Arif Mahmud", SellerVerified = true,
                 SellerJoinedUtc = now.AddMonths(-14),
-                Images = { "tile:studytable-a", "tile:studytable-b", "tile:studytable-c" }, ViewCount = 41
+                Images = Photos.Of("desk", 101, 102, 103), ViewCount = 41
             },
             new()
             {
@@ -79,7 +93,7 @@ public sealed class MockMarketplaceService : IMarketplaceService
                 Division = "Dhaka", AreaName = "Shahbag, Dhaka", PostedAtUtc = now.AddDays(-1).AddHours(-2),
                 SellerId = "seller-tuhin", SellerName = "Tuhin Rahman", SellerVerified = true,
                 SellerJoinedUtc = now.AddMonths(-8),
-                Images = { "tile:cycle-a", "tile:cycle-b" }, ViewCount = 88
+                Images = Photos.Of("bicycle", 104, 105), ViewCount = 88
             },
             new()
             {
@@ -90,7 +104,7 @@ public sealed class MockMarketplaceService : IMarketplaceService
                 Division = "Dhaka", AreaName = "Chackbazar, Dhaka", PostedAtUtc = now.AddDays(-2),
                 SellerId = "seller-nabila", SellerName = "Nabila Haque", SellerVerified = true,
                 SellerJoinedUtc = now.AddMonths(-3),
-                Images = { "tile:ricecooker-a" }, ViewCount = 23
+                Images = Photos.Of("ricecooker", 106, 107), ViewCount = 23
             },
             new()
             {
@@ -101,7 +115,7 @@ public sealed class MockMarketplaceService : IMarketplaceService
                 Division = "Dhaka", AreaName = "Shahbag, Dhaka", PostedAtUtc = now.AddDays(-3).AddHours(-5),
                 SellerId = "seller-arif", SellerName = "Arif Mahmud", SellerVerified = true,
                 SellerJoinedUtc = now.AddMonths(-14),
-                Images = { "tile:books-a", "tile:books-b" }, ViewCount = 52
+                Images = Photos.Of("books", 108, 109), ViewCount = 52
             },
             new()
             {
@@ -112,7 +126,7 @@ public sealed class MockMarketplaceService : IMarketplaceService
                 Division = "Chattogram", AreaName = "Chawkbazar, Chattogram", PostedAtUtc = now.AddDays(-4),
                 SellerId = "seller-farhan", SellerName = "Farhan Kabir", SellerVerified = false,
                 SellerJoinedUtc = now.AddMonths(-1),
-                Images = { "tile:monitor-a", "tile:monitor-b" }, ViewCount = 64
+                Images = Photos.Of("monitor", 110, 111, 112), ViewCount = 64
             },
             new()
             {
@@ -123,7 +137,7 @@ public sealed class MockMarketplaceService : IMarketplaceService
                 Division = "Dhaka", AreaName = "Lalbagh, Dhaka", PostedAtUtc = now.AddDays(-5),
                 SellerId = "seller-tuhin", SellerName = "Tuhin Rahman", SellerVerified = true,
                 SellerJoinedUtc = now.AddMonths(-8),
-                Images = { "tile:mattress-a" }, ViewCount = 30
+                Images = Photos.Of("mattress", 113, 114), ViewCount = 30
             },
             new()
             {
@@ -134,7 +148,7 @@ public sealed class MockMarketplaceService : IMarketplaceService
                 Division = "Dhaka", AreaName = "Lalbagh, Dhaka", PostedAtUtc = now.AddDays(-6).AddHours(-3),
                 SellerId = "seller-nabila", SellerName = "Nabila Haque", SellerVerified = true,
                 SellerJoinedUtc = now.AddMonths(-3),
-                Images = { "tile:kettle-a" }, ViewCount = 12
+                Images = Photos.Of("kettle", 115, 116), ViewCount = 12
             },
             new()
             {
@@ -145,7 +159,7 @@ public sealed class MockMarketplaceService : IMarketplaceService
                 Division = "Dhaka", AreaName = "Kamrangirchar, Dhaka", PostedAtUtc = now.AddDays(-8),
                 SellerId = "seller-farhan", SellerName = "Farhan Kabir", SellerVerified = false,
                 SellerJoinedUtc = now.AddMonths(-1),
-                Images = { "tile:almirah-a", "tile:almirah-b" }, ViewCount = 19
+                Images = Photos.Of("wardrobe", 117, 118), ViewCount = 19
             },
             new()
             {
@@ -155,7 +169,7 @@ public sealed class MockMarketplaceService : IMarketplaceService
                 Division = "Dhaka", AreaName = "Chackbazar, Dhaka", PostedAtUtc = now.AddDays(-9),
                 SellerId = "seller-arif", SellerName = "Arif Mahmud", SellerVerified = true,
                 SellerJoinedUtc = now.AddMonths(-14),
-                Images = { "tile:fan-a" }, ViewCount = 27
+                Images = Photos.Of("ceilingfan", 119, 120), ViewCount = 27
             },
             new()
             {
@@ -166,7 +180,7 @@ public sealed class MockMarketplaceService : IMarketplaceService
                 Division = "Sylhet", AreaName = "Kotwali Model, Sylhet", PostedAtUtc = now.AddDays(-11),
                 SellerId = "seller-farhan", SellerName = "Farhan Kabir", SellerVerified = false,
                 SellerJoinedUtc = now.AddMonths(-1),
-                Images = { "tile:guitar-a", "tile:guitar-b" }, ViewCount = 45
+                Images = Photos.Of("guitar", 121, 122, 123), ViewCount = 45
             },
 
             // ---- Sold listing: still reachable by URL, absent from the default grid ----
@@ -179,7 +193,7 @@ public sealed class MockMarketplaceService : IMarketplaceService
                 Status = ListingStatus.Sold,
                 SellerId = "seller-tuhin", SellerName = "Tuhin Rahman", SellerVerified = true,
                 SellerJoinedUtc = now.AddMonths(-8),
-                Images = { "tile:heater-a" }, ViewCount = 120
+                Images = Photos.Of("roomheater", 124, 125), ViewCount = 120
             },
 
             // ---- Two listings owned by the signed-in user ----
@@ -192,7 +206,7 @@ public sealed class MockMarketplaceService : IMarketplaceService
                 Division = "Dhaka", AreaName = "Bangshal, Dhaka", PostedAtUtc = now.AddDays(-2).AddHours(-6),
                 SellerId = MeId, SellerName = MeName, SellerVerified = true,
                 SellerJoinedUtc = now.AddMonths(-6),
-                Images = { "tile:mydesk-a", "tile:mydesk-b" }, ViewCount = 58
+                Images = Photos.Of("desk", 126, 127), ViewCount = 58
             },
             new()
             {
@@ -203,7 +217,7 @@ public sealed class MockMarketplaceService : IMarketplaceService
                 Division = "Dhaka", AreaName = "Bangshal, Dhaka", PostedAtUtc = now.AddDays(-10),
                 SellerId = MeId, SellerName = MeName, SellerVerified = true,
                 SellerJoinedUtc = now.AddMonths(-6),
-                Images = { "tile:myprinter-a" }, ViewCount = 33
+                Images = Photos.Of("printer", 128, 129, 130), ViewCount = 33
             }
         };
 
@@ -384,7 +398,7 @@ public sealed class MockMarketplaceService : IMarketplaceService
             SellerName = MeName,
             SellerVerified = true,
             SellerJoinedUtc = DateTime.UtcNow.AddMonths(-6),
-            Images = dto.Images.Count > 0 ? dto.Images.ToList() : new List<string> { "tile:new-listing" }
+            Images = dto.Images.Count > 0 ? dto.Images.ToList() : Photos.Of("secondhand", 200)
         });
         return Task.FromResult(id);
     }
@@ -606,7 +620,8 @@ public sealed class MockMarketplaceService : IMarketplaceService
         SellerVerified = i.SellerVerified,
         PostedAtUtc = i.PostedAtUtc,
         Status = i.Status,
-        CoverImage = i.Images.FirstOrDefault() ?? string.Empty
+        CoverImage = i.Images.FirstOrDefault() ?? string.Empty,
+        Images = i.Images.ToList()
     };
 
     private static string Humanize(ItemCondition condition) => condition switch

@@ -3,9 +3,12 @@
 
 <div class="mk-gallery">
     <div class="mk-gallery__main">
-        <MediaTile Seed="@Current" Label="@Title"
-                   Alt="@($"{Title} — photo {_index + 1} of {_count}")"
-                   CssClass="mk-gallery__frame" />
+        <button type="button" class="mk-gallery__open" @onclick="OpenLightbox"
+                aria-label="View photos full size">
+            <MediaTile Seed="@Current" Label="@Title"
+                       Alt="@($"{Title} — photo {_index + 1} of {_count}")"
+                       CssClass="mk-gallery__frame" />
+        </button>
 
         @if (_count > 1)
         {
@@ -39,6 +42,11 @@
     }
 </div>
 
+@if (_showLightbox && Images.Count > 0)
+{
+    <PhotoLightbox Images="Images" StartIndex="_index" Caption="@Title" OnClose="CloseLightbox" />
+}
+
 @code {
     [Parameter, EditorRequired] public IReadOnlyList<string> Images { get; set; } = new List<string>();
     [Parameter] public string Title { get; set; } = string.Empty;
@@ -48,6 +56,11 @@
     private string Current => Images.Count == 0 ? "tile:empty" : Images[Math.Clamp(_index, 0, Images.Count - 1)];
 
     protected override void OnParametersSet() => _index = Math.Clamp(_index, 0, Math.Max(0, Images.Count - 1));
+
+    private bool _showLightbox;
+
+    private void OpenLightbox() => _showLightbox = true;
+    private void CloseLightbox() => _showLightbox = false;
 
     private void Prev() => _index = (_index - 1 + _count) % _count;
     private void Next() => _index = (_index + 1) % _count;

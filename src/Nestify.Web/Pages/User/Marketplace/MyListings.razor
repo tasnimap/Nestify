@@ -21,10 +21,10 @@
                 <p class="mk-head__lead">Everything you've posted, including sold and removed items.</p>
             </div>
             <div class="mk-head__actions">
-                <a class="nx-btn nx-btn--primary" href="marketplace/sell">
+                <button type="button" class="nx-btn nx-btn--primary" @onclick="OpenPostModal">
                     <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
                     Post an item
-                </a>
+                </button>
             </div>
         </header>
 
@@ -39,7 +39,7 @@
         {
             <MarketplaceEmpty Title="You haven't listed anything yet"
                               Message="Sell a piece of furniture, a book bundle or an appliance you've replaced.">
-                <a class="nx-btn nx-btn--primary" href="marketplace/sell">Post your first item</a>
+                <button type="button" class="nx-btn nx-btn--primary" @onclick="OpenPostModal">Post your first item</button>
             </MarketplaceEmpty>
         }
         else
@@ -67,7 +67,14 @@
                         <article class="mk-row @(it.Status == ListingStatus.Removed ? "mk-row--muted" : null)">
                             <div class="mk-row__top">
                                 <div class="mk-row__thumb">
-                                    <MediaTile Seed="@it.CoverImage" Label="@it.Title" />
+                                    <button type="button" class="mk-row__photo" @onclick="() => OpenPhotos(it)"
+                                            aria-label="View photos of @it.Title">
+                                        <MediaTile Seed="@it.CoverImage" Label="@it.Title" />
+                                        @if (it.Images.Count > 1)
+                                        {
+                                            <span class="mk-row__photo-count">+@(it.Images.Count - 1)</span>
+                                        }
+                                    </button>
                                 </div>
                                 <div class="mk-row__grow">
                                     <div class="mk-row__title">
@@ -136,6 +143,16 @@
     </div>
 </section>
 
+@if (_showPostModal)
+{
+    <ItemPostModal OnClose="ClosePostModal" OnCreated="OnItemCreated" />
+}
+
+@if (_photoItem is not null && _photoItem.Images.Count > 0)
+{
+    <PhotoLightbox Images="_photoItem.Images" Caption="@_photoItem.Title" OnClose="ClosePhotos" />
+}
+
 @code {
     private sealed record Tab(string Label, ListingStatus? Status);
 
@@ -151,6 +168,22 @@
     private List<MyListingDto> _rows = new();
     private bool _loading = true;
     private string? _confirmDelete;
+    private MarketplaceItemSummaryDto? _photoItem;
+    private bool _showPostModal;
+
+    private void OpenPostModal() => _showPostModal = true;
+
+    private void ClosePostModal() => _showPostModal = false;
+
+    private Task OnItemCreated(string id)
+    {
+        _showPostModal = false;
+        return LoadAsync();
+    }
+
+    private void OpenPhotos(MarketplaceItemSummaryDto item) => _photoItem = item;
+
+    private void ClosePhotos() => _photoItem = null;
 
     public MyListings() => _tab = _tabs[0];
 

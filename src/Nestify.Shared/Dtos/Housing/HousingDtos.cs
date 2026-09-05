@@ -1,4 +1,4 @@
-namespace Nestify.Shared.Dtos.Housing;
+﻿namespace Nestify.Shared.Dtos.Housing;
 
 public enum ListingType
 {
@@ -128,6 +128,7 @@ public sealed class CreateHousingPostRequestDto
     public int SeatsAvailable { get; set; }
     public decimal MonthlyRent { get; set; }
     public EligibilityDto Eligibility { get; set; } = new();
+    public List<string> ImageUrls { get; set; } = new();
 }
 
 /// <summary>Payload for <c>/housing/{id}/edit</c>. No HouseId — a post cannot be reparented (§3.6).</summary>
@@ -139,6 +140,7 @@ public sealed class UpdateHousingPostRequestDto
     public int SeatsAvailable { get; set; }
     public decimal MonthlyRent { get; set; }
     public EligibilityDto Eligibility { get; set; } = new();
+    public List<string> ImageUrls { get; set; } = new();
 }
 
 /// <summary>

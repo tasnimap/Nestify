@@ -76,3 +76,13 @@
 .mk-gallery__thumb ::deep .mk-tile__mono { font-size: 1.6rem; }
 .mk-gallery__thumb:hover { transform: translateY(-2px); }
 .mk-gallery__thumb.is-active { border-color: var(--nx-primary); }
+
+/* The main frame doubles as the trigger for the full-size photo viewer. */
+.mk-gallery__open {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: zoom-in;
+}

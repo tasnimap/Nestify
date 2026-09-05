@@ -20,10 +20,10 @@
             <div class="hs-head__actions">
                 <a class="nx-btn nx-btn--ghost" href="housing/mine">My posts</a>
                 <a class="nx-btn nx-btn--ghost" href="bookings/mine">My bookings</a>
-                <a class="nx-btn nx-btn--primary" href="housing/new">
+                <button type="button" class="nx-btn nx-btn--primary" @onclick="OpenPostModal">
                     <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
                     Post a listing
-                </a>
+                </button>
             </div>
         </header>
 
@@ -125,7 +125,24 @@
     </div>
 </section>
 
+@if (_showPostModal)
+{
+    <HousingPostModal OnClose="ClosePostModal" OnCreated="OnPostCreated" />
+}
+
 @code {
+    private bool _showPostModal;
+
+    private void OpenPostModal() => _showPostModal = true;
+
+    private void ClosePostModal() => _showPostModal = false;
+
+    private Task OnPostCreated(string id)
+    {
+        _showPostModal = false;
+        return LoadAsync();
+    }
+
     private readonly ListingType[] _listingTypes = Enum.GetValues<ListingType>();
 
     private AreaSelectionDto _areaSelection = new();

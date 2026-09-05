@@ -692,3 +692,89 @@
 .mk-plain { white-space: pre-wrap; overflow-wrap: anywhere; }
 .mk-muted { color: var(--nx-muted); }
 .mk-nowrap { white-space: nowrap; }
+
+/* ---------- post modal ---------- */
+
+.mk-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background: rgba(23, 16, 43, .45);
+}
+
+.mk-modal {
+    width: 100%;
+    max-width: 940px;
+    max-height: calc(100vh - 3rem);
+    overflow-y: auto;
+    background: var(--nx-card);
+    border-radius: var(--nx-radius);
+    box-shadow: var(--nx-shadow-lg, 0 20px 50px rgba(23, 16, 43, .3));
+}
+
+.mk-modal__header {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.1rem 1.25rem;
+    border-bottom: 1px solid var(--nx-border);
+    background: var(--nx-card);
+}
+.mk-modal__header h2 { font-size: 1.05rem; margin: 0; }
+
+.mk-modal__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+    border: none;
+    background: none;
+    color: var(--nx-muted);
+    cursor: pointer;
+    flex: none;
+}
+.mk-modal__close:hover { background: var(--nx-bg-alt); color: var(--nx-ink); }
+.mk-modal__close svg { width: 1.1rem; height: 1.1rem; }
+
+.mk-modal__body { padding: 1.25rem; }
+
+/* ---------- photo viewer triggers ---------- */
+
+.mk-card__photo,
+.mk-row__photo {
+    position: relative;
+    z-index: 2;
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: zoom-in;
+}
+
+.mk-card__photo-count,
+.mk-row__photo-count {
+    position: absolute;
+    right: .6rem;
+    bottom: .6rem;
+    padding: .2rem .55rem;
+    border-radius: 999px;
+    background: rgba(23, 16, 43, .6);
+    color: #fff;
+    font-size: .72rem;
+    font-weight: 700;
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+}
+
+.mk-row__photo-count { right: .3rem; bottom: .3rem; padding: .15rem .4rem; font-size: .68rem; }

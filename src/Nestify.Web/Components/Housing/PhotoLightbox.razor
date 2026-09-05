@@ -1,0 +1,73 @@
+@* Photo viewer for housing posts. Markup and styling deliberately mirror the
+   profile photo modal on the Profile page: dark blurred backdrop, a square
+   white-framed photo, a caption underneath and a round white close button.
+   The prev/next arrows are the same round white button, one per side. *@
+
+@if (Images.Count > 0)
+{
+    <div class="hp-overlay" @onclick="Close">
+        <figure class="hp-lightbox" @onclick:stopPropagation="true">
+            @* The frame is what the close button and arrows anchor to, so they
+               line up with the photo and not with the caption below it. *@
+            <div class="hp-lightbox__frame">
+                <img src="@Images[_index]" alt="@Caption" />
+
+                <button type="button" class="hp-lightbox__close" @onclick="Close" aria-label="Close">&times;</button>
+
+                @if (Images.Count > 1)
+                {
+                    <button type="button" class="hp-lightbox__nav hp-lightbox__nav--prev"
+                            @onclick="Prev" aria-label="Previous photo" disabled="@(_index == 0)">&lsaquo;</button>
+
+                    <button type="button" class="hp-lightbox__nav hp-lightbox__nav--next"
+                            @onclick="Next" aria-label="Next photo" disabled="@(_index == Images.Count - 1)">&rsaquo;</button>
+                }
+            </div>
+
+            <figcaption>
+                @Caption
+                @if (Images.Count > 1)
+                {
+                    <span class="hp-lightbox__count">@(_index + 1) / @Images.Count</span>
+                }
+            </figcaption>
+        </figure>
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired] public IReadOnlyList<string> Images { get; set; } = new List<string>();
+
+    /// <summary>Which photo to open on. Read once per open, then owned by this component.</summary>
+    [Parameter] public int StartIndex { get; set; }
+
+    [Parameter] public string Caption { get; set; } = string.Empty;
+
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    private int _index;
+    private int _openedAt = -1;
+
+    // Only jump when the parent opens on a different photo; a re-render while the
+    // viewer is open must not throw the reader back to where they started.
+    protected override void OnParametersSet()
+    {
+        if (_openedAt != StartIndex)
+        {
+            _openedAt = StartIndex;
+            _index = Math.Clamp(StartIndex, 0, Math.Max(Images.Count - 1, 0));
+        }
+    }
+
+    private void Prev()
+    {
+        if (_index > 0) _index--;
+    }
+
+    private void Next()
+    {
+        if (_index < Images.Count - 1) _index++;
+    }
+
+    private Task Close() => OnClose.InvokeAsync();
+}
