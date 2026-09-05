@@ -23,10 +23,10 @@ CREATE TABLE users (
     email          varchar(256) NOT NULL,          -- always stored lower-case by the API
     password_hash  text         NOT NULL,
     phone_number   varchar(20)  NOT NULL,
-    account_type   smallint     NOT NULL DEFAULT 1,   -- 1 = User, 2 = DomesticHelp
+    account_type   smallint     NOT NULL DEFAULT 1,   -- 1 = User, 2 = DomesticHelper, 3 = Admin
     created_at_utc timestamptz  NOT NULL DEFAULT now(),
 
-    CONSTRAINT ck_users_account_type CHECK (account_type BETWEEN 1 AND 2)
+    CONSTRAINT ck_users_account_type CHECK (account_type BETWEEN 1 AND 3)
 );
 
 CREATE UNIQUE INDEX ux_users_email ON users (email);

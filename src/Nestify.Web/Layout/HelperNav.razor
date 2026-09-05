@@ -1,0 +1,105 @@
+@implements IDisposable
+@inject NavigationManager Navigation
+@inject Nestify.Web.Services.Interfaces.IAuthService AuthService
+
+<header class="hnav">
+    <div class="nx-container hnav__inner">
+        <a class="hnav__brand" href="helpers/dashboard" @onclick="Close">
+            <span class="hnav__mark" aria-hidden="true">N</span>
+            <span>Nestify</span>
+            <span class="hnav__badge">Helper</span>
+        </a>
+
+        <button class="hnav__toggle" type="button"
+                aria-label="Toggle menu" aria-expanded="@_open.ToString().ToLowerInvariant()"
+                @onclick="Toggle">
+            <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
+        </button>
+
+        <ul class="hnav__links @(_open ? "hnav__links--open" : null)">
+            <li>
+                <NavLink class="hnav__link" href="helpers/dashboard" @onclick="Close">
+                    <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="9" /><rect x="14" y="3" width="7" height="5" /><rect x="14" y="12" width="7" height="9" /><rect x="3" y="16" width="7" height="5" /></svg>
+                    Dashboard
+                </NavLink>
+            </li>
+            <li>
+                <NavLink class="hnav__link" href="helpers/me" @onclick="Close">
+                    <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                    My helper profile
+                </NavLink>
+            </li>
+
+            <li class="hnav__menu">
+                <button class="hnav__menu-trigger" type="button"
+                        aria-haspopup="true" aria-expanded="@_menuOpen.ToString().ToLowerInvariant()"
+                        @onclick="ToggleMenu">
+                    <span class="hnav__avatar" aria-hidden="true">@Initials(_name)</span>
+                    <span>@(_name ?? "Account")</span>
+                    <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+                </button>
+                @if (_menuOpen)
+                {
+                    <div class="role-menu" role="menu">
+                        <p class="role-menu__name">Signed in as @(_name ?? "Helper")</p>
+                        <a role="menuitem" href="helpers/profile" @onclick="CloseAll">
+                            <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 4-6 8-6s8 2 8 6" /></svg>
+                            View profile
+                        </a>
+                        <button role="menuitem" class="role-menu__danger" type="button" @onclick="HandleLogout">
+                            <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><path d="m16 17 5-5-5-5" /><path d="M21 12H9" /></svg>
+                            Log out
+                        </button>
+                    </div>
+                }
+            </li>
+        </ul>
+    </div>
+</header>
+
+@code {
+    [CascadingParameter] private Task<AuthenticationState>? AuthState { get; set; }
+
+    private bool _open;
+    private bool _menuOpen;
+    private string? _name;
+
+    protected override void OnInitialized() => Navigation.LocationChanged += OnLocationChanged;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (AuthState is not null)
+        {
+            var state = await AuthState;
+            _name = state.User.Identity?.Name;
+        }
+    }
+
+    private void Toggle() => _open = !_open;
+    private void ToggleMenu() => _menuOpen = !_menuOpen;
+    private void Close() => _open = false;
+    private void CloseAll() { _open = false; _menuOpen = false; }
+
+    private async Task HandleLogout()
+    {
+        CloseAll();
+        await AuthService.LogoutAsync();
+        Navigation.NavigateTo("/", forceLoad: false);
+    }
+
+    private static string Initials(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return "H";
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return parts.Length == 1
+            ? parts[0][..1].ToUpperInvariant()
+            : (parts[0][..1] + parts[^1][..1]).ToUpperInvariant();
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        if (_open || _menuOpen) { CloseAll(); StateHasChanged(); }
+    }
+
+    public void Dispose() => Navigation.LocationChanged -= OnLocationChanged;
+}

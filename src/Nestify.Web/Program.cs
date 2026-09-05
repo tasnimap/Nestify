@@ -47,6 +47,9 @@ builder.Services.AddScoped<IHelperService, MockHelperService>();
 // M4 · Second-hand marketplace — swap MockMarketplaceService for MarketplaceService when the API lands
 builder.Services.AddScoped<IMarketplaceService, MockMarketplaceService>();
 
+// Admin console — mock data until the M5/M6 endpoints land
+builder.Services.AddScoped<IAdminService, MockAdminService>();
+
 // Register utility services
 builder.Services.AddScoped<MoneyFormatterService>();
 builder.Services.AddScoped<DateFormatterService>();

@@ -1,0 +1,119 @@
+@page "/helpers/profile"
+@layout HelperLayout
+@attribute [Authorize(Roles = "DomesticHelper,DomesticHelp,Maid,Helper")]
+@using System.Security.Claims
+@inject AuthenticationStateProvider AuthStateProvider
+
+<PageTitle>Maid Profile - Nestify</PageTitle>
+
+@if (!_loading)
+{
+    <section class="nx-section profile-page">
+        <div class="nx-container profile-wrap">
+            <header class="profile-head">
+                <div>
+                    <p class="nx-eyebrow">My Profile</p>
+                    <h1>Maid Profile</h1>
+                    <p class="profile-head__lead">
+                        A domestic helper profile with service area, availability, monthly rates,
+                        verification status, and engagement history.
+                    </p>
+                </div>
+                <div class="profile-route-note">DomesticHelper account</div>
+            </header>
+
+            <div class="profile-hero profile-hero--maid">
+                <div class="profile-identity">
+                    <div class="profile-avatar">@DisplayInitials</div>
+                    <div>
+                        <p class="profile-kicker">DomesticHelper</p>
+                        <h2>@DisplayName</h2>
+                        <p>Uttara, Dhaka</p>
+                    </div>
+                </div>
+                <div class="profile-badges" aria-label="Status">
+                    <span>Verified helper</span>
+                    <span>Active</span>
+                    <span>4.8 rating</span>
+                </div>
+            </div>
+
+            <div class="profile-grid">
+                <section class="profile-panel profile-panel--wide">
+                    <h3>Helper Details</h3>
+                    <div class="profile-fields">
+                        <div class="profile-field"><span>Display name</span><strong>@DisplayName</strong></div>
+                        <div class="profile-field"><span>Services</span><strong>Cooking, Cleaning, Laundry</strong></div>
+                        <div class="profile-field"><span>Monthly rate</span><strong>BDT 8,000</strong></div>
+                        <div class="profile-field"><span>Availability</span><strong>7:00 AM - 11:00 AM</strong></div>
+                        <div class="profile-field"><span>Experience</span><strong>6 years</strong></div>
+                        <div class="profile-field"><span>Service radius</span><strong>3 km</strong></div>
+                    </div>
+                </section>
+
+                <section class="profile-panel">
+                    <h3>Contact</h3>
+                    <div class="profile-contact">
+                        <p><span>Phone</span><strong>Hidden until engagement confirmation</strong></p>
+                        <p><span>WhatsApp</span><strong>Hidden until engagement confirmation</strong></p>
+                        <p><span>Messenger</span><strong>Hidden until engagement confirmation</strong></p>
+                    </div>
+                </section>
+
+                <section class="profile-panel">
+                    <h3>Permissions</h3>
+                    <ul class="profile-list">
+                        <li>Edit only her own helper profile</li>
+                        <li>Confirm or cancel assigned engagements</li>
+                        <li>Receive reviews only from completed engagements</li>
+                        <li>Remain a normal User in addition to DomesticHelper</li>
+                    </ul>
+                </section>
+
+                <section class="profile-panel profile-panel--wide">
+                    <h3>Activity</h3>
+                    <div class="profile-metrics">
+                        <div class="profile-metric"><strong>14</strong><span>Completed jobs</span></div>
+                        <div class="profile-metric"><strong>22</strong><span>Reviews</span></div>
+                        <div class="profile-metric"><strong>4.8</strong><span>Average rating</span></div>
+                        <div class="profile-metric"><strong>3</strong><span>Open requests</span></div>
+                    </div>
+                </section>
+
+                <section class="profile-panel">
+                    <h3>Plan Guardrails</h3>
+                    <ul class="profile-list">
+                        <li>One helper profile is allowed per account.</li>
+                        <li>Helper edit routes are addressed as /helpers/me to avoid IDOR.</li>
+                        <li>Reviews are tied to engagements, so anonymous review bombing is blocked.</li>
+                    </ul>
+                </section>
+            </div>
+        </div>
+    </section>
+}
+
+@code {
+    private bool _loading = true;
+    private ClaimsPrincipal? _user;
+
+    private string DisplayName => GetClaimValue(ClaimTypes.Name, "name") ?? "Shamima Akter";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        _user = authState.User;
+        _loading = false;
+    }
+
+    private string DisplayInitials => CreateInitials(DisplayName);
+
+    private string? GetClaimValue(params string[] claimTypes) =>
+        _user?.Claims.FirstOrDefault(c => claimTypes.Any(t => string.Equals(c.Type, t, StringComparison.OrdinalIgnoreCase)))?.Value;
+
+    private static string CreateInitials(string name)
+    {
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        return parts.Length == 0 ? "U" : string.Concat(parts.Take(2).Select(p => char.ToUpperInvariant(p[0])));
+    }
+}

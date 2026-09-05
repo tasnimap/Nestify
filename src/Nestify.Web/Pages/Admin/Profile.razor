@@ -1,0 +1,119 @@
+@page "/admin/profile"
+@layout AdminLayout
+@attribute [Authorize(Roles = "Admin")]
+@using System.Security.Claims
+@inject AuthenticationStateProvider AuthStateProvider
+
+<PageTitle>Admin Profile - Nestify</PageTitle>
+
+@if (!_loading)
+{
+    <section class="nx-section profile-page">
+        <div class="nx-container profile-wrap">
+            <header class="profile-head">
+                <div>
+                    <p class="nx-eyebrow">My Profile</p>
+                    <h1>Admin Profile</h1>
+                    <p class="profile-head__lead">
+                        An administrative account for verification decisions, report resolution,
+                        user bans, audit review, and ML retraining controls.
+                    </p>
+                </div>
+                <div class="profile-route-note">Admin account</div>
+            </header>
+
+            <div class="profile-hero profile-hero--admin">
+                <div class="profile-identity">
+                    <div class="profile-avatar">@DisplayInitials</div>
+                    <div>
+                        <p class="profile-kicker">Admin</p>
+                        <h2>@DisplayName</h2>
+                        <p>Operations Console</p>
+                    </div>
+                </div>
+                <div class="profile-badges" aria-label="Status">
+                    <span>Seeded account</span>
+                    <span>Audit logged</span>
+                    <span>Least privilege</span>
+                </div>
+            </div>
+
+            <div class="profile-grid">
+                <section class="profile-panel profile-panel--wide">
+                    <h3>Administrative Scope</h3>
+                    <div class="profile-fields">
+                        <div class="profile-field"><span>Email</span><strong>@DisplayEmail</strong></div>
+                        <div class="profile-field"><span>Role source</span><strong>Seeded configuration</strong></div>
+                        <div class="profile-field"><span>Verification queue</span><strong>Pending requests</strong></div>
+                        <div class="profile-field"><span>Reports queue</span><strong>Open reports</strong></div>
+                        <div class="profile-field"><span>Audit log</span><strong>Read-only history</strong></div>
+                        <div class="profile-field"><span>ML retrain</span><strong>Admin-triggered</strong></div>
+                    </div>
+                </section>
+
+                <section class="profile-panel">
+                    <h3>Contact</h3>
+                    <div class="profile-contact">
+                        <p><span>Phone</span><strong>Internal only</strong></p>
+                        <p><span>Recovery</span><strong>Managed outside public profile</strong></p>
+                        <p><span>Document access</span><strong>120-second signed tokens</strong></p>
+                    </div>
+                </section>
+
+                <section class="profile-panel">
+                    <h3>Permissions</h3>
+                    <ul class="profile-list">
+                        <li>Approve or reject verification requests</li>
+                        <li>Resolve reports and hide or remove content</li>
+                        <li>Ban users with mandatory audit reasons</li>
+                        <li>Trigger price model retraining</li>
+                    </ul>
+                </section>
+
+                <section class="profile-panel profile-panel--wide">
+                    <h3>Activity</h3>
+                    <div class="profile-metrics">
+                        <div class="profile-metric"><strong>9</strong><span>Pending verifications</span></div>
+                        <div class="profile-metric"><strong>4</strong><span>Open reports</span></div>
+                        <div class="profile-metric"><strong>37</strong><span>Audit events</span></div>
+                        <div class="profile-metric"><strong>1</strong><span>Active ML model</span></div>
+                    </div>
+                </section>
+
+                <section class="profile-panel">
+                    <h3>Plan Guardrails</h3>
+                    <ul class="profile-list">
+                        <li>There is no self-service endpoint that grants Admin.</li>
+                        <li>Every admin decision writes an audit log in the same transaction.</li>
+                        <li>Admin has no designed access to private household financial data.</li>
+                    </ul>
+                </section>
+            </div>
+        </div>
+    </section>
+}
+
+@code {
+    private bool _loading = true;
+    private ClaimsPrincipal? _user;
+
+    private string DisplayName => GetClaimValue(ClaimTypes.Name, "name") ?? "Nestify Admin";
+    private string DisplayEmail => GetClaimValue(ClaimTypes.Email, "email") ?? "admin@nestify.local";
+    private string DisplayInitials => CreateInitials(DisplayName);
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        _user = authState.User;
+        _loading = false;
+    }
+
+    private string? GetClaimValue(params string[] claimTypes) =>
+        _user?.Claims.FirstOrDefault(c => claimTypes.Any(t => string.Equals(c.Type, t, StringComparison.OrdinalIgnoreCase)))?.Value;
+
+    private static string CreateInitials(string name)
+    {
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        return parts.Length == 0 ? "U" : string.Concat(parts.Take(2).Select(p => char.ToUpperInvariant(p[0])));
+    }
+}

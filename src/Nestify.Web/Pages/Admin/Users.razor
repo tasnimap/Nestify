@@ -1,0 +1,88 @@
+@page "/admin/users"
+@layout AdminLayout
+@attribute [Authorize(Roles = "Admin")]
+@using Nestify.Shared.Dtos.Admin
+@inject IAdminService Admin
+@inject Nestify.Web.Services.ToastService Toast
+
+<PageTitle>Users — Nestify Admin</PageTitle>
+
+<div class="rc-page">
+    <header class="rc-head">
+        <h1>Users</h1>
+        <p>Everyone with a Nestify account. Ban abusive accounts with a recorded reason.</p>
+    </header>
+
+    <section class="rc-panel rc-panel--wide">
+        @if (_items is null)
+        {
+            <p class="rc-row__meta">Loading…</p>
+        }
+        else
+        {
+            <div class="rc-table__scroll">
+                <table class="rc-table">
+                    <thead>
+                        <tr><th>Name</th><th>Email</th><th>Account</th><th>Verified</th><th>Joined</th><th>State</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var u in _items)
+                        {
+                            <tr>
+                                <td>@u.FullName</td>
+                                <td>@u.Email</td>
+                                <td>@u.AccountType</td>
+                                <td>
+                                    @if (u.IsVerified)
+                                    {
+                                        <span class="rc-badge rc-badge--ok"><span class="rc-badge__dot"></span>Verified</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="rc-badge rc-badge--muted"><span class="rc-badge__dot"></span>No</span>
+                                    }
+                                </td>
+                                <td>@u.JoinedUtc.ToLocalTime().ToString("dd MMM yyyy")</td>
+                                <td>
+                                    @if (u.IsBanned)
+                                    {
+                                        <span class="rc-badge rc-badge--danger"><span class="rc-badge__dot"></span>Banned</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="rc-badge rc-badge--info"><span class="rc-badge__dot"></span>Active</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (u.IsBanned)
+                                    {
+                                        <button class="nx-btn nx-btn--ghost" @onclick="() => SetBan(u, false)">Unban</button>
+                                    }
+                                    else
+                                    {
+                                        <button class="nx-btn nx-btn--ghost" @onclick="() => SetBan(u, true)">Ban</button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+</div>
+
+@code {
+    private List<AdminUserDto>? _items;
+
+    protected override async Task OnInitializedAsync() => await Load();
+
+    private async Task Load() => _items = await Admin.GetUsersAsync();
+
+    private async Task SetBan(AdminUserDto u, bool banned)
+    {
+        await Admin.SetBanAsync(u.Id, banned);
+        Toast.ShowInfo($"{u.FullName} {(banned ? "banned" : "unbanned")}.", "Users");
+        await Load();
+    }
+}

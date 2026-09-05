@@ -1,0 +1,196 @@
+@page "/marketplace/mine"
+@attribute [Authorize(Roles = "User")]
+@inject IMarketplaceService Marketplace
+@inject Nestify.Web.Services.MoneyFormatterService Money
+@inject Nestify.Web.Services.ToastService Toast
+
+<PageTitle>My listings — Nestify</PageTitle>
+
+<section class="nx-section mk-page">
+    <div class="nx-container mk-wrap mk-wrap--narrow">
+        <nav class="mk-crumbs">
+            <a href="marketplace">Marketplace</a>
+            <span class="mk-crumbs__sep">/</span>
+            <span>My listings</span>
+        </nav>
+
+        <header class="mk-head">
+            <div class="mk-head__titles">
+                <p class="nx-eyebrow">Marketplace</p>
+                <h1>My listings</h1>
+                <p class="mk-head__lead">Everything you've posted, including sold and removed items.</p>
+            </div>
+            <div class="mk-head__actions">
+                <a class="nx-btn nx-btn--primary" href="marketplace/sell">
+                    <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+                    Post an item
+                </a>
+            </div>
+        </header>
+
+        @if (_loading)
+        {
+            <div class="mk-rows">
+                <div class="mk-skeleton" style="height:9rem"></div>
+                <div class="mk-skeleton" style="height:9rem"></div>
+            </div>
+        }
+        else if (_rows.Count == 0)
+        {
+            <MarketplaceEmpty Title="You haven't listed anything yet"
+                              Message="Sell a piece of furniture, a book bundle or an appliance you've replaced.">
+                <a class="nx-btn nx-btn--primary" href="marketplace/sell">Post your first item</a>
+            </MarketplaceEmpty>
+        }
+        else
+        {
+            <div class="mk-tabs" role="tablist">
+                @foreach (var tab in _tabs)
+                {
+                    <button type="button" role="tab" class="mk-tab @(_tab == tab ? "mk-tab--active" : null)"
+                            @onclick="() => _tab = tab">
+                        @tab.Label <span class="mk-muted">@Count(tab.Status)</span>
+                    </button>
+                }
+            </div>
+
+            @if (Filtered.Count == 0)
+            {
+                <MarketplaceEmpty Title="@($"No {_tab.Label.ToLower()} listings")" />
+            }
+            else
+            {
+                <div class="mk-rows">
+                    @foreach (var row in Filtered)
+                    {
+                        var it = row.Item;
+                        <article class="mk-row @(it.Status == ListingStatus.Removed ? "mk-row--muted" : null)">
+                            <div class="mk-row__top">
+                                <div class="mk-row__thumb">
+                                    <MediaTile Seed="@it.CoverImage" Label="@it.Title" />
+                                </div>
+                                <div class="mk-row__grow">
+                                    <div class="mk-row__title">
+                                        <a href="marketplace/items/@it.Id">@it.Title</a>
+                                    </div>
+                                    <div class="mk-row__badges">
+                                        <span class="mk-price mk-price--sm">@Money.Format(it.PriceBdt)</span>
+                                        <ListingStatusBadge Status="it.Status" />
+                                        <ConditionBadge Condition="it.Condition" />
+                                    </div>
+                                    <div class="mk-row__meta">
+                                        <span>@it.AreaName</span>
+                                        <span class="mk-dot"></span>
+                                        <span>Listed @MarketplaceView.RelativeTime(it.PostedAtUtc)</span>
+                                    </div>
+                                    <div class="mk-row__stats">
+                                        <span class="mk-stat">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12Z" /><circle cx="12" cy="12" r="3" /></svg>
+                                            <strong>@row.ViewCount</strong> views
+                                        </span>
+                                        <span class="mk-stat">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z" /></svg>
+                                            <strong>@row.InterestCount</strong> interested
+                                        </span>
+                                        @if (row.PendingInterestCount > 0)
+                                        {
+                                            <span class="mk-stat"><strong>@row.PendingInterestCount</strong> awaiting reply</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mk-row__actions">
+                                <a class="nx-btn nx-btn--primary" href="marketplace/items/@it.Id/interests">
+                                    Buyer interest
+                                    @if (row.PendingInterestCount > 0)
+                                    {
+                                        <span class="mk-count-pill">@row.PendingInterestCount</span>
+                                    }
+                                </a>
+                                @if (it.Status == ListingStatus.Active)
+                                {
+                                    <a class="nx-btn nx-btn--ghost" href="marketplace/items/@it.Id/edit">Edit</a>
+                                    <button class="nx-btn nx-btn--ghost" @onclick="() => MarkSold(it.Id)">Mark sold</button>
+                                }
+                                <span class="mk-row__actions-spacer"></span>
+                                @if (it.Status != ListingStatus.Removed)
+                                {
+                                    @if (_confirmDelete == it.Id)
+                                    {
+                                        <span class="mk-muted mk-nowrap">Remove this listing?</span>
+                                        <button class="nx-btn nx-btn--ghost" @onclick="() => _confirmDelete = null">Cancel</button>
+                                        <button class="nx-btn nx-btn--ghost mk-danger-btn" @onclick="() => Delete(it.Id)">Remove</button>
+                                    }
+                                    else
+                                    {
+                                        <button class="nx-btn nx-btn--ghost mk-danger-btn" @onclick="() => _confirmDelete = it.Id">Remove</button>
+                                    }
+                                }
+                            </div>
+                        </article>
+                    }
+                </div>
+            }
+        }
+    </div>
+</section>
+
+@code {
+    private sealed record Tab(string Label, ListingStatus? Status);
+
+    private readonly Tab[] _tabs =
+    {
+        new("All", null),
+        new("Active", ListingStatus.Active),
+        new("Sold", ListingStatus.Sold),
+        new("Removed", ListingStatus.Removed)
+    };
+
+    private Tab _tab;
+    private List<MyListingDto> _rows = new();
+    private bool _loading = true;
+    private string? _confirmDelete;
+
+    public MyListings() => _tab = _tabs[0];
+
+    private IReadOnlyList<MyListingDto> Filtered =>
+        _tab.Status is null ? _rows : _rows.Where(r => r.Item.Status == _tab.Status).ToList();
+
+    private string Count(ListingStatus? status) =>
+        (status is null ? _rows.Count : _rows.Count(r => r.Item.Status == status)).ToString();
+
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        try
+        {
+            _rows = (await Marketplace.GetMyListingsAsync()).ToList();
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task MarkSold(string id)
+    {
+        if (await Marketplace.MarkSoldAsync(id))
+        {
+            Toast.ShowSuccess("Listing marked as sold.", "Updated");
+            await LoadAsync();
+        }
+    }
+
+    private async Task Delete(string id)
+    {
+        _confirmDelete = null;
+        if (await Marketplace.DeleteItemAsync(id))
+        {
+            Toast.ShowInfo("Listing removed. It no longer appears in the marketplace.", "Removed");
+            await LoadAsync();
+        }
+    }
+}

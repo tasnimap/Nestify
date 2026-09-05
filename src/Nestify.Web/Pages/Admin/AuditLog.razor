@@ -1,0 +1,53 @@
+@page "/admin/audit"
+@layout AdminLayout
+@attribute [Authorize(Roles = "Admin")]
+@using Nestify.Shared.Dtos.Admin
+@inject IAdminService Admin
+
+<PageTitle>Audit log — Nestify Admin</PageTitle>
+
+<div class="rc-page">
+    <header class="rc-head">
+        <h1>Audit log</h1>
+        <p>Every admin action is recorded here. This view is read-only.</p>
+    </header>
+
+    <section class="rc-panel rc-panel--wide">
+        @if (_items is null)
+        {
+            <p class="rc-row__meta">Loading…</p>
+        }
+        else if (_items.Count == 0)
+        {
+            <div class="rc-empty"><h3>No entries</h3><p>Admin actions will show up here.</p></div>
+        }
+        else
+        {
+            <div class="rc-table__scroll">
+                <table class="rc-table">
+                    <thead>
+                        <tr><th>When</th><th>Actor</th><th>Action</th><th>Target</th><th>Note</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var a in _items)
+                        {
+                            <tr>
+                                <td>@a.OccurredUtc.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</td>
+                                <td>@a.Actor</td>
+                                <td>@a.Action</td>
+                                <td>@a.Target</td>
+                                <td>@(a.Note ?? "—")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+</div>
+
+@code {
+    private List<AuditEntryDto>? _items;
+
+    protected override async Task OnInitializedAsync() => _items = await Admin.GetAuditLogAsync();
+}

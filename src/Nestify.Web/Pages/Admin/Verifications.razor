@@ -1,0 +1,83 @@
+@page "/admin/verifications"
+@layout AdminLayout
+@attribute [Authorize(Roles = "Admin")]
+@using Nestify.Shared.Dtos.Admin
+@inject IAdminService Admin
+@inject Nestify.Web.Services.ToastService Toast
+
+<PageTitle>Verifications — Nestify Admin</PageTitle>
+
+<div class="rc-page">
+    <header class="rc-head">
+        <h1>Verification queue</h1>
+        <p>Approve or reject identity documents submitted by users and helpers.</p>
+    </header>
+
+    <section class="rc-panel rc-panel--wide">
+        @if (_items is null)
+        {
+            <p class="rc-row__meta">Loading…</p>
+        }
+        else if (_items.Count == 0)
+        {
+            <div class="rc-empty"><h3>Queue is clear</h3><p>No verification requests to review.</p></div>
+        }
+        else
+        {
+            <div class="rc-table__scroll">
+                <table class="rc-table">
+                    <thead>
+                        <tr><th>Applicant</th><th>Subject</th><th>Document</th><th>Submitted</th><th>Status</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var v in _items)
+                        {
+                            <tr>
+                                <td>@v.ApplicantName</td>
+                                <td>@v.SubjectType</td>
+                                <td>@v.DocumentType</td>
+                                <td>@v.SubmittedUtc.ToLocalTime().ToString("dd MMM, HH:mm")</td>
+                                <td>
+                                    <span class="rc-badge @StatusClass(v.Status)">
+                                        <span class="rc-badge__dot"></span>@v.Status
+                                    </span>
+                                </td>
+                                <td>
+                                    @if (v.Status == VerificationStatus.Pending)
+                                    {
+                                        <div class="rc-row__actions">
+                                            <button class="nx-btn nx-btn--accent" @onclick="() => Decide(v, true)">Approve</button>
+                                            <button class="nx-btn nx-btn--ghost" @onclick="() => Decide(v, false)">Reject</button>
+                                        </div>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+</div>
+
+@code {
+    private List<VerificationRequestDto>? _items;
+
+    protected override async Task OnInitializedAsync() => await Load();
+
+    private async Task Load() => _items = await Admin.GetVerificationsAsync();
+
+    private async Task Decide(VerificationRequestDto v, bool approve)
+    {
+        await Admin.DecideVerificationAsync(v.Id, approve);
+        Toast.ShowInfo($"{v.ApplicantName} {(approve ? "approved" : "rejected")}.", "Verification");
+        await Load();
+    }
+
+    private static string StatusClass(VerificationStatus s) => s switch
+    {
+        VerificationStatus.Pending => "rc-badge--pending",
+        VerificationStatus.Approved => "rc-badge--ok",
+        _ => "rc-badge--danger"
+    };
+}

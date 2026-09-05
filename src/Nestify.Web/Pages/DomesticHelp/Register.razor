@@ -1,0 +1,30 @@
+@page "/helpers/register"
+@layout HelperLayout
+@attribute [Authorize(Roles = "DomesticHelper,DomesticHelp,Maid,Helper")]
+@using Nestify.Shared.Dtos.Helpers
+@using Nestify.Web.Components.Helper
+@inject IHelperService Helpers
+@inject Nestify.Web.Services.ToastService Toast
+@inject NavigationManager Nav
+
+<PageTitle>Become a Helper — Nestify</PageTitle>
+
+<section class="nx-section hs-page">
+    <div class="nx-container hs-wrap hs-wrap--narrow">
+        <h1>Become a helper</h1>
+        <p>Register your services, availability, and rate so clients can find you.</p>
+
+        <HelperForm Model="_model" SubmitLabel="Register" OnSubmit="HandleSubmit" />
+    </div>
+</section>
+
+@code {
+    private readonly HelperRegistrationDto _model = new();
+
+    private async Task HandleSubmit()
+    {
+        await Helpers.RegisterAsync(_model);
+        Toast.ShowInfo("Your helper profile is live.", "Registered");
+        Nav.NavigateTo("helpers/me");
+    }
+}

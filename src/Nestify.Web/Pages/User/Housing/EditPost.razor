@@ -1,0 +1,108 @@
+@page "/housing/{Id}/edit"
+@attribute [Authorize(Roles = "User")]
+@inject IHousingService Housing
+@inject NavigationManager Nav
+@inject Nestify.Web.Services.ToastService Toast
+
+<PageTitle>Edit listing — Nestify</PageTitle>
+
+<section class="nx-section hs-page">
+    <div class="nx-container hs-wrap hs-wrap--narrow">
+
+        @if (_loading)
+        {
+            <div class="hs-skeleton" style="height: 26rem;"></div>
+        }
+        else if (_model is null)
+        {
+            <nav class="hs-crumbs" aria-label="Breadcrumb">
+                <a href="housing">Housing</a>
+                <span class="hs-crumbs__sep">/</span>
+                <span>Not available</span>
+            </nav>
+            <div class="hs-empty hs-empty--page">
+                <h2>You can't edit this listing</h2>
+                <p>It doesn't exist, or it isn't one of yours.</p>
+                <a class="nx-btn nx-btn--primary" href="housing">Back to Housing</a>
+            </div>
+        }
+        else
+        {
+            <nav class="hs-crumbs" aria-label="Breadcrumb">
+                <a href="housing">Housing</a>
+                <span class="hs-crumbs__sep">/</span>
+                <a href="housing/@Id">@_title</a>
+                <span class="hs-crumbs__sep">/</span>
+                <span>Edit</span>
+            </nav>
+
+            <header class="hs-head">
+                <div class="hs-head__titles">
+                    <p class="nx-eyebrow">M1 · Housing</p>
+                    <h1>Edit listing</h1>
+                    <p class="hs-head__lead">Changes go live straight away.</p>
+                </div>
+            </header>
+
+            <div class="hs-panel">
+                <HousingPostForm Model="_model" Busy="_busy" SubmitLabel="Save changes"
+                                  OnValidSubmit="Submit" OnCancel="Cancel" />
+            </div>
+        }
+    </div>
+</section>
+
+@code {
+    [Parameter] public string Id { get; set; } = string.Empty;
+
+    private HousingPostFormModel? _model;
+    private string _title = string.Empty;
+    private bool _loading = true;
+    private bool _busy;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _loading = true;
+        _model = null;
+        try
+        {
+            var post = await Housing.GetPostForEditAsync(Id);
+            if (post is not null)
+            {
+                _model = HousingPostFormModel.FromDetail(post);
+                _title = post.Title;
+            }
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task Submit()
+    {
+        if (_model is null) return;
+        _busy = true;
+        try
+        {
+            var ok = await Housing.UpdateAsync(Id, _model.ToUpdateDto());
+            if (ok)
+            {
+                Toast.ShowSuccess("Your listing has been updated.", "Changes saved");
+                Nav.NavigateTo($"housing/{Id}");
+            }
+            else
+            {
+                Toast.ShowError("Couldn't save those changes.", "Something went wrong");
+                _busy = false;
+            }
+        }
+        catch
+        {
+            Toast.ShowError("Couldn't save those changes.", "Something went wrong");
+            _busy = false;
+        }
+    }
+
+    private void Cancel() => Nav.NavigateTo($"housing/{Id}");
+}
