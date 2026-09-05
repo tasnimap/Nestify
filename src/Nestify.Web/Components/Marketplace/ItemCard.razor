@@ -3,8 +3,15 @@
 
 <article class="mk-card @(Item.Status == ListingStatus.Sold ? "mk-card--sold" : null)">
     <div class="mk-card__media">
-        <MediaTile Seed="@Item.CoverImage" Label="@Item.Title"
-                   Tag="@MarketplaceView.CategoryTag(Item.Category)" Alt="@Item.Title" />
+        <button type="button" class="mk-card__photo" @onclick="OpenLightbox"
+                aria-label="View photos of @Item.Title">
+            <MediaTile Seed="@Item.CoverImage" Label="@Item.Title"
+                       Tag="@MarketplaceView.CategoryTag(Item.Category)" Alt="@Item.Title" />
+            @if (Photos.Count > 1)
+            {
+                <span class="mk-card__photo-count">+@(Photos.Count - 1) photos</span>
+            }
+        </button>
         <ConditionBadge Condition="Item.Condition" CssClass="mk-badge--on-media" />
     </div>
 
@@ -48,8 +55,24 @@
     </div>
 </article>
 
+@if (_showLightbox && Photos.Count > 0)
+{
+    <PhotoLightbox Images="Photos" Caption="@Item.Title" OnClose="CloseLightbox" />
+}
+
 @code {
     [Parameter, EditorRequired] public MarketplaceItemSummaryDto Item { get; set; } = new();
 
     [Inject] private Nestify.Web.Services.MoneyFormatterService _money { get; set; } = default!;
+
+    private bool _showLightbox;
+
+    // Older summaries only carried a cover image, so fall back to that one photo.
+    private IReadOnlyList<string> Photos =>
+        Item.Images.Count > 0 ? Item.Images
+        : string.IsNullOrEmpty(Item.CoverImage) ? Array.Empty<string>()
+        : new[] { Item.CoverImage };
+
+    private void OpenLightbox() => _showLightbox = true;
+    private void CloseLightbox() => _showLightbox = false;
 }

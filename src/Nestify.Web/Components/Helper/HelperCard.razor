@@ -2,7 +2,10 @@
 @using Nestify.Web.Components
 <a class="hs-card" href="helpers/@Helper.Id">
     <div class="hs-card__body">
-        <h3 class="hs-card__title">@Helper.Name</h3>
+        <div class="hs-card__person">
+            <img class="hs-ava" src="@HelperView.PhotoUrl(Helper.Name)" alt="Photo of @Helper.Name" loading="lazy" />
+            <h3 class="hs-card__title">@Helper.Name</h3>
+        </div>
         <p class="hs-card__services">@string.Join(", ", Helper.Services)</p>
         <RatingStars Value="Helper.RatingAverage" Count="Helper.RatingCount" />
         <p class="hs-card__rate">৳@Helper.MonthlyRate.ToString("N0") /mo</p>

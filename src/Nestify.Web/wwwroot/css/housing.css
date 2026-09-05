@@ -81,6 +81,13 @@
     border-radius: var(--nx-radius);
     position: sticky;
     top: calc(var(--nx-nav-h) + 1rem);
+    z-index: 1;
+}
+
+/* Sticky only makes sense beside the results. Once the layout stacks, pinning
+   the panel leaves the cards scrolling over the top of it. */
+@media (max-width: 860px) {
+    .hs-lens { position: static; }
 }
 
 .hs-lens__row { display: grid; gap: .4rem; }
@@ -186,6 +193,46 @@
     display: flex;
     gap: .4rem;
     flex-wrap: wrap;
+}
+
+.hs-card__photo {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 160px;
+    padding: 0;
+    border: none;
+    border-radius: var(--nx-radius-sm);
+    overflow: hidden;
+    background: var(--nx-bg);
+    cursor: pointer;
+}
+
+.hs-card__photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform .25s ease;
+}
+
+.hs-card__photo:hover img,
+.hs-card__photo:focus-visible img { transform: scale(1.04); }
+
+.hs-card__photo:focus-visible {
+    outline: 2px solid var(--nx-ring);
+    outline-offset: 2px;
+}
+
+.hs-card__photo-count {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    padding: 4px 8px;
+    border-radius: var(--nx-radius-sm);
+    background: rgba(0, 0, 0, .68);
+    color: #fff;
+    font-size: .75rem;
+    font-weight: 600;
 }
 
 .hs-card__title {
@@ -413,6 +460,38 @@
 .hs-row__top { display: flex; gap: 1rem; align-items: flex-start; }
 .hs-row__grow { flex: 1; min-width: 0; display: grid; gap: .35rem; }
 
+.hs-row__photo {
+    position: relative;
+    flex: none;
+    width: 92px;
+    height: 72px;
+    padding: 0;
+    border: none;
+    border-radius: var(--nx-radius-sm);
+    overflow: hidden;
+    background: var(--nx-bg);
+    cursor: pointer;
+}
+
+.hs-row__photo img { width: 100%; height: 100%; object-fit: cover; }
+
+.hs-row__photo:focus-visible {
+    outline: 2px solid var(--nx-ring);
+    outline-offset: 2px;
+}
+
+.hs-row__photo-count {
+    position: absolute;
+    right: 4px;
+    bottom: 4px;
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, .68);
+    color: #fff;
+    font-size: .7rem;
+    font-weight: 600;
+}
+
 .hs-row__title { font-size: 1.02rem; font-weight: 700; color: var(--nx-ink); line-height: 1.35; }
 .hs-row__title a { color: inherit; }
 .hs-row__title a:hover { color: var(--nx-primary); text-decoration: none; }
@@ -595,7 +674,7 @@
     align-items: center;
     justify-content: center;
     padding: 1.5rem;
-    z-index: 60;
+    z-index: 200;
 }
 
 .hs-modal {
@@ -609,6 +688,9 @@
     display: grid;
     grid-template-rows: auto 1fr auto;
 }
+
+/* The post form needs more room than a booking message does. */
+.hs-modal--wide { max-width: 720px; }
 
 .hs-modal__header {
     display: flex;
@@ -721,129 +803,152 @@
     pointer-events: none;
 }
 
-/* ---------- lightbox overlay ---------- */
+/* ---------- photo lightbox ----------
+   Same look as the profile photo modal (Profile.razor.css, .up-lightbox):
+   dark blurred backdrop, square white-framed photo, caption below, round white
+   close button. Restated here because those styles are scoped to that page. */
 
-.hs-lightbox-overlay {
+.hp-overlay {
     position: fixed;
     inset: 0;
-    z-index: 90;
+    z-index: 300;
     display: grid;
     place-items: center;
     padding: 24px;
-    background: rgba(10, 7, 20, .82);
-    backdrop-filter: blur(6px);
-    animation: hs-lb-fade .22s ease both;
+    background: rgba(12, 8, 24, .78);
+    backdrop-filter: blur(4px);
+    animation: hp-fade .25s ease both;
 }
 
-@keyframes hs-lb-fade {
+@keyframes hp-fade {
     from { opacity: 0; }
     to   { opacity: 1; }
 }
 
-.hs-lightbox {
-    position: relative;
+@keyframes hp-pop {
+    from { opacity: 0; transform: translateY(18px) scale(.96); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.hp-lightbox {
+    /* One width for the whole figure, so a long caption wraps under the photo
+       instead of stretching past the edge of the screen. The vh term keeps the
+       photo inside a short window; the last term is the cap on a wide monitor. */
+    width: min(84vw, 62vh * 4 / 3, 480px);
     margin: 0;
     text-align: center;
-    animation: hs-lb-pop .35s cubic-bezier(.22, 1, .36, 1) both;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 14px;
+    animation: hp-pop .4s cubic-bezier(.22, 1, .36, 1) both;
 }
 
-@keyframes hs-lb-pop {
-    from { opacity: 0; transform: scale(.94) translateY(14px); }
-    to   { opacity: 1; transform: scale(1)  translateY(0); }
+/* Roomier once there is width to spend. */
+@media (min-width: 900px) {
+    .hp-lightbox { width: min(72vw, 68vh * 4 / 3, 820px); }
 }
 
-.hs-lightbox img {
+@media (min-width: 1500px) {
+    .hp-lightbox { width: min(64vw, 72vh * 4 / 3, 1000px); }
+}
+
+.hp-lightbox__frame { position: relative; }
+
+.hp-lightbox img {
     display: block;
-    max-width: min(86vw, 820px);
-    max-height: 72vh;
-    width: auto;
-    height: auto;
-    object-fit: contain;
+    width: 100%;
+    /* 4:3 rather than the profile modal's square, so a room photo is not
+       cropped down the middle. */
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
     border-radius: var(--nx-radius-lg);
-    border: 4px solid rgba(255,255,255,.18);
-    box-shadow: 0 24px 64px rgba(0,0,0,.55);
+    border: 5px solid #fff;
+    box-shadow: var(--nx-shadow-lg);
 }
 
-.hs-lightbox__close {
+.hp-lightbox figcaption {
+    margin-top: 12px;
+    color: #fff;
+    font-weight: 600;
+}
+
+.hp-lightbox__count {
+    margin-left: .5rem;
+    color: rgba(255, 255, 255, .6);
+    font-weight: 500;
+}
+
+/* One round white button, used for close and for both arrows. */
+.hp-lightbox__close,
+.hp-lightbox__nav {
     position: absolute;
-    top: -16px;
-    right: -16px;
-    width: 40px;
-    height: 40px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
-    border: none;
+    border: 0;
     background: #fff;
     color: var(--nx-ink);
-    font-size: 1.5rem;
     line-height: 1;
     cursor: pointer;
-    box-shadow: 0 4px 14px rgba(0,0,0,.25);
+    box-shadow: var(--nx-shadow-md);
     transition: transform .25s ease;
-    display: grid;
-    place-items: center;
-    z-index: 2;
 }
 
-.hs-lightbox__close:hover {
-    transform: rotate(90deg);
+.hp-lightbox__close {
+    top: -14px;
+    right: -14px;
+    font-size: 1.4rem;
 }
 
-/* prev / next arrows */
+.hp-lightbox__close:hover { transform: rotate(90deg); }
 
-.hs-lightbox__nav {
-    position: absolute;
+.hp-lightbox__nav {
     top: 50%;
     translate: 0 -50%;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    border: none;
-    background: rgba(255, 255, 255, .12);
-    backdrop-filter: blur(4px);
-    color: #fff;
-    cursor: pointer;
-    display: grid;
-    place-items: center;
-    transition: background .2s ease, transform .2s ease;
-    z-index: 2;
+    font-size: 1.7rem;
+    font-weight: 700;
+    padding-bottom: 4px;
 }
 
-.hs-lightbox__nav:hover:not(:disabled) {
-    background: rgba(255, 255, 255, .28);
-    transform: translateY(-50%) scale(1.08);
-}
+.hp-lightbox__nav--prev { left: -21px; }
+.hp-lightbox__nav--next { right: -21px; }
 
-.hs-lightbox__nav:disabled {
-    opacity: .28;
+.hp-lightbox__nav:hover:not(:disabled) { transform: scale(1.12); }
+
+.hp-lightbox__nav:disabled {
+    opacity: .35;
     cursor: default;
 }
 
-.hs-lightbox__nav svg {
-    width: 22px;
-    height: 22px;
-}
-
-.hs-lightbox__nav--prev { left: -60px; }
-.hs-lightbox__nav--next { right: -60px; }
-
 @media (max-width: 600px) {
-    .hs-lightbox__nav--prev { left: -48px; }
-    .hs-lightbox__nav--next { right: -48px; }
-    .hs-lightbox__nav { width: 36px; height: 36px; }
-}
-
-.hs-lightbox__caption {
-    color: rgba(255,255,255,.65);
-    font-size: .82rem;
-    font-weight: 600;
-    letter-spacing: .04em;
+    .hp-lightbox__close,
+    .hp-lightbox__nav { width: 38px; height: 38px; }
+    .hp-lightbox__nav--prev { left: -12px; }
+    .hp-lightbox__nav--next { right: -12px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .hs-lightbox-overlay,
-    .hs-lightbox { animation: none; }
+    .hp-overlay,
+    .hp-lightbox { animation: none; }
 }
+
+/* ---------- helper portrait (M2 domestic help) ---------- */
+
+.hs-ava {
+    width: 56px;
+    height: 56px;
+    flex: none;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #fff;
+    box-shadow: var(--nx-shadow-sm);
+    background: var(--nx-bg-alt);
+}
+
+.hs-ava--lg { width: 84px; height: 84px; }
+
+.hs-card__person,
+.hs-detail__person {
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+}
+
+.hs-detail__person { gap: 1rem; margin-bottom: .25rem; }

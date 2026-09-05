@@ -21,10 +21,10 @@
             <div class="hs-head__actions">
                 <a class="nx-btn nx-btn--ghost" href="housing">Browse listings</a>
                 <a class="nx-btn nx-btn--ghost" href="bookings/mine">My bookings</a>
-                <a class="nx-btn nx-btn--primary" href="housing/new">
+                <button type="button" class="nx-btn nx-btn--primary" @onclick="OpenPostModal">
                     <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
                     Post a listing
-                </a>
+                </button>
             </div>
         </header>
 
@@ -39,7 +39,7 @@
             <div class="hs-empty hs-empty--page">
                 <h2>You haven't posted any listings yet</h2>
                 <p>Start by creating your first post to share a seat or house on Nestify.</p>
-                <a class="nx-btn nx-btn--primary" href="housing/new">Create a listing</a>
+                <button type="button" class="nx-btn nx-btn--primary" @onclick="OpenPostModal">Create a listing</button>
             </div>
         }
         else
@@ -49,6 +49,19 @@
                 {
                     <article class="hs-row @(postDto.Post.Status != PostStatus.Active ? "hs-row--muted" : null)">
                         <div class="hs-row__top">
+                            @if (postDto.Post.ImageUrls.Count > 0)
+                            {
+                                <button type="button" class="hs-row__photo"
+                                        @onclick="() => OpenPhotos(postDto.Post)"
+                                        aria-label="View photos of @postDto.Post.Title">
+                                    <img src="@postDto.Post.ImageUrls[0]" alt="Photo of @postDto.Post.Title" loading="lazy" />
+                                    @if (postDto.Post.ImageUrls.Count > 1)
+                                    {
+                                        <span class="hs-row__photo-count">+@(postDto.Post.ImageUrls.Count - 1)</span>
+                                    }
+                                </button>
+                            }
+
                             <div class="hs-row__grow">
                                 <h2 class="hs-row__title">
                                     <a href="housing/@postDto.Post.Id">@postDto.Post.Title</a>
@@ -165,17 +178,43 @@
     </div>
 </section>
 
+@if (_showPostModal)
+{
+    <HousingPostModal OnClose="ClosePostModal" OnCreated="OnPostCreated" />
+}
+
+@if (_photoPost is not null)
+{
+    <PhotoLightbox Images="_photoPost.ImageUrls" Caption="@_photoPost.Title" OnClose="ClosePhotos" />
+}
+
 @code {
     private List<MyHousingPostDto> _posts = new();
+    private HousingPostSummaryDto? _photoPost;
     private bool _loading = true;
     private string? _expandedPostId;
     private List<BookingRequesterDto> _currentRequesters = new();
     private bool _requestersLoading;
+    private bool _showPostModal;
+
+    private void OpenPostModal() => _showPostModal = true;
+
+    private void ClosePostModal() => _showPostModal = false;
+
+    private Task OnPostCreated(string id)
+    {
+        _showPostModal = false;
+        return LoadPosts();
+    }
 
     protected override async Task OnInitializedAsync()
     {
         await LoadPosts();
     }
+
+    private void OpenPhotos(HousingPostSummaryDto post) => _photoPost = post;
+
+    private void ClosePhotos() => _photoPost = null;
 
     private async Task LoadPosts()
     {

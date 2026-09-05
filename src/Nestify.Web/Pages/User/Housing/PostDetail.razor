@@ -149,37 +149,10 @@
     </div>
 }
 
-@if (_showLightbox && _post is not null && _post.ImageUrls.Count > 0)
+@if (_showLightbox && _post is not null)
 {
-    <div class="hs-lightbox-overlay" @onclick="CloseLightbox">
-        <figure class="hs-lightbox" @onclick:stopPropagation="true">
-            <button type="button" class="hs-lightbox__close" @onclick="CloseLightbox" aria-label="Close">&times;</button>
-
-            @if (_post.ImageUrls.Count > 1)
-            {
-                <button type="button" class="hs-lightbox__nav hs-lightbox__nav--prev"
-                        @onclick="PrevImage" aria-label="Previous photo"
-                        disabled="@(_lightboxIndex == 0)">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
-                </button>
-            }
-
-            <img src="@_post.ImageUrls[_lightboxIndex]" alt="House photo @(_lightboxIndex + 1)" />
-
-            @if (_post.ImageUrls.Count > 1)
-            {
-                <button type="button" class="hs-lightbox__nav hs-lightbox__nav--next"
-                        @onclick="NextImage" aria-label="Next photo"
-                        disabled="@(_lightboxIndex == _post.ImageUrls.Count - 1)">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
-                </button>
-
-                <figcaption class="hs-lightbox__caption">
-                    @(_lightboxIndex + 1) / @_post.ImageUrls.Count
-                </figcaption>
-            }
-        </figure>
-    </div>
+    <PhotoLightbox Images="_post.ImageUrls" StartIndex="_lightboxIndex"
+                   Caption="@_post.Title" OnClose="CloseLightbox" />
 }
 
 @code {
@@ -213,16 +186,6 @@
     }
 
     private void CloseLightbox() => _showLightbox = false;
-
-    private void PrevImage()
-    {
-        if (_lightboxIndex > 0) _lightboxIndex--;
-    }
-
-    private void NextImage()
-    {
-        if (_post is not null && _lightboxIndex < _post.ImageUrls.Count - 1) _lightboxIndex++;
-    }
 
     private void OpenBookingModal()
     {

@@ -61,6 +61,12 @@
         <ValidationMessage For="@(() => Model.MonthlyRent)" />
     </div>
 
+    <div class="field">
+        <label>Photos</label>
+        <ImageUploader Value="Model.ImageUrls" ValueChanged="OnImagesChanged" />
+        <p class="field__helper">Add a few pictures of the room, the flat and the building entrance.</p>
+    </div>
+
     <fieldset class="hs-form__fieldset">
         <legend>Who can apply</legend>
         <EligibilityBuilder Value="Model.Eligibility" />
@@ -87,6 +93,8 @@
     private readonly ListingType[] _listingTypes = Enum.GetValues<ListingType>();
     private bool _submitted;
     private bool ShowHouseValidation => _submitted && string.IsNullOrEmpty(SelectedHouseId);
+
+    private void OnImagesChanged(IReadOnlyList<string> images) => Model.ImageUrls = images.ToList();
 
     private Task OnHouseChanged(ChangeEventArgs e) =>
         SelectedHouseIdChanged.InvokeAsync(e.Value?.ToString() ?? string.Empty);

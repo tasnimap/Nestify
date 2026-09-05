@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using Nestify.Shared.Dtos.Housing;
 
 namespace Nestify.Web.Components.Housing;
@@ -27,6 +27,9 @@ public sealed class HousingPostFormModel
 
     public EligibilityDto Eligibility { get; set; } = new();
 
+    /// <summary>Photos of the place. Kept as data URLs until real uploads land (§11.5.3).</summary>
+    public List<string> ImageUrls { get; set; } = new();
+
     public CreateHousingPostRequestDto ToCreateDto(string houseId) => new()
     {
         HouseId = houseId,
@@ -35,7 +38,8 @@ public sealed class HousingPostFormModel
         ListingType = ListingType,
         SeatsAvailable = SeatsAvailable,
         MonthlyRent = MonthlyRent,
-        Eligibility = Eligibility
+        Eligibility = Eligibility,
+        ImageUrls = ImageUrls
     };
 
     public UpdateHousingPostRequestDto ToUpdateDto() => new()
@@ -45,7 +49,8 @@ public sealed class HousingPostFormModel
         ListingType = ListingType,
         SeatsAvailable = SeatsAvailable,
         MonthlyRent = MonthlyRent,
-        Eligibility = Eligibility
+        Eligibility = Eligibility,
+        ImageUrls = ImageUrls
     };
 
     public static HousingPostFormModel FromDetail(HousingPostDetailDto d) => new()
@@ -55,6 +60,7 @@ public sealed class HousingPostFormModel
         ListingType = d.ListingType,
         SeatsAvailable = d.SeatsAvailable,
         MonthlyRent = d.MonthlyRent,
-        Eligibility = d.Eligibility
+        Eligibility = d.Eligibility,
+        ImageUrls = d.ImageUrls.ToList()
     };
 }

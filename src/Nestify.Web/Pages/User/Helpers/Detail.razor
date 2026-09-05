@@ -2,6 +2,7 @@
 @attribute [Authorize(Roles = "User")]
 @using Nestify.Shared.Dtos.Helpers
 @using Nestify.Web.Components
+@using Nestify.Web.Components.Helper
 @inject IHelperService Helpers
 @inject Nestify.Web.Services.ToastService Toast
 @inject Nestify.Web.Services.MoneyFormatterService Money
@@ -38,11 +39,17 @@
                             <span class="hs-chip hs-chip--type">@s</span>
                         }
                     </div>
-                    <h1>@_helper.Name</h1>
-                    <div class="hs-detail__meta">
-                        <RatingStars Value="_helper.RatingAverage" Count="_helper.RatingCount" />
-                        <span class="hs-dot"></span>
-                        <span>@_helper.AreaName@(_helper.Distance is not null ? $" · {DistanceLabel(_helper.Distance.Value)}" : "")</span>
+                    <div class="hs-detail__person">
+                        <img class="hs-ava hs-ava--lg" src="@HelperView.PhotoUrl(_helper.Name)"
+                             alt="Photo of @_helper.Name" />
+                        <div>
+                            <h1>@_helper.Name</h1>
+                            <div class="hs-detail__meta">
+                                <RatingStars Value="_helper.RatingAverage" Count="_helper.RatingCount" />
+                                <span class="hs-dot"></span>
+                                <span>@_helper.AreaName@(_helper.Distance is not null ? $" · {DistanceLabel(_helper.Distance.Value)}" : "")</span>
+                            </div>
+                        </div>
                     </div>
                 </header>
 

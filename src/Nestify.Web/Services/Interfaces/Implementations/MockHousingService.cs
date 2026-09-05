@@ -1,4 +1,4 @@
-// src/Nestify.Web/Services/Interfaces/Implementations/MockHousingService.cs
+﻿// src/Nestify.Web/Services/Interfaces/Implementations/MockHousingService.cs
 // In-memory fixtures for the frontend phase. Covers the awkward cases: an empty
 // filter result, a single-result filter, a full page, and a not-found id.
 using Nestify.Shared.Dtos.Housing;
@@ -26,6 +26,18 @@ public sealed class MockHousingService : IHousingService
         public EligibilityDto Eligibility { get; set; } = new();
         public bool IsMine { get; init; }
         public List<string> ImageUrls { get; set; } = new();
+    }
+
+    // Stock room photos so every post has something to show. Sizes are capped at
+    // 800px because the card only ever renders a 160px-tall crop.
+    private static class Photos
+    {
+        private const string Base = "https://images.unsplash.com/photo-";
+        private const string Opts = "?auto=format&fit=crop&q=80&w=800";
+
+        private static string Url(string id) => Base + id + Opts;
+
+        public static List<string> Of(params string[] ids) => ids.Select(Url).ToList();
     }
 
     private sealed class Booking
@@ -62,7 +74,7 @@ public sealed class MockHousingService : IHousingService
                 ListingType = ListingType.SingleSeat, SeatsAvailable = 1, MonthlyRent = 6500m,
                 AreaName = "Dhanmondi", District = "Dhaka", Division = "Dhaka", CreatedAtUtc = now.AddHours(-5),
                 Eligibility = new EligibilityDto { Gender = Gender.Male, StudentOnly = true, MaxAge = 27 },
-                ImageUrls = new List<string> { "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=800", "https://images.unsplash.com/photo-1502672260266-1c1c2b4418f8?auto=format&fit=crop&q=80&w=800" }
+                ImageUrls = Photos.Of("1522708323590-d24dbb6b0267", "1524758631624-e2822e304c36")
             },
             new()
             {
@@ -72,7 +84,7 @@ public sealed class MockHousingService : IHousingService
                 ListingType = ListingType.MultipleSeats, SeatsAvailable = 2, MonthlyRent = 5200m,
                 AreaName = "Mirpur Model", District = "Dhaka", Division = "Dhaka", CreatedAtUtc = now.AddDays(-1).AddHours(-3),
                 Eligibility = new EligibilityDto { VerifiedOnly = true },
-                ImageUrls = new List<string> { "https://images.unsplash.com/photo-1501183638710-841dd1904471?auto=format&fit=crop&q=80&w=800" }
+                ImageUrls = Photos.Of("1501183638710-841dd1904471", "1493809842364-78817add7ffb")
             },
             new()
             {
@@ -82,7 +94,7 @@ public sealed class MockHousingService : IHousingService
                 ListingType = ListingType.EntireHouse, SeatsAvailable = 4, MonthlyRent = 18000m,
                 AreaName = "Mohammadpur", District = "Dhaka", Division = "Dhaka", CreatedAtUtc = now.AddDays(-2),
                 Eligibility = new EligibilityDto(),
-                ImageUrls = new List<string> { "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&q=80&w=800", "https://images.unsplash.com/photo-1560185007-cde436f6a4d0?auto=format&fit=crop&q=80&w=800", "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&q=80&w=800" }
+                ImageUrls = Photos.Of("1560448204-e02f11c3d0e2", "1560185007-cde436f6a4d0", "1484154218962-a197022b5858")
             },
             new()
             {
@@ -92,6 +104,7 @@ public sealed class MockHousingService : IHousingService
                 ListingType = ListingType.SingleSeat, SeatsAvailable = 1, MonthlyRent = 4000m,
                 AreaName = "Tongi East", District = "Gazipur", Division = "Dhaka", CreatedAtUtc = now.AddDays(-3),
                 Eligibility = new EligibilityDto { Occupation = Occupation.Student },
+                ImageUrls = Photos.Of("1505873242700-f289a29e1e0f", "1522708323590-d24dbb6b0267"),
                 IsMine = true
             },
             new()
@@ -102,7 +115,8 @@ public sealed class MockHousingService : IHousingService
                 ListingType = ListingType.SingleSeat, SeatsAvailable = 1, MonthlyRent = 5000m,
                 AreaName = "Panchlaish", District = "Chattogram", Division = "Chattogram", CreatedAtUtc = now.AddDays(-10),
                 Status = PostStatus.Closed,
-                Eligibility = new EligibilityDto { Gender = Gender.Female }
+                Eligibility = new EligibilityDto { Gender = Gender.Female },
+                ImageUrls = Photos.Of("1522771739844-6a9f6d5f14af")
             },
             new()
             {
@@ -115,7 +129,8 @@ public sealed class MockHousingService : IHousingService
                 Eligibility = new EligibilityDto
                 {
                     Gender = Gender.Male, MaritalStatus = MaritalStatus.Single, MinAge = 18, MaxAge = 30
-                }
+                },
+                ImageUrls = Photos.Of("1502005229762-cf1b2da7c5d6", "1598928506311-c55ded91a20c", "1616486338812-3dadae4b4ace")
             },
         };
     }
@@ -202,6 +217,11 @@ public sealed class MockHousingService : IHousingService
             Division = house?.Division ?? "Unknown division",
             CreatedAtUtc = DateTime.UtcNow,
             Eligibility = request.Eligibility,
+            // Photos the poster picked; a post made without any still gets one stock
+            // picture so the browse grid never shows an empty card.
+            ImageUrls = request.ImageUrls.Count > 0
+                ? request.ImageUrls.ToList()
+                : Photos.Of("1493809842364-78817add7ffb"),
             IsMine = true
         };
 
@@ -229,6 +249,10 @@ public sealed class MockHousingService : IHousingService
         post.SeatsAvailable = request.SeatsAvailable;
         post.MonthlyRent = request.MonthlyRent;
         post.Eligibility = request.Eligibility;
+        if (request.ImageUrls.Count > 0)
+        {
+            post.ImageUrls = request.ImageUrls.ToList();
+        }
 
         return Task.FromResult(true);
     }

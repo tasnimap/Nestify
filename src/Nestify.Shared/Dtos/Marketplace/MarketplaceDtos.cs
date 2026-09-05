@@ -1,4 +1,4 @@
-// src/Nestify.Shared/Dtos/Marketplace/MarketplaceDtos.cs
+﻿// src/Nestify.Shared/Dtos/Marketplace/MarketplaceDtos.cs
 // M4 — Second-hand marketplace. DTOs + enums only (no EF types).
 // One file per module, per the frontend-phase distribution rules.
 namespace Nestify.Shared.Dtos.Marketplace;
@@ -71,6 +71,9 @@ public sealed class MarketplaceItemSummaryDto
 
     /// <summary>First image. An http(s) URL renders as a photo; anything else renders as a generated tile.</summary>
     public string CoverImage { get; set; } = string.Empty;
+
+    /// <summary>Every photo on the listing, so a card can open the photo viewer without a second call.</summary>
+    public IReadOnlyList<string> Images { get; set; } = new List<string>();
 }
 
 /// <summary>Full item view for <c>/marketplace/items/{id}</c>.</summary>
