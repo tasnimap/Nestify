@@ -1,6 +1,8 @@
 @page "/marketplace"
 @attribute [Authorize(Roles = "User")]
 @inject IMarketplaceService Marketplace
+@using Nestify.Shared.Dtos.Area
+@inject IAreaService Areas
 
 <PageTitle>Marketplace — Nestify</PageTitle>
 
@@ -77,14 +79,45 @@
 
                 <div class="mk-lens__row">
                     <label class="mk-lens__label" for="mk-division">Division</label>
-                    <select id="mk-division" class="mk-lens__select" @onchange="OnDivision">
+                    <select id="mk-division" class="mk-lens__select"
+                            value="@(_divisionId?.ToString() ?? string.Empty)" @onchange="OnDivision">
                         <option value="">All Bangladesh</option>
                         @foreach (var d in _divisions)
                         {
-                            <option value="@d" selected="@(_filter.Division == d)">@d</option>
+                            <option value="@d.Id">@d.Name</option>
                         }
                     </select>
                 </div>
+
+                @if (_divisionId is not null)
+                {
+                    <div class="mk-lens__row">
+                        <label class="mk-lens__label" for="mk-district">District</label>
+                        <select id="mk-district" class="mk-lens__select"
+                                value="@(_districtId?.ToString() ?? string.Empty)" @onchange="OnDistrict">
+                            <option value="">All districts</option>
+                            @foreach (var d in _districts)
+                            {
+                                <option value="@d.Id">@d.Name</option>
+                            }
+                        </select>
+                    </div>
+                }
+
+                @if (_districtId is not null)
+                {
+                    <div class="mk-lens__row">
+                        <label class="mk-lens__label" for="mk-upazila">Upazila / thana</label>
+                        <select id="mk-upazila" class="mk-lens__select"
+                                value="@(_upazilaId?.ToString() ?? string.Empty)" @onchange="OnUpazila">
+                            <option value="">All upazilas</option>
+                            @foreach (var u in _upazilas)
+                            {
+                                <option value="@u.Id">@u.Name</option>
+                            }
+                        </select>
+                    </div>
+                }
 
                 @if (HasActiveFilters)
                 {
@@ -169,8 +202,17 @@
     private readonly MarketplaceCategory[] _categories = Enum.GetValues<MarketplaceCategory>();
     private readonly ItemCondition[] _conditions = Enum.GetValues<ItemCondition>();
     private readonly MarketplaceSort[] _sorts = Enum.GetValues<MarketplaceSort>();
-    private readonly string[] _divisions =
-        { "Dhaka", "Chattogram", "Sylhet", "Rajshahi", "Khulna", "Barishal", "Rangpur", "Mymensingh" };
+    // Division, district and upazila all come from the seeded administrative tables
+    // through the area service, so the names in these dropdowns are the same strings
+    // the listings are stored with. Picking a division loads its districts, and a
+    // district loads its upazilas and metropolitan thanas.
+    private IReadOnlyList<DivisionDto> _divisions = Array.Empty<DivisionDto>();
+    private IReadOnlyList<DistrictDto> _districts = Array.Empty<DistrictDto>();
+    private IReadOnlyList<UpazilaDto> _upazilas = Array.Empty<UpazilaDto>();
+
+    private int? _divisionId;
+    private int? _districtId;
+    private int? _upazilaId;
 
     private MarketplaceItemFilterDto _filter = new();
     private MarketplacePageDto<MarketplaceItemSummaryDto>? _page;
@@ -180,9 +222,14 @@
     private bool HasActiveFilters =>
         !string.IsNullOrWhiteSpace(_filter.Search) || _filter.Category is not null ||
         _filter.Condition is not null || _filter.MinPrice is not null ||
-        _filter.MaxPrice is not null || !string.IsNullOrWhiteSpace(_filter.Division);
+        _filter.MaxPrice is not null || !string.IsNullOrWhiteSpace(_filter.Division) ||
+        !string.IsNullOrWhiteSpace(_filter.District) || !string.IsNullOrWhiteSpace(_filter.Upazila);
 
-    protected override Task OnInitializedAsync() => LoadAsync();
+    protected override async Task OnInitializedAsync()
+    {
+        _divisions = await Areas.GetDivisionsAsync();
+        await LoadAsync();
+    }
 
     private async Task LoadAsync()
     {
@@ -244,16 +291,47 @@
         return ApplyAsync();
     }
 
-    private Task OnDivision(ChangeEventArgs e)
+    private async Task OnDivision(ChangeEventArgs e)
     {
-        var v = e.Value?.ToString();
-        _filter.Division = string.IsNullOrWhiteSpace(v) ? null : v;
+        _divisionId = ParseId(e.Value);
+        _districtId = null;
+        _upazilaId = null;
+        _districts = _divisionId is int id ? await Areas.GetDistrictsAsync(id) : Array.Empty<DistrictDto>();
+        _upazilas = Array.Empty<UpazilaDto>();
+
+        _filter.Division = _divisions.FirstOrDefault(d => d.Id == _divisionId)?.Name;
+        _filter.District = null;
+        _filter.Upazila = null;
+        await ApplyAsync();
+    }
+
+    private async Task OnDistrict(ChangeEventArgs e)
+    {
+        _districtId = ParseId(e.Value);
+        _upazilaId = null;
+        _upazilas = _districtId is int id ? await Areas.GetUpazilasAsync(id) : Array.Empty<UpazilaDto>();
+
+        _filter.District = _districts.FirstOrDefault(d => d.Id == _districtId)?.Name;
+        _filter.Upazila = null;
+        await ApplyAsync();
+    }
+
+    private Task OnUpazila(ChangeEventArgs e)
+    {
+        _upazilaId = ParseId(e.Value);
+        _filter.Upazila = _upazilas.FirstOrDefault(u => u.Id == _upazilaId)?.Name;
         return ApplyAsync();
     }
+
+    private static int? ParseId(object? value) =>
+        int.TryParse(value?.ToString(), out var id) ? id : null;
 
     private Task ClearFilters()
     {
         _filter = new MarketplaceItemFilterDto { Sort = _filter.Sort };
+        _divisionId = _districtId = _upazilaId = null;
+        _districts = Array.Empty<DistrictDto>();
+        _upazilas = Array.Empty<UpazilaDto>();
         return LoadAsync();
     }
 

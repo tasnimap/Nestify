@@ -5,22 +5,29 @@ namespace Nestify.Web.Services.Implementations;
 
 public sealed class MockAreaService : IAreaService
 {
+    // Ids and names match Nestify.Database/seed/bangladesh_administrative_seed.sql,
+    // so nothing has to be remapped when this mock is swapped for the real service.
     private readonly List<DivisionDto> _divisions = new()
     {
-        new(1, "Dhaka", "ঢাকা"),
-        new(2, "Chattogram", "চট্টগ্রাম"),
-        new(3, "Sylhet", "সিলেট"),
+        new(1, "Chattogram", "চট্টগ্রাম"),
+        new(2, "Rajshahi", "রাজশাহী"),
+        new(3, "Khulna", "খুলনা"),
+        new(4, "Barishal", "বরিশাল"),
+        new(5, "Sylhet", "সিলেট"),
+        new(6, "Dhaka", "ঢাকা"),
+        new(7, "Rangpur", "রংপুর"),
+        new(8, "Mymensingh", "ময়মনসিংহ"),
     };
 
     private readonly List<DistrictDto> _districts = new()
     {
-        new(101, 1, "Dhaka", "ঢাকা"),
-        new(102, 1, "Gazipur", "গাজীপুর"),
-        new(103, 1, "Narayanganj", "নারায়ণগঞ্জ"),
-        new(201, 2, "Chattogram", "চট্টগ্রাম"),
-        new(202, 2, "Cox's Bazar", "কক্সবাজার"),
-        new(301, 3, "Sylhet", "সিলেট"),
-        new(302, 3, "Moulvibazar", "মৌলভীবাজার"),
+        new(101, 6, "Dhaka", "ঢাকা"),
+        new(102, 6, "Gazipur", "গাজীপুর"),
+        new(103, 6, "Narayanganj", "নারায়ণগঞ্জ"),
+        new(201, 1, "Chattogram", "চট্টগ্রাম"),
+        new(202, 1, "Cox's Bazar", "কক্সবাজার"),
+        new(301, 5, "Sylhet", "সিলেট"),
+        new(302, 5, "Moulvibazar", "মৌলভীবাজার"),
     };
 
     private readonly List<UpazilaDto> _upazilas = new()

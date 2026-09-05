@@ -35,12 +35,17 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 // Dev-only mock "who's logged in" state — must be Singleton so it survives page navigation
 builder.Services.AddSingleton<ICurrentUserService, MockCurrentUserService>();
 
-// M1 · Area cascade — swap MockAreaService for AreaService when the API lands
-builder.Services.AddScoped<IAreaService, MockAreaService>();
+// M1 · Area cascade — served from the seeded administrative tables
+builder.Services.AddScoped<IAreaService, AreaService>();
 builder.Services.AddScoped<IHousingService, MockHousingService>();
 
 // Delete this line + IHouseLookupService + MockHouseLookupService once that's on main.
 builder.Services.AddScoped<IHouseLookupService, MockHouseLookupService>();
+
+// M3 - Home module. Singleton so the in-memory home survives page navigation;
+// swap MockHomeService for a real HomeService when the API lands.
+builder.Services.AddSingleton<IHomeService, MockHomeService>();
+
 
 builder.Services.AddScoped<IHelperService, HelperService>();
 

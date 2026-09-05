@@ -110,6 +110,13 @@ public sealed class MarketplaceItemFilterDto
     public decimal? MinPrice { get; set; }
     public decimal? MaxPrice { get; set; }
     public string? Division { get; set; }
+
+    /// <summary>District name, as stored in the second half of an item's AreaName.</summary>
+    public string? District { get; set; }
+
+    /// <summary>Upazila or metropolitan thana, the first half of an item's AreaName.</summary>
+    public string? Upazila { get; set; }
+
     public MarketplaceSort Sort { get; set; } = MarketplaceSort.Newest;
     public int Page { get; set; } = 1;
     public int PageSize { get; set; } = 12;

@@ -65,7 +65,7 @@ public sealed class MockMarketplaceService : IMarketplaceService
                     + "no wobble. Selling because I am moving to a smaller room. Minor scuff on the left leg, "
                     + "shown in the last photo.",
                 PriceBdt = 3200m, Category = MarketplaceCategory.Furniture, Condition = ItemCondition.Good,
-                Division = "Dhaka", AreaName = "Nilkhet, Dhaka", PostedAtUtc = now.AddHours(-6),
+                Division = "Dhaka", AreaName = "New Market, Dhaka", PostedAtUtc = now.AddHours(-6),
                 SellerId = "seller-arif", SellerName = "Arif Mahmud", SellerVerified = true,
                 SellerJoinedUtc = now.AddMonths(-14),
                 Images = { "tile:studytable-a", "tile:studytable-b", "tile:studytable-c" }, ViewCount = 41
@@ -76,7 +76,7 @@ public sealed class MockMarketplaceService : IMarketplaceService
                 Description = "Daily commuter for one year. New tube and brake pads last month. "
                     + "Lock and light included. Ride it away from Fuller Road.",
                 PriceBdt = 4500m, Category = MarketplaceCategory.Other, Condition = ItemCondition.Good,
-                Division = "Dhaka", AreaName = "Fuller Road, Dhaka", PostedAtUtc = now.AddDays(-1).AddHours(-2),
+                Division = "Dhaka", AreaName = "Shahbag, Dhaka", PostedAtUtc = now.AddDays(-1).AddHours(-2),
                 SellerId = "seller-tuhin", SellerName = "Tuhin Rahman", SellerVerified = true,
                 SellerJoinedUtc = now.AddMonths(-8),
                 Images = { "tile:cycle-a", "tile:cycle-b" }, ViewCount = 88
@@ -87,7 +87,7 @@ public sealed class MockMarketplaceService : IMarketplaceService
                 Description = "Cooks for four. Non-stick pot intact, spatula and measuring cup included. "
                     + "Works perfectly, just upgraded to a bigger one.",
                 PriceBdt = 1400m, Category = MarketplaceCategory.Appliances, Condition = ItemCondition.LikeNew,
-                Division = "Dhaka", AreaName = "Bakshi Bazar, Dhaka", PostedAtUtc = now.AddDays(-2),
+                Division = "Dhaka", AreaName = "Chackbazar, Dhaka", PostedAtUtc = now.AddDays(-2),
                 SellerId = "seller-nabila", SellerName = "Nabila Haque", SellerVerified = true,
                 SellerJoinedUtc = now.AddMonths(-3),
                 Images = { "tile:ricecooker-a" }, ViewCount = 23
@@ -98,7 +98,7 @@ public sealed class MockMarketplaceService : IMarketplaceService
                 Description = "Three hardcovers. Rosen has some highlighting in the first four chapters, "
                     + "the rest are clean. No torn pages. Price is for all three together.",
                 PriceBdt = 1800m, Category = MarketplaceCategory.Books, Condition = ItemCondition.Fair,
-                Division = "Dhaka", AreaName = "Palashi, Dhaka", PostedAtUtc = now.AddDays(-3).AddHours(-5),
+                Division = "Dhaka", AreaName = "Shahbag, Dhaka", PostedAtUtc = now.AddDays(-3).AddHours(-5),
                 SellerId = "seller-arif", SellerName = "Arif Mahmud", SellerVerified = true,
                 SellerJoinedUtc = now.AddMonths(-14),
                 Images = { "tile:books-a", "tile:books-b" }, ViewCount = 52
@@ -120,7 +120,7 @@ public sealed class MockMarketplaceService : IMarketplaceService
                 Description = "Clean, no stains, kept with a cover from day one. Firm side still firm. "
                     + "Selling with the cover.",
                 PriceBdt = 2600m, Category = MarketplaceCategory.Bedding, Condition = ItemCondition.LikeNew,
-                Division = "Dhaka", AreaName = "Azimpur, Dhaka", PostedAtUtc = now.AddDays(-5),
+                Division = "Dhaka", AreaName = "Lalbagh, Dhaka", PostedAtUtc = now.AddDays(-5),
                 SellerId = "seller-tuhin", SellerName = "Tuhin Rahman", SellerVerified = true,
                 SellerJoinedUtc = now.AddMonths(-8),
                 Images = { "tile:mattress-a" }, ViewCount = 30
@@ -152,7 +152,7 @@ public sealed class MockMarketplaceService : IMarketplaceService
                 Id = "itm-fan", Title = "Vision ceiling fan 56 inch",
                 Description = "Runs quiet, no wobble, full speed. Regulator included. Uninstalled and ready.",
                 PriceBdt = 1900m, Category = MarketplaceCategory.Appliances, Condition = ItemCondition.Good,
-                Division = "Dhaka", AreaName = "Chankharpul, Dhaka", PostedAtUtc = now.AddDays(-9),
+                Division = "Dhaka", AreaName = "Chackbazar, Dhaka", PostedAtUtc = now.AddDays(-9),
                 SellerId = "seller-arif", SellerName = "Arif Mahmud", SellerVerified = true,
                 SellerJoinedUtc = now.AddMonths(-14),
                 Images = { "tile:fan-a" }, ViewCount = 27
@@ -163,7 +163,7 @@ public sealed class MockMarketplaceService : IMarketplaceService
                 Description = "Beginner guitar, Yamaha-copy. Stays in tune, no fret buzz. Soft case has a "
                     + "broken zipper on the front pocket only.",
                 PriceBdt = 3800m, Category = MarketplaceCategory.Other, Condition = ItemCondition.Good,
-                Division = "Sylhet", AreaName = "Zindabazar, Sylhet", PostedAtUtc = now.AddDays(-11),
+                Division = "Sylhet", AreaName = "Kotwali Model, Sylhet", PostedAtUtc = now.AddDays(-11),
                 SellerId = "seller-farhan", SellerName = "Farhan Kabir", SellerVerified = false,
                 SellerJoinedUtc = now.AddMonths(-1),
                 Images = { "tile:guitar-a", "tile:guitar-b" }, ViewCount = 45
@@ -175,7 +175,7 @@ public sealed class MockMarketplaceService : IMarketplaceService
                 Id = "itm-heater", Title = "Room heater 2000W (SOLD)",
                 Description = "Two heat settings, tip-over cut-off. Sold to a buyer from Azimpur.",
                 PriceBdt = 2200m, Category = MarketplaceCategory.Appliances, Condition = ItemCondition.Good,
-                Division = "Dhaka", AreaName = "Azimpur, Dhaka", PostedAtUtc = now.AddDays(-15),
+                Division = "Dhaka", AreaName = "Lalbagh, Dhaka", PostedAtUtc = now.AddDays(-15),
                 Status = ListingStatus.Sold,
                 SellerId = "seller-tuhin", SellerName = "Tuhin Rahman", SellerVerified = true,
                 SellerJoinedUtc = now.AddMonths(-8),
@@ -189,7 +189,7 @@ public sealed class MockMarketplaceService : IMarketplaceService
                 Description = "Folds flat against the wall. Two years old, one small ink mark. "
                     + "Screws and allen key included.",
                 PriceBdt = 2400m, Category = MarketplaceCategory.Furniture, Condition = ItemCondition.Good,
-                Division = "Dhaka", AreaName = "Nazira Bazar, Dhaka", PostedAtUtc = now.AddDays(-2).AddHours(-6),
+                Division = "Dhaka", AreaName = "Bangshal, Dhaka", PostedAtUtc = now.AddDays(-2).AddHours(-6),
                 SellerId = MeId, SellerName = MeName, SellerVerified = true,
                 SellerJoinedUtc = now.AddMonths(-6),
                 Images = { "tile:mydesk-a", "tile:mydesk-b" }, ViewCount = 58
@@ -200,7 +200,7 @@ public sealed class MockMarketplaceService : IMarketplaceService
                 Description = "Prints, scans, copies. Comes with a half-full black cartridge and a new "
                     + "colour one still sealed.",
                 PriceBdt = 3100m, Category = MarketplaceCategory.Electronics, Condition = ItemCondition.LikeNew,
-                Division = "Dhaka", AreaName = "Nazira Bazar, Dhaka", PostedAtUtc = now.AddDays(-10),
+                Division = "Dhaka", AreaName = "Bangshal, Dhaka", PostedAtUtc = now.AddDays(-10),
                 SellerId = MeId, SellerName = MeName, SellerVerified = true,
                 SellerJoinedUtc = now.AddMonths(-6),
                 Images = { "tile:myprinter-a" }, ViewCount = 33
@@ -292,6 +292,14 @@ public sealed class MockMarketplaceService : IMarketplaceService
 
         if (!string.IsNullOrWhiteSpace(filter.Division))
             query = query.Where(i => string.Equals(i.Division, filter.Division, StringComparison.OrdinalIgnoreCase));
+
+        // An item's AreaName is written "upazila, district", so the two narrower
+        // filters read the halves of it. The real API will filter on upazila_id.
+        if (!string.IsNullOrWhiteSpace(filter.District))
+            query = query.Where(i => string.Equals(DistrictOf(i.AreaName), filter.District, StringComparison.OrdinalIgnoreCase));
+
+        if (!string.IsNullOrWhiteSpace(filter.Upazila))
+            query = query.Where(i => string.Equals(UpazilaOf(i.AreaName), filter.Upazila, StringComparison.OrdinalIgnoreCase));
 
         query = filter.Sort switch
         {
@@ -606,4 +614,16 @@ public sealed class MockMarketplaceService : IMarketplaceService
         ItemCondition.LikeNew => "like-new",
         _ => condition.ToString().ToLowerInvariant()
     };
+
+    private static string UpazilaOf(string areaName)
+    {
+        var parts = areaName.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        return parts.Length > 0 ? parts[0] : string.Empty;
+    }
+
+    private static string DistrictOf(string areaName)
+    {
+        var parts = areaName.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        return parts.Length > 1 ? parts[1] : string.Empty;
+    }
 }

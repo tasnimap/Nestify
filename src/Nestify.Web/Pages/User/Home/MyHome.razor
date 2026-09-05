@@ -1,0 +1,709 @@
+@* Home module (M3, frontend phase).
+   A user belongs to at most one home. With none, this page shows the two entry
+   points: create a home (you become manager) or join one with a code.
+   Both flows land on a house already filled with dummy housemates so the members
+   list and the role actions can be seen without a backend. Join codes wired in
+   MockHomeService: NST-4821 and NST-1907; any other code falls back to the first.
+
+   Role rules — enforced in HomeRules (Services/Interfaces/IHomeService.cs), which
+   both this page and the service use, so the buttons and the service never disagree:
+     Manager     add members, promote members to co-manager, remove anyone,
+                 transfer the manager role. Cannot leave before transferring.
+     Co-manager  add members, promote members to co-manager, remove plain
+                 members, leave freely.
+     Member      leave only.
+   All state is in-memory (MockHomeService, registered Singleton). Swap in a real
+   HomeService when the API lands; nothing in this file talks to HTTP. *@
+@page "/home"
+@attribute [Authorize(Roles = "User")]
+@using System.Security.Claims
+@using Nestify.Web.Services.Interfaces
+@inject IHomeService HomeService
+@inject AuthenticationStateProvider AuthStateProvider
+@inject IJSRuntime JS
+@implements IDisposable
+
+<PageTitle>My Home - Nestify</PageTitle>
+
+<section class="hm">
+    <div class="nx-container hm-wrap">
+        <header class="hm-top">
+            <div>
+                <p class="hm-kicker">Home</p>
+                <h1>@(_home is null ? "You have no home yet" : _home.Name)</h1>
+                <p class="hm-lead">
+                    @(_home is null
+                        ? "A home is the shared house you run with your housemates — members, roles, and one place on the map."
+                        : $"{_home.AddressLine}, {_home.AreaName}, {_home.Division}")
+                </p>
+            </div>
+            @if (_home is not null)
+            {
+                <span class="hm-rolebadge hm-role--@_home.MyRole.ToString().ToLowerInvariant()">
+                    You are @HomeRules.RoleLabel(_home.MyRole)
+                </span>
+            }
+        </header>
+
+        @if (_message is not null)
+        {
+            <p class="hm-msg @(_messageOk ? "hm-msg--good" : "hm-msg--bad")">@_message</p>
+        }
+
+        @if (_loading)
+        {
+            <p class="hm-loading">Loading your home...</p>
+        }
+        else if (_home is null)
+        {
+            <div class="hm-choices">
+                <article class="hm-card hm-choice" style="--d: 60ms">
+                    <span class="hm-choice__icon">+</span>
+                    <h2>Create a house</h2>
+                    <p>Set the name and location, then add your housemates. You become the manager.</p>
+                    <button type="button" class="hm-btn hm-btn--solid" @onclick="OpenCreate">Create a house</button>
+                </article>
+
+                <article class="hm-card hm-choice" style="--d: 140ms">
+                    <span class="hm-choice__icon">#</span>
+                    <h2>Join a house</h2>
+                    <p>Got a join code from your manager? Enter it and you join as a member.</p>
+                    <button type="button" class="hm-btn" @onclick="OpenJoin">Join a house</button>
+                </article>
+            </div>
+        }
+        else
+        {
+            <div class="hm-grid">
+                <section class="hm-card hm-panel" style="--d: 60ms">
+                    <div class="hm-panel__top">
+                        <h2>House details</h2>
+                        @if (HomeRules.CanEditDetails(_home.MyRole))
+                        {
+                            <button type="button" class="hm-mini" @onclick="OpenEditDetails">Edit details</button>
+                        }
+                    </div>
+                    <dl class="hm-details">
+                        <div><dt>Name</dt><dd>@_home.Name</dd></div>
+                        <div><dt>Join code</dt><dd class="hm-code">@_home.JoinCode</dd></div>
+                        <div class="hm-details__wide"><dt>Location</dt><dd>@_home.AddressLine, @_home.AreaName, @_home.Division</dd></div>
+                        <div><dt>Coordinates</dt><dd>@_home.Latitude.ToString("0.0000"), @_home.Longitude.ToString("0.0000")</dd></div>
+                        <div><dt>Members</dt><dd>@_home.Members.Count</dd></div>
+                    </dl>
+                    <a class="hm-maplink" target="_blank" rel="noopener"
+                       href="@($"https://www.openstreetmap.org/?mlat={_home.Latitude}&mlon={_home.Longitude}#map=17/{_home.Latitude}/{_home.Longitude}")">
+                        Open on map &rarr;
+                    </a>
+                </section>
+
+                <section class="hm-card hm-panel" style="--d: 130ms">
+                    <h2>Your role</h2>
+                    <p class="hm-note">You are @HomeRules.RoleLabel(_home.MyRole) of this house.</p>
+                    <div class="hm-panel__buttons">
+                        <button type="button" class="hm-btn" @onclick="() => _showRoles = true">What can I do?</button>
+                        <button type="button" class="hm-btn hm-btn--danger" @onclick="OpenLeave"
+                                disabled="@(!HomeRules.CanLeave(_home.MyRole))">
+                            Leave house
+                        </button>
+                    </div>
+                    @if (!HomeRules.CanLeave(_home.MyRole))
+                    {
+                        <p class="hm-note">Transfer the manager role to someone else first.</p>
+                    }
+                </section>
+
+                <section class="hm-card hm-panel hm-panel--wide" style="--d: 200ms">
+                    <div class="hm-panel__top">
+                        <h2>Members (@_home.Members.Count)</h2>
+                        @if (HomeRules.CanAddMembers(_home.MyRole))
+                        {
+                            <button type="button" class="hm-btn hm-btn--solid" @onclick="OpenAdd">Add member</button>
+                        }
+                    </div>
+
+                    <ul class="hm-members">
+                        @foreach (var member in Ordered(_home.Members))
+                        {
+                            <li class="hm-member @(_openMenuId == member.Id ? "is-menu-open" : "")">
+                                <span class="hm-avatar">@Initials(member.Name)</span>
+                                <div class="hm-member__id">
+                                    <b>@member.Name @(member.IsMe ? "(you)" : "")</b>
+                                    <small>@member.Email</small>
+                                </div>
+                                <span class="hm-tag hm-role--@member.Role.ToString().ToLowerInvariant()">
+                                    @HomeRules.RoleLabel(member.Role)
+                                </span>
+                                <div class="hm-member__actions">
+                                    @if (HasActions(member))
+                                    {
+                                        <button type="button" class="hm-kebab @(_openMenuId == member.Id ? "is-on" : "")"
+                                                title="Member actions" aria-label="Member actions"
+                                                aria-expanded="@((_openMenuId == member.Id).ToString().ToLowerInvariant())"
+                                                @onclick="() => ToggleMenu(member)">
+                                            &#8942;
+                                        </button>
+
+                                        @if (_openMenuId == member.Id)
+                                        {
+                                            <div class="hm-menu" role="menu">
+                                                @if (HomeRules.CanPromote(_home.MyRole, member))
+                                                {
+                                                    <button type="button" role="menuitem" @onclick="() => Promote(member)">Make co-manager</button>
+                                                }
+                                                @if (HomeRules.CanDemote(_home.MyRole, member))
+                                                {
+                                                    <button type="button" role="menuitem" @onclick="() => Demote(member)">Make member</button>
+                                                }
+                                                @if (HomeRules.CanTransferManager(_home.MyRole, member))
+                                                {
+                                                    <button type="button" role="menuitem" @onclick="() => OpenTransfer(member)">Transfer manager</button>
+                                                }
+                                                @if (HomeRules.CanRemove(_home.MyRole, member))
+                                                {
+                                                    <button type="button" role="menuitem" class="hm-menu__danger" @onclick="() => Remove(member)">Remove from house</button>
+                                                }
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                </section>
+            </div>
+        }
+    </div>
+</section>
+
+@if (_openMenuId is not null)
+{
+    <div class="hm-scrim" @onclick="CloseMenu"></div>
+}
+
+@if (_showCreate)
+{
+    <div class="hm-overlay" @onclick="CancelCreate">
+        <div class="hm-modal" @onclick:stopPropagation="true">
+            <header class="hm-modal__head">
+                <h2>Create a house</h2>
+                <button type="button" class="hm-modal__close" @onclick="CancelCreate" aria-label="Close">&times;</button>
+            </header>
+            <div class="hm-modal__body">
+                <div class="hm-field hm-field--wide">
+                    <label for="ch-name">House name</label>
+                    <input id="ch-name" @bind="_create.Name" placeholder="Mirpur Boys Nest" />
+                </div>
+                <div class="hm-field hm-field--wide">
+                    <label for="ch-address">Address</label>
+                    <input id="ch-address" @bind="_create.AddressLine" placeholder="House 24, Road 7" />
+                </div>
+                <div class="hm-field">
+                    <label for="ch-area">Area</label>
+                    <input id="ch-area" @bind="_create.AreaName" placeholder="Mirpur" />
+                </div>
+                <div class="hm-field">
+                    <label for="ch-division">Division</label>
+                    <input id="ch-division" @bind="_create.Division" />
+                </div>
+                <div class="hm-field hm-field--wide">
+                    <label>Location on map</label>
+                    <div id="create-map" class="hm-map"></div>
+                    <p class="hm-note">Click the map or drag the pin to set the coordinates.</p>
+                    <p class="hm-coords">@_create.Latitude.ToString("0.0000"), @_create.Longitude.ToString("0.0000")</p>
+                </div>
+                @if (_formError is not null)
+                {
+                    <p class="hm-msg hm-msg--bad hm-field--wide">@_formError</p>
+                }
+            </div>
+            <footer class="hm-modal__foot">
+                <button type="button" class="hm-btn" @onclick="CancelCreate">Cancel</button>
+                <button type="button" class="hm-btn hm-btn--solid" @onclick="CreateHome">Create house</button>
+            </footer>
+        </div>
+    </div>
+}
+
+@if (_showJoin)
+{
+    <div class="hm-overlay" @onclick="() => _showJoin = false">
+        <div class="hm-modal hm-modal--sm" @onclick:stopPropagation="true">
+            <header class="hm-modal__head">
+                <h2>Join a house</h2>
+                <button type="button" class="hm-modal__close" @onclick="() => _showJoin = false" aria-label="Close">&times;</button>
+            </header>
+            <div class="hm-modal__body hm-modal__body--stack">
+                <div class="hm-field">
+                    <label for="jn-code">Join code</label>
+                    <input id="jn-code" @bind="_joinCode" placeholder="NST-4821" />
+                </div>
+                <p class="hm-note">Try NST-4821 or NST-1907. Any other code drops you into the sample house.</p>
+                @if (_formError is not null)
+                {
+                    <p class="hm-msg hm-msg--bad">@_formError</p>
+                }
+            </div>
+            <footer class="hm-modal__foot">
+                <button type="button" class="hm-btn" @onclick="() => _showJoin = false">Cancel</button>
+                <button type="button" class="hm-btn hm-btn--solid" @onclick="JoinHome">Join</button>
+            </footer>
+        </div>
+    </div>
+}
+
+@if (_showEditDetails)
+{
+    <div class="hm-overlay" @onclick="CancelEditDetails">
+        <div class="hm-modal" @onclick:stopPropagation="true">
+            <header class="hm-modal__head">
+                <h2>Edit house details</h2>
+                <button type="button" class="hm-modal__close" @onclick="CancelEditDetails" aria-label="Close">&times;</button>
+            </header>
+            <div class="hm-modal__body">
+                <div class="hm-field hm-field--wide">
+                    <label for="eh-name">House name</label>
+                    <input id="eh-name" @bind="_edit.Name" />
+                </div>
+                <div class="hm-field hm-field--wide">
+                    <label for="eh-address">Address</label>
+                    <input id="eh-address" @bind="_edit.AddressLine" />
+                </div>
+                <div class="hm-field">
+                    <label for="eh-area">Area</label>
+                    <input id="eh-area" @bind="_edit.AreaName" />
+                </div>
+                <div class="hm-field">
+                    <label for="eh-division">Division</label>
+                    <input id="eh-division" @bind="_edit.Division" />
+                </div>
+                <div class="hm-field hm-field--wide">
+                    <label>Location on map</label>
+                    <div id="edit-map" class="hm-map"></div>
+                    <p class="hm-note">Click the map or drag the pin to set the coordinates.</p>
+                    <p class="hm-coords">@_edit.Latitude.ToString("0.0000"), @_edit.Longitude.ToString("0.0000")</p>
+                </div>
+                @if (_formError is not null)
+                {
+                    <p class="hm-msg hm-msg--bad hm-field--wide">@_formError</p>
+                }
+            </div>
+            <footer class="hm-modal__foot">
+                <button type="button" class="hm-btn" @onclick="CancelEditDetails">Cancel</button>
+                <button type="button" class="hm-btn hm-btn--solid" @onclick="SaveDetails">Save changes</button>
+            </footer>
+        </div>
+    </div>
+}
+
+@if (_showAdd)
+{
+    <div class="hm-overlay" @onclick="() => _showAdd = false">
+        <div class="hm-modal hm-modal--sm" @onclick:stopPropagation="true">
+            <header class="hm-modal__head">
+                <h2>Add member</h2>
+                <button type="button" class="hm-modal__close" @onclick="() => _showAdd = false" aria-label="Close">&times;</button>
+            </header>
+            <div class="hm-modal__body hm-modal__body--stack">
+                <div class="hm-field">
+                    <label for="am-name">Name</label>
+                    <input id="am-name" @bind="_newMemberName" />
+                </div>
+                <div class="hm-field">
+                    <label for="am-email">Email</label>
+                    <input id="am-email" @bind="_newMemberEmail" />
+                </div>
+                @if (_formError is not null)
+                {
+                    <p class="hm-msg hm-msg--bad">@_formError</p>
+                }
+            </div>
+            <footer class="hm-modal__foot">
+                <button type="button" class="hm-btn" @onclick="() => _showAdd = false">Cancel</button>
+                <button type="button" class="hm-btn hm-btn--solid" @onclick="AddMember">Add member</button>
+            </footer>
+        </div>
+    </div>
+}
+
+@if (_transferTarget is not null)
+{
+    <div class="hm-overlay" @onclick="() => _transferTarget = null">
+        <div class="hm-modal hm-modal--sm" @onclick:stopPropagation="true">
+            <header class="hm-modal__head">
+                <h2>Transfer manager role</h2>
+                <button type="button" class="hm-modal__close" @onclick="() => _transferTarget = null" aria-label="Close">&times;</button>
+            </header>
+            <div class="hm-modal__body hm-modal__body--stack">
+                <p>@_transferTarget.Name becomes the manager of this house. You stay on as a co-manager and can then leave if you want.</p>
+            </div>
+            <footer class="hm-modal__foot">
+                <button type="button" class="hm-btn" @onclick="() => _transferTarget = null">Cancel</button>
+                <button type="button" class="hm-btn hm-btn--solid" @onclick="ConfirmTransfer">Transfer</button>
+            </footer>
+        </div>
+    </div>
+}
+
+@if (_showRoles)
+{
+    <div class="hm-overlay" @onclick="() => _showRoles = false">
+        <div class="hm-modal" @onclick:stopPropagation="true">
+            <header class="hm-modal__head">
+                <h2>What each role can do</h2>
+                <button type="button" class="hm-modal__close" @onclick="() => _showRoles = false" aria-label="Close">&times;</button>
+            </header>
+            <div class="hm-modal__body hm-modal__body--stack">
+                @foreach (var role in new[] { HomeRole.Manager, HomeRole.CoManager, HomeRole.Member })
+                {
+                    <div class="hm-rolecard @(_home?.MyRole == role ? "is-mine" : "")">
+                        <div class="hm-rolecard__top">
+                            <b>@HomeRules.RoleLabel(role)</b>
+                            @if (_home?.MyRole == role)
+                            {
+                                <span class="hm-tag hm-role--@role.ToString().ToLowerInvariant()">You</span>
+                            }
+                        </div>
+                        <ul>
+                            @foreach (var line in RoleAbilities(role))
+                            {
+                                <li>@line</li>
+                            }
+                        </ul>
+                    </div>
+                }
+            </div>
+            <footer class="hm-modal__foot">
+                <button type="button" class="hm-btn hm-btn--solid" @onclick="() => _showRoles = false">Got it</button>
+            </footer>
+        </div>
+    </div>
+}
+
+@if (_showLeave)
+{
+    <div class="hm-overlay" @onclick="() => _showLeave = false">
+        <div class="hm-modal hm-modal--sm" @onclick:stopPropagation="true">
+            <header class="hm-modal__head">
+                <h2>Leave this house</h2>
+                <button type="button" class="hm-modal__close" @onclick="() => _showLeave = false" aria-label="Close">&times;</button>
+            </header>
+            <div class="hm-modal__body hm-modal__body--stack">
+                <p>You will lose access to this house's members, meals and expenses. You can join again with the code.</p>
+            </div>
+            <footer class="hm-modal__foot">
+                <button type="button" class="hm-btn" @onclick="() => _showLeave = false">Cancel</button>
+                <button type="button" class="hm-btn hm-btn--danger" @onclick="ConfirmLeave">Leave house</button>
+            </footer>
+        </div>
+    </div>
+}
+
+@code {
+    private bool _loading = true;
+    private HomeView? _home;
+
+    private string _myName = "You";
+    private string _myEmail = "you@example.com";
+
+    private bool _showCreate;
+    private bool _showJoin;
+    private bool _showAdd;
+    private bool _showEditDetails;
+    private bool _showRoles;
+    private string? _openMenuId;
+    private bool _showLeave;
+    private HomeMemberView? _transferTarget;
+
+    private HomeDetailsRequest _create = new();
+    private HomeDetailsRequest _edit = new();
+    private string _joinCode = string.Empty;
+    private string _newMemberName = string.Empty;
+    private string _newMemberEmail = string.Empty;
+
+    private DotNetObjectReference<MyHome>? _selfRef;
+    private string? _pendingMap;
+
+    private string? _formError;
+    private string? _message;
+    private bool _messageOk;
+
+    // The map lives in a modal, so it is created after the modal renders and torn
+      // down when it closes. _pendingMap names the container waiting for a map.
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_pendingMap is null)
+        {
+            return;
+        }
+
+        var target = _pendingMap;
+        _pendingMap = null;
+        _selfRef ??= DotNetObjectReference.Create(this);
+
+        var draft = target == "create-map" ? _create : _edit;
+        await JS.InvokeVoidAsync("nestifyMapPicker.init", target, draft.Latitude, draft.Longitude, _selfRef);
+    }
+
+    [JSInvokable]
+    public void OnMapPicked(double latitude, double longitude)
+    {
+        var draft = _showCreate ? _create : _edit;
+        draft.Latitude = Math.Round(latitude, 6);
+        draft.Longitude = Math.Round(longitude, 6);
+        StateHasChanged();
+    }
+
+    private async Task CloseMap(string elementId)
+    {
+        await JS.InvokeVoidAsync("nestifyMapPicker.destroy", elementId);
+    }
+
+    private static string[] RoleAbilities(HomeRole role) => role switch
+    {
+        HomeRole.Manager => new[]
+        {
+            "Edit the house details",
+            "Add members",
+            "Promote a member to co-manager, or take a co-manager back to member",
+            "Remove anyone from the house",
+            "Transfer the manager role to someone else",
+            "Cannot leave the house before transferring the manager role"
+        },
+        HomeRole.CoManager => new[]
+        {
+            "Edit the house details",
+            "Add members",
+            "Promote a member to co-manager",
+            "Remove plain members",
+            "Leave the house any time"
+        },
+        _ => new[]
+        {
+            "See the house details and its members",
+            "Leave the house any time"
+        }
+    };
+
+    public void Dispose() => _selfRef?.Dispose();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        _myName = Claim(user, ClaimTypes.Name, "name") ?? _myName;
+        _myEmail = Claim(user, ClaimTypes.Email, "email") ?? _myEmail;
+
+        _home = await HomeService.GetMyHomeAsync();
+        _loading = false;
+    }
+
+    // Prefilled with a sample house so the form can be clicked straight through
+    // while there is no backend behind it.
+    private void OpenCreate()
+    {
+        _formError = null;
+        _create = new HomeDetailsRequest
+        {
+            Name = "Mirpur Boys Nest",
+            AddressLine = "House 24, Road 7, Mirpur DOHS",
+            AreaName = "Mirpur",
+            Division = "Dhaka",
+            Latitude = 23.8223,
+            Longitude = 90.3654
+        };
+        _showCreate = true;
+        _pendingMap = "create-map";
+    }
+
+    private void OpenJoin()
+    {
+        _formError = null;
+        _joinCode = "NST-4821";
+        _showJoin = true;
+    }
+
+    private async Task CancelCreate()
+    {
+        _showCreate = false;
+        await CloseMap("create-map");
+    }
+
+    private async Task CancelEditDetails()
+    {
+        _showEditDetails = false;
+        await CloseMap("edit-map");
+    }
+
+    private async Task CreateHome()
+    {
+        if (string.IsNullOrWhiteSpace(_create.Name) || string.IsNullOrWhiteSpace(_create.AddressLine))
+        {
+            _formError = "House name and address are required.";
+            return;
+        }
+
+        _home = await HomeService.CreateHomeAsync(_create, _myName, _myEmail);
+        _create = new HomeDetailsRequest();
+        _showCreate = false;
+        await CloseMap("create-map");
+        Report(true, "House created. You are the manager.");
+    }
+
+    private async Task JoinHome()
+    {
+        var result = await HomeService.JoinHomeAsync(_joinCode, _myName, _myEmail);
+        if (!result.Ok)
+        {
+            _formError = result.Message;
+            return;
+        }
+
+        _home = await HomeService.GetMyHomeAsync();
+        _joinCode = string.Empty;
+        _showJoin = false;
+        Report(true, result.Message);
+    }
+
+    private bool HasActions(HomeMemberView member) =>
+        HomeRules.CanPromote(_home!.MyRole, member)
+        || HomeRules.CanTransferManager(_home.MyRole, member)
+        || HomeRules.CanRemove(_home.MyRole, member);
+
+    private void ToggleMenu(HomeMemberView member) =>
+        _openMenuId = _openMenuId == member.Id ? null : member.Id;
+
+    private void CloseMenu() => _openMenuId = null;
+
+    private void OpenEditDetails()
+    {
+        _formError = null;
+        _edit = new HomeDetailsRequest
+        {
+            Name = _home!.Name,
+            AddressLine = _home.AddressLine,
+            AreaName = _home.AreaName,
+            Division = _home.Division,
+            Latitude = _home.Latitude,
+            Longitude = _home.Longitude
+        };
+        _showEditDetails = true;
+        _pendingMap = "edit-map";
+    }
+
+    private async Task SaveDetails()
+    {
+        if (string.IsNullOrWhiteSpace(_edit.Name) || string.IsNullOrWhiteSpace(_edit.AddressLine))
+        {
+            _formError = "House name and address are required.";
+            return;
+        }
+
+        var result = await HomeService.UpdateHomeDetailsAsync(_edit);
+        if (!result.Ok)
+        {
+            _formError = result.Message;
+            return;
+        }
+
+        _home = await HomeService.GetMyHomeAsync();
+        _showEditDetails = false;
+        await CloseMap("edit-map");
+        Report(true, result.Message);
+    }
+
+    private void OpenAdd()
+    {
+        _formError = null;
+        _newMemberName = _newMemberEmail = string.Empty;
+        _showAdd = true;
+    }
+
+    private async Task AddMember()
+    {
+        if (string.IsNullOrWhiteSpace(_newMemberName) || string.IsNullOrWhiteSpace(_newMemberEmail))
+        {
+            _formError = "Name and email are required.";
+            return;
+        }
+
+        var result = await HomeService.AddMemberAsync(_newMemberName.Trim(), _newMemberEmail.Trim());
+        if (!result.Ok)
+        {
+            _formError = result.Message;
+            return;
+        }
+
+        _home = await HomeService.GetMyHomeAsync();
+        _showAdd = false;
+        Report(true, result.Message);
+    }
+
+    private async Task Promote(HomeMemberView member)
+    {
+        _openMenuId = null;
+        var result = await HomeService.PromoteToCoManagerAsync(member.Id);
+        _home = await HomeService.GetMyHomeAsync();
+        Report(result.Ok, result.Message);
+    }
+
+    private async Task Demote(HomeMemberView member)
+    {
+        _openMenuId = null;
+        var result = await HomeService.DemoteToMemberAsync(member.Id);
+        _home = await HomeService.GetMyHomeAsync();
+        Report(result.Ok, result.Message);
+    }
+
+    private async Task Remove(HomeMemberView member)
+    {
+        _openMenuId = null;
+        var result = await HomeService.RemoveMemberAsync(member.Id);
+        _home = await HomeService.GetMyHomeAsync();
+        Report(result.Ok, result.Message);
+    }
+
+    private void OpenTransfer(HomeMemberView member)
+    {
+        _openMenuId = null;
+        _transferTarget = member;
+    }
+
+    private async Task ConfirmTransfer()
+    {
+        var target = _transferTarget!;
+        var result = await HomeService.TransferManagerAsync(target.Id);
+        _home = await HomeService.GetMyHomeAsync();
+        _transferTarget = null;
+        Report(result.Ok, result.Message);
+    }
+
+    private void OpenLeave() => _showLeave = true;
+
+    private async Task ConfirmLeave()
+    {
+        var result = await HomeService.LeaveHomeAsync();
+        _home = await HomeService.GetMyHomeAsync();
+        _showLeave = false;
+        Report(result.Ok, result.Message);
+    }
+
+    private void Report(bool ok, string message)
+    {
+        _formError = null;
+        _messageOk = ok;
+        _message = message;
+    }
+
+    // Manager first, then co-managers, then members, alphabetical inside each group.
+    private static IEnumerable<HomeMemberView> Ordered(IEnumerable<HomeMemberView> members) =>
+        members.OrderByDescending(m => m.Role).ThenBy(m => m.Name);
+
+    private static string Initials(string name)
+    {
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return parts.Length == 0 ? "?" : string.Concat(parts.Take(2).Select(p => char.ToUpperInvariant(p[0])));
+    }
+
+    private static string? Claim(ClaimsPrincipal user, params string[] types) =>
+        user.Claims.FirstOrDefault(c => types.Any(t => string.Equals(c.Type, t, StringComparison.OrdinalIgnoreCase)))?.Value;
+}
