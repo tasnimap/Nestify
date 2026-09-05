@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Nestify.Api.Auth;
 using Nestify.Api.Data;
+using Nestify.Api.Helpers;
 
 // Load secrets from a .env file at (or above) the working directory.
 DotNetEnv.Env.TraversePath().Load();
@@ -18,7 +19,7 @@ string Env(string key) =>
 
 var connectionString =
     $"Host={Env("DB_HOST")};Port={Env("DB_PORT")};Database={Env("DB_NAME")};" +
-    $"Username={Env("DB_USER")};Password={Env("DB_PASSWORD")}";
+    $"Username={Env("DB_USER")};Password={Env("DB_PASSWORD")};Include Error Detail=true";
 
 var jwtSettings = new JwtSettings
 {
@@ -34,6 +35,7 @@ builder.Services.AddSingleton(jwtSettings);
 builder.Services.AddSingleton(new DbConnectionFactory(connectionString));
 builder.Services.AddSingleton<JwtTokenService>();
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<HelperService>();
 
 builder.Services.AddCors(options =>
 {
