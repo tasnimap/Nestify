@@ -3,117 +3,407 @@
 @using System.Security.Claims
 @inject AuthenticationStateProvider AuthStateProvider
 
-<PageTitle>Bachelor User Profile - Nestify</PageTitle>
+<PageTitle>My Profile - Nestify</PageTitle>
 
 @if (!_loading)
 {
-    <section class="nx-section profile-page">
-        <div class="nx-container profile-wrap">
-            <header class="profile-head">
-                <div>
-                    <p class="nx-eyebrow">My Profile</p>
-                    <h1>Bachelor User Profile</h1>
-                    <p class="profile-head__lead">
-                        A verified bachelor account for students or job holders who need housing,
-                        meal-cost sharing, helper hiring, and marketplace access.
-                    </p>
+    <section class="up">
+        <div class="up-cover">
+            <span class="up-orb up-orb--a"></span>
+            <span class="up-orb up-orb--b"></span>
+            <span class="up-orb up-orb--c"></span>
+        </div>
+
+        <div class="up-shell">
+            <header class="up-card up-head" style="--d: 0ms">
+                <button type="button" class="up-photo" @onclick="OpenPhoto" title="View photo"
+                        aria-label="View profile photo">
+                    <img src="@PhotoUrl" alt="Profile photo of @_name" />
+                    <span class="up-photo__ring"></span>
+                    <span class="up-photo__dot" title="Online"></span>
+                    <span class="up-photo__hint">View</span>
+                </button>
+
+                <div class="up-head__text">
+                    <p class="up-kicker">Bachelor account</p>
+                    <h1>@_name</h1>
+                    <p class="up-head__meta">@_occupation &middot; @_address</p>
+                    <div class="up-chips">
+                        @if (_verificationPending)
+                        {
+                            <span class="up-chip up-chip--wait">Verification pending</span>
+                        }
+                        else
+                        {
+                            <button type="button" class="up-chip up-chip--apply" @onclick="ApplyForVerification">
+                                Apply for verification
+                            </button>
+                        }
+                        <span class="up-chip">House member</span>
+                        <span class="up-chip">Joined @JoinedOn</span>
+                    </div>
                 </div>
-                <div class="profile-route-note">User account</div>
+
+                <div class="up-head__actions">
+                    <button type="button" class="up-btn up-btn--solid" @onclick="OpenEdit">Edit profile</button>
+                    <button type="button" class="up-btn" @onclick="OpenPassword">Change password</button>
+                </div>
             </header>
 
-            <div class="profile-hero">
-                <div class="profile-identity">
-                    <div class="profile-avatar">@DisplayInitials</div>
-                    <div>
-                        <p class="profile-kicker">User</p>
-                        <h2>@DisplayName</h2>
-                        <p>Mirpur, Dhaka</p>
-                    </div>
-                </div>
-                <div class="profile-badges" aria-label="Status">
-                    <span>Verified</span>
-                    <span>Student</span>
-                    <span>House member</span>
-                </div>
+            <div class="up-stats">
+                @foreach (var (stat, i) in Stats.Select((s, i) => (s, i)))
+                {
+                    <article class="up-card up-stat" style="--d: @(120 + i * 70)ms">
+                        <strong>@stat.Value</strong>
+                        <span>@stat.Label</span>
+                        <em class="up-stat__trend">@stat.Trend</em>
+                    </article>
+                }
             </div>
 
-            <div class="profile-grid">
-                <section class="profile-panel profile-panel--wide">
-                    <h3>Identity</h3>
-                    <div class="profile-fields">
-                        <div class="profile-field"><span>Full name</span><strong>@DisplayName</strong></div>
-                        <div class="profile-field"><span>Email</span><strong>@DisplayEmail</strong></div>
-                        <div class="profile-field"><span>Date of birth</span><strong>2002-04-18</strong></div>
-                        <div class="profile-field"><span>Gender</span><strong>Male</strong></div>
-                        <div class="profile-field"><span>Occupation</span><strong>Student</strong></div>
-                        <div class="profile-field"><span>Profile area</span><strong>Mirpur</strong></div>
+            <div class="up-grid">
+                <section class="up-card up-panel" style="--d: 400ms">
+                    <h2>Personal details</h2>
+                    <dl class="up-details">
+                        <div><dt>Full name</dt><dd>@_name</dd></div>
+                        <div><dt>Email</dt><dd>@DisplayEmail</dd></div>
+                        <div><dt>Phone</dt><dd>@_phone</dd></div>
+                        <div><dt>Gender</dt><dd>@_gender</dd></div>
+                        <div><dt>Occupation</dt><dd>@_occupation</dd></div>
+                        <div class="up-details__wide"><dt>Address</dt><dd>@_address</dd></div>
+                    </dl>
+                </section>
+
+                <section class="up-card up-panel" style="--d: 470ms">
+                    <h2>Reach me</h2>
+                    <div class="up-socials">
+                        @foreach (var (link, i) in Socials.Select((s, i) => (s, i)))
+                        {
+                            <a class="up-social up-social--@link.Key" href="@link.Href" target="_blank" rel="noopener"
+                               style="--d: @(520 + i * 60)ms">
+                                <span class="up-social__icon">@((MarkupString)link.Icon)</span>
+                                <span class="up-social__text">
+                                    <b>@link.Name</b>
+                                    <small>@link.Handle</small>
+                                </span>
+                                <span class="up-social__go">&rarr;</span>
+                            </a>
+                        }
                     </div>
                 </section>
 
-                <section class="profile-panel">
-                    <h3>Contact</h3>
-                    <div class="profile-contact">
-                        <p><span>Phone</span><strong>@DisplayPhone</strong></p>
-                        <p><span>WhatsApp</span><strong>@DisplayPhone</strong></p>
-                        <p><span>Facebook</span><strong>rafi.hasan</strong></p>
+                <section class="up-card up-panel up-panel--wide" style="--d: 630ms">
+                    <h2>This month at a glance</h2>
+                    <div class="up-bars">
+                        @foreach (var (bar, i) in Monthly.Select((b, i) => (b, i)))
+                        {
+                            <div class="up-bar" style="--d: @(700 + i * 90)ms">
+                                <div class="up-bar__head"><span>@bar.Label</span><b>@bar.Display</b></div>
+                                <div class="up-bar__track">
+                                    <span class="up-bar__fill" style="--w: @bar.Percent%"></span>
+                                </div>
+                            </div>
+                        }
                     </div>
-                </section>
-
-                <section class="profile-panel">
-                    <h3>Permissions</h3>
-                    <ul class="profile-list">
-                        <li>Browse eligible housing posts</li>
-                        <li>Create booking requests after verification</li>
-                        <li>Join house expense and meal workflows</li>
-                        <li>Post and manage marketplace listings</li>
-                    </ul>
-                </section>
-
-                <section class="profile-panel profile-panel--wide">
-                    <h3>Activity</h3>
-                    <div class="profile-metrics">
-                        <div class="profile-metric"><strong>2</strong><span>Active bookings</span></div>
-                        <div class="profile-metric"><strong>1</strong><span>House membership</span></div>
-                        <div class="profile-metric"><strong>18</strong><span>Meals this month</span></div>
-                        <div class="profile-metric"><strong>3</strong><span>Marketplace interests</span></div>
-                    </div>
-                </section>
-
-                <section class="profile-panel">
-                    <h3>Plan Guardrails</h3>
-                    <ul class="profile-list">
-                        <li>Contact details are shown only after an approved disclosure transition.</li>
-                        <li>The user cannot self-verify because profile update DTOs omit verification flags.</li>
-                        <li>House roles come from house memberships, not global Identity roles.</li>
-                    </ul>
                 </section>
             </div>
         </div>
     </section>
+
+    @if (_showPhoto)
+    {
+        <div class="up-overlay up-overlay--dark" @onclick="ClosePhoto">
+            <figure class="up-lightbox" @onclick:stopPropagation="true">
+                <img src="@PhotoUrl" alt="Profile photo of @_name" />
+                <figcaption>@_name</figcaption>
+                <button type="button" class="up-lightbox__close" @onclick="ClosePhoto" aria-label="Close">&times;</button>
+            </figure>
+        </div>
+    }
+
+    @if (_showEdit)
+    {
+        <div class="up-overlay" @onclick="CloseEdit">
+            <div class="up-modal" @onclick:stopPropagation="true">
+                <header class="up-modal__head">
+                    <h2>Edit profile</h2>
+                    <button type="button" class="up-modal__close" @onclick="CloseEdit" aria-label="Close">&times;</button>
+                </header>
+
+                <div class="up-modal__body">
+                    <div class="up-field">
+                        <label for="ed-name">Full name</label>
+                        <input id="ed-name" @bind="_draft.Name" />
+                    </div>
+                    <div class="up-field">
+                        <label for="ed-phone">Phone</label>
+                        <input id="ed-phone" @bind="_draft.Phone" />
+                    </div>
+                    <div class="up-field">
+                        <label for="ed-gender">Gender</label>
+                        <select id="ed-gender" @bind="_draft.Gender">
+                            <option>Male</option>
+                            <option>Female</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                    <div class="up-field">
+                        <label for="ed-occupation">Occupation</label>
+                        <input id="ed-occupation" @bind="_draft.Occupation" />
+                    </div>
+                    <div class="up-field up-field--wide">
+                        <label for="ed-address">Address</label>
+                        <input id="ed-address" @bind="_draft.Address" />
+                    </div>
+                    <div class="up-field">
+                        <label for="ed-wa">WhatsApp number</label>
+                        <input id="ed-wa" @bind="_draft.WhatsApp" />
+                    </div>
+                    <div class="up-field">
+                        <label for="ed-fb">Facebook</label>
+                        <input id="ed-fb" @bind="_draft.Facebook" />
+                    </div>
+                    <div class="up-field">
+                        <label for="ed-x">X</label>
+                        <input id="ed-x" @bind="_draft.XHandle" />
+                    </div>
+                    <div class="up-field">
+                        <label for="ed-ig">Instagram</label>
+                        <input id="ed-ig" @bind="_draft.Instagram" />
+                    </div>
+
+                    @if (_editError is not null)
+                    {
+                        <p class="up-msg up-msg--bad up-field--wide">@_editError</p>
+                    }
+                </div>
+
+                <footer class="up-modal__foot">
+                    <button type="button" class="up-btn" @onclick="CloseEdit">Cancel</button>
+                    <button type="button" class="up-btn up-btn--solid" @onclick="SaveEdit">Save changes</button>
+                </footer>
+            </div>
+        </div>
+    }
+
+    @if (_showPassword)
+    {
+        <div class="up-overlay" @onclick="ClosePassword">
+            <div class="up-modal up-modal--sm" @onclick:stopPropagation="true">
+                <header class="up-modal__head">
+                    <h2>Change password</h2>
+                    <button type="button" class="up-modal__close" @onclick="ClosePassword" aria-label="Close">&times;</button>
+                </header>
+
+                <div class="up-modal__body up-modal__body--stack">
+                    <div class="up-field">
+                        <label for="pw-current">Current password</label>
+                        <input id="pw-current" type="password" @bind="_currentPassword" />
+                    </div>
+                    <div class="up-field">
+                        <label for="pw-new">New password</label>
+                        <input id="pw-new" type="password" @bind="_newPassword" />
+                    </div>
+                    <div class="up-field">
+                        <label for="pw-confirm">Confirm new password</label>
+                        <input id="pw-confirm" type="password" @bind="_confirmPassword" />
+                    </div>
+
+                    @if (_passwordError is not null)
+                    {
+                        <p class="up-msg up-msg--bad">@_passwordError</p>
+                    }
+                    @if (_passwordDone is not null)
+                    {
+                        <p class="up-msg up-msg--good">@_passwordDone</p>
+                    }
+                </div>
+
+                <footer class="up-modal__foot">
+                    <button type="button" class="up-btn" @onclick="ClosePassword">Cancel</button>
+                    <button type="button" class="up-btn up-btn--solid" @onclick="SavePassword">Update password</button>
+                </footer>
+            </div>
+        </div>
+    }
 }
 
 @code {
     private bool _loading = true;
     private ClaimsPrincipal? _user;
 
-    private string DisplayName => GetClaimValue(ClaimTypes.Name, "name") ?? "Rafi Hasan";
+    private const string PhotoUrl = "https://i.pravatar.cc/320?img=12";
+    private const string JoinedOn = "Mar 2024";
+
+    private string _name = "Rafi Hasan";
+    private string _phone = "+880 1711-204588";
+    private string _gender = "Male";
+    private string _occupation = "Student, CSE";
+    private string _address = "House 24, Road 7, Mirpur DOHS, Dhaka 1216";
+    private string _whatsApp = "8801711204588";
+    private string _facebook = "rafi.hasan";
+    private string _xHandle = "rafihasan";
+    private string _instagram = "rafi.hsn";
+
+    private bool _verificationPending;
+    private bool _showPhoto;
+    private bool _showEdit;
+    private bool _showPassword;
+
+    private Draft _draft = new();
+    private string? _editError;
+
+    private string _currentPassword = string.Empty;
+    private string _newPassword = string.Empty;
+    private string _confirmPassword = string.Empty;
+    private string? _passwordError;
+    private string? _passwordDone;
+
     private string DisplayEmail => GetClaimValue(ClaimTypes.Email, "email") ?? "rafi.hasan@example.com";
-    private string DisplayPhone => GetClaimValue("phone_number", ClaimTypes.MobilePhone, ClaimTypes.HomePhone) ?? "+880 1711-000000";
-    private string DisplayInitials => CreateInitials(DisplayName);
+
+    private class Draft
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Phone { get; set; } = string.Empty;
+        public string Gender { get; set; } = "Male";
+        public string Occupation { get; set; } = string.Empty;
+        public string Address { get; set; } = string.Empty;
+        public string WhatsApp { get; set; } = string.Empty;
+        public string Facebook { get; set; } = string.Empty;
+        public string XHandle { get; set; } = string.Empty;
+        public string Instagram { get; set; } = string.Empty;
+    }
+
+    private record Stat(string Value, string Label, string Trend);
+    private record Social(string Key, string Name, string Handle, string Href, string Icon);
+    private record Bar(string Label, string Display, int Percent);
+
+    private static readonly Stat[] Stats =
+    {
+        new("2", "Active bookings", "+1 this week"),
+        new("18", "Meals logged", "6 pending"),
+        new("Tk 4,250", "Shared expenses", "settled"),
+        new("3", "Market interests", "1 replied")
+    };
+
+    private List<Social> Socials => new()
+    {
+        new("mail", "Email", DisplayEmail, $"mailto:{DisplayEmail}", IconMail),
+        new("wa", "WhatsApp", _phone, $"https://wa.me/{_whatsApp}", IconWhatsApp),
+        new("fb", "Facebook", _facebook, $"https://facebook.com/{_facebook}", IconFacebook),
+        new("x", "X", $"@{_xHandle}", $"https://x.com/{_xHandle}", IconX),
+        new("ig", "Instagram", $"@{_instagram}", $"https://instagram.com/{_instagram}", IconInstagram)
+    };
+
+    private static readonly Bar[] Monthly =
+    {
+        new("Meal participation", "18 / 30 days", 60),
+        new("Expense share paid", "Tk 4,250 / 5,000", 85),
+        new("Profile completeness", "92%", 92)
+    };
 
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
         _user = authState.User;
+        _name = GetClaimValue(ClaimTypes.Name, "name") ?? _name;
         _loading = false;
+    }
+
+    private void ApplyForVerification() => _verificationPending = true;
+
+    private void OpenPhoto() => _showPhoto = true;
+
+    private void ClosePhoto() => _showPhoto = false;
+
+    private void OpenEdit()
+    {
+        _editError = null;
+        _draft = new Draft
+        {
+            Name = _name,
+            Phone = _phone,
+            Gender = _gender,
+            Occupation = _occupation,
+            Address = _address,
+            WhatsApp = _whatsApp,
+            Facebook = _facebook,
+            XHandle = _xHandle,
+            Instagram = _instagram
+        };
+        _showEdit = true;
+    }
+
+    private void CloseEdit() => _showEdit = false;
+
+    private void SaveEdit()
+    {
+        if (string.IsNullOrWhiteSpace(_draft.Name) || string.IsNullOrWhiteSpace(_draft.Phone))
+        {
+            _editError = "Name and phone cannot be empty.";
+            return;
+        }
+
+        _name = _draft.Name.Trim();
+        _phone = _draft.Phone.Trim();
+        _gender = _draft.Gender;
+        _occupation = _draft.Occupation.Trim();
+        _address = _draft.Address.Trim();
+        _whatsApp = _draft.WhatsApp.Trim();
+        _facebook = _draft.Facebook.Trim();
+        _xHandle = _draft.XHandle.Trim().TrimStart('@');
+        _instagram = _draft.Instagram.Trim().TrimStart('@');
+        _showEdit = false;
+    }
+
+    private void OpenPassword()
+    {
+        _currentPassword = _newPassword = _confirmPassword = string.Empty;
+        _passwordError = _passwordDone = null;
+        _showPassword = true;
+    }
+
+    private void ClosePassword() => _showPassword = false;
+
+    private void SavePassword()
+    {
+        _passwordDone = null;
+
+        if (string.IsNullOrWhiteSpace(_currentPassword))
+        {
+            _passwordError = "Enter your current password.";
+            return;
+        }
+
+        if (_newPassword.Length < 6)
+        {
+            _passwordError = "New password must be at least 6 characters.";
+            return;
+        }
+
+        if (_newPassword != _confirmPassword)
+        {
+            _passwordError = "New password and confirmation do not match.";
+            return;
+        }
+
+        if (_newPassword == _currentPassword)
+        {
+            _passwordError = "New password must be different from the current one.";
+            return;
+        }
+
+        _passwordError = null;
+        _passwordDone = "Password updated.";
+        _currentPassword = _newPassword = _confirmPassword = string.Empty;
     }
 
     private string? GetClaimValue(params string[] claimTypes) =>
         _user?.Claims.FirstOrDefault(c => claimTypes.Any(t => string.Equals(c.Type, t, StringComparison.OrdinalIgnoreCase)))?.Value;
 
-    private static string CreateInitials(string name)
-    {
-        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-        return parts.Length == 0 ? "U" : string.Concat(parts.Take(2).Select(p => char.ToUpperInvariant(p[0])));
-    }
+    private const string IconMail = "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8'><rect x='3' y='5' width='18' height='14' rx='3'/><path d='m4 7 8 6 8-6'/></svg>";
+    private const string IconWhatsApp = "<svg viewBox='0 0 24 24' fill='currentColor'><path d='M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.6-6.1c-.3-.1-1.5-.8-1.7-.9s-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.1-.3 0-.4.1-.6l.4-.5c.1-.2.1-.3 0-.5l-.8-1.8c-.2-.4-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.6 4c1.9.8 2.3.7 2.8.6a2.6 2.6 0 0 0 1.7-1.2 2.1 2.1 0 0 0 .2-1.2c-.1-.1-.2-.2-.5-.3Z'/></svg>";
+    private const string IconFacebook = "<svg viewBox='0 0 24 24' fill='currentColor'><path d='M14 8.5V7c0-.8.2-1.2 1.3-1.2H17V3h-2.5C11.6 3 10.6 4.4 10.6 6.8v1.7H8.7V11h1.9v10H14V11h2.3l.3-2.5H14Z'/></svg>";
+    private const string IconX = "<svg viewBox='0 0 24 24' fill='currentColor'><path d='M17.5 3h3l-6.6 7.5L21.7 21h-5.9l-4.3-5.6L6.5 21H3.4l7-8L2.6 3h6l3.9 5.2L17.5 3Zm-1 16.2h1.6L7.6 4.7H5.9l10.6 14.5Z'/></svg>";
+    private const string IconInstagram = "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8'><rect x='3' y='3' width='18' height='18' rx='5'/><circle cx='12' cy='12' r='4'/><circle cx='17.2' cy='6.8' r='1.1' fill='currentColor' stroke='none'/></svg>";
 }
