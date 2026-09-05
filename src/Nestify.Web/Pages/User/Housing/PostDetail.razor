@@ -51,6 +51,20 @@
                     </div>
                 </header>
 
+                @if (_post.ImageUrls.Count > 0)
+                {
+                    <div class="hs-gallery">
+                        @for (var i = 0; i < _post.ImageUrls.Count; i++)
+                        {
+                            var idx = i;
+                            <button type="button" class="hs-gallery__thumb" @onclick="() => OpenLightbox(idx)"
+                                    aria-label="View photo @(idx + 1)">
+                                <img src="@_post.ImageUrls[idx]" alt="House photo @(idx + 1)" />
+                            </button>
+                        }
+                    </div>
+                }
+
                 <div class="hs-detail__stats">
                     <div class="hs-stat">
                         <span class="hs-stat__value">@Money.Format(_post.MonthlyRent)</span>
@@ -135,6 +149,39 @@
     </div>
 }
 
+@if (_showLightbox && _post is not null && _post.ImageUrls.Count > 0)
+{
+    <div class="hs-lightbox-overlay" @onclick="CloseLightbox">
+        <figure class="hs-lightbox" @onclick:stopPropagation="true">
+            <button type="button" class="hs-lightbox__close" @onclick="CloseLightbox" aria-label="Close">&times;</button>
+
+            @if (_post.ImageUrls.Count > 1)
+            {
+                <button type="button" class="hs-lightbox__nav hs-lightbox__nav--prev"
+                        @onclick="PrevImage" aria-label="Previous photo"
+                        disabled="@(_lightboxIndex == 0)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+                </button>
+            }
+
+            <img src="@_post.ImageUrls[_lightboxIndex]" alt="House photo @(_lightboxIndex + 1)" />
+
+            @if (_post.ImageUrls.Count > 1)
+            {
+                <button type="button" class="hs-lightbox__nav hs-lightbox__nav--next"
+                        @onclick="NextImage" aria-label="Next photo"
+                        disabled="@(_lightboxIndex == _post.ImageUrls.Count - 1)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+                </button>
+
+                <figcaption class="hs-lightbox__caption">
+                    @(_lightboxIndex + 1) / @_post.ImageUrls.Count
+                </figcaption>
+            }
+        </figure>
+    </div>
+}
+
 @code {
     [Parameter] public string Id { get; set; } = string.Empty;
 
@@ -143,6 +190,10 @@
     private bool _showBookingModal = false;
     private string _bookingMessage = string.Empty;
     private bool _bookingSubmitting = false;
+
+    // Lightbox
+    private bool _showLightbox;
+    private int _lightboxIndex;
 
     private bool CanBook => _post is { Status: PostStatus.Active, IsMine: false };
 
@@ -153,6 +204,24 @@
         _loading = true;
         _post = await Housing.GetPostAsync(Id);
         _loading = false;
+    }
+
+    private void OpenLightbox(int index)
+    {
+        _lightboxIndex = index;
+        _showLightbox = true;
+    }
+
+    private void CloseLightbox() => _showLightbox = false;
+
+    private void PrevImage()
+    {
+        if (_lightboxIndex > 0) _lightboxIndex--;
+    }
+
+    private void NextImage()
+    {
+        if (_post is not null && _lightboxIndex < _post.ImageUrls.Count - 1) _lightboxIndex++;
     }
 
     private void OpenBookingModal()

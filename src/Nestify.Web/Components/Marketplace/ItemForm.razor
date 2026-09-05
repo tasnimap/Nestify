@@ -1,4 +1,6 @@
+@using Nestify.Shared.Dtos.Area
 @inject IMarketplaceService Marketplace
+@inject IAreaService Areas
 @inject Nestify.Web.Services.MoneyFormatterService Money
 
 @* Shared create/edit form for a marketplace listing. Hosts the ML price-
@@ -87,25 +89,45 @@
             <div class="field-row">
                 <div class="field">
                     <label for="mk-division" class="field__label--required">Division</label>
-                    <InputSelect id="mk-division" class="field__input" @bind-Value="Model.Division">
+                    <select id="mk-division" class="field__input"
+                            value="@(_area.DivisionId?.ToString() ?? string.Empty)" @onchange="OnDivisionChanged">
                         <option value="">Select a division…</option>
                         @foreach (var d in _divisions)
                         {
-                            <option value="@d">@d</option>
+                            <option value="@d.Id">@d.Name</option>
                         }
-                    </InputSelect>
+                    </select>
                     <ValidationMessage For="@(() => Model.Division)" />
                 </div>
                 <div class="field">
-                    <label for="mk-area" class="field__label--required">Collection area</label>
-                    <InputText id="mk-area" class="field__input" @bind-Value="Model.AreaName"
-                               placeholder="e.g. Nilkhet, Dhaka" />
+                    <label for="mk-district" class="field__label--required">District</label>
+                    <select id="mk-district" class="field__input"
+                            value="@(_area.DistrictId?.ToString() ?? string.Empty)" @onchange="OnDistrictChanged"
+                            disabled="@(_area.DivisionId is null)">
+                        <option value="">Select a district…</option>
+                        @foreach (var d in _districts)
+                        {
+                            <option value="@d.Id">@d.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="mk-upazila" class="field__label--required">Upazila / thana</label>
+                    <select id="mk-upazila" class="field__input"
+                            value="@(_area.UpazilaId?.ToString() ?? string.Empty)" @onchange="OnUpazilaChanged"
+                            disabled="@(_area.DistrictId is null)">
+                        <option value="">Select an upazila…</option>
+                        @foreach (var u in _upazilas)
+                        {
+                            <option value="@u.Id">@u.Name</option>
+                        }
+                    </select>
                     <ValidationMessage For="@(() => Model.AreaName)" />
                 </div>
             </div>
             <p class="field__helper">
-                A division → district → upazila picker replaces these two fields once the shared area
-                component is ready.
+                Buyers see this as the collection area. City thanas such as Dhanmondi or Gulshan are
+                listed with the upazilas of their district.
             </p>
 
             <div class="field">
@@ -174,8 +196,12 @@
 
     private readonly MarketplaceCategory[] _categories = Enum.GetValues<MarketplaceCategory>();
     private readonly ItemCondition[] _conditions = Enum.GetValues<ItemCondition>();
-    private readonly string[] _divisions =
-        { "Dhaka", "Chattogram", "Sylhet", "Rajshahi", "Khulna", "Barishal", "Rangpur", "Mymensingh" };
+    // The picker holds ids; the listing itself stores the division name and the
+    // "upazila, district" line, which is what buyers read on a card.
+    private readonly AreaSelectionDto _area = new();
+    private IReadOnlyList<DivisionDto> _divisions = Array.Empty<DivisionDto>();
+    private IReadOnlyList<DistrictDto> _districts = Array.Empty<DistrictDto>();
+    private IReadOnlyList<UpazilaDto> _upazilas = Array.Empty<UpazilaDto>();
 
     private PriceSuggestionDto? _suggestion;
     private bool _loadingSuggestion;
@@ -183,7 +209,81 @@
     private string PreviewTitle => string.IsNullOrWhiteSpace(Model.Title) ? "Your item title" : Model.Title;
     private string PreviewSeed => Model.Images.FirstOrDefault() ?? $"tile:{PreviewTitle}";
 
-    protected override Task OnInitializedAsync() => RefreshSuggestionAsync();
+    protected override async Task OnInitializedAsync()
+    {
+        _divisions = await Areas.GetDivisionsAsync();
+        await RestoreAreaAsync();
+        await RefreshSuggestionAsync();
+    }
+
+    // The edit page hands us a saved listing, which keeps names rather than ids.
+    // Walk the three levels back down so the selects open on the saved place.
+    private async Task RestoreAreaAsync()
+    {
+        var division = _divisions.FirstOrDefault(d =>
+            string.Equals(d.Name, Model.Division, StringComparison.OrdinalIgnoreCase));
+        if (division is null)
+        {
+            return;
+        }
+
+        _area.DivisionId = division.Id;
+        _districts = await Areas.GetDistrictsAsync(division.Id);
+
+        var parts = Model.AreaName.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        if (parts.Length < 2)
+        {
+            return;
+        }
+
+        var district = _districts.FirstOrDefault(d =>
+            string.Equals(d.Name, parts[1], StringComparison.OrdinalIgnoreCase));
+        if (district is null)
+        {
+            return;
+        }
+
+        _area.DistrictId = district.Id;
+        _upazilas = await Areas.GetUpazilasAsync(district.Id);
+        _area.UpazilaId = _upazilas.FirstOrDefault(u =>
+            string.Equals(u.Name, parts[0], StringComparison.OrdinalIgnoreCase))?.Id;
+    }
+
+    private async Task OnDivisionChanged(ChangeEventArgs e)
+    {
+        _area.DivisionId = ParseId(e.Value);
+        _area.DistrictId = null;
+        _area.UpazilaId = null;
+        _districts = _area.DivisionId is int id ? await Areas.GetDistrictsAsync(id) : Array.Empty<DistrictDto>();
+        _upazilas = Array.Empty<UpazilaDto>();
+        ApplyArea();
+    }
+
+    private async Task OnDistrictChanged(ChangeEventArgs e)
+    {
+        _area.DistrictId = ParseId(e.Value);
+        _area.UpazilaId = null;
+        _upazilas = _area.DistrictId is int id ? await Areas.GetUpazilasAsync(id) : Array.Empty<UpazilaDto>();
+        ApplyArea();
+    }
+
+    private void OnUpazilaChanged(ChangeEventArgs e)
+    {
+        _area.UpazilaId = ParseId(e.Value);
+        ApplyArea();
+    }
+
+    private void ApplyArea()
+    {
+        Model.Division = _divisions.FirstOrDefault(d => d.Id == _area.DivisionId)?.Name ?? string.Empty;
+
+        var district = _districts.FirstOrDefault(d => d.Id == _area.DistrictId);
+        var upazila = _upazilas.FirstOrDefault(u => u.Id == _area.UpazilaId);
+        Model.AreaName = upazila is null || district is null ? string.Empty : $"{upazila.Name}, {district.Name}";
+    }
+
+    private static int? ParseId(object? value) =>
+        int.TryParse(value?.ToString(), out var id) ? id : null;
 
     private async Task RefreshSuggestionAsync()
     {

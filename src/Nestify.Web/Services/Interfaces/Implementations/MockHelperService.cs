@@ -13,7 +13,11 @@ public sealed class MockHelperService : IHelperService
         public List<ServiceType> Services { get; set; } = new();
         public decimal MonthlyRate { get; set; }
         public string AvailabilityWindow { get; set; } = string.Empty;
+        // AreaName is the upazila or metropolitan thana, spelled as the seeded
+        // administrative tables spell it, so the browse filters can match on it.
         public required string AreaName { get; set; }
+        public string District { get; set; } = "Dhaka";
+        public string Division { get; set; } = "Dhaka";
         public DistanceBand? Distance { get; set; }
         public List<ReviewDto> Reviews { get; set; } = new();
 
@@ -37,12 +41,14 @@ public sealed class MockHelperService : IHelperService
     }
 
     private readonly ICurrentUserService _currentUser;
+    private readonly IAreaService _areas;
     private readonly List<Helper> _helpers;
     private readonly List<Engagement> _engagements;
 
-    public MockHelperService(ICurrentUserService currentUser)
+    public MockHelperService(ICurrentUserService currentUser, IAreaService areas)
     {
         _currentUser = currentUser;
+        _areas = areas;
         var now = DateTime.UtcNow;
 
         _helpers = new List<Helper>
@@ -64,7 +70,7 @@ public sealed class MockHelperService : IHelperService
                 Id = "helper-shirin", UserId = "user-shirin", Name = "Shirin Akter",
                 Services = new() { ServiceType.Babysitting, ServiceType.ElderCare },
                 MonthlyRate = 6000m, AvailabilityWindow = "Sun-Fri, full day",
-                AreaName = "Mirpur", Distance = DistanceBand.Within2Km,
+                AreaName = "Mirpur Model", Distance = DistanceBand.Within2Km,
                 Reviews = new()
             },
             new()
@@ -84,7 +90,7 @@ public sealed class MockHelperService : IHelperService
                 Id = "helper-prapty", UserId = "user-prapty", Name = "Prapty",
                 Services = new() { ServiceType.Cooking },
                 MonthlyRate = 4000m, AvailabilityWindow = "Sat-Wed, 9am-1pm",
-                AreaName = "Uttara", Distance = null,
+                AreaName = "Uttara East", Distance = null,
                 Reviews = new()
             },
             new()
@@ -92,7 +98,7 @@ public sealed class MockHelperService : IHelperService
                 Id = "helper-shreoshi", UserId = "user-shreoshi", Name = "Shreoshi",
                 Services = new() { ServiceType.Cleaning, ServiceType.General },
                 MonthlyRate = 3500m, AvailabilityWindow = "Fri-Wed, mornings",
-                AreaName = "Bashundhara", Distance = null,
+                AreaName = "Vatara", Distance = null,
                 Reviews = new()
             }
         };
@@ -134,9 +140,26 @@ public sealed class MockHelperService : IHelperService
         };
     }
 
-    public Task<HelperPageDto<HelperSummaryDto>> BrowseAsync(HelperFilterDto filter)
+    public async Task<HelperPageDto<HelperSummaryDto>> BrowseAsync(HelperFilterDto filter)
     {
         var query = _helpers.Where(h => h.UserId != _currentUser.UserId).AsEnumerable();
+
+        // The cascade gives ids; helpers carry names until profiles store
+        // upazila_id, so the ids are turned back into names here.
+        var area = await AreaNames.ResolveAsync(_areas, filter.DivisionId, filter.DistrictId, filter.UpazilaId);
+
+        if (area.Division is not null)
+        {
+            query = query.Where(h => string.Equals(h.Division, area.Division, StringComparison.OrdinalIgnoreCase));
+        }
+        if (area.District is not null)
+        {
+            query = query.Where(h => string.Equals(h.District, area.District, StringComparison.OrdinalIgnoreCase));
+        }
+        if (area.Upazila is not null)
+        {
+            query = query.Where(h => string.Equals(h.AreaName, area.Upazila, StringComparison.OrdinalIgnoreCase));
+        }
 
         if (filter.ServiceType is { } svc)
         {
@@ -170,13 +193,13 @@ public sealed class MockHelperService : IHelperService
             .Select(h => ToSummary(h))
             .ToList();
 
-        return Task.FromResult(new HelperPageDto<HelperSummaryDto>
+        return new HelperPageDto<HelperSummaryDto>
         {
             Items = items,
             Page = page,
             PageSize = pageSize,
             TotalCount = total
-        });
+        };
     }
 
     public Task<HelperDetailDto?> GetHelperAsync(string id)
@@ -204,7 +227,7 @@ public sealed class MockHelperService : IHelperService
             Services = dto.Services,
             MonthlyRate = dto.MonthlyRate,
             AvailabilityWindow = dto.AvailabilityWindow,
-            AreaName = "Uttara"
+            AreaName = "Uttara East"
         };
 
         _helpers.Add(helper);

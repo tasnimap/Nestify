@@ -10,7 +10,7 @@
         <label class="field__label">Division</label>
         <select class="field__input" value="@Selection.DivisionId"
                 @onchange="OnDivisionChanged" disabled="@Disabled">
-            <option value="">Select division</option>
+            <option value="">@(Filter ? "All divisions" : "Select division")</option>
             @foreach (var d in _divisions)
             {
                 <option value="@d.Id">@d.Name</option>
@@ -18,37 +18,49 @@
         </select>
     </div>
 
-    <div class="field">
-        <label class="field__label">District</label>
-        <select class="field__input" value="@Selection.DistrictId"
-                @onchange="OnDistrictChanged"
-                disabled="@(Disabled || Selection.DivisionId is null)">
-            <option value="">Select district</option>
-            @foreach (var d in _districts)
-            {
-                <option value="@d.Id">@d.Name</option>
-            }
-        </select>
-    </div>
+    @* A level only appears once its parent is chosen, so the filter starts as one
+       dropdown and grows as the choice narrows. *@
+    @if (Selection.DivisionId is not null)
+    {
+        <div class="field">
+            <label class="field__label">District</label>
+            <select class="field__input" value="@Selection.DistrictId"
+                    @onchange="OnDistrictChanged" disabled="@Disabled">
+                <option value="">@(Filter ? "All districts" : "Select district")</option>
+                @foreach (var d in _districts)
+                {
+                    <option value="@d.Id">@d.Name</option>
+                }
+            </select>
+        </div>
+    }
 
-    <div class="field">
-        <label class="field__label">Upazila</label>
-        <select class="field__input" value="@Selection.UpazilaId"
-                @onchange="OnUpazilaChanged"
-                disabled="@(Disabled || Selection.DistrictId is null)">
-            <option value="">Select upazila</option>
-            @foreach (var u in _upazilas)
-            {
-                <option value="@u.Id">@u.Name</option>
-            }
-        </select>
-    </div>
+    @if (Selection.DistrictId is not null)
+    {
+        <div class="field">
+            <label class="field__label">Upazila / thana</label>
+            <select class="field__input" value="@Selection.UpazilaId"
+                    @onchange="OnUpazilaChanged" disabled="@Disabled">
+                <option value="">@(Filter ? "All upazilas" : "Select upazila")</option>
+                @foreach (var u in _upazilas)
+                {
+                    <option value="@u.Id">@u.Name</option>
+                }
+            </select>
+        </div>
+    }
 </div>
 
 @code {
     [Parameter] public AreaSelectionDto Selection { get; set; } = new();
     [Parameter] public EventCallback<AreaSelectionDto> SelectionChanged { get; set; }
     [Parameter] public bool Disabled { get; set; }
+
+    /// <summary>
+    /// True on a browse filter, where leaving a level unset means "all of them".
+    /// False on a form, where each level has to be picked.
+    /// </summary>
+    [Parameter] public bool Filter { get; set; }
 
     private IReadOnlyList<DivisionDto> _divisions = Array.Empty<DivisionDto>();
     private IReadOnlyList<DistrictDto> _districts = Array.Empty<DistrictDto>();

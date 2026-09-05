@@ -1,0 +1,684 @@
+/* Home module page */
+
+.hm {
+    padding: 40px 0 72px;
+    background: var(--nx-bg-alt);
+    min-height: 100%;
+}
+
+.hm-wrap {
+    display: grid;
+    gap: 20px;
+}
+
+.hm-top {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: flex-end;
+    justify-content: space-between;
+}
+
+.hm-kicker {
+    margin: 0;
+    font-size: .75rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--nx-primary);
+    font-weight: 700;
+}
+
+.hm-top h1 {
+    margin: 4px 0 6px;
+    font-family: var(--nx-display);
+    font-size: clamp(1.7rem, 3.2vw, 2.3rem);
+    color: var(--nx-ink);
+}
+
+.hm-lead {
+    margin: 0;
+    max-width: 62ch;
+    color: var(--nx-muted);
+}
+
+.hm-loading {
+    color: var(--nx-muted);
+}
+
+.hm-card {
+    background: var(--nx-card);
+    border: 1px solid var(--nx-border);
+    border-radius: var(--nx-radius-lg);
+    box-shadow: var(--nx-shadow-md);
+    animation: hm-rise .6s cubic-bezier(.22, 1, .36, 1) both;
+    animation-delay: var(--d, 0ms);
+}
+
+@keyframes hm-rise {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---- empty state ---- */
+
+.hm-choices {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.hm-choice {
+    padding: 28px;
+    display: grid;
+    gap: 10px;
+    justify-items: start;
+    transition: transform .35s cubic-bezier(.22, 1, .36, 1), box-shadow .35s ease;
+}
+
+.hm-choice:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--nx-shadow-lg);
+}
+
+.hm-choice__icon {
+    width: 46px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+    background: var(--nx-primary-soft);
+    color: var(--nx-primary);
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.hm-choice h2 {
+    margin: 0;
+    font-size: 1.15rem;
+    color: var(--nx-ink);
+}
+
+.hm-choice p {
+    margin: 0 0 6px;
+    color: var(--nx-muted);
+}
+
+/* ---- house view ---- */
+
+.hm-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.hm-panel {
+    padding: 24px 26px;
+    display: grid;
+    gap: 14px;
+    align-content: start;
+}
+
+.hm-panel--wide {
+    grid-column: 1 / -1;
+}
+
+.hm-panel h2 {
+    margin: 0;
+    font-size: 1.05rem;
+    color: var(--nx-ink);
+}
+
+.hm-panel__top {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.hm-details {
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.hm-details > div {
+    padding: 11px 13px;
+    border-radius: var(--nx-radius-sm);
+    background: var(--nx-primary-softer);
+}
+
+.hm-details__wide {
+    grid-column: 1 / -1;
+}
+
+.hm-details dt {
+    font-size: .72rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--nx-muted);
+}
+
+.hm-details dd {
+    margin: 3px 0 0;
+    font-weight: 600;
+    color: var(--nx-ink);
+    word-break: break-word;
+}
+
+.hm-code {
+    letter-spacing: .1em;
+}
+
+.hm-maplink {
+    color: var(--nx-primary);
+    font-weight: 600;
+    text-decoration: none;
+    justify-self: start;
+}
+
+.hm-maplink:hover {
+    text-decoration: underline;
+}
+
+.hm-rules {
+    margin: 0;
+    padding-left: 18px;
+    display: grid;
+    gap: 8px;
+    color: var(--nx-body);
+    font-size: .9rem;
+}
+
+.hm-note {
+    margin: 0;
+    color: var(--nx-muted);
+    font-size: .84rem;
+}
+
+/* ---- members ---- */
+
+.hm-members {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+}
+
+.hm-member {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 14px;
+    border: 1px solid var(--nx-border);
+    border-radius: var(--nx-radius-sm);
+    transition: border-color .25s ease, transform .25s ease, box-shadow .25s ease;
+}
+
+/* The row with an open menu has to sit above the scrim that closes it. */
+.hm-member.is-menu-open {
+    position: relative;
+    z-index: 40;
+}
+
+.hm-member:hover {
+    border-color: var(--nx-border-strong);
+    transform: translateX(3px);
+    box-shadow: var(--nx-shadow-sm);
+}
+
+.hm-avatar {
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--nx-primary-soft);
+    color: var(--nx-primary-strong);
+    font-weight: 700;
+}
+
+.hm-member__id b {
+    display: block;
+    color: var(--nx-ink);
+}
+
+.hm-member__id small {
+    color: var(--nx-muted);
+}
+
+.hm-member__actions {
+    position: relative;
+    display: flex;
+    justify-content: flex-end;
+    min-width: 34px;
+}
+
+.hm-kebab {
+    width: 34px;
+    height: 34px;
+    border: 1px solid transparent;
+    border-radius: 50%;
+    background: none;
+    color: var(--nx-muted);
+    font-size: 1.2rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background .25s ease, color .25s ease, border-color .25s ease;
+}
+
+.hm-kebab:hover,
+.hm-kebab.is-on {
+    background: var(--nx-primary-soft);
+    border-color: var(--nx-border);
+    color: var(--nx-primary-strong);
+}
+
+.hm-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    z-index: 30;
+    min-width: 190px;
+    padding: 6px;
+    display: grid;
+    gap: 2px;
+    background: var(--nx-card);
+    border: 1px solid var(--nx-border);
+    border-radius: var(--nx-radius-sm);
+    box-shadow: var(--nx-shadow-lg);
+    animation: hm-menu-in .18s ease both;
+}
+
+@keyframes hm-menu-in {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.hm-menu button {
+    border: 0;
+    background: none;
+    text-align: left;
+    padding: 9px 11px;
+    border-radius: 8px;
+    font: inherit;
+    font-size: .86rem;
+    color: var(--nx-body);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background .2s ease, color .2s ease;
+}
+
+.hm-menu button:hover {
+    background: var(--nx-primary-softer);
+    color: var(--nx-ink);
+}
+
+.hm-menu__danger {
+    color: var(--nx-danger);
+}
+
+.hm-menu__danger:hover {
+    background: var(--nx-danger-soft);
+    color: var(--nx-danger);
+}
+
+/* Catches the click that closes an open row menu. */
+.hm-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+}
+
+.hm-tag,
+.hm-rolebadge {
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: .76rem;
+    font-weight: 700;
+    white-space: nowrap;
+    background: var(--nx-primary-softer);
+    color: var(--nx-body);
+    border: 1px solid var(--nx-border);
+}
+
+.hm-role--manager {
+    background: var(--nx-primary);
+    color: #fff;
+    border-color: var(--nx-primary);
+}
+
+.hm-role--comanager {
+    background: var(--nx-accent-soft);
+    color: var(--nx-accent);
+    border-color: #bfe6cd;
+}
+
+/* ---- buttons ---- */
+
+.hm-btn {
+    border: 1px solid var(--nx-border-strong);
+    background: var(--nx-bg);
+    color: var(--nx-ink);
+    border-radius: var(--nx-radius-sm);
+    padding: 10px 20px;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    justify-self: start;
+    transition: transform .25s ease, box-shadow .25s ease, background .25s ease;
+}
+
+.hm-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: var(--nx-shadow-sm);
+}
+
+.hm-btn:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+}
+
+.hm-btn--solid {
+    background: var(--nx-primary);
+    border-color: var(--nx-primary);
+    color: #fff;
+}
+
+.hm-btn--solid:hover:not(:disabled) {
+    background: var(--nx-primary-strong);
+}
+
+.hm-btn--danger {
+    border-color: #edbcbc;
+    color: var(--nx-danger);
+    background: var(--nx-danger-soft);
+}
+
+.hm-mini {
+    border: 1px solid var(--nx-border);
+    background: var(--nx-bg);
+    color: var(--nx-body);
+    border-radius: 999px;
+    padding: 6px 13px;
+    font: inherit;
+    font-size: .8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .25s ease, color .25s ease, transform .25s ease;
+}
+
+.hm-mini:hover {
+    background: var(--nx-primary-soft);
+    color: var(--nx-primary-strong);
+    transform: translateY(-1px);
+}
+
+.hm-mini--danger:hover {
+    background: var(--nx-danger-soft);
+    color: var(--nx-danger);
+}
+
+.hm-panel__buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* Leaflet paints its own markup inside this box, so only the box is styled here. */
+.hm-map {
+    height: 260px;
+    border-radius: var(--nx-radius-sm);
+    border: 1px solid var(--nx-border);
+    overflow: hidden;
+    z-index: 0;
+}
+
+.hm-coords {
+    margin: 0;
+    font-weight: 600;
+    color: var(--nx-ink);
+    letter-spacing: .04em;
+}
+
+.hm-rolecard {
+    padding: 14px 16px;
+    border: 1px solid var(--nx-border);
+    border-radius: var(--nx-radius-sm);
+    background: var(--nx-bg);
+}
+
+.hm-rolecard.is-mine {
+    border-color: var(--nx-primary);
+    background: var(--nx-primary-softer);
+}
+
+.hm-rolecard__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.hm-rolecard__top b {
+    color: var(--nx-ink);
+}
+
+.hm-rolecard ul {
+    margin: 0;
+    padding-left: 18px;
+    display: grid;
+    gap: 5px;
+    font-size: .88rem;
+    color: var(--nx-body);
+}
+
+/* ---- messages ---- */
+
+
+.hm-msg {
+    margin: 0;
+    padding: 10px 14px;
+    border-radius: var(--nx-radius-sm);
+    font-size: .88rem;
+}
+
+.hm-msg--good {
+    background: var(--nx-accent-soft);
+    color: var(--nx-accent);
+}
+
+.hm-msg--bad {
+    background: var(--nx-danger-soft);
+    color: var(--nx-danger);
+}
+
+/* ---- modals ---- */
+
+.hm-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: rgba(23, 16, 43, .42);
+    backdrop-filter: blur(4px);
+    animation: hm-fade .25s ease both;
+}
+
+@keyframes hm-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes hm-pop {
+    from { opacity: 0; transform: translateY(18px) scale(.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.hm-modal {
+    width: min(100%, 600px);
+    max-height: calc(100vh - 48px);
+    /* Header and footer stay put; only the body scrolls, so a tall form never
+       pushes the title off the top of the screen. */
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    overflow: hidden;
+    background: var(--nx-card);
+    border-radius: var(--nx-radius-lg);
+    box-shadow: var(--nx-shadow-lg);
+    animation: hm-pop .35s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+.hm-modal--sm {
+    width: min(100%, 420px);
+}
+
+.hm-modal__head {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--nx-border);
+}
+
+.hm-modal__head h2 {
+    margin: 0;
+    font-size: 1.05rem;
+    color: var(--nx-ink);
+}
+
+.hm-modal__close {
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--nx-primary-softer);
+    color: var(--nx-muted);
+    font-size: 1.3rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: transform .25s ease, color .25s ease;
+}
+
+.hm-modal__close:hover {
+    transform: rotate(90deg);
+    color: var(--nx-ink);
+}
+
+.hm-modal__body {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: start;
+    gap: 14px;
+    padding: 20px 22px;
+    overflow-y: auto;
+    color: var(--nx-body);
+}
+
+.hm-modal__body--stack {
+    grid-template-columns: 1fr;
+}
+
+.hm-modal__body p {
+    margin: 0;
+}
+
+.hm-modal__foot {
+    display: flex;
+    flex: none;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 16px 22px;
+    border-top: 1px solid var(--nx-border);
+}
+
+.hm-field {
+    display: grid;
+    gap: 6px;
+}
+
+.hm-field--wide {
+    grid-column: 1 / -1;
+}
+
+.hm-field label {
+    font-size: .74rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--nx-muted);
+}
+
+.hm-field input {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: var(--nx-radius-sm);
+    border: 1px solid var(--nx-border);
+    background: var(--nx-bg);
+    color: var(--nx-ink);
+    font: inherit;
+    transition: border-color .25s ease, box-shadow .25s ease;
+}
+
+.hm-field input:focus {
+    outline: none;
+    border-color: var(--nx-primary);
+    box-shadow: 0 0 0 3px var(--nx-ring);
+}
+
+/* ---- responsive ---- */
+
+@media (max-width: 860px) {
+    .hm-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .hm-member {
+        grid-template-columns: auto 1fr auto;
+        row-gap: 8px;
+    }
+
+    .hm-member__id {
+        grid-column: 2;
+        grid-row: 1;
+    }
+
+    .hm-tag {
+        grid-column: 2;
+        grid-row: 2;
+        justify-self: start;
+    }
+
+    .hm-member__actions {
+        grid-column: 3;
+        grid-row: 1;
+        align-self: start;
+    }
+
+    .hm-tag {
+        justify-self: start;
+    }
+}
+
+@media (max-width: 560px) {
+    .hm-details,
+    .hm-modal__body {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hm-card,
+    .hm-overlay,
+    .hm-modal,
+    .hm-menu {
+        animation: none;
+    }
+}

@@ -16,12 +16,16 @@ public sealed class MockHousingService : IHousingService
         public ListingType ListingType { get; set; }
         public int SeatsAvailable { get; set; }
         public decimal MonthlyRent { get; set; }
+        // AreaName is the upazila or metropolitan thana, spelled as the seeded
+        // administrative tables spell it, so the browse filters can match on it.
         public required string AreaName { get; set; }
+        public required string District { get; set; }
         public required string Division { get; set; }
         public PostStatus Status { get; set; } = PostStatus.Active;
         public DateTime CreatedAtUtc { get; set; }
         public EligibilityDto Eligibility { get; set; } = new();
         public bool IsMine { get; init; }
+        public List<string> ImageUrls { get; set; } = new();
     }
 
     private sealed class Booking
@@ -37,12 +41,14 @@ public sealed class MockHousingService : IHousingService
     }
 
     private readonly IHouseLookupService _houseLookup;
+    private readonly IAreaService _areas;
     private readonly List<Post> _posts;
     private readonly List<Booking> _bookings;
 
-    public MockHousingService(IHouseLookupService houseLookup)
+    public MockHousingService(IHouseLookupService houseLookup, IAreaService areas)
     {
         _houseLookup = houseLookup;
+        _areas = areas;
         _bookings = new List<Booking>();
         var now = DateTime.UtcNow;
 
@@ -54,8 +60,9 @@ public sealed class MockHousingService : IHousingService
                 Description = "Quiet mess near Dhanmondi 27. Two current tenants are AUST/DU students. "
                     + "Wifi, gas, and a part-time cleaner included in rent. Attached bath for the vacant seat.",
                 ListingType = ListingType.SingleSeat, SeatsAvailable = 1, MonthlyRent = 6500m,
-                AreaName = "Dhanmondi", Division = "Dhaka", CreatedAtUtc = now.AddHours(-5),
-                Eligibility = new EligibilityDto { Gender = Gender.Male, StudentOnly = true, MaxAge = 27 }
+                AreaName = "Dhanmondi", District = "Dhaka", Division = "Dhaka", CreatedAtUtc = now.AddHours(-5),
+                Eligibility = new EligibilityDto { Gender = Gender.Male, StudentOnly = true, MaxAge = 27 },
+                ImageUrls = new List<string> { "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=800", "https://images.unsplash.com/photo-1502672260266-1c1c2b4418f8?auto=format&fit=crop&q=80&w=800" }
             },
             new()
             {
@@ -63,8 +70,9 @@ public sealed class MockHousingService : IHousingService
                 Description = "Third floor, lift access, two seats open in a 4-seat flat. Owner lives in the "
                     + "same building. Cooking gas metered separately; everything else shared equally.",
                 ListingType = ListingType.MultipleSeats, SeatsAvailable = 2, MonthlyRent = 5200m,
-                AreaName = "Mirpur", Division = "Dhaka", CreatedAtUtc = now.AddDays(-1).AddHours(-3),
-                Eligibility = new EligibilityDto { VerifiedOnly = true }
+                AreaName = "Mirpur Model", District = "Dhaka", Division = "Dhaka", CreatedAtUtc = now.AddDays(-1).AddHours(-3),
+                Eligibility = new EligibilityDto { VerifiedOnly = true },
+                ImageUrls = new List<string> { "https://images.unsplash.com/photo-1501183638710-841dd1904471?auto=format&fit=crop&q=80&w=800" }
             },
             new()
             {
@@ -72,8 +80,9 @@ public sealed class MockHousingService : IHousingService
                 Description = "Full house handover — current tenants are relocating end of month. "
                     + "Two bedrooms, one common room, small rooftop access. Ideal for a group moving in together.",
                 ListingType = ListingType.EntireHouse, SeatsAvailable = 4, MonthlyRent = 18000m,
-                AreaName = "Mohammadpur", Division = "Dhaka", CreatedAtUtc = now.AddDays(-2),
-                Eligibility = new EligibilityDto()
+                AreaName = "Mohammadpur", District = "Dhaka", Division = "Dhaka", CreatedAtUtc = now.AddDays(-2),
+                Eligibility = new EligibilityDto(),
+                ImageUrls = new List<string> { "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&q=80&w=800", "https://images.unsplash.com/photo-1560185007-cde436f6a4d0?auto=format&fit=crop&q=80&w=800", "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&q=80&w=800" }
             },
             new()
             {
@@ -81,7 +90,7 @@ public sealed class MockHousingService : IHousingService
                 Description = "My own listing, kept here so the owner view (My posts, later) has something "
                     + "to show once that page exists.",
                 ListingType = ListingType.SingleSeat, SeatsAvailable = 1, MonthlyRent = 4000m,
-                AreaName = "Tongi", Division = "Dhaka", CreatedAtUtc = now.AddDays(-3),
+                AreaName = "Tongi East", District = "Gazipur", Division = "Dhaka", CreatedAtUtc = now.AddDays(-3),
                 Eligibility = new EligibilityDto { Occupation = Occupation.Student },
                 IsMine = true
             },
@@ -91,7 +100,7 @@ public sealed class MockHousingService : IHousingService
                 Description = "Was open last month, now closed since the seat was filled. Kept in the "
                     + "fixture set to exercise the Closed-post rendering path.",
                 ListingType = ListingType.SingleSeat, SeatsAvailable = 1, MonthlyRent = 5000m,
-                AreaName = "Panchlaish", Division = "Chattogram", CreatedAtUtc = now.AddDays(-10),
+                AreaName = "Panchlaish", District = "Chattogram", Division = "Chattogram", CreatedAtUtc = now.AddDays(-10),
                 Status = PostStatus.Closed,
                 Eligibility = new EligibilityDto { Gender = Gender.Female }
             },
@@ -102,7 +111,7 @@ public sealed class MockHousingService : IHousingService
                     + "wants a calm study environment. Married applicants cannot be accommodated — one bathroom, "
                     + "shared bedroom arrangement.",
                 ListingType = ListingType.SingleSeat, SeatsAvailable = 1, MonthlyRent = 3800m,
-                AreaName = "Sylhet Sadar", Division = "Sylhet", CreatedAtUtc = now.AddDays(-4),
+                AreaName = "Sylhet Sadar", District = "Sylhet", Division = "Sylhet", CreatedAtUtc = now.AddDays(-4),
                 Eligibility = new EligibilityDto
                 {
                     Gender = Gender.Male, MaritalStatus = MaritalStatus.Single, MinAge = 18, MaxAge = 30
@@ -111,7 +120,7 @@ public sealed class MockHousingService : IHousingService
         };
     }
 
-    public Task<HousingPageDto<HousingPostSummaryDto>> BrowseAsync(HousingPostFilterDto filter)
+    public async Task<HousingPageDto<HousingPostSummaryDto>> BrowseAsync(HousingPostFilterDto filter)
     {
         // NOTE — mock only: real eligibility (§5.3) is enforced server-side via VisibleTo(viewer),
         // never client-side. This mock simply excludes Closed posts the way an ineligible/closed
@@ -127,15 +136,21 @@ public sealed class MockHousingService : IHousingService
         {
             query = query.Where(p => p.MonthlyRent <= maxRent);
         }
-        if (filter.DivisionId is not null)
+        // The cascade gives ids; posts carry names until post creation stores
+        // upazila_id (F2), so the ids are turned back into names here.
+        var area = await AreaNames.ResolveAsync(_areas, filter.DivisionId, filter.DistrictId, filter.UpazilaId);
+
+        if (area.Division is not null)
         {
-            // Mock has no real division/district/upazila ids wired to posts yet — once AreaCascade's
-            // ids are threaded through post creation (F2), filter on UpazilaId here instead of Division name.
-            var divisionName = filter.DivisionId switch { 1 => "Dhaka", 2 => "Chattogram", 3 => "Sylhet", _ => null };
-            if (divisionName is not null)
-            {
-                query = query.Where(p => p.Division == divisionName);
-            }
+            query = query.Where(p => string.Equals(p.Division, area.Division, StringComparison.OrdinalIgnoreCase));
+        }
+        if (area.District is not null)
+        {
+            query = query.Where(p => string.Equals(p.District, area.District, StringComparison.OrdinalIgnoreCase));
+        }
+        if (area.Upazila is not null)
+        {
+            query = query.Where(p => string.Equals(p.AreaName, area.Upazila, StringComparison.OrdinalIgnoreCase));
         }
 
         var all = query.OrderByDescending(p => p.CreatedAtUtc).ToList();
@@ -149,13 +164,13 @@ public sealed class MockHousingService : IHousingService
             .Select(ToSummary)
             .ToList();
 
-        return Task.FromResult(new HousingPageDto<HousingPostSummaryDto>
+        return new HousingPageDto<HousingPostSummaryDto>
         {
             Items = items,
             Page = page,
             PageSize = pageSize,
             TotalCount = total
-        });
+        };
     }
 
     public Task<HousingPostDetailDto?> GetPostAsync(string id)
@@ -181,6 +196,9 @@ public sealed class MockHousingService : IHousingService
             SeatsAvailable = request.SeatsAvailable,
             MonthlyRent = request.MonthlyRent,
             AreaName = house?.AreaName ?? "Unknown area",
+            // The house lookup carries no district yet, so a post created here is
+            // reachable by division and upazila but not by the district filter.
+            District = string.Empty,
             Division = house?.Division ?? "Unknown division",
             CreatedAtUtc = DateTime.UtcNow,
             Eligibility = request.Eligibility,
@@ -432,7 +450,8 @@ public sealed class MockHousingService : IHousingService
         Status = post.Status,
         CreatedAtUtc = post.CreatedAtUtc,
         Eligibility = post.Eligibility,
-        IsMine = post.IsMine
+        IsMine = post.IsMine,
+        ImageUrls = post.ImageUrls
     };
 
     private static HousingPostSummaryDto ToSummary(Post p) => new()
@@ -445,6 +464,7 @@ public sealed class MockHousingService : IHousingService
         AreaName = p.AreaName,
         Division = p.Division,
         Status = p.Status,
-        CreatedAtUtc = p.CreatedAtUtc
+        CreatedAtUtc = p.CreatedAtUtc,
+        ImageUrls = p.ImageUrls
     };
 }

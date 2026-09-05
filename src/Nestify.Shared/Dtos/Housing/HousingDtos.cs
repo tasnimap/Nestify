@@ -71,6 +71,7 @@ public sealed class HousingPostSummaryDto
     public string Division { get; set; } = string.Empty;
     public PostStatus Status { get; set; } = PostStatus.Active;
     public DateTime CreatedAtUtc { get; set; }
+    public List<string> ImageUrls { get; set; } = new();
 }
 
 /// <summary>Full post view for <c>/housing/{id}</c>.</summary>
@@ -90,6 +91,7 @@ public sealed class HousingPostDetailDto
 
     /// <summary>True when the signed-in user owns this post — gates Edit/Close, hides Book.</summary>
     public bool IsMine { get; set; }
+    public List<string> ImageUrls { get; set; } = new();
 }
 
 /// <summary>Query parameters for the Browse grid (§5.4). Area filtering is a convenience, not a security boundary.</summary>
