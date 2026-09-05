@@ -46,7 +46,8 @@ builder.Services.AddScoped<IHouseLookupService, MockHouseLookupService>();
 // swap MockHomeService for a real HomeService when the API lands.
 builder.Services.AddSingleton<IHomeService, MockHomeService>();
 
-builder.Services.AddScoped<IHelperService, MockHelperService>();
+
+builder.Services.AddScoped<IHelperService, HelperService>();
 
 // M4 · Second-hand marketplace — swap MockMarketplaceService for MarketplaceService when the API lands
 builder.Services.AddScoped<IMarketplaceService, MockMarketplaceService>();
