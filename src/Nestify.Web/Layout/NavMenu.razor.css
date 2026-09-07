@@ -28,19 +28,6 @@
 
 .nav__brand:hover { text-decoration: none; }
 
-.nav__mark {
-    display: grid;
-    place-items: center;
-    width: 2.15rem;
-    height: 2.15rem;
-    border-radius: 10px 10px 10px 3px;
-    background: var(--nx-primary);
-    color: #fff;
-    font-family: var(--nx-display);
-    font-size: 1.15rem;
-    font-weight: 700;
-}
-
 .nav__word { font-family: var(--nx-display); }
 
 /* ---------- desktop panel ---------- */

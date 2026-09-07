@@ -305,15 +305,41 @@
 <!-- ============ CTA ============ -->
 <section class="nx-section nx-section--deep cta">
     <div class="nx-container cta__inner">
-        <h2>One verified account. Four everyday problems, solved together.</h2>
-        <p>Create your Nestify account and stop juggling five apps to run one household.</p>
         <AuthorizeView>
+            <Authorized>
+                <h2>Everything is already in one place.</h2>
+                <p>Pick up where you left off — your interface is one click away.</p>
+            </Authorized>
+            <NotAuthorized>
+                <h2>One verified account. Four everyday problems, solved together.</h2>
+                <p>Create your Nestify account and stop juggling five apps to run one household.</p>
+            </NotAuthorized>
+        </AuthorizeView>
+        <AuthorizeView Roles="User">
             <Authorized>
                 <div class="cta__actions">
                     <a class="nx-btn nx-btn--light nx-btn--lg" href="settlement">Open Settlement Workspace</a>
                     <a class="nx-btn nx-btn--ghost nx-btn--lg cta__ghost" href="about">Meet the team</a>
                 </div>
             </Authorized>
+        </AuthorizeView>
+        <AuthorizeView Roles="DomesticHelper,DomesticHelp,Maid,Helper">
+            <Authorized>
+                <div class="cta__actions">
+                    <a class="nx-btn nx-btn--light nx-btn--lg" href="helpers/dashboard">Go to my dashboard</a>
+                    <a class="nx-btn nx-btn--ghost nx-btn--lg cta__ghost" href="about">Meet the team</a>
+                </div>
+            </Authorized>
+        </AuthorizeView>
+        <AuthorizeView Roles="Admin">
+            <Authorized>
+                <div class="cta__actions">
+                    <a class="nx-btn nx-btn--light nx-btn--lg" href="admin">Open admin console</a>
+                    <a class="nx-btn nx-btn--ghost nx-btn--lg cta__ghost" href="about">Meet the team</a>
+                </div>
+            </Authorized>
+        </AuthorizeView>
+        <AuthorizeView>
             <NotAuthorized>
                 <div class="cta__actions">
                     <a class="nx-btn nx-btn--light nx-btn--lg" href="register">Get started free</a>
