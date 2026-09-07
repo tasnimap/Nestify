@@ -18,7 +18,8 @@ public interface IHelperService
 
     Task<List<EngagementDto>> GetMyEngagementsAsync();
 
-    Task<EngagementDto> RequestEngagementAsync(string helperId);
+    /// <summary>Slots are the hours the client picked on the availability board; the list may be empty.</summary>
+    Task<EngagementDto> RequestEngagementAsync(string helperId, IReadOnlyList<EngagementSlotDto>? slots = null);
 
     Task<EngagementDto> ConfirmEngagementAsync(string engagementId);
 

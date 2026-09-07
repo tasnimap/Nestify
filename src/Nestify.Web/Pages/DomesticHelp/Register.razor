@@ -9,14 +9,19 @@
 
 <PageTitle>Become a Helper — Nestify</PageTitle>
 
-<section class="nx-section hs-page">
-    <div class="nx-container hs-wrap hs-wrap--narrow">
-        <h1>Become a helper</h1>
-        <p>Register your services, availability, and rate so clients can find you.</p>
+<div class="dh">
+    <div class="dh__inner dh__inner--narrow">
+        <header class="dh-head dh-rise">
+            <p class="dh-kicker">Get started</p>
+            <h1>Become a helper</h1>
+            <p>Register your services, availability, and rate so clients can find you.</p>
+        </header>
 
-        <HelperForm Model="_model" SubmitLabel="Register" OnSubmit="HandleSubmit" />
+        <section class="dh-panel dh-rise" style="--d:80ms">
+            <HelperForm Model="_model" SubmitLabel="Register" OnSubmit="HandleSubmit" />
+        </section>
     </div>
-</section>
+</div>
 
 @code {
     private readonly HelperRegistrationDto _model = new();

@@ -109,6 +109,15 @@ public sealed class ReviewDto
     public DateTime CreatedAtUtc { get; set; }
 }
 
+/// <summary>One hour a client picked off the helper's availability board.</summary>
+public sealed class EngagementSlotDto
+{
+    public DateTime Date { get; set; }
+
+    /// <summary>Start of the hour, 6 to 23.</summary>
+    public int Hour { get; set; }
+}
+
 public sealed class EngagementDto
 {
     public string Id { get; set; } = string.Empty;

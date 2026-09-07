@@ -60,9 +60,11 @@ public sealed class HelperService : IHelperService
         return result ?? new List<EngagementDto>();
     }
 
-    public async Task<EngagementDto> RequestEngagementAsync(string helperId)
+    public async Task<EngagementDto> RequestEngagementAsync(string helperId, IReadOnlyList<EngagementSlotDto>? slots = null)
     {
-        var response = await _http.PostAsync($"api/v1/helpers/{helperId}/engagements", null);
+        var response = await _http.PostAsJsonAsync(
+            $"api/v1/helpers/{helperId}/engagements",
+            new { Slots = slots ?? Array.Empty<EngagementSlotDto>() });
         response.EnsureSuccessStatusCode();
         return (await response.Content.ReadFromJsonAsync<EngagementDto>())!;
     }
