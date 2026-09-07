@@ -28,19 +28,6 @@
 
 .nav__brand:hover { text-decoration: none; }
 
-.nav__mark {
-    display: grid;
-    place-items: center;
-    width: 2.15rem;
-    height: 2.15rem;
-    border-radius: 10px 10px 10px 3px;
-    background: var(--nx-primary);
-    color: #fff;
-    font-family: var(--nx-display);
-    font-size: 1.15rem;
-    font-weight: 700;
-}
-
 .nav__word { font-family: var(--nx-display); }
 
 /* ---------- desktop panel ---------- */
@@ -119,6 +106,14 @@
     color: #fff;
     font-size: .8rem;
     font-weight: 700;
+    overflow: hidden;
+}
+
+.nav__avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
 }
 
 .nav__account-name { max-width: 12rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

@@ -1,9 +1,9 @@
 @* Home module (M3, frontend phase).
    A user belongs to at most one home. With none, this page shows the two entry
    points: create a home (you become manager) or join one with a code.
-   Both flows land on a house already filled with dummy housemates so the members
-   list and the role actions can be seen without a backend. Join codes wired in
-   MockHomeService: NST-4821 and NST-1907; any other code falls back to the first.
+   The join code is printed on the house card. Typing it on another user's /home
+   page does not join them: it files a request that the manager or a co-manager
+   approves or rejects from the "Join requests" panel.
 
    Role rules — enforced in HomeRules (Services/Interfaces/IHomeService.cs), which
    both this page and the service use, so the buttons and the service never disagree:
@@ -12,8 +12,8 @@
      Co-manager  add members, promote members to co-manager, remove plain
                  members, leave freely.
      Member      leave only.
-   All state is in-memory (MockHomeService, registered Singleton). Swap in a real
-   HomeService when the API lands; nothing in this file talks to HTTP. *@
+   State lives in the homes / home_members tables (User_Home.sql) and is reached
+   through IHomeService; nothing in this file talks to HTTP directly. *@
 @page "/home"
 @attribute [Authorize(Roles = "User")]
 @using System.Security.Claims
@@ -54,6 +54,32 @@
         {
             <p class="hm-loading">Loading your home...</p>
         }
+        else if (_loadError is not null)
+        {
+            <div class="hm-choices">
+                <article class="hm-card hm-choice" style="--d: 60ms">
+                    <span class="hm-choice__icon">!</span>
+                    <h2>Could not load your home</h2>
+                    <p>@_loadError</p>
+                    <button type="button" class="hm-btn hm-btn--solid" @onclick="Retry">Try again</button>
+                </article>
+            </div>
+        }
+        else if (_home is null && _myRequest is not null)
+        {
+            <div class="hm-choices">
+                <article class="hm-card hm-choice hm-choice--wait" style="--d: 60ms">
+                    <span class="hm-choice__icon">...</span>
+                    <h2>Waiting for an answer</h2>
+                    <p>
+                        You asked to join <b>@_myRequest.HomeName</b> on
+                        @_myRequest.RequestedAtUtc.ToLocalTime().ToString("d MMM yyyy").
+                        The manager or a co-manager has to approve it before you are in.
+                    </p>
+                    <button type="button" class="hm-btn" @onclick="CancelMyRequest">Cancel request</button>
+                </article>
+            </div>
+        }
         else if (_home is null)
         {
             <div class="hm-choices">
@@ -67,7 +93,7 @@
                 <article class="hm-card hm-choice" style="--d: 140ms">
                     <span class="hm-choice__icon">#</span>
                     <h2>Join a house</h2>
-                    <p>Got a join code from your manager? Enter it and you join as a member.</p>
+                    <p>Got a join code from your manager? Enter it to ask them to let you in.</p>
                     <button type="button" class="hm-btn" @onclick="OpenJoin">Join a house</button>
                 </article>
             </div>
@@ -111,6 +137,44 @@
                         <p class="hm-note">Transfer the manager role to someone else first.</p>
                     }
                 </section>
+
+                @if (HomeRules.CanReviewRequests(_home.MyRole))
+                {
+                    <section class="hm-card hm-panel hm-panel--wide" style="--d: 170ms">
+                        <div class="hm-panel__top">
+                            <h2>Join requests (@_home.PendingRequests.Count)</h2>
+                        </div>
+
+                        @if (_home.PendingRequests.Count == 0)
+                        {
+                            <p class="hm-note">Nobody is waiting to join right now.</p>
+                        }
+                        else
+                        {
+                            <ul class="hm-members">
+                                @foreach (var request in _home.PendingRequests)
+                                {
+                                    <li class="hm-member">
+                                        <span class="hm-avatar">@Initials(request.Name)</span>
+                                        <div class="hm-member__id">
+                                            <b>@request.Name</b>
+                                            <small>@request.Email</small>
+                                        </div>
+                                        <span class="hm-tag">
+                                            Asked @request.RequestedAtUtc.ToLocalTime().ToString("d MMM")
+                                        </span>
+                                        <div class="hm-request__actions">
+                                            <button type="button" class="hm-btn hm-btn--solid"
+                                                    @onclick="() => ApproveRequest(request)">Approve</button>
+                                            <button type="button" class="hm-btn hm-btn--danger"
+                                                    @onclick="() => RejectRequest(request)">Reject</button>
+                                        </div>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                    </section>
+                }
 
                 <section class="hm-card hm-panel hm-panel--wide" style="--d: 200ms">
                     <div class="hm-panel__top">
@@ -401,6 +465,8 @@
 @code {
     private bool _loading = true;
     private HomeView? _home;
+    private MyJoinRequestView? _myRequest;
+    private string? _loadError;
 
     private string _myName = "You";
     private string _myEmail = "you@example.com";
@@ -493,7 +559,34 @@
         _myName = Claim(user, ClaimTypes.Name, "name") ?? _myName;
         _myEmail = Claim(user, ClaimTypes.Email, "email") ?? _myEmail;
 
-        _home = await HomeService.GetMyHomeAsync();
+        await ReloadAsync();
+        _loading = false;
+    }
+
+    // The two go together: with no home the page still has to know whether a
+    // request of the caller is waiting somewhere.
+    private async Task ReloadAsync()
+    {
+        try
+        {
+            _home = await HomeService.GetMyHomeAsync();
+            _myRequest = _home is null ? await HomeService.GetMyJoinRequestAsync() : null;
+            _loadError = null;
+        }
+        catch (Exception ex)
+        {
+            // Never fall through to the create/join screen on a failed load - the
+            // user may well be in a house already.
+            _home = null;
+            _myRequest = null;
+            _loadError = ex.Message;
+        }
+    }
+
+    private async Task Retry()
+    {
+        _loading = true;
+        await ReloadAsync();
         _loading = false;
     }
 
@@ -542,7 +635,16 @@
             return;
         }
 
-        _home = await HomeService.CreateHomeAsync(_create, _myName, _myEmail);
+        try
+        {
+            _home = await HomeService.CreateHomeAsync(_create, _myName, _myEmail);
+        }
+        catch (Exception ex)
+        {
+            _formError = ex.Message;
+            return;
+        }
+
         _create = new HomeDetailsRequest();
         _showCreate = false;
         await CloseMap("create-map");
@@ -558,10 +660,31 @@
             return;
         }
 
-        _home = await HomeService.GetMyHomeAsync();
+        await ReloadAsync();
         _joinCode = string.Empty;
         _showJoin = false;
         Report(true, result.Message);
+    }
+
+    private async Task CancelMyRequest()
+    {
+        var result = await HomeService.CancelMyJoinRequestAsync();
+        await ReloadAsync();
+        Report(result.Ok, result.Message);
+    }
+
+    private async Task ApproveRequest(HomeJoinRequestView request)
+    {
+        var result = await HomeService.ApproveJoinRequestAsync(request.Id);
+        await ReloadAsync();
+        Report(result.Ok, result.Message);
+    }
+
+    private async Task RejectRequest(HomeJoinRequestView request)
+    {
+        var result = await HomeService.RejectJoinRequestAsync(request.Id);
+        await ReloadAsync();
+        Report(result.Ok, result.Message);
     }
 
     private bool HasActions(HomeMemberView member) =>
@@ -605,7 +728,7 @@
             return;
         }
 
-        _home = await HomeService.GetMyHomeAsync();
+        await ReloadAsync();
         _showEditDetails = false;
         await CloseMap("edit-map");
         Report(true, result.Message);
@@ -633,7 +756,7 @@
             return;
         }
 
-        _home = await HomeService.GetMyHomeAsync();
+        await ReloadAsync();
         _showAdd = false;
         Report(true, result.Message);
     }
@@ -642,7 +765,7 @@
     {
         _openMenuId = null;
         var result = await HomeService.PromoteToCoManagerAsync(member.Id);
-        _home = await HomeService.GetMyHomeAsync();
+        await ReloadAsync();
         Report(result.Ok, result.Message);
     }
 
@@ -650,7 +773,7 @@
     {
         _openMenuId = null;
         var result = await HomeService.DemoteToMemberAsync(member.Id);
-        _home = await HomeService.GetMyHomeAsync();
+        await ReloadAsync();
         Report(result.Ok, result.Message);
     }
 
@@ -658,7 +781,7 @@
     {
         _openMenuId = null;
         var result = await HomeService.RemoveMemberAsync(member.Id);
-        _home = await HomeService.GetMyHomeAsync();
+        await ReloadAsync();
         Report(result.Ok, result.Message);
     }
 
@@ -672,7 +795,7 @@
     {
         var target = _transferTarget!;
         var result = await HomeService.TransferManagerAsync(target.Id);
-        _home = await HomeService.GetMyHomeAsync();
+        await ReloadAsync();
         _transferTarget = null;
         Report(result.Ok, result.Message);
     }
@@ -682,7 +805,7 @@
     private async Task ConfirmLeave()
     {
         var result = await HomeService.LeaveHomeAsync();
-        _home = await HomeService.GetMyHomeAsync();
+        await ReloadAsync();
         _showLeave = false;
         Report(result.Ok, result.Message);
     }

@@ -271,3 +271,17 @@ img { max-width: 100%; display: block; }
     white-space: nowrap;
     border: 0;
 }
+
+/* ---------- brand mark ---------- */
+
+.nx-logo {
+    display: inline-flex;
+    flex: none;
+    width: 2.15rem;
+    height: 2.15rem;
+}
+
+.nx-logo svg { width: 100%; height: 100%; display: block; }
+
+.nx-logo--nav { width: 2.15rem; height: 2.15rem; }
+.nx-logo--footer { width: 2.6rem; height: 2.6rem; }

@@ -27,6 +27,16 @@ public static class RoleRoutes
 
     public static string HomeFor(ClaimsPrincipal user) => HomeFor(RoleOf(user));
 
+    // Each interface keeps its own profile page, so the account menu has to follow the role.
+    public static string ProfileFor(string? role)
+    {
+        if (IsAdmin(role)) return "admin/profile";
+        if (IsHelper(role)) return "helpers/profile";
+        return "profile";
+    }
+
+    public static string ProfileFor(ClaimsPrincipal user) => ProfileFor(RoleOf(user));
+
     // The role claim can arrive as ClaimTypes.Role or the raw "role" key depending on the token.
     public static string? RoleOf(ClaimsPrincipal user) =>
         user.Claims.FirstOrDefault(c =>

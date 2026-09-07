@@ -1,11 +1,13 @@
 @implements IDisposable
 @inject NavigationManager Navigation
 @inject Nestify.Web.Services.Interfaces.IAuthService AuthService
+@inject Nestify.Web.Services.Interfaces.IUserProfileService ProfileService
+@inject AuthenticationStateProvider AuthStateProvider
 
 <header class="nav">
     <div class="nx-container nav__inner">
         <a class="nav__brand" href="" @onclick="Close">
-            <span class="nav__mark" aria-hidden="true">N</span>
+            <NestifyLogo Class="nx-logo--nav" />
             <span class="nav__word">Nestify</span>
         </a>
 
@@ -26,11 +28,22 @@
                         <li><NavLink class="nav__link" href="about" @onclick="Close">About Us</NavLink></li>
                     </NotAuthorized>
                     <Authorized>
-                        <li><NavLink class="nav__link" href="home" @onclick="Close">My Home</NavLink></li>
-                        <li><NavLink class="nav__link" href="housing" @onclick="Close">Housing</NavLink></li>
-                        <li><NavLink class="nav__link" href="helpers" @onclick="Close">Domestic Help</NavLink></li>
-                        <li><NavLink class="nav__link" href="marketplace" @onclick="Close">Marketplace</NavLink></li>
-                        <li><NavLink class="nav__link" href="settlement" @onclick="Close">Settlement</NavLink></li>
+                        @* Helpers and admins can land here too, and none of the user modules are theirs. *@
+                        <AuthorizeView Roles="User" Context="userCtx">
+                            <li><NavLink class="nav__link" href="home" @onclick="Close">My Home</NavLink></li>
+                            <li><NavLink class="nav__link" href="housing" @onclick="Close">Housing</NavLink></li>
+                            <li><NavLink class="nav__link" href="helpers" @onclick="Close">Domestic Help</NavLink></li>
+                            <li><NavLink class="nav__link" href="marketplace" @onclick="Close">Marketplace</NavLink></li>
+                            <li><NavLink class="nav__link" href="settlement" @onclick="Close">Settlement</NavLink></li>
+                        </AuthorizeView>
+                        <AuthorizeView Roles="DomesticHelper,DomesticHelp,Maid,Helper" Context="helperCtx">
+                            <li><NavLink class="nav__link" href="helpers/dashboard" @onclick="Close">My Dashboard</NavLink></li>
+                            <li><NavLink class="nav__link" href="helpers/me" @onclick="Close">My Listing</NavLink></li>
+                        </AuthorizeView>
+                        <AuthorizeView Roles="Admin" Context="adminCtx">
+                            <li><NavLink class="nav__link" href="admin" @onclick="Close">Admin Console</NavLink></li>
+                            <li><NavLink class="nav__link" href="admin/verifications" @onclick="Close">Verifications</NavLink></li>
+                        </AuthorizeView>
                     </Authorized>
                 </AuthorizeView>
             </ul>
@@ -43,7 +56,16 @@
                                 aria-haspopup="true"
                                 aria-expanded="@_menuOpen.ToString().ToLowerInvariant()"
                                 @onclick="ToggleMenu">
-                            <span class="nav__avatar" aria-hidden="true">@Initials(context.User.Identity?.Name)</span>
+                            <span class="nav__avatar" aria-hidden="true">
+                                @if (PictureUrl is not null)
+                                {
+                                    <img src="@PictureUrl" alt="" />
+                                }
+                                else
+                                {
+                                    @Initials(context.User.Identity?.Name)
+                                }
+                            </span>
                             <span class="nav__account-name">@(context.User.Identity?.Name ?? "Profile")</span>
                             <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
                         </button>
@@ -52,7 +74,7 @@
                         {
                             <div class="role-menu" role="menu">
                                 <p class="role-menu__name">Signed in as @(context.User.Identity?.Name ?? "User")</p>
-                                <a role="menuitem" href="profile" @onclick="CloseAll">
+                                <a role="menuitem" href="@RoleRoutes.ProfileFor(context.User)" @onclick="CloseAll">
                                     <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
                                     View profile
                                 </a>
@@ -83,10 +105,40 @@
     private bool _open;
     private bool _menuOpen;
 
-    protected override void OnInitialized()
+    private string? PictureUrl => ProfileService.Current?.ProfilePictureUrl;
+
+    protected override async Task OnInitializedAsync()
     {
         Navigation.LocationChanged += HandleLocationChanged;
+        ProfileService.Changed += HandleProfileChanged;
+        AuthStateProvider.AuthenticationStateChanged += HandleAuthStateChanged;
+
+        await LoadPictureAsync();
     }
+
+    // The profile is cached by the service, so this only hits the API once per session.
+    private async Task LoadPictureAsync()
+    {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        if (state.User.Identity?.IsAuthenticated != true)
+        {
+            return;
+        }
+
+        try
+        {
+            await ProfileService.GetMyProfileAsync();
+        }
+        catch
+        {
+            // No picture is not worth breaking the navbar over; the initials stay.
+        }
+    }
+
+    private void HandleProfileChanged() => InvokeAsync(StateHasChanged);
+
+    private void HandleAuthStateChanged(Task<AuthenticationState> task) =>
+        InvokeAsync(LoadPictureAsync);
 
     private void Toggle() => _open = !_open;
     private void ToggleMenu() => _menuOpen = !_menuOpen;
@@ -131,5 +183,7 @@
     public void Dispose()
     {
         Navigation.LocationChanged -= HandleLocationChanged;
+        ProfileService.Changed -= HandleProfileChanged;
+        AuthStateProvider.AuthenticationStateChanged -= HandleAuthStateChanged;
     }
 }

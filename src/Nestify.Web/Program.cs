@@ -32,6 +32,9 @@ builder.Services.AddScoped(sp =>
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 
+// Extra profile details (picture, occupation, address, socials)
+builder.Services.AddScoped<IUserProfileService, UserProfileService>();
+
 // Dev-only mock "who's logged in" state — must be Singleton so it survives page navigation
 builder.Services.AddSingleton<ICurrentUserService, MockCurrentUserService>();
 
@@ -42,9 +45,8 @@ builder.Services.AddScoped<IHousingService, MockHousingService>();
 // Delete this line + IHouseLookupService + MockHouseLookupService once that's on main.
 builder.Services.AddScoped<IHouseLookupService, MockHouseLookupService>();
 
-// M3 - Home module. Singleton so the in-memory home survives page navigation;
-// swap MockHomeService for a real HomeService when the API lands.
-builder.Services.AddSingleton<IHomeService, MockHomeService>();
+// M3 - Home module, backed by api/v1/homes (User_Home.sql).
+builder.Services.AddScoped<IHomeService, HomeService>();
 
 
 builder.Services.AddScoped<IHelperService, HelperService>();

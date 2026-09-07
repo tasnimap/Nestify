@@ -218,7 +218,15 @@
     transition: border-color .25s ease, transform .25s ease, box-shadow .25s ease;
 }
 
-/* The row with an open menu has to sit above the scrim that closes it. */
+/* The row with an open menu has to sit above the scrim that closes it. The card
+   keeps a transform from its entry animation (animation-fill-mode: both), which
+   makes it a stacking context, so raising the row alone is not enough - the card
+   around it has to clear the scrim too, or the scrim swallows the menu clicks. */
+.hm-card:has(.is-menu-open) {
+    position: relative;
+    z-index: 30;
+}
+
 .hm-member.is-menu-open {
     position: relative;
     z-index: 40;
@@ -331,6 +339,18 @@
     position: fixed;
     inset: 0;
     z-index: 20;
+}
+
+/* Approve / Reject sit where the kebab does on a member row. */
+.hm-request__actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+.hm-choice--wait .hm-choice__icon {
+    letter-spacing: 2px;
 }
 
 .hm-tag,
