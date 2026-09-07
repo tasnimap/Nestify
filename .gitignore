@@ -38,3 +38,6 @@ Thumbs.db
 .env
 .env.*
 !.env.example
+
+## AI assistant local notes
+Claude.md
