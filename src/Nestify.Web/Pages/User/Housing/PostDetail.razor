@@ -7,7 +7,7 @@
 <PageTitle>@(_post?.Title ?? "Housing") — Nestify</PageTitle>
 
 <section class="nx-section hs-page">
-    <div class="nx-container hs-wrap hs-wrap--narrow">
+    <div class="nx-container hs-wrap hs-wrap--detail">
         <nav class="hs-crumbs" aria-label="Breadcrumb">
             <a href="housing">Housing</a>
             <span class="hs-crumbs__sep">/</span>
@@ -31,6 +31,7 @@
         else
         {
             <article class="hs-detail">
+              <div class="hs-detail__main">
                 <header class="hs-detail__head">
                     <div class="hs-detail__badges">
                         <span class="hs-chip hs-chip--type">@HousingView.Label(_post.ListingType)</span>
@@ -95,24 +96,44 @@
                     </section>
                 }
 
-                <div class="hs-detail__actions">
-                    @if (_post.IsMine)
-                    {
-                        <a class="nx-btn nx-btn--ghost" href="housing/@_post.Id/edit">Edit listing</a>
-                    }
-                    <button class="nx-btn nx-btn--primary" disabled="@(!CanBook || _bookingSubmitting)" @onclick="OpenBookingModal">
-                        @(_post.Status == PostStatus.Closed ? "Listing closed" : "Book this listing")
-                    </button>
-                    @if (!_post.IsMine)
-                    {
-                        <button class="nx-btn nx-btn--ghost" @onclick="HandleReport">
-                            <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true">
-                                <path d="M12 9v4M12 17h.01M10.3 3.9 2.6 17a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" />
-                            </svg>
-                            Report
+              </div>
+
+              @* Price and the booking action ride along beside the story on a
+                 wide screen, and drop under it on a phone. *@
+              <aside class="hs-detail__rail">
+                <div class="hs-actionbox">
+                    <div class="hs-actionbox__price">
+                        <span class="hs-price hs-price--lg">@Money.Format(_post.MonthlyRent)</span>
+                        <span class="hs-price__unit">per month</span>
+                    </div>
+                    <p class="hs-actionbox__seats">
+                        @_post.SeatsAvailable @(_post.SeatsAvailable == 1 ? "seat available" : "seats available")
+                    </p>
+
+                    <div class="hs-detail__actions">
+                        <button class="nx-btn nx-btn--primary" disabled="@(!CanBook || _bookingSubmitting)" @onclick="OpenBookingModal">
+                            @(_post.Status == PostStatus.Closed ? "Listing closed" : "Book this listing")
                         </button>
-                    }
+                        @if (_post.IsMine)
+                        {
+                            <a class="nx-btn nx-btn--ghost" href="housing/@_post.Id/edit">Edit listing</a>
+                        }
+                        @if (!_post.IsMine)
+                        {
+                            <button class="nx-btn nx-btn--ghost" @onclick="HandleReport">
+                                <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M12 9v4M12 17h.01M10.3 3.9 2.6 17a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" />
+                                </svg>
+                                Report
+                            </button>
+                        }
+                    </div>
+
+                    <p class="hs-actionbox__safe">
+                        Contact details are shared only after the manager accepts your request.
+                    </p>
                 </div>
+              </aside>
             </article>
         }
     </div>

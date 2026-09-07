@@ -3,46 +3,57 @@
 @inject Nestify.Web.Services.MoneyFormatterService Money
 
 <article class="hs-card @(Post.Status == PostStatus.Closed ? "hs-card--closed" : null)">
-    <div class="hs-card__top">
-        <span class="hs-chip hs-chip--type">@HousingView.ShortLabel(Post.ListingType)</span>
-        @if (Post.Status == PostStatus.Closed)
+    <div class="hs-card__media">
+        <div class="hs-card__top">
+            <span class="hs-chip hs-chip--type">@HousingView.ShortLabel(Post.ListingType)</span>
+            @if (Post.Status == PostStatus.Closed)
+            {
+                <span class="hs-chip hs-chip--closed">Closed</span>
+            }
+        </div>
+
+        @if (Post.ImageUrls.Count > 0)
         {
-            <span class="hs-chip hs-chip--closed">Closed</span>
+            <button type="button" class="hs-card__photo" @onclick="OpenLightbox"
+                    aria-label="View photos of @Post.Title">
+                <img src="@Post.ImageUrls[0]" alt="Photo of @Post.Title" loading="lazy" />
+                @if (Post.ImageUrls.Count > 1)
+                {
+                    <span class="hs-card__photo-count">+@(Post.ImageUrls.Count - 1) photos</span>
+                }
+            </button>
+        }
+        else
+        {
+            @* No photo yet — a coloured frame keeps the grid even. *@
+            <div class="hs-tile" style="--hs-h: @Hue" aria-hidden="true">
+                <span class="hs-tile__mono">@Initial</span>
+            </div>
         }
     </div>
 
-    @if (Post.ImageUrls.Count > 0)
-    {
-        <button type="button" class="hs-card__photo" @onclick="OpenLightbox"
-                aria-label="View photos of @Post.Title">
-            <img src="@Post.ImageUrls[0]" alt="Photo of @Post.Title" loading="lazy" />
-            @if (Post.ImageUrls.Count > 1)
-            {
-                <span class="hs-card__photo-count">+@(Post.ImageUrls.Count - 1) photos</span>
-            }
-        </button>
-    }
+    <div class="hs-card__body">
+        <h3 class="hs-card__title">
+            <a href="housing/@Post.Id">@Post.Title</a>
+        </h3>
 
-    <h3 class="hs-card__title">
-        <a href="housing/@Post.Id">@Post.Title</a>
-    </h3>
+        <div class="hs-card__meta">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                <circle cx="12" cy="10" r="3" />
+            </svg>
+            <span>@Post.AreaName, @Post.Division</span>
+            <span class="hs-dot"></span>
+            <span class="hs-nowrap">@HousingView.RelativeTime(Post.CreatedAtUtc)</span>
+        </div>
 
-    <div class="hs-card__meta">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-            <circle cx="12" cy="10" r="3" />
-        </svg>
-        <span>@Post.AreaName, @Post.Division</span>
-        <span class="hs-dot"></span>
-        <span class="hs-nowrap">@HousingView.RelativeTime(Post.CreatedAtUtc)</span>
-    </div>
-
-    <div class="hs-card__foot">
-        <span class="hs-price">@Money.Format(Post.MonthlyRent)<span class="hs-price__unit">/mo</span></span>
-        <span class="hs-seats">
-            @Post.SeatsAvailable @(Post.SeatsAvailable == 1 ? "seat" : "seats")
-        </span>
+        <div class="hs-card__foot">
+            <span class="hs-price">@Money.Format(Post.MonthlyRent)<span class="hs-price__unit">/mo</span></span>
+            <span class="hs-seats">
+                @Post.SeatsAvailable @(Post.SeatsAvailable == 1 ? "seat" : "seats")
+            </span>
+        </div>
     </div>
 </article>
 
@@ -55,6 +66,11 @@
     [Parameter, EditorRequired] public HousingPostSummaryDto Post { get; set; } = new();
 
     private bool _showLightbox;
+
+    // Same title always gets the same placeholder colour.
+    private int Hue => Math.Abs((Post.Title ?? string.Empty).GetHashCode() % 360);
+
+    private string Initial => string.IsNullOrWhiteSpace(Post.Title) ? "N" : Post.Title.Trim()[..1].ToUpperInvariant();
 
     private void OpenLightbox() => _showLightbox = true;
     private void CloseLightbox() => _showLightbox = false;

@@ -26,13 +26,24 @@
 
         @if (_loading)
         {
-            <div style="padding: 2rem 0;">
-                <p>Loading your bookings…</p>
+            <div class="hs-rows">
+                @for (var i = 0; i < 3; i++)
+                {
+                    <div class="hs-skeleton" style="height: 170px;"></div>
+                }
             </div>
         }
         else if (_bookings.Count == 0)
         {
             <div class="hs-empty hs-empty--page">
+                <div class="hs-empty__art">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M3 10.5 12 3l9 7.5" />
+                        <path d="M5 9.5V21h14V9.5" />
+                        <path d="M9.5 21v-6h5v6" />
+                    </svg>
+                </div>
                 <h2>You haven't made any booking requests yet</h2>
                 <p>Start by browsing available seats and houses to send booking requests to managers.</p>
                 <a class="nx-btn nx-btn--primary" href="housing">Browse listings</a>
@@ -54,7 +65,13 @@
                                     <span class="hs-badge @(GetStatusClass(booking.Status))">@booking.Status</span>
                                 </div>
                                 <div class="hs-row__meta">
-                                    <span>📍 @booking.Post.AreaName, @booking.Post.Division</span>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                          stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+                                          style="width:.95rem;height:.95rem;flex:none;">
+                                        <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                                        <circle cx="12" cy="10" r="3" />
+                                    </svg>
+                                    <span>@booking.Post.AreaName, @booking.Post.Division</span>
                                     <span class="hs-dot"></span>
                                     <span>Requested @booking.RequestedAtUtc.ToString("g")</span>
                                 </div>
