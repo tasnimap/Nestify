@@ -7,71 +7,91 @@
 
 <PageTitle>My Engagements — Nestify</PageTitle>
 
-<section class="nx-section hs-page">
-    <div class="nx-container hs-wrap hs-wrap--narrow">
-        <h1>My engagements</h1>
-        <p>Requests you've made as a client, and requests you've received as a helper.</p>
+<div class="dh">
+    <div class="dh__inner dh__inner--narrow">
+        <header class="dh-head dh-rise">
+            <p class="dh-kicker">Domestic Help</p>
+            <h1>My engagements</h1>
+            <p>Requests you've made as a client, and requests you've received as a helper.</p>
+        </header>
 
         @if (_loading)
         {
-            <div class="hs-skeleton hs-skeleton--detail"></div>
+            <div class="dh-skeleton">
+                <div class="dh-skeleton__bar"></div>
+                <div class="dh-skeleton__bar"></div>
+            </div>
         }
         else if (_engagements.Count == 0)
         {
-            <div class="hs-empty">
-                <h3>No engagements yet</h3>
-                <p>Request a helper, or wait for a client to reach out.</p>
+            <div class="dh-panel dh-rise" style="--d:80ms">
+                <div class="dh-empty">
+                    <span class="dh-empty__art" aria-hidden="true">
+                        <svg class="nx-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                    </span>
+                    <h3>No engagements yet</h3>
+                    <p>Request a helper, or wait for a client to reach out.</p>
+                    <a class="nx-btn nx-btn--accent" href="helpers">Browse helpers</a>
+                </div>
             </div>
         }
         else
         {
-            @foreach (var e in _engagements)
-            {
-                <div class="hs-review">
-                    <div class="hs-review__head">
-                        <strong>@(e.MyRole == EngagementRole.Client ? e.HelperName : e.ClientName)</strong>
-                        <span class="hs-badge">@StatusLabel(e)</span>
+            <div class="dh-list">
+                @{ var delay = 60; }
+                @foreach (var e in _engagements)
+                {
+                    <div class="dh-panel dh-rise" style="--d:@(delay)ms">
+                        <div class="dh-review__head">
+                            <strong>@(e.MyRole == EngagementRole.Client ? e.HelperName : e.ClientName)</strong>
+                            <span class="dh-status dh-status--@(e.Status.ToString().ToLowerInvariant())">@StatusLabel(e)</span>
+                        </div>
+                        <p class="dh-muted">Role: @e.MyRole</p>
+
+                        <div class="dh-engagement__actions">
+                            @if (e.MyRole == EngagementRole.Helper && e.Status == EngagementStatus.Requested)
+                            {
+                                <button class="nx-btn nx-btn--accent" @onclick="() => Confirm(e.Id)">Confirm</button>
+                            }
+
+                            @if (e.Status is EngagementStatus.HelperConfirmed or EngagementStatus.Active)
+                            {
+                                var myDone = e.MyRole == EngagementRole.Client ? e.ClientMarkedComplete : e.HelperMarkedComplete;
+                                if (myDone)
+                                {
+                                    <p class="dh-note">You marked complete — waiting for the other side.</p>
+                                }
+                                else
+                                {
+                                    <button class="nx-btn nx-btn--ghost" @onclick="() => MarkComplete(e.Id)">Mark complete</button>
+                                }
+                            }
+
+                            @if (e.CanReview)
+                            {
+                                <button class="nx-btn nx-btn--ghost" @onclick="() => OpenReview(e)">Leave a review</button>
+                            }
+                        </div>
                     </div>
-                    <p>Role: @e.MyRole</p>
-
-                    @if (e.MyRole == EngagementRole.Helper && e.Status == EngagementStatus.Requested)
-                    {
-                        <button class="nx-btn nx-btn--primary" @onclick="() => Confirm(e.Id)">Confirm</button>
-                    }
-
-                    @if (e.Status is EngagementStatus.HelperConfirmed or EngagementStatus.Active)
-                    {
-                        var myDone = e.MyRole == EngagementRole.Client ? e.ClientMarkedComplete : e.HelperMarkedComplete;
-                        if (myDone)
-                        {
-                            <p><em>You marked complete — waiting for the other side.</em></p>
-                        }
-                        else
-                        {
-                            <button class="nx-btn nx-btn--ghost" @onclick="() => MarkComplete(e.Id)">Mark complete</button>
-                        }
-                    }
-
-                    @if (e.CanReview)
-                    {
-                        <button class="nx-btn nx-btn--ghost" @onclick="() => OpenReview(e)">Leave a review</button>
-                    }
-                </div>
-            }
+                    delay += 60;
+                }
+            </div>
         }
 
         @if (_reviewTarget is not null)
         {
-            <div class="hs-detail__section">
-                <h2>Review @_reviewTarget.HelperName</h2>
+            <section class="dh-panel dh-review-box dh-rise">
+                <div class="dh-panel__head"><h2>Review @_reviewTarget.HelperName</h2></div>
                 <RatingStars Value="_reviewRating" ReadOnly="false" ShowCount="false" ValueChanged="v => _reviewRating = v" />
                 <textarea @bind="_reviewComment" placeholder="How was your experience?"></textarea>
-                <button class="nx-btn nx-btn--primary" @onclick="SubmitReview">Submit review</button>
-                <button class="nx-btn nx-btn--ghost" @onclick="() => _reviewTarget = null">Cancel</button>
-            </div>
+                <div class="dh-engagement__actions">
+                    <button class="nx-btn nx-btn--accent" @onclick="SubmitReview">Submit review</button>
+                    <button class="nx-btn nx-btn--ghost" @onclick="() => _reviewTarget = null">Cancel</button>
+                </div>
+            </section>
         }
     </div>
-</section>
+</div>
 
 @code {
     private List<EngagementDto> _engagements = new();

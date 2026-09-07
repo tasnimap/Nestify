@@ -273,7 +273,7 @@ public sealed class MockHelperService : IHelperService
         return Task.FromResult(items);
     }
 
-    public Task<EngagementDto> RequestEngagementAsync(string helperId)
+    public Task<EngagementDto> RequestEngagementAsync(string helperId, IReadOnlyList<EngagementSlotDto>? slots = null)
     {
         var helper = _helpers.First(h => h.Id == helperId);
         var engagement = new Engagement

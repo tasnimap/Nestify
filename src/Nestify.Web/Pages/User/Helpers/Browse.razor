@@ -7,69 +7,73 @@
 
 <PageTitle>Domestic Help — Nestify</PageTitle>
 
-<section class="nx-section hs-page">
-    <div class="nx-container hs-wrap">
-        <header class="hs-head">
-            <div class="hs-head__titles">
-                <p class="nx-eyebrow">M2 · Domestic Help</p>
-                <h1>Trusted khala & bua, <span class="nx-display-accent">near where you already live.</span></h1>
-                <p class="hs-head__lead">
+<div class="dh">
+    <div class="dh__inner">
+        <header class="dh-banner dh-rise">
+            <div>
+                <p class="dh-kicker">M2 · Domestic Help</p>
+                <h1>Trusted khala &amp; bua, <span class="nx-display-accent">near where you already live.</span></h1>
+                <p class="dh-banner__lead">
                     Browse helpers registered on Nestify, rated by real engagements. Exact location is shown
                     only after a helper confirms your request.
                 </p>
             </div>
-            <div class="hs-head__actions">
+            <div class="dh-banner__actions">
                 <a class="nx-btn nx-btn--ghost" href="engagements/mine">My engagements</a>
             </div>
         </header>
 
-        <div class="hs-browse">
-            <aside class="hs-lens" aria-label="Filter helpers">
-                <div class="hs-lens__row">
-                    <span class="hs-lens__label">Area</span>
-                    <AreaCascade Selection="_areaSelection" SelectionChanged="OnAreaChanged" Filter="true" />
-                </div>
+        <div class="dh-browse">
+            <details class="dh-lens dh-rise" style="--d:80ms" open aria-label="Filter helpers">
+                <summary class="dh-lens__summary">Filters</summary>
 
-                <div class="hs-lens__row">
-                    <span class="hs-lens__label">Service</span>
-                    <div class="hs-seg hs-seg--wrap">
-                        <button type="button" class="hs-seg__opt @(_filter.ServiceType is null ? "hs-seg__opt--active" : null)"
-                                @onclick="() => SetServiceType(null)">Any</button>
-                        @foreach (var s in _serviceTypes)
-                        {
-                            <button type="button" class="hs-seg__opt @(_filter.ServiceType == s ? "hs-seg__opt--active" : null)"
-                                    @onclick="() => SetServiceType(s)">@s</button>
-                        }
+                <div class="dh-lens__body">
+                    <div class="dh-lens__row">
+                        <span class="dh-field__label">Area</span>
+                        <AreaCascade Selection="_areaSelection" SelectionChanged="OnAreaChanged" Filter="true" />
                     </div>
+
+                    <div class="dh-lens__row">
+                        <span class="dh-field__label">Service</span>
+                        <div class="dh-chips">
+                            <button type="button" class="dh-chip @(_filter.ServiceType is null ? "dh-chip--on" : null)"
+                                    @onclick="() => SetServiceType(null)">Any</button>
+                            @foreach (var s in _serviceTypes)
+                            {
+                                <button type="button" class="dh-chip @(_filter.ServiceType == s ? "dh-chip--on" : null)"
+                                        @onclick="() => SetServiceType(s)">@s</button>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="dh-lens__row">
+                        <label class="dh-field__label" for="hp-max-rate">Max rate (৳/mo)</label>
+                        <input id="hp-max-rate" type="number" min="0" step="500" placeholder="No limit" inputmode="numeric"
+                               value="@_filter.MaxMonthlyRate" @onchange="OnMaxRate" />
+                    </div>
+
+                    <div class="dh-lens__row">
+                        <label class="dh-field__label" for="hp-sort">Sort</label>
+                        <select id="hp-sort" value="@_filter.Sort" @onchange="OnSortChanged">
+                            <option value="@HelperSortOption.RatingDesc">Rating</option>
+                            <option value="@HelperSortOption.RateAsc">Rate: Low to High</option>
+                            <option value="@HelperSortOption.RateDesc">Rate: High to Low</option>
+                            <option value="@HelperSortOption.DistanceAsc">Nearest</option>
+                        </select>
+                    </div>
+
+                    @if (HasActiveFilters)
+                    {
+                        <button type="button" class="dh-lens__clear" @onclick="ClearFilters">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6 18 18M6 18 18 6" /></svg>
+                            Clear all filters
+                        </button>
+                    }
                 </div>
+            </details>
 
-                <div class="hs-lens__row">
-                    <label class="hs-lens__label" for="hp-max-rate">Max rate (৳/mo)</label>
-                    <input id="hp-max-rate" type="number" min="0" step="500" placeholder="No limit" inputmode="numeric"
-                           value="@_filter.MaxMonthlyRate" @onchange="OnMaxRate" />
-                </div>
-
-                <div class="hs-lens__row">
-                    <span class="hs-lens__label">Sort</span>
-                    <select value="@_filter.Sort" @onchange="OnSortChanged">
-                        <option value="@HelperSortOption.RatingDesc">Rating</option>
-                        <option value="@HelperSortOption.RateAsc">Rate: Low to High</option>
-                        <option value="@HelperSortOption.RateDesc">Rate: High to Low</option>
-                        <option value="@HelperSortOption.DistanceAsc">Nearest</option>
-                    </select>
-                </div>
-
-                @if (HasActiveFilters)
-                {
-                    <button type="button" class="hs-lens__clear" @onclick="ClearFilters">
-                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6 18 18M6 18 18 6" /></svg>
-                        Clear all filters
-                    </button>
-                }
-            </aside>
-
-            <div class="hs-results">
-                <p class="hs-results__count">
+            <div class="dh-results">
+                <p class="dh-results__bar">
                     @if (_loading)
                     {
                         <span>Loading helpers…</span>
@@ -82,46 +86,58 @@
 
                 @if (_loading)
                 {
-                    <div class="hs-grid">
+                    <div class="dh-cards">
                         @for (var i = 0; i < 6; i++)
                         {
-                            <div class="hs-skeleton hs-skeleton--card"></div>
+                            <div class="dh-skeleton__bar"></div>
                         }
                     </div>
                 }
                 else if (_error)
                 {
-                    <div class="hs-empty">
-                        <h3>Couldn't load helpers</h3>
-                        <p>Something went wrong. Try again in a moment.</p>
-                        <button class="nx-btn nx-btn--primary" @onclick="LoadAsync">Retry</button>
+                    <div class="dh-panel">
+                        <div class="dh-empty">
+                            <span class="dh-empty__art" aria-hidden="true">
+                                <svg class="nx-icon" viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01" /><circle cx="12" cy="12" r="9" /></svg>
+                            </span>
+                            <h3>Couldn't load helpers</h3>
+                            <p>Something went wrong. Try again in a moment.</p>
+                            <button class="nx-btn nx-btn--accent" @onclick="LoadAsync">Retry</button>
+                        </div>
                     </div>
                 }
                 else if (_page is null || _page.Items.Count == 0)
                 {
-                    <div class="hs-empty">
-                        <h3>No helpers match those filters</h3>
-                        <p>Try a different area, service, or widen the rate range.</p>
-                        @if (HasActiveFilters)
-                        {
-                            <button class="nx-btn nx-btn--ghost" @onclick="ClearFilters">Clear filters</button>
-                        }
+                    <div class="dh-panel">
+                        <div class="dh-empty">
+                            <span class="dh-empty__art" aria-hidden="true">
+                                <svg class="nx-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
+                            </span>
+                            <h3>No helpers match those filters</h3>
+                            <p>Try a different area, service, or widen the rate range.</p>
+                            @if (HasActiveFilters)
+                            {
+                                <button class="nx-btn nx-btn--ghost" @onclick="ClearFilters">Clear filters</button>
+                            }
+                        </div>
                     </div>
                 }
                 else
                 {
-                    <div class="hs-grid">
+                    <div class="dh-cards">
+                        @{ var delay = 0; }
                         @foreach (var helper in _page.Items)
                         {
-                            <HelperCard Helper="helper" />
+                            <HelperCard Helper="helper" Delay="delay" />
+                            delay += 50;
                         }
                     </div>
 
                     @if (_page.TotalPages > 1)
                     {
-                        <nav class="hs-pager" aria-label="Pagination">
+                        <nav class="dh-pager" aria-label="Pagination">
                             <button class="nx-btn nx-btn--ghost" disabled="@(!_page.HasPrevious)" @onclick="PrevPage">Previous</button>
-                            <span class="hs-pager__pages">Page @_page.Page of @_page.TotalPages</span>
+                            <span>Page @_page.Page of @_page.TotalPages</span>
                             <button class="nx-btn nx-btn--ghost" disabled="@(!_page.HasNext)" @onclick="NextPage">Next</button>
                         </nav>
                     }
@@ -129,7 +145,7 @@
             </div>
         </div>
     </div>
-</section>
+</div>
 
 @code {
     private readonly ServiceType[] _serviceTypes = Enum.GetValues<ServiceType>();

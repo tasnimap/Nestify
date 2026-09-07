@@ -9,110 +9,185 @@
 
 <PageTitle>@(_helper?.Name ?? "Helper") — Nestify</PageTitle>
 
-<section class="nx-section hs-page">
-    <div class="nx-container hs-wrap hs-wrap--narrow">
-        <nav class="hs-crumbs" aria-label="Breadcrumb">
+<div class="dh">
+    <div class="dh__inner">
+        <nav class="dh-crumbs" aria-label="Breadcrumb">
             <a href="helpers">Domestic Help</a>
-            <span class="hs-crumbs__sep">/</span>
+            <span class="dh-crumbs__sep">/</span>
             <span>@(_helper?.Name ?? "Profile")</span>
         </nav>
 
         @if (_loading)
         {
-            <div class="hs-skeleton hs-skeleton--detail"></div>
+            <div class="dh-skeleton">
+                <div class="dh-skeleton__bar dh-skeleton__bar--tall"></div>
+                <div class="dh-skeleton__bar"></div>
+            </div>
         }
         else if (_helper is null)
         {
-            <div class="hs-empty hs-empty--page">
-                <h2>This profile is not available</h2>
-                <p>It may have been removed, or the link may be out of date.</p>
-                <a class="nx-btn nx-btn--primary" href="helpers">Back to Domestic Help</a>
+            <div class="dh-panel dh-rise">
+                <div class="dh-empty">
+                    <span class="dh-empty__art" aria-hidden="true">
+                        <svg class="nx-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 8v5M12 16h.01" /></svg>
+                    </span>
+                    <h2>This profile is not available</h2>
+                    <p>It may have been removed, or the link may be out of date.</p>
+                    <a class="nx-btn nx-btn--accent" href="helpers">Back to Domestic Help</a>
+                </div>
             </div>
         }
         else
         {
-            <article class="hs-detail">
-                <header class="hs-detail__head">
-                    <div class="hs-detail__badges">
-                        @foreach (var s in _helper.Services)
-                        {
-                            <span class="hs-chip hs-chip--type">@s</span>
-                        }
-                    </div>
-                    <div class="hs-detail__person">
-                        <img class="hs-ava hs-ava--lg" src="@HelperView.PhotoUrl(_helper.Name)"
-                             alt="Photo of @_helper.Name" />
-                        <div>
-                            <h1>@_helper.Name</h1>
-                            <div class="hs-detail__meta">
-                                <RatingStars Value="_helper.RatingAverage" Count="_helper.RatingCount" />
-                                <span class="hs-dot"></span>
-                                <span>@_helper.AreaName@(_helper.Distance is not null ? $" · {DistanceLabel(_helper.Distance.Value)}" : "")</span>
-                            </div>
+            <article class="dh-detail dh-detail--split">
+                <header class="dh-profile dh-rise">
+                    <div class="dh-profile__glow" aria-hidden="true"></div>
+                    <img class="dh-portrait" src="@HelperView.PhotoUrl(_helper.Name)" alt="Photo of @_helper.Name" />
+                    <div class="dh-profile__body">
+                        <h1>@_helper.Name</h1>
+                        <div class="dh-profile__meta">
+                            <RatingStars Value="_helper.RatingAverage" Count="_helper.RatingCount" />
+                            <span class="dh-profile__dot" aria-hidden="true"></span>
+                            <span class="dh-profile__where">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>
+                                @_helper.AreaName@(_helper.Distance is not null ? $" · {DistanceLabel(_helper.Distance.Value)}" : "")
+                            </span>
+                        </div>
+                        <div class="dh-tags">
+                            @foreach (var s in _helper.Services)
+                            {
+                                <span class="dh-tag">@s</span>
+                            }
                         </div>
                     </div>
                 </header>
 
-                <div class="hs-detail__stats">
-                    <div class="hs-stat">
-                        <span class="hs-stat__value">@Money.Format(_helper.MonthlyRate)</span>
-                        <span class="hs-stat__label">per month</span>
-                    </div>
-                    <div class="hs-stat">
-                        <span class="hs-stat__value">@_helper.AvailabilityWindow</span>
-                        <span class="hs-stat__label">availability</span>
-                    </div>
+                <div class="dh-detail__main">
+                    <section class="dh-panel dh-rise" style="--d:160ms">
+                        <div class="dh-panel__head">
+                            <h2>Availability this week</h2>
+                            @if (_slots.Count > 0)
+                            {
+                                <span class="dh-count">@_slots.Count picked</span>
+                            }
+                        </div>
+                        <AvailabilityGrid HelperId="_helper.Id" AvailabilityWindow="_helper.AvailabilityWindow"
+                                          Selection="_slots" SelectionChanged="OnSlotsChanged" />
+                    </section>
+
+                    <section class="dh-panel dh-rise" style="--d:220ms">
+                        <div class="dh-panel__head">
+                            <h2>Reviews</h2>
+                            @if (_reviews is not null && _reviews.Items.Count > 0)
+                            {
+                                <span class="dh-count">@_reviews.Items.Count</span>
+                            }
+                        </div>
+                        @if (_reviews is null || _reviews.Items.Count == 0)
+                        {
+                            <p class="dh-muted">No reviews yet.</p>
+                        }
+                        else
+                        {
+                            <div class="dh-list">
+                                @foreach (var r in _reviews.Items)
+                                {
+                                    <div class="dh-review">
+                                        <div class="dh-review__head">
+                                            <strong>@r.ReviewerName</strong>
+                                            <RatingStars Value="r.Rating" ShowCount="false" />
+                                        </div>
+                                        <p>@r.Comment</p>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </section>
                 </div>
 
-                <div class="hs-detail__actions">
-                    <button class="nx-btn nx-btn--primary" disabled="@_helper.IsMine" @onclick="HandleRequest">
-                        Request engagement
+                <aside class="dh-book dh-rise" style="--d:100ms" aria-label="Booking">
+                    <p class="dh-book__price">
+                        @Money.Format(_helper.MonthlyRate)<span>/month</span>
+                    </p>
+
+                    <dl class="dh-book__facts">
+                        <div>
+                            <dt>
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
+                                Works
+                            </dt>
+                            <dd>@_helper.AvailabilityWindow</dd>
+                        </div>
+                        <div>
+                            <dt>
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>
+                                Area
+                            </dt>
+                            <dd>@_helper.AreaName</dd>
+                        </div>
+                        <div>
+                            <dt>
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 14.5 9h6l-5 4 2 6-5.5-4-5.5 4 2-6-5-4h6Z" /></svg>
+                                Rating
+                            </dt>
+                            <dd>@_helper.RatingAverage.ToString("0.0") · @_helper.RatingCount review(s)</dd>
+                        </div>
+                    </dl>
+
+                    <div class="dh-book__picks">
+                        @if (_slots.Count == 0)
+                        {
+                            <p class="dh-book__hint">Pick the hours you need on the board — up to 3 a day. Sending without any is fine too.</p>
+                        }
+                        else
+                        {
+                            <p class="dh-book__hint dh-book__hint--on">
+                                <strong>@_slots.Count</strong> @(_slots.Count == 1 ? "hour" : "hours") across
+                                @_slots.Select(s => s.Date).Distinct().Count() day(s)
+                            </p>
+                        }
+                    </div>
+
+                    <button class="nx-btn nx-btn--accent nx-btn--block" disabled="@(_helper.IsMine || _requesting)" @onclick="HandleRequest">
+                        @(_requesting
+                            ? "Sending..."
+                            : _slots.Count == 0
+                                ? "Request engagement"
+                                : $"Request {_slots.Count} {(_slots.Count == 1 ? "hour" : "hours")}")
                     </button>
-                    <button class="nx-btn nx-btn--ghost" @onclick="HandleReport">
+
+                    <button class="nx-btn nx-btn--ghost nx-btn--block" @onclick="HandleReport">
                         <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true">
                             <path d="M12 9v4M12 17h.01M10.3 3.9 2.6 17a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" />
                         </svg>
                         Report
                     </button>
-                </div>
 
-                <section class="hs-detail__section">
-                    <h2>Reviews</h2>
-                    @if (_reviews is null || _reviews.Items.Count == 0)
-                    {
-                        <p>No reviews yet.</p>
-                    }
-                    else
-                    {
-                        @foreach (var r in _reviews.Items)
-                        {
-                            <div class="hs-review">
-                                <div class="hs-review__head">
-                                    <strong>@r.ReviewerName</strong>
-                                    <RatingStars Value="r.Rating" ShowCount="false" />
-                                </div>
-                                <p>@r.Comment</p>
-                            </div>
-                        }
-                    }
-                </section>
+                    <p class="dh-book__note">Contact details are shared only after @FirstName confirms.</p>
+                </aside>
             </article>
         }
     </div>
-</section>
+</div>
 
 @code {
     [Parameter] public string Id { get; set; } = string.Empty;
 
     private HelperDetailDto? _helper;
     private HelperPageDto<ReviewDto>? _reviews;
+    private List<EngagementSlotDto> _slots = new();
     private bool _loading = true;
+    private bool _requesting;
+
+    private string FirstName =>
+        _helper?.Name.Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? "the helper";
 
     protected override Task OnParametersSetAsync() => LoadAsync();
 
     private async Task LoadAsync()
     {
         _loading = true;
+        _slots = new List<EngagementSlotDto>();
         _helper = await Helpers.GetHelperAsync(Id);
         if (_helper is not null)
         {
@@ -121,10 +196,31 @@
         _loading = false;
     }
 
+    private void OnSlotsChanged(List<EngagementSlotDto> slots) => _slots = slots;
+
     private async Task HandleRequest()
     {
-        await Helpers.RequestEngagementAsync(Id);
-        Toast.ShowInfo("Engagement request sent.", "Requested");
+        _requesting = true;
+        try
+        {
+            await Helpers.RequestEngagementAsync(Id, _slots);
+
+            Toast.ShowInfo(
+                _slots.Count == 0
+                    ? "Engagement request sent."
+                    : $"Engagement request sent for {_slots.Count} hour(s).",
+                "Requested");
+
+            _slots = new List<EngagementSlotDto>();
+        }
+        catch
+        {
+            Toast.ShowInfo("Could not send the request. Try again in a moment.", "Something went wrong");
+        }
+        finally
+        {
+            _requesting = false;
+        }
     }
 
     private void HandleReport()

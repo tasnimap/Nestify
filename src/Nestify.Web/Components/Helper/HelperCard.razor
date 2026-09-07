@@ -1,26 +1,30 @@
 @using Nestify.Shared.Dtos.Helpers
 @using Nestify.Web.Components
-<a class="hs-card" href="helpers/@Helper.Id">
-    <div class="hs-card__body">
-        <div class="hs-card__person">
-            <img class="hs-ava" src="@HelperView.PhotoUrl(Helper.Name)" alt="Photo of @Helper.Name" loading="lazy" />
-            <h3 class="hs-card__title">@Helper.Name</h3>
-        </div>
-        <p class="hs-card__services">@string.Join(", ", Helper.Services)</p>
-        <RatingStars Value="Helper.RatingAverage" Count="Helper.RatingCount" />
-        <p class="hs-card__rate">৳@Helper.MonthlyRate.ToString("N0") /mo</p>
-        <p class="hs-card__area">
+<a class="dh-card" href="helpers/@Helper.Id" style="--d:@(Delay)ms">
+    <div class="dh-card__photo">
+        <img src="@HelperView.PhotoUrl(Helper.Name)" alt="Photo of @Helper.Name" loading="lazy" />
+        <span class="dh-card__rate">৳@Helper.MonthlyRate.ToString("N0") /mo</span>
+    </div>
+    <h3 class="dh-card__title">@Helper.Name</h3>
+    <p class="dh-card__services">@string.Join(", ", Helper.Services)</p>
+    <RatingStars Value="Helper.RatingAverage" Count="Helper.RatingCount" />
+    <p class="dh-card__area">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>
+        <span>
             @Helper.AreaName
             @if (Helper.Distance is not null)
             {
                 <span> · @DistanceLabel(Helper.Distance.Value)</span>
             }
-        </p>
-    </div>
+        </span>
+    </p>
 </a>
 
 @code {
     [Parameter, EditorRequired] public HelperSummaryDto Helper { get; set; } = default!;
+
+    /// <summary>Stagger for the entrance animation when cards are rendered in a grid.</summary>
+    [Parameter] public int Delay { get; set; }
 
     private static string DistanceLabel(DistanceBand band) => band switch
     {
