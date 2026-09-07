@@ -10,13 +10,23 @@
     gap: .9rem;
     padding: 1.1rem 1.15rem;
     border: 1.5px dashed var(--nx-border-strong);
-    border-radius: 14px;
+    border-radius: 16px;
     background: var(--nx-primary-softer);
     cursor: pointer;
-    transition: border-color .16s ease, background .16s ease;
+    transition:
+        border-color var(--mk-fast) ease,
+        background var(--mk-fast) ease,
+        transform var(--mk-mid) var(--mk-ease),
+        box-shadow var(--mk-mid) var(--mk-ease);
 }
 
-.mk-up__zone:hover { border-color: var(--nx-primary); background: var(--nx-primary-soft); }
+.mk-up__zone:hover {
+    border-color: var(--nx-primary);
+    background: var(--nx-primary-soft);
+    transform: translateY(-2px);
+    box-shadow: var(--nx-shadow-md);
+}
+.mk-up__zone:hover .mk-up__zone-icon { transform: translateY(-2px) rotate(-4deg); }
 .mk-up__zone.is-full { cursor: not-allowed; opacity: .6; }
 
 .mk-up__zone ::deep input[type=file] {
@@ -38,6 +48,7 @@
     border: 1px solid var(--nx-border);
     color: var(--nx-primary);
     flex: none;
+    transition: transform var(--mk-mid) var(--mk-spring);
 }
 .mk-up__zone-icon svg { width: 1.3rem; height: 1.3rem; }
 
@@ -64,7 +75,10 @@
     border: 1px solid var(--nx-border);
     border-radius: 12px;
     background: #fff;
+    animation: mk-pop .35s var(--mk-ease) both;
+    transition: border-color var(--mk-fast) ease, box-shadow var(--mk-mid) ease;
 }
+.mk-up__item:hover { border-color: var(--nx-border-strong); box-shadow: var(--nx-shadow-sm); }
 
 .mk-up__item ::deep .mk-tile { aspect-ratio: 1 / 1; border-radius: 8px; }
 .mk-up__item ::deep .mk-tile__mono { font-size: 1.1rem; }
@@ -89,9 +103,9 @@
     background: var(--nx-bg-alt);
     cursor: pointer;
     color: var(--nx-muted);
-    transition: color .15s ease, border-color .15s ease;
+    transition: color var(--mk-fast) ease, border-color var(--mk-fast) ease, transform var(--mk-mid) var(--mk-spring);
 }
-.mk-up__remove:hover { color: var(--nx-danger); border-color: var(--nx-danger); }
+.mk-up__remove:hover { color: var(--nx-danger); border-color: var(--nx-danger); transform: rotate(90deg); }
 .mk-up__remove svg { width: .8rem; height: .8rem; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; }
 
 .mk-up__note {
@@ -102,3 +116,8 @@
     color: var(--nx-muted);
 }
 .mk-up__note .nx-icon { width: 1rem; height: 1rem; flex: none; margin-top: .1rem; }
+
+@media (max-width: 560px) {
+    .mk-up__zone { padding: .9rem; gap: .7rem; }
+    .mk-up__list { grid-template-columns: repeat(auto-fill, minmax(min(100%, 130px), 1fr)); }
+}
