@@ -32,6 +32,9 @@ builder.Services.AddScoped(sp =>
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 
+// Extra profile details (picture, occupation, address, socials)
+builder.Services.AddScoped<IUserProfileService, UserProfileService>();
+
 // Dev-only mock "who's logged in" state — must be Singleton so it survives page navigation
 builder.Services.AddSingleton<ICurrentUserService, MockCurrentUserService>();
 

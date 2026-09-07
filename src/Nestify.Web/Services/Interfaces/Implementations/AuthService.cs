@@ -15,15 +15,18 @@ public sealed class AuthService : IAuthService
     private readonly HttpClient _httpClient;
     private readonly ILocalStorageService _localStorage;
     private readonly CustomAuthStateProvider _authStateProvider;
+    private readonly IUserProfileService _profiles;
 
     public AuthService(
         HttpClient httpClient,
         ILocalStorageService localStorage,
-        CustomAuthStateProvider authStateProvider)
+        CustomAuthStateProvider authStateProvider,
+        IUserProfileService profiles)
     {
         _httpClient = httpClient;
         _localStorage = localStorage;
         _authStateProvider = authStateProvider;
+        _profiles = profiles;
     }
 
     public async Task<AuthResponseDto?> RegisterAsync(RegisterRequestDto request)
@@ -51,6 +54,7 @@ public sealed class AuthService : IAuthService
         await _localStorage.RemoveItemAsync(TokenStorageKey);
         await _localStorage.RemoveItemAsync(RefreshStorageKey);
         _authStateProvider.MarkUserAsLoggedOut();
+        _profiles.Clear();
         _httpClient.DefaultRequestHeaders.Authorization = null;
     }
 

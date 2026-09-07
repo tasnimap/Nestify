@@ -2,6 +2,7 @@ using System.Data;
 using System.Net;
 using Dapper;
 using Nestify.Api.Data;
+using Nestify.Api.Profiles;
 using Nestify.Shared.Dtos.Auth;
 
 namespace Nestify.Api.Auth;
@@ -65,6 +66,9 @@ public sealed class AuthService
             "INSERT INTO user_roles (user_id, role_id) VALUES (@userId, @accountType)",
             new { userId, accountType },
             transaction);
+
+        // Every new account starts with an additional-profile row holding the default picture.
+        await UserProfileService.EnsureRowAsync(connection, transaction, userId);
 
         var role = RoleFor(accountType);
         var response = await IssueTokensAsync(connection, transaction, userId, name, email, role, null, ip);

@@ -1,6 +1,8 @@
 @implements IDisposable
 @inject NavigationManager Navigation
 @inject Nestify.Web.Services.Interfaces.IAuthService AuthService
+@inject Nestify.Web.Services.Interfaces.IUserProfileService ProfileService
+@inject AuthenticationStateProvider AuthStateProvider
 
 <header class="nav">
     <div class="nx-container nav__inner">
@@ -43,7 +45,16 @@
                                 aria-haspopup="true"
                                 aria-expanded="@_menuOpen.ToString().ToLowerInvariant()"
                                 @onclick="ToggleMenu">
-                            <span class="nav__avatar" aria-hidden="true">@Initials(context.User.Identity?.Name)</span>
+                            <span class="nav__avatar" aria-hidden="true">
+                                @if (PictureUrl is not null)
+                                {
+                                    <img src="@PictureUrl" alt="" />
+                                }
+                                else
+                                {
+                                    @Initials(context.User.Identity?.Name)
+                                }
+                            </span>
                             <span class="nav__account-name">@(context.User.Identity?.Name ?? "Profile")</span>
                             <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
                         </button>
@@ -83,10 +94,40 @@
     private bool _open;
     private bool _menuOpen;
 
-    protected override void OnInitialized()
+    private string? PictureUrl => ProfileService.Current?.ProfilePictureUrl;
+
+    protected override async Task OnInitializedAsync()
     {
         Navigation.LocationChanged += HandleLocationChanged;
+        ProfileService.Changed += HandleProfileChanged;
+        AuthStateProvider.AuthenticationStateChanged += HandleAuthStateChanged;
+
+        await LoadPictureAsync();
     }
+
+    // The profile is cached by the service, so this only hits the API once per session.
+    private async Task LoadPictureAsync()
+    {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        if (state.User.Identity?.IsAuthenticated != true)
+        {
+            return;
+        }
+
+        try
+        {
+            await ProfileService.GetMyProfileAsync();
+        }
+        catch
+        {
+            // No picture is not worth breaking the navbar over; the initials stay.
+        }
+    }
+
+    private void HandleProfileChanged() => InvokeAsync(StateHasChanged);
+
+    private void HandleAuthStateChanged(Task<AuthenticationState> task) =>
+        InvokeAsync(LoadPictureAsync);
 
     private void Toggle() => _open = !_open;
     private void ToggleMenu() => _menuOpen = !_menuOpen;
@@ -131,5 +172,7 @@
     public void Dispose()
     {
         Navigation.LocationChanged -= HandleLocationChanged;
+        ProfileService.Changed -= HandleProfileChanged;
+        AuthStateProvider.AuthenticationStateChanged -= HandleAuthStateChanged;
     }
 }
