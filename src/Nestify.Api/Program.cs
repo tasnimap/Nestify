@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using Nestify.Api.Auth;
 using Nestify.Api.Data;
 using Nestify.Api.Helpers;
+using Nestify.Api.Homes;
 using Nestify.Api.Profiles;
 
 // Load secrets from a .env file at (or above) the working directory.
@@ -43,6 +44,7 @@ builder.Services.AddSingleton<JwtTokenService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<HelperService>();
 builder.Services.AddScoped<UserProfileService>();
+builder.Services.AddScoped<HomeService>();
 builder.Services.AddSingleton(cloudinarySettings);
 builder.Services.AddHttpClient<CloudinaryUploader>();
 

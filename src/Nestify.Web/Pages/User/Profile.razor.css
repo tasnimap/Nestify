@@ -700,6 +700,37 @@
     transition: border-color .25s ease, box-shadow .25s ease;
 }
 
+/* Password box with its Show/Hide toggle sitting inside the right edge. Same
+   pill as the one on the registration form (.field__toggle in auth.css). */
+.up-pw {
+    position: relative;
+    display: flex;
+}
+
+.up-pw input {
+    padding-right: 4.5rem;
+}
+
+.up-pw__toggle {
+    position: absolute;
+    top: 50%;
+    right: .5rem;
+    transform: translateY(-50%);
+    padding: .4rem .6rem;
+    border: 0;
+    border-radius: 8px;
+    background: var(--nx-primary-soft);
+    color: var(--nx-primary-strong);
+    font: inherit;
+    font-size: .78rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.up-pw__toggle:hover {
+    background: var(--nx-border);
+}
+
 .up-field input:focus,
 .up-field select:focus {
     outline: none;

@@ -22,6 +22,23 @@ public sealed class HomeMemberView
     public bool IsMe { get; set; }
 }
 
+/// <summary>Somebody waiting for the manager to let them in.</summary>
+public sealed class HomeJoinRequestView
+{
+    public string Id { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public DateTime RequestedAtUtc { get; set; }
+}
+
+/// <summary>The request the caller is waiting on, while they are in no home yet.</summary>
+public sealed class MyJoinRequestView
+{
+    public string Id { get; set; } = string.Empty;
+    public string HomeName { get; set; } = string.Empty;
+    public DateTime RequestedAtUtc { get; set; }
+}
+
 public sealed class HomeView
 {
     public string Id { get; set; } = string.Empty;
@@ -34,6 +51,9 @@ public sealed class HomeView
     public string JoinCode { get; set; } = string.Empty;
     public DateTime CreatedAtUtc { get; set; }
     public List<HomeMemberView> Members { get; set; } = new();
+
+    /// <summary>Only ever filled in for a manager or co-manager.</summary>
+    public List<HomeJoinRequestView> PendingRequests { get; set; } = new();
 
     public HomeRole MyRole => Members.FirstOrDefault(m => m.IsMe)?.Role ?? HomeRole.Member;
 }
@@ -58,6 +78,9 @@ public sealed record HomeActionResult(bool Ok, string Message);
 public static class HomeRules
 {
     public static bool CanAddMembers(HomeRole actor) => actor != HomeRole.Member;
+
+    // The same people who add members answer the join requests.
+    public static bool CanReviewRequests(HomeRole actor) => actor != HomeRole.Member;
 
     public static bool CanEditDetails(HomeRole actor) => actor != HomeRole.Member;
 
@@ -101,8 +124,23 @@ public interface IHomeService
     /// <summary>Creates a home; the caller becomes its manager.</summary>
     Task<HomeView> CreateHomeAsync(HomeDetailsRequest request, string myName, string myEmail);
 
-    /// <summary>Joins by code; the caller becomes a member. Fails on an unknown code.</summary>
+    /// <summary>
+    /// Asks to join by code. This does not join the house: it files a request the
+    /// manager or a co-manager has to approve. Fails on an unknown code.
+    /// </summary>
     Task<HomeActionResult> JoinHomeAsync(string joinCode, string myName, string myEmail);
+
+    /// <summary>The request the caller is waiting on, or null when there is none.</summary>
+    Task<MyJoinRequestView?> GetMyJoinRequestAsync();
+
+    /// <summary>Takes back the caller's own pending request.</summary>
+    Task<HomeActionResult> CancelMyJoinRequestAsync();
+
+    /// <summary>Lets the person in as a member. Manager and co-manager only.</summary>
+    Task<HomeActionResult> ApproveJoinRequestAsync(string requestId);
+
+    /// <summary>Turns the request down. Manager and co-manager only.</summary>
+    Task<HomeActionResult> RejectJoinRequestAsync(string requestId);
 
     /// <summary>Edits name, address and coordinates. Manager and co-manager only.</summary>
     Task<HomeActionResult> UpdateHomeDetailsAsync(HomeDetailsRequest request);

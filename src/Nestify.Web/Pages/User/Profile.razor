@@ -206,15 +206,33 @@ else
                 <div class="up-modal__body up-modal__body--stack">
                     <div class="up-field">
                         <label for="pw-current">Current password</label>
-                        <input id="pw-current" type="password" @bind="_currentPassword" />
+                        <div class="up-pw">
+                            <input id="pw-current" type="@PasswordType(_showCurrent)" @bind="_currentPassword" />
+                            <button type="button" class="up-pw__toggle" @onclick="() => _showCurrent = !_showCurrent"
+                                    aria-label="@(_showCurrent ? "Hide" : "Show") password">
+                                @(_showCurrent ? "Hide" : "Show")
+                            </button>
+                        </div>
                     </div>
                     <div class="up-field">
                         <label for="pw-new">New password</label>
-                        <input id="pw-new" type="password" @bind="_newPassword" />
+                        <div class="up-pw">
+                            <input id="pw-new" type="@PasswordType(_showNew)" @bind="_newPassword" />
+                            <button type="button" class="up-pw__toggle" @onclick="() => _showNew = !_showNew"
+                                    aria-label="@(_showNew ? "Hide" : "Show") password">
+                                @(_showNew ? "Hide" : "Show")
+                            </button>
+                        </div>
                     </div>
                     <div class="up-field">
                         <label for="pw-confirm">Confirm new password</label>
-                        <input id="pw-confirm" type="password" @bind="_confirmPassword" />
+                        <div class="up-pw">
+                            <input id="pw-confirm" type="@PasswordType(_showConfirm)" @bind="_confirmPassword" />
+                            <button type="button" class="up-pw__toggle" @onclick="() => _showConfirm = !_showConfirm"
+                                    aria-label="@(_showConfirm ? "Hide" : "Show") password">
+                                @(_showConfirm ? "Hide" : "Show")
+                            </button>
+                        </div>
                     </div>
 
                     @if (_passwordError is not null)
@@ -259,6 +277,13 @@ else
     private string _confirmPassword = string.Empty;
     private string? _passwordError;
     private string? _passwordDone;
+
+    // One Show/Hide toggle per password box.
+    private bool _showCurrent;
+    private bool _showNew;
+    private bool _showConfirm;
+
+    private static string PasswordType(bool visible) => visible ? "text" : "password";
 
     private string PhotoUrl => string.IsNullOrWhiteSpace(_profile?.ProfilePictureUrl)
         ? UserProfileDto.DefaultPictureUrl
@@ -428,6 +453,7 @@ else
     {
         _currentPassword = _newPassword = _confirmPassword = string.Empty;
         _passwordError = _passwordDone = null;
+        _showCurrent = _showNew = _showConfirm = false;
         _showPassword = true;
     }
 
