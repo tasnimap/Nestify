@@ -57,10 +57,11 @@
     display: grid;
     gap: .85rem;
     padding: 1.35rem;
-    background: var(--nx-card);
+    background: linear-gradient(180deg, #fff, var(--nx-primary-softer));
     border: 1px solid var(--nx-border);
-    border-radius: var(--nx-radius);
+    border-radius: 18px;
     box-shadow: var(--nx-shadow-md);
+    animation: mk-rise .5s var(--mk-ease) both;
 }
 
 @media (min-width: 940px) {
@@ -90,11 +91,12 @@
 
 .mk-buybox__notice {
     padding: .8rem .9rem;
-    border-radius: 10px;
+    border-radius: 12px;
     background: var(--nx-primary-soft);
     color: var(--nx-primary-strong);
     font-size: .88rem;
     font-weight: 600;
+    animation: mk-pop .35s var(--mk-ease) both;
 }
 .mk-buybox__notice--ok {
     background: var(--nx-accent-soft);
@@ -107,8 +109,9 @@
     gap: .5rem;
     padding: .9rem;
     border: 1px solid var(--nx-border);
-    border-radius: 12px;
-    background: var(--nx-bg-alt);
+    border-radius: 14px;
+    background: #fff;
+    animation: mk-pop .35s var(--mk-ease) both;
 }
 .mk-buybox__form label {
     font-size: .78rem;
@@ -120,23 +123,28 @@
 .mk-buybox__form textarea,
 .mk-buybox__form select {
     width: 100%;
-    padding: .6rem .7rem;
+    padding: .65rem .7rem;
     border: 1.5px solid var(--nx-border-strong);
-    border-radius: 9px;
+    border-radius: 11px;
     font: inherit;
     font-size: .9rem;
     background: #fff;
     color: var(--nx-ink);
     resize: vertical;
+    transition: border-color var(--mk-fast) ease, box-shadow var(--mk-mid) var(--mk-ease);
 }
 .mk-buybox__form textarea:focus,
-.mk-buybox__form select:focus { outline: none; border-color: var(--nx-primary); }
+.mk-buybox__form select:focus {
+    outline: none;
+    border-color: var(--nx-primary);
+    box-shadow: 0 0 0 4px var(--nx-primary-soft);
+}
 
 .mk-buybox__form-actions {
     display: flex;
     gap: .5rem;
 }
-.mk-buybox__form-actions .nx-btn { flex: 1; min-height: 40px; padding-inline: .75rem; }
+.mk-buybox__form-actions .nx-btn { flex: 1; min-height: 44px; padding-inline: .75rem; }
 
 .mk-buybox__report {
     display: inline-flex;
@@ -151,6 +159,7 @@
     font-weight: 600;
     color: var(--nx-muted);
     cursor: pointer;
+    transition: color var(--mk-fast) ease;
 }
 .mk-buybox__report:hover { color: var(--nx-danger); }
 .mk-buybox__report svg { width: .95rem; height: .95rem; }
@@ -161,4 +170,12 @@
     line-height: 1.5;
     border-top: 1px solid var(--nx-border);
     padding-top: .75rem;
+}
+
+@media (max-width: 560px) {
+    .mk-detail { gap: 1.1rem; }
+    .mk-buybox__inner { padding: 1.1rem; border-radius: 15px; }
+    .mk-seller { gap: .75rem; }
+    .mk-buybox__form-actions { flex-wrap: wrap; }
+    .mk-buybox__form-actions .nx-btn { flex: 1 1 8rem; }
 }
