@@ -2,172 +2,284 @@ namespace Nestify.Web.Services;
 
 public sealed class SettlementWorkspaceService
 {
-    public const int PeriodYear = 2026;
-    public const int PeriodMonth = 9;
-
     private static readonly string[] Members = ["Rafi", "Sadia", "Tanvir", "Nabil"];
-    private readonly List<ExpenseEntry> _expenses = [];
-    private readonly List<ContributionEntry> _contributions = [];
-    private readonly Dictionary<MealCellKey, MealCell> _mealCells = [];
-    private readonly DateTime[] _days;
+
+    private readonly List<MonthKey> _months = [];
+    private readonly Dictionary<MonthKey, MonthData> _data = [];
+    private int _index;
 
     public SettlementWorkspaceService()
     {
-        _days = Enumerable.Range(1, DateTime.DaysInMonth(PeriodYear, PeriodMonth))
-            .Select(day => CreatePeriodDateUtc(day))
-            .ToArray();
+        // Demo history. Closed months are finalized; the newest one is still open for edits.
+        SeedMonth(new MonthKey(2026, 6), electricity: 3900m, water: 820m, finalized: true);
+        SeedMonth(new MonthKey(2026, 7), electricity: 3600m, water: 880m, finalized: true);
+        SeedMonth(new MonthKey(2026, 8), electricity: 3450m, water: 900m, finalized: true);
+        SeedMonth(new MonthKey(2026, 9), electricity: 3240m, water: 860m, finalized: false);
 
-        SeedExpenses();
-        SeedMeals();
+        _index = _months.Count - 1;
     }
 
     public IReadOnlyList<string> MemberNames => Members;
-    public IReadOnlyList<DateTime> Days => _days;
-    public IReadOnlyList<ExpenseEntry> Expenses => _expenses;
-    public IReadOnlyList<ContributionEntry> Contributions => _contributions;
 
-    public bool IsFinalized { get; private set; }
+    /// <summary>Which member the signed-in person is. Fixed while the workspace is still mock data.</summary>
+    public string CurrentMember => Members[0];
 
-    public decimal TotalExpenses => _expenses.Sum(item => item.Amount);
-    public decimal TotalContributions => _contributions.Sum(item => item.Amount);
+    // ---------- month navigation ----------
 
-    public static DateTime CreatePeriodDateUtc(int day) =>
-        new(PeriodYear, PeriodMonth, day, 12, 0, 0, DateTimeKind.Utc);
+    public IReadOnlyList<MonthKey> Months => _months;
+    public MonthKey CurrentMonth => _months[_index];
+    public string PeriodLabel => CurrentMonth.Label;
+
+    public bool HasPreviousMonth => _index > 0;
+    public bool HasNextMonth => _index < _months.Count - 1;
+
+    /// <summary>True for the newest month, the only one still being filled in.</summary>
+    public bool IsLatestMonth => _index == _months.Count - 1;
+
+    public void GoToPreviousMonth()
+    {
+        if (HasPreviousMonth)
+        {
+            _index--;
+        }
+    }
+
+    public void GoToNextMonth()
+    {
+        if (HasNextMonth)
+        {
+            _index++;
+        }
+    }
+
+    private MonthData Current => _data[CurrentMonth];
+
+    // ---------- current month ----------
+
+    public IReadOnlyList<DateTime> Days => Current.Days;
+    public IReadOnlyList<BillEntry> Bills => Current.Bills;
+    public IReadOnlyList<PaymentEntry> Payments => Current.Payments;
+    public bool IsFinalized => Current.IsFinalized;
+
+    /// <summary>Everything the house owes this month, split equally between members.</summary>
+    public decimal BillsTotal => Current.Bills.Sum(bill => bill.Amount);
+
+    /// <summary>Money members handed over for groceries and bazar runs.</summary>
+    public decimal MealFundTotal => Current.Payments
+        .Where(payment => payment.Kind == PaymentKind.MealFund)
+        .Sum(payment => payment.Amount);
+
+    /// <summary>Money members handed over toward the shared bills.</summary>
+    public decimal SharedFundTotal => Current.Payments
+        .Where(payment => payment.Kind == PaymentKind.SharedBills)
+        .Sum(payment => payment.Amount);
+
+    public decimal TotalPaid => Current.Payments.Sum(payment => payment.Amount);
+
+    /// <summary>Bill money the house has not collected from members yet.</summary>
+    public decimal OutstandingBills => BillsTotal - SharedFundTotal;
+
+    public decimal TotalMeals => Current.MealCells.Values.Sum(cell => cell.Total);
+
+    public decimal PerMealRate => TotalMeals == 0m
+        ? 0m
+        : Math.Round(MealFundTotal / TotalMeals, 4, MidpointRounding.AwayFromZero);
+
+    public DateTime CreateDateUtc(int day) =>
+        new(CurrentMonth.Year, CurrentMonth.Month, day, 12, 0, 0, DateTimeKind.Utc);
 
     public static DateTime ToSettlementDateUtc(DateTime date) =>
         new(date.Year, date.Month, date.Day, 12, 0, 0, DateTimeKind.Utc);
 
-    public static DateTime GetDefaultFormDate()
+    /// <summary>Sensible default for the date pickers: today when we are in this month, else the 1st.</summary>
+    public DateTime GetDefaultFormDate()
     {
         var today = DateTime.UtcNow;
-        if (today.Year == PeriodYear && today.Month == PeriodMonth)
-        {
-            return new DateTime(PeriodYear, PeriodMonth, today.Day);
-        }
-
-        return new DateTime(PeriodYear, PeriodMonth, 1);
+        return today.Year == CurrentMonth.Year && today.Month == CurrentMonth.Month
+            ? new DateTime(CurrentMonth.Year, CurrentMonth.Month, today.Day)
+            : new DateTime(CurrentMonth.Year, CurrentMonth.Month, 1);
     }
 
-    public ExpenseEntry AddExpense(string description, decimal amount, string paidBy, string category, DateTime date)
+    // ---------- bills ----------
+
+    public BillEntry AddBill(string name, decimal amount, string icon = "other")
     {
-        var entry = new ExpenseEntry
+        var entry = new BillEntry
         {
-            Description = description.Trim(),
+            Name = name.Trim(),
             Amount = amount,
-            PaidBy = paidBy,
-            Category = category,
-            DateUtc = ToSettlementDateUtc(date)
+            Icon = icon,
+            IsCustom = true
         };
 
-        _expenses.Insert(0, entry);
-        _contributions.Insert(0, ContributionEntry.FromExpense(entry));
+        Current.Bills.Add(entry);
         return entry;
     }
 
-    public ContributionEntry AddContribution(string member, decimal amount, string note, DateTime paidOn)
-    {
-        var entry = new ContributionEntry
-        {
-            Member = member,
-            Amount = amount,
-            Source = "Direct cash",
-            Note = note.Trim(),
-            PaidOnUtc = ToSettlementDateUtc(paidOn)
-        };
-
-        _contributions.Insert(0, entry);
-        return entry;
-    }
-
-    public decimal GetContributionTotal(string member) => _contributions
-        .Where(item => item.Member == member)
-        .Sum(item => item.Amount);
-
-    public MealCell GetMealCell(MealCellKey key) => _mealCells[key];
-
-    public void ChangeMealCell(MealCellKey key, decimal value)
+    public void UpdateBillAmount(Guid billId, decimal amount)
     {
         if (IsFinalized)
         {
             return;
         }
 
-        var cell = _mealCells[key];
-        cell.Value = Math.Clamp(value, 0m, 10m);
+        var bill = Current.Bills.FirstOrDefault(item => item.Id == billId);
+        if (bill is not null)
+        {
+            bill.Amount = Math.Max(0m, amount);
+        }
+    }
+
+    public void ToggleBillSettled(Guid billId)
+    {
+        if (IsFinalized)
+        {
+            return;
+        }
+
+        var bill = Current.Bills.FirstOrDefault(item => item.Id == billId);
+        if (bill is not null)
+        {
+            bill.IsSettled = !bill.IsSettled;
+        }
+    }
+
+    public void RemoveBill(Guid billId)
+    {
+        if (IsFinalized)
+        {
+            return;
+        }
+
+        Current.Bills.RemoveAll(item => item.Id == billId && item.IsCustom);
+    }
+
+    // ---------- payments ----------
+
+    public PaymentEntry AddPayment(string member, decimal amount, PaymentKind kind, string note, DateTime paidOn)
+    {
+        var entry = new PaymentEntry
+        {
+            Member = member,
+            Amount = amount,
+            Kind = kind,
+            Note = note.Trim(),
+            PaidOnUtc = ToSettlementDateUtc(paidOn)
+        };
+
+        Current.Payments.Insert(0, entry);
+        return entry;
+    }
+
+    public void RemovePayment(Guid paymentId)
+    {
+        if (IsFinalized)
+        {
+            return;
+        }
+
+        Current.Payments.RemoveAll(item => item.Id == paymentId);
+    }
+
+    public decimal GetPaidTotal(string member) => Current.Payments
+        .Where(item => item.Member == member)
+        .Sum(item => item.Amount);
+
+    public decimal GetPaidTotal(string member, PaymentKind kind) => Current.Payments
+        .Where(item => item.Member == member && item.Kind == kind)
+        .Sum(item => item.Amount);
+
+    // ---------- meals ----------
+
+    public MealCell GetMealCell(MealCellKey key) => Current.MealCells[key];
+
+    public void ChangeMealSlot(MealCellKey key, MealSlot slot, decimal value)
+    {
+        if (IsFinalized)
+        {
+            return;
+        }
+
+        var cell = Current.MealCells[key];
+        var clamped = Math.Clamp(value, 0m, 5m);
+
+        switch (slot)
+        {
+            case MealSlot.Breakfast:
+                cell.Breakfast = clamped;
+                break;
+            case MealSlot.Lunch:
+                cell.Lunch = clamped;
+                break;
+            default:
+                cell.Dinner = clamped;
+                break;
+        }
+
         cell.IsDirty = true;
     }
 
+    public decimal GetMemberSlotTotal(string member, MealSlot slot) => Current.Days
+        .Sum(day => GetMealCell(new MealCellKey(DateOnly.FromDateTime(day), member))[slot]);
+
+    public bool HasUnsavedMeals => Current.MealCells.Values.Any(cell => cell.IsDirty);
+
     public decimal GetDayMealTotal(DateTime day) => Members
-        .Sum(member => GetMealCell(new MealCellKey(DateOnly.FromDateTime(day), member)).Value);
+        .Sum(member => GetMealCell(new MealCellKey(DateOnly.FromDateTime(day), member)).Total);
 
-    public decimal GetMemberMealTotal(string member) => _days
-        .Sum(day => GetMealCell(new MealCellKey(DateOnly.FromDateTime(day), member)).Value);
-
-    public decimal TotalMeals => _mealCells.Values.Sum(cell => cell.Value);
+    public decimal GetMemberMealTotal(string member) => Current.Days
+        .Sum(day => GetMealCell(new MealCellKey(DateOnly.FromDateTime(day), member)).Total);
 
     public void MarkMealsSaved()
     {
-        foreach (var cell in _mealCells.Values.Where(cell => cell.IsDirty))
+        foreach (var cell in Current.MealCells.Values.Where(cell => cell.IsDirty))
         {
-            cell.RowVersion++;
             cell.IsDirty = false;
         }
     }
 
-    public void MarkMealConflictServerVersion(MealCellKey key)
-    {
-        _mealCells[key].RowVersion++;
-    }
+    // ---------- settlement ----------
 
     public SettlementResult CalculateSettlement()
     {
-        var mealSpending = _expenses
-            .Where(item => item.Category == "Meal based")
-            .Sum(item => item.Amount);
+        var billsTotal = BillsTotal;
+        var mealFund = MealFundTotal;
+        var rate = PerMealRate;
 
-        var equalSplitCosts = _expenses
-            .Where(item => item.Category != "Meal based")
-            .Sum(item => item.Amount);
-
-        var totalMeals = TotalMeals;
-        var perMealRate = totalMeals == 0m
+        var billShare = Members.Length == 0
             ? 0m
-            : Math.Round(mealSpending / totalMeals, 6, MidpointRounding.AwayFromZero);
-
-        var equalShare = Members.Length == 0
-            ? 0m
-            : Math.Round(equalSplitCosts / Members.Length, 2, MidpointRounding.AwayFromZero);
+            : Math.Round(billsTotal / Members.Length, 2, MidpointRounding.AwayFromZero);
 
         var lines = Members
             .Select(member =>
             {
                 var meals = GetMemberMealTotal(member);
-                var mealCost = Math.Round(meals * perMealRate, 2, MidpointRounding.AwayFromZero);
                 return new SettlementLine(
                     member,
                     meals,
-                    mealCost,
-                    equalShare,
-                    GetContributionTotal(member),
+                    Math.Round(meals * rate, 2, MidpointRounding.AwayFromZero),
+                    billShare,
+                    GetPaidTotal(member, PaymentKind.MealFund),
+                    GetPaidTotal(member, PaymentKind.SharedBills),
                     0m,
                     0m);
             })
             .ToList();
 
-        var residual = mealSpending - lines.Sum(line => line.MealCost);
+        // Push the rounding crumbs onto the largest meal cost so the columns still add up.
+        var residual = mealFund - lines.Sum(line => line.MealCost);
         if (residual != 0m && lines.Count > 0)
         {
-            var residualLineIndex = lines
-                .Select((line, index) => new { line, index })
+            var index = lines
+                .Select((line, i) => new { line, i })
                 .OrderByDescending(item => item.line.MealCost)
                 .ThenBy(item => item.line.Member, StringComparer.Ordinal)
                 .First()
-                .index;
+                .i;
 
-            var line = lines[residualLineIndex];
-            lines[residualLineIndex] = line with
+            lines[index] = lines[index] with
             {
-                MealCost = line.MealCost + residual,
+                MealCost = lines[index].MealCost + residual,
                 RoundingAdjustment = residual
             };
         }
@@ -175,148 +287,195 @@ public sealed class SettlementWorkspaceService
         lines = lines
             .Select(line => line with
             {
-                Net = Math.Round(line.Contributions - line.MealCost - line.EqualShare, 2, MidpointRounding.AwayFromZero)
+                Net = Math.Round(line.TotalPaid - line.MealCost - line.BillShare, 2, MidpointRounding.AwayFromZero)
             })
             .ToList();
 
-        var transfers = CalculateTransfers(lines);
-        return new SettlementResult(mealSpending, equalSplitCosts, totalMeals, perMealRate, lines, transfers);
+        return new SettlementResult(billsTotal, mealFund, TotalMeals, rate, billShare, lines);
     }
 
-    public void FinalizePeriod()
-    {
-        IsFinalized = true;
-    }
+    public void FinalizePeriod() => Current.IsFinalized = true;
 
-    private void SeedExpenses()
-    {
-        AddExpense("Gas cylinder refill", 1400.00m, "Rafi", "Equal split", CreatePeriodDateUtc(3));
-        AddExpense("Light bulbs + wiring", 600.00m, "Sadia", "Equal split", CreatePeriodDateUtc(7));
-        AddExpense("Internet bill", 1150.00m, "Tanvir", "Equal split", CreatePeriodDateUtc(10));
-        AddExpense("Groceries (1-10 Sep)", 4500.00m, "Rafi", "Meal based", CreatePeriodDateUtc(12));
-        AddExpense("Groceries (11-20 Sep)", 2800.00m, "Sadia", "Meal based", CreatePeriodDateUtc(20));
-        AddExpense("Rice and fish market", 1900.00m, "Nabil", "Meal based", CreatePeriodDateUtc(27));
-    }
+    // ---------- seed data ----------
 
-    private void SeedMeals()
+    private void SeedMonth(MonthKey key, decimal electricity, decimal water, bool finalized)
     {
-        foreach (var day in _days)
+        var days = Enumerable.Range(1, DateTime.DaysInMonth(key.Year, key.Month))
+            .Select(day => new DateTime(key.Year, key.Month, day, 12, 0, 0, DateTimeKind.Utc))
+            .ToArray();
+
+        var month = new MonthData
+        {
+            Days = days,
+            IsFinalized = finalized,
+            Bills =
+            [
+                new BillEntry { Name = "House rent", Amount = 18000.00m, Icon = "rent", IsSettled = true },
+                new BillEntry { Name = "Electricity bill", Amount = electricity, Icon = "electricity", IsSettled = finalized },
+                new BillEntry { Name = "Water bill", Amount = water, Icon = "water", IsSettled = true },
+                new BillEntry { Name = "Internet bill", Amount = 1150.00m, Icon = "internet", IsSettled = finalized },
+                new BillEntry { Name = "Gas bill", Amount = 1080.00m, Icon = "gas", IsSettled = finalized },
+                new BillEntry { Name = "Garbage collection fee", Amount = 300.00m, Icon = "garbage", IsSettled = true }
+            ]
+        };
+
+        foreach (var day in days)
         {
             foreach (var member in Members)
             {
-                _mealCells[new MealCellKey(DateOnly.FromDateTime(day), member)] = new MealCell
+                var (breakfast, lunch, dinner) = GetSeedMeals(key.Month, day.Day, member);
+                month.MealCells[new MealCellKey(DateOnly.FromDateTime(day), member)] = new MealCell
                 {
-                    Value = GetSeedMealCount(day.Day, member),
-                    RowVersion = 1000 + day.Day
+                    Breakfast = breakfast,
+                    Lunch = lunch,
+                    Dinner = dinner
                 };
             }
         }
+
+        SeedPayments(key, month, finalized);
+
+        _months.Add(key);
+        _data[key] = month;
     }
 
-    private static decimal GetSeedMealCount(int day, string member) => member switch
+    private void SeedPayments(MonthKey key, MonthData month, bool finalized)
     {
-        "Rafi" => day <= 2 ? 3m : 2m,
-        "Sadia" => day <= 5 ? 1m : 2m,
-        "Tanvir" => day <= 11 ? 3m : 2m,
-        "Nabil" => day <= 15 ? 2m : 1m,
-        _ => 0m
-    };
+        void Pay(string member, decimal amount, PaymentKind kind, string note, int day) =>
+            month.Payments.Insert(0, new PaymentEntry
+            {
+                Member = member,
+                Amount = amount,
+                Kind = kind,
+                Note = note,
+                PaidOnUtc = new DateTime(key.Year, key.Month, day, 12, 0, 0, DateTimeKind.Utc)
+            });
 
-    private static List<Transfer> CalculateTransfers(IReadOnlyList<SettlementLine> lines)
-    {
-        var creditors = lines
-            .Where(line => line.Net > 0m)
-            .Select(line => new Balance(line.Member, line.Net))
-            .OrderByDescending(line => line.Amount)
-            .ToList();
+        // Older months drift a little so browsing back actually shows different numbers.
+        var drift = (9 - key.Month) * 200m;
 
-        var debtors = lines
-            .Where(line => line.Net < 0m)
-            .Select(line => new Balance(line.Member, Math.Abs(line.Net)))
-            .OrderByDescending(line => line.Amount)
-            .ToList();
+        Pay("Rafi", 4500.00m + drift, PaymentKind.MealFund, "Groceries, first half", 10);
+        Pay("Sadia", 2800.00m - (drift / 2), PaymentKind.MealFund, "Groceries, second half", 20);
+        Pay("Nabil", 1900.00m + (drift / 4), PaymentKind.MealFund, "Rice and fish market", 27);
 
-        var transfers = new List<Transfer>();
-        var creditorIndex = 0;
-        var debtorIndex = 0;
-
-        while (creditorIndex < creditors.Count && debtorIndex < debtors.Count)
+        if (finalized)
         {
-            var creditor = creditors[creditorIndex];
-            var debtor = debtors[debtorIndex];
-            var amount = Math.Min(creditor.Amount, debtor.Amount);
-
-            transfers.Add(new Transfer(transfers.Count + 1, debtor.Member, creditor.Member, amount));
-
-            creditor.Amount -= amount;
-            debtor.Amount -= amount;
-
-            if (creditor.Amount == 0m)
+            // A closed month collected every member's full share.
+            var share = Math.Round(month.Bills.Sum(bill => bill.Amount) / Members.Length, 2, MidpointRounding.AwayFromZero);
+            foreach (var member in Members)
             {
-                creditorIndex++;
+                Pay(member, share, PaymentKind.SharedBills, "Monthly share", 4);
             }
 
-            if (debtor.Amount == 0m)
-            {
-                debtorIndex++;
-            }
+            return;
         }
 
-        return transfers;
+        Pay("Rafi", 6200.00m, PaymentKind.SharedBills, "Rent share", 2);
+        Pay("Sadia", 6175.00m, PaymentKind.SharedBills, "Rent share", 3);
+        Pay("Tanvir", 5000.00m, PaymentKind.SharedBills, "Partial rent share", 5);
     }
 
-    private sealed class Balance(string member, decimal amount)
+    private static (decimal Breakfast, decimal Lunch, decimal Dinner) GetSeedMeals(int month, int day, string member)
     {
-        public string Member { get; } = member;
-        public decimal Amount { get; set; } = amount;
-    }
+        var threshold = SeedThreshold(month, member);
 
-    public sealed class ExpenseEntry
-    {
-        public Guid Id { get; init; } = Guid.NewGuid();
-        public string Description { get; set; } = string.Empty;
-        public decimal Amount { get; set; }
-        public string PaidBy { get; set; } = string.Empty;
-        public string Category { get; set; } = string.Empty;
-        public DateTime DateUtc { get; set; }
-    }
-
-    public sealed class ContributionEntry
-    {
-        public string Member { get; set; } = string.Empty;
-        public decimal Amount { get; set; }
-        public string Source { get; set; } = string.Empty;
-        public string Note { get; set; } = string.Empty;
-        public DateTime PaidOnUtc { get; set; }
-        public Guid? SourceExpenseId { get; set; }
-
-        public static ContributionEntry FromExpense(ExpenseEntry expense) => new()
+        return member switch
         {
-            Member = expense.PaidBy,
-            Amount = expense.Amount,
-            Source = "Expense",
-            Note = expense.Description,
-            PaidOnUtc = expense.DateUtc,
-            SourceExpenseId = expense.Id
+            "Rafi" => day <= threshold ? (1m, 1m, 1m) : (0.5m, 1m, 0.5m),
+            "Sadia" => day <= threshold ? (0m, 1m, 0m) : (0.5m, 1m, 0.5m),
+            "Tanvir" => day <= threshold ? (1m, 1m, 1m) : (0m, 1m, 1m),
+            "Nabil" => day <= threshold ? (0m, 1m, 1m) : (0m, 1m, 0m),
+            _ => (0m, 0m, 0m)
         };
     }
 
+    /// <summary>Day the member's eating pattern changes, varied per month so the demo history differs.</summary>
+    private static int SeedThreshold(int month, string member) => member switch
+    {
+        "Rafi" => month switch { 9 => 2, 8 => 6, 7 => 4, _ => 3 },
+        "Sadia" => month switch { 9 => 5, 8 => 9, 7 => 7, _ => 12 },
+        "Tanvir" => month switch { 9 => 11, 8 => 8, 7 => 14, _ => 10 },
+        "Nabil" => month switch { 9 => 15, 8 => 20, 7 => 11, _ => 17 },
+        _ => 0
+    };
+
+    private sealed class MonthData
+    {
+        public DateTime[] Days { get; init; } = [];
+        public List<BillEntry> Bills { get; init; } = [];
+        public List<PaymentEntry> Payments { get; } = [];
+        public Dictionary<MealCellKey, MealCell> MealCells { get; } = [];
+        public bool IsFinalized { get; set; }
+    }
+
+    public readonly record struct MonthKey(int Year, int Month)
+    {
+        public string Label => new DateTime(Year, Month, 1).ToString("MMMM yyyy");
+        public string ShortLabel => new DateTime(Year, Month, 1).ToString("MMM yyyy");
+    }
+
+    public enum PaymentKind
+    {
+        MealFund,
+        SharedBills
+    }
+
+    public sealed class BillEntry
+    {
+        public Guid Id { get; init; } = Guid.NewGuid();
+        public string Name { get; set; } = string.Empty;
+        public decimal Amount { get; set; }
+        public string Icon { get; set; } = "other";
+        public bool IsSettled { get; set; }
+        public bool IsCustom { get; init; }
+    }
+
+    public sealed class PaymentEntry
+    {
+        public Guid Id { get; init; } = Guid.NewGuid();
+        public string Member { get; set; } = string.Empty;
+        public decimal Amount { get; set; }
+        public PaymentKind Kind { get; set; }
+        public string Note { get; set; } = string.Empty;
+        public DateTime PaidOnUtc { get; set; }
+
+        public string KindLabel => Kind == PaymentKind.MealFund ? "Meal fund" : "Shared bills";
+    }
+
+    public enum MealSlot
+    {
+        Breakfast,
+        Lunch,
+        Dinner
+    }
+
+    /// <summary>One member's meals for one day, split into breakfast + lunch + dinner.</summary>
     public sealed class MealCell
     {
-        public decimal Value { get; set; }
-        public long RowVersion { get; set; }
+        public decimal Breakfast { get; set; }
+        public decimal Lunch { get; set; }
+        public decimal Dinner { get; set; }
         public bool IsDirty { get; set; }
+
+        public decimal Total => Breakfast + Lunch + Dinner;
+
+        public decimal this[MealSlot slot] => slot switch
+        {
+            MealSlot.Breakfast => Breakfast,
+            MealSlot.Lunch => Lunch,
+            _ => Dinner
+        };
     }
 
     public readonly record struct MealCellKey(DateOnly Date, string Member);
 
     public sealed record SettlementResult(
-        decimal MealSpending,
-        decimal EqualSplitCosts,
+        decimal BillsTotal,
+        decimal MealFund,
         decimal TotalMeals,
         decimal PerMealRate,
-        IReadOnlyList<SettlementLine> Lines,
-        IReadOnlyList<Transfer> Transfers)
+        decimal BillShare,
+        IReadOnlyList<SettlementLine> Lines)
     {
         public decimal NetTotal => Lines.Sum(line => line.Net);
     }
@@ -325,10 +484,14 @@ public sealed class SettlementWorkspaceService
         string Member,
         decimal Meals,
         decimal MealCost,
-        decimal EqualShare,
-        decimal Contributions,
+        decimal BillShare,
+        decimal MealFundPaid,
+        decimal SharedPaid,
         decimal Net,
-        decimal RoundingAdjustment);
-
-    public sealed record Transfer(int Number, string From, string To, decimal Amount);
+        decimal RoundingAdjustment)
+    {
+        public decimal TotalPaid => MealFundPaid + SharedPaid;
+        public decimal TotalOwed => MealCost + BillShare;
+        public bool HouseOwesMember => Net > 0m;
+    }
 }
