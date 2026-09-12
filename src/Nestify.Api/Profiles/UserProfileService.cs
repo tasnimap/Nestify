@@ -79,6 +79,7 @@ public sealed class UserProfileService
             """
             UPDATE user_additional_profile_info
             SET occupation          = COALESCE(@occupation, occupation),
+                organization_name   = COALESCE(@organizationName, organization_name),
                 address             = COALESCE(@address, address),
                 whatsapp_number     = COALESCE(@whatsapp, whatsapp_number),
                 facebook_url        = COALESCE(@facebook, facebook_url),
@@ -91,6 +92,7 @@ public sealed class UserProfileService
             {
                 userId,
                 occupation = Clean(dto.Occupation),
+                organizationName = Clean(dto.OrganizationName),
                 address = Clean(dto.Address),
                 whatsapp = Clean(dto.WhatsappNumber),
                 facebook = Clean(dto.FacebookUrl),
@@ -125,6 +127,8 @@ public sealed class UserProfileService
                    u.created_at_utc        AS CreatedAtUtc,
                    p.profile_picture_url   AS ProfilePictureUrl,
                    p.occupation            AS Occupation,
+                   p.organization_name     AS OrganizationName,
+                   p.is_verified           AS IsVerified,
                    p.address               AS Address,
                    p.whatsapp_number       AS WhatsappNumber,
                    p.facebook_url          AS FacebookUrl,
@@ -153,6 +157,10 @@ public sealed class UserProfileService
                 ? UserProfileDto.DefaultPictureUrl
                 : row.ProfilePictureUrl,
             Occupation = row.Occupation,
+            OrganizationName = row.OrganizationName,
+            VerificationState = row.IsVerified
+                ? VerificationState.Verified
+                : await ReadVerificationStateAsync(connection, userId),
             Address = row.Address,
             WhatsappNumber = row.WhatsappNumber,
             FacebookUrl = row.FacebookUrl,
@@ -162,6 +170,21 @@ public sealed class UserProfileService
     }
 
     private static string? Clean(string? value) => value?.Trim();
+
+    private static async Task<VerificationState> ReadVerificationStateAsync(IDbConnection connection, long userId)
+    {
+        var status = await connection.ExecuteScalarAsync<short?>(
+            "SELECT status FROM verification_requests WHERE user_id = @userId ORDER BY submitted_at_utc DESC LIMIT 1",
+            new { userId });
+        return status switch
+        {
+            1 => VerificationState.Pending,
+            2 => VerificationState.Verified,
+            3 => VerificationState.Rejected,
+            4 => VerificationState.NotApplied,
+            _ => VerificationState.NotApplied
+        };
+    }
 
 
     private sealed class ProfileRow
@@ -173,6 +196,8 @@ public sealed class UserProfileService
         public DateTime CreatedAtUtc { get; set; }
         public string ProfilePictureUrl { get; set; } = string.Empty;
         public string? Occupation { get; set; }
+        public string? OrganizationName { get; set; }
+        public bool IsVerified { get; set; }
         public string? Address { get; set; }
         public string? WhatsappNumber { get; set; }
         public string? FacebookUrl { get; set; }

@@ -1,6 +1,8 @@
 // src/Nestify.Shared/Dtos/Profile/UserProfileDtos.cs
 namespace Nestify.Shared.Dtos.Profile;
 
+public enum VerificationState { NotApplied, Pending, Verified, Rejected }
+
 /// <summary>
 /// The user_additional_profile_info row, plus the few users columns the profile
 /// page shows next to it.
@@ -18,6 +20,8 @@ public sealed class UserProfileDto
 
     public string ProfilePictureUrl { get; set; } = DefaultPictureUrl;
     public string? Occupation { get; set; }
+    public string? OrganizationName { get; set; }
+    public VerificationState VerificationState { get; set; }
     public string? Address { get; set; }
     public string? WhatsappNumber { get; set; }
     public string? FacebookUrl { get; set; }
@@ -32,9 +36,15 @@ public sealed class UserProfileDto
 public sealed class UpdateUserProfileDto
 {
     public string? Occupation { get; set; }
+    public string? OrganizationName { get; set; }
     public string? Address { get; set; }
     public string? WhatsappNumber { get; set; }
     public string? FacebookUrl { get; set; }
     public string? XUrl { get; set; }
     public string? InstagramUrl { get; set; }
+}
+
+public sealed class VerificationSubmissionDto
+{
+    public string DocumentType { get; set; } = string.Empty;
 }

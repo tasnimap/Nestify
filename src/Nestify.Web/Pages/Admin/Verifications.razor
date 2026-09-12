@@ -2,7 +2,7 @@
 @layout AdminLayout
 @attribute [Authorize(Roles = "Admin")]
 @using Nestify.Shared.Dtos.Admin
-@inject IAdminService Admin
+@inject IVerificationAdminService VerificationAdmin
 @inject Nestify.Web.Services.ToastService Toast
 
 <PageTitle>Verifications — Nestify Admin</PageTitle>
@@ -35,7 +35,13 @@
                             <tr>
                                 <td>@v.ApplicantName</td>
                                 <td>@v.SubjectType</td>
-                                <td>@v.DocumentType</td>
+                                <td>
+                                    <span>@v.DocumentType</span>
+                                    @if (!string.IsNullOrWhiteSpace(v.DocumentUrl))
+                                    {
+                                        <a class="rc-row__meta" href="@v.DocumentUrl" target="_blank" rel="noopener">View photo</a>
+                                    }
+                                </td>
                                 <td>@v.SubmittedUtc.ToLocalTime().ToString("dd MMM, HH:mm")</td>
                                 <td>
                                     <span class="rc-badge @StatusClass(v.Status)">
@@ -65,11 +71,11 @@
 
     protected override async Task OnInitializedAsync() => await Load();
 
-    private async Task Load() => _items = await Admin.GetVerificationsAsync();
+    private async Task Load() => _items = await VerificationAdmin.GetQueueAsync();
 
     private async Task Decide(VerificationRequestDto v, bool approve)
     {
-        await Admin.DecideVerificationAsync(v.Id, approve);
+        await VerificationAdmin.DecideAsync(v.Id, approve);
         Toast.ShowInfo($"{v.ApplicantName} {(approve ? "approved" : "rejected")}.", "Verification");
         await Load();
     }

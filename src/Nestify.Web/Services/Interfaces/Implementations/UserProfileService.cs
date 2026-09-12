@@ -64,6 +64,31 @@ public sealed class UserProfileService : IUserProfileService
         return Remember(await response.Content.ReadFromJsonAsync<UserProfileDto>());
     }
 
+    public async Task<UserProfileDto?> SubmitVerificationAsync(string documentType, Stream content, string fileName, string contentType)
+    {
+        using var form = new MultipartFormDataContent();
+        form.Add(new StringContent(documentType), "documentType");
+        var filePart = new StreamContent(content);
+        filePart.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(contentType);
+        form.Add(filePart, "file", fileName);
+
+        var response = await _httpClient.PostAsync("api/v1/profile/me/verification", form);
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new ApplicationException(await ReadMessageAsync(response) ?? "Could not submit your verification.");
+        }
+
+        return Remember(await response.Content.ReadFromJsonAsync<UserProfileDto>());
+    }
+
+    public async Task<UserProfileDto?> CancelVerificationAsync()
+    {
+        var response = await _httpClient.DeleteAsync("api/v1/profile/me/verification");
+        if (!response.IsSuccessStatusCode)
+            throw new ApplicationException(await ReadMessageAsync(response) ?? "Could not cancel your verification application.");
+        return Remember(await response.Content.ReadFromJsonAsync<UserProfileDto>());
+    }
+
     private UserProfileDto? Remember(UserProfileDto? profile)
     {
         if (profile is not null)

@@ -17,11 +17,13 @@ public sealed class UserProfileController : ControllerBase
 
     private readonly UserProfileService _profiles;
     private readonly CloudinaryUploader _uploader;
+    private readonly VerificationService _verifications;
 
-    public UserProfileController(UserProfileService profiles, CloudinaryUploader uploader)
+    public UserProfileController(UserProfileService profiles, CloudinaryUploader uploader, VerificationService verifications)
     {
         _profiles = profiles;
         _uploader = uploader;
+        _verifications = verifications;
     }
 
     [HttpGet("me")]
@@ -66,6 +68,29 @@ public sealed class UserProfileController : ControllerBase
 
         var profile = await _profiles.SetPictureAsync(RequireUserId(), url);
         return profile is null ? NotFound() : Ok(profile);
+    }
+
+    [HttpPost("me/verification")]
+    [RequestSizeLimit(MaxPictureBytes + 1024)]
+    public async Task<ActionResult<UserProfileDto>> SubmitVerification([FromForm] string documentType, IFormFile file)
+    {
+        if (file is null || file.Length == 0) return BadRequest(new { message = "Choose a document photo first." });
+        if (file.Length > MaxPictureBytes) return BadRequest(new { message = "The document photo must be 5 MB or smaller." });
+        if (file.ContentType is null || !file.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase)) return BadRequest(new { message = "Upload a clear image of your document." });
+        using var stream = file.OpenReadStream();
+        var (url, uploadError) = await _uploader.UploadAsync(stream, file.FileName, file.ContentType);
+        if (url is null) return BadRequest(new { message = uploadError });
+        var error = await _verifications.SubmitAsync(RequireUserId(), documentType, url, file.FileName);
+        if (error is not null) return BadRequest(new { message = error });
+        return Ok(await _profiles.GetAsync(RequireUserId()));
+    }
+
+    [HttpDelete("me/verification")]
+    public async Task<ActionResult<UserProfileDto>> CancelVerification()
+    {
+        var error = await _verifications.CancelAsync(RequireUserId());
+        if (error is not null) return BadRequest(new { message = error });
+        return Ok(await _profiles.GetAsync(RequireUserId()));
     }
 
     private long RequireUserId()
