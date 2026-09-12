@@ -1075,6 +1075,163 @@
     font-weight: 800;
 }
 
+/* ---------- house financial summary ---------- */
+
+.stl__finance-chart {
+    animation: stl-rise .62s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+.stl__chart {
+    display: grid;
+    gap: 1rem;
+}
+
+.stl__chart-highlights {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: .7rem;
+    margin: -.15rem 0 1.35rem;
+}
+
+.stl__chart-highlight {
+    display: grid;
+    gap: .2rem;
+    padding: .8rem .9rem;
+    border-left: 3px solid #6d28d9;
+    border-radius: var(--nx-radius);
+    background: var(--nx-bg-alt);
+}
+
+.stl__chart-highlight--collected { border-left-color: #0f7a37; }
+.stl__chart-highlight--due { border-left-color: #c62828; }
+
+.stl__chart-highlight span {
+    color: var(--nx-muted);
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+
+.stl__chart-highlight strong {
+    color: var(--nx-ink);
+    font-size: 1.05rem;
+    font-weight: 800;
+}
+
+.stl__chart-row {
+    display: grid;
+    grid-template-columns: minmax(10rem, 1.1fr) minmax(8rem, 3fr) minmax(5.5rem, .7fr);
+    align-items: center;
+    gap: 1rem;
+}
+
+.stl__chart-label {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    color: var(--nx-ink);
+    font-size: .86rem;
+    font-weight: 700;
+}
+
+.stl__chart-swatch,
+.stl__chart-dot {
+    display: inline-block;
+    flex: none;
+    width: .65rem;
+    height: .65rem;
+    border-radius: 999px;
+}
+
+.stl__chart-swatch--bills,
+.stl__chart-fill--bills,
+.stl__chart-dot--cost { background: #6d28d9; }
+
+.stl__chart-swatch--meals,
+.stl__chart-fill--meals { background: #2563a8; }
+
+.stl__chart-swatch--collected,
+.stl__chart-fill--collected,
+.stl__chart-dot--collected { background: #0f7a37; }
+
+.stl__chart-swatch--due,
+.stl__chart-fill--due,
+.stl__chart-dot--due { background: #c62828; }
+
+.stl__chart-track {
+    height: .72rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--nx-bg-alt);
+}
+
+.stl__chart-fill {
+    display: block;
+    width: var(--chart-width);
+    height: 100%;
+    border-radius: inherit;
+    transform-origin: left center;
+    animation: stl-meter .8s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+.stl__chart-value {
+    display: grid;
+    justify-items: end;
+    color: var(--nx-ink);
+    font-size: .9rem;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.stl__chart-value small {
+    color: var(--nx-muted);
+    font-size: .68rem;
+    font-weight: 700;
+}
+
+.stl__chart-foot {
+    display: flex;
+    gap: 1.1rem;
+    margin-top: 1.25rem;
+    color: var(--nx-muted);
+    font-size: .75rem;
+    font-weight: 700;
+}
+
+.stl__chart-foot span {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+}
+
+.stl__chart-help {
+    margin-left: auto;
+    color: var(--nx-muted);
+    font-weight: 500;
+}
+
+@media (max-width: 640px) {
+    .stl__chart-highlights {
+        grid-template-columns: 1fr;
+    }
+
+    .stl__chart-row {
+        grid-template-columns: minmax(9.5rem, 1.2fr) minmax(4rem, 2fr) auto;
+        gap: .6rem;
+    }
+
+    .stl__chart-label,
+    .stl__chart-value { font-size: .78rem; }
+
+    .stl__chart-foot {
+        flex-wrap: wrap;
+        gap: .7rem 1rem;
+    }
+
+    .stl__chart-help { margin-left: 0; }
+}
+
 .stl__statements {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));

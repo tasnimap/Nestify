@@ -534,6 +534,58 @@
             </div>
         </section>
 
+        <section class="stl__card stl__finance-chart" style="--delay: 100ms">
+            <div class="stl__card-head">
+                <div>
+                    <h2>House financial summary</h2>
+                    <p>See what the house needs, what members have paid, and what remains.</p>
+                </div>
+                <span class="stl__tag">@Workspace.PeriodLabel</span>
+            </div>
+
+            <div class="stl__chart-highlights">
+                <div class="stl__chart-highlight">
+                    <span>Total costs</span>
+                    <strong>@MoneyText(Result.BillsTotal + Result.MealFund)</strong>
+                </div>
+                <div class="stl__chart-highlight stl__chart-highlight--collected">
+                    <span>Collected</span>
+                    <strong>@MoneyText(Workspace.TotalPaid)</strong>
+                </div>
+                <div class="stl__chart-highlight stl__chart-highlight--due">
+                    <span>Collection rate</span>
+                    <strong>@CollectionRate%</strong>
+                </div>
+            </div>
+
+            <div class="stl__chart" role="img" aria-label="House financial summary for @Workspace.PeriodLabel">
+                @foreach (var item in FinancialBars)
+                {
+                    <div class="stl__chart-row">
+                        <div class="stl__chart-label">
+                            <span class="stl__chart-swatch stl__chart-swatch--@item.ClassName"></span>
+                            <span>@item.Label</span>
+                        </div>
+                        <div class="stl__chart-track">
+                            <span class="stl__chart-fill stl__chart-fill--@item.ClassName"
+                                  style="--chart-width: @ChartWidth(item.Amount)%"></span>
+                        </div>
+                        <strong class="stl__chart-value">
+                            @MoneyText(item.Amount)
+                            <small>@ChartPercent(item.Amount)%</small>
+                        </strong>
+                    </div>
+                }
+            </div>
+
+            <div class="stl__chart-foot">
+                <span><i class="stl__chart-dot stl__chart-dot--cost"></i>Cost</span>
+                <span><i class="stl__chart-dot stl__chart-dot--collected"></i>Collected</span>
+                <span><i class="stl__chart-dot stl__chart-dot--due"></i>Still due</span>
+                <span class="stl__chart-help">Bars are scaled to the largest amount.</span>
+            </div>
+        </section>
+
         <div class="stl__statements">
             @foreach (var (line, index) in Result.Lines.Select((l, i) => (l, i)))
             {
@@ -671,6 +723,36 @@
 
     private SettlementWorkspaceService.SettlementLine? ResidualLine =>
         Result.Lines.FirstOrDefault(line => line.RoundingAdjustment != 0m);
+
+    private IEnumerable<FinancialBar> FinancialBars =>
+    [
+        new("Monthly bills", Result.BillsTotal, "bills"),
+        new("Meal fund", Result.MealFund, "meals"),
+        new("Shared bills collected", Workspace.SharedFundTotal, "collected"),
+        new("Still to collect", Math.Max(0m, Workspace.OutstandingBills), "due")
+    ];
+
+    private decimal ChartMaximum => Math.Max(1m, FinancialBars.Max(item => item.Amount));
+
+    private string ChartWidth(decimal amount) =>
+        Math.Clamp(amount / ChartMaximum * 100m, 0m, 100m).ToString("0.##", CultureInfo.InvariantCulture);
+
+    private string ChartPercent(decimal amount) =>
+        Math.Clamp(amount / ChartMaximum * 100m, 0m, 100m).ToString("0", CultureInfo.InvariantCulture);
+
+    private string CollectionRate
+    {
+        get
+        {
+            var totalCosts = Result.BillsTotal + Result.MealFund;
+            return totalCosts <= 0m
+                ? "0"
+                : Math.Clamp(Workspace.TotalPaid / totalCosts * 100m, 0m, 100m)
+                    .ToString("0", CultureInfo.InvariantCulture);
+        }
+    }
+
+    private sealed record FinancialBar(string Label, decimal Amount, string ClassName);
 
     private sealed class BillFormModel
     {
