@@ -1,6 +1,7 @@
 @page "/helpers/me"
 @layout HelperLayout
 @attribute [Authorize(Roles = "DomesticHelper,DomesticHelp,Maid,Helper")]
+@using Microsoft.AspNetCore.Components.Forms
 @using Nestify.Shared.Dtos.Helpers
 @using Nestify.Web.Components.Helper
 @inject IHelperService Helpers
@@ -13,7 +14,7 @@
         <header class="dh-head dh-rise">
             <p class="dh-kicker">Helper workspace</p>
             <h1>My helper profile</h1>
-            <p>Keep your services, availability and rate up to date so the right families reach you.</p>
+            <p>Keep your services, availability and rate up to date.</p>
         </header>
 
         @if (_loading)
@@ -24,21 +25,59 @@
         }
         else if (_model is null)
         {
-            <div class="dh-panel dh-rise" style="--d:80ms">
+            <div class="dh-panel dh-rise">
                 <div class="dh-empty">
-                    <span class="dh-empty__art" aria-hidden="true">
-                        <svg class="nx-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
-                    </span>
                     <h2>You haven't registered as a helper yet</h2>
-                    <p>Set up a profile once and families in your area can start sending you requests.</p>
-                    <a class="nx-btn nx-btn--accent" href="helpers/register">Become a helper</a>
+                    <p>Create your helper profile first.</p>
+                    <a class="nx-btn nx-btn--accent" href="helpers/register">
+                        Become a helper
+                    </a>
                 </div>
             </div>
         }
         else
         {
-            <section class="dh-panel dh-rise" style="--d:80ms">
-                <HelperForm Model="_model" SubmitLabel="Save changes" OnSubmit="HandleSubmit" />
+            <section class="dh-panel dh-rise">
+                <HelperForm Model="_model"
+                            SubmitLabel="Save changes"
+                            OnSubmit="HandleSubmit"
+                            ShowArea="false" />
+            </section>
+
+            <section class="dh-panel dh-rise">
+                <h2>Identity verification</h2>
+                <p>Submit an identity document for admin approval.</p>
+
+                <div class="dh-field">
+                    <label for="document-type">Document type</label>
+                    <select id="document-type" @bind="_documentType">
+                        <option value="">Select document type</option>
+                        <option value="National ID (NID)">National ID (NID)</option>
+                        <option value="Birth Certificate">Birth Certificate</option>
+                        <option value="Employee ID / Workplace ID">
+                            Employee ID / Workplace ID
+                        </option>
+                    </select>
+                </div>
+
+                <div class="dh-field">
+                    <label for="identity-document">Identity document</label>
+                    <InputFile id="identity-document"
+                               OnChange="OnDocumentSelected"
+                               accept=".pdf,.jpg,.jpeg,.png" />
+                </div>
+
+                @if (_selectedFile is not null)
+                {
+                    <p>Selected file: @_selectedFile.Name</p>
+                }
+
+                <button class="nx-btn nx-btn--accent"
+                        type="button"
+                        disabled="@_submitting"
+                        @onclick="SubmitVerification">
+                    @(_submitting ? "Submitting..." : "Submit for verification")
+                </button>
             </section>
         }
     </div>
@@ -46,11 +85,15 @@
 
 @code {
     private HelperRegistrationDto? _model;
+    private IBrowserFile? _selectedFile;
     private bool _loading = true;
+    private bool _submitting;
+    private string _documentType = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
         var profile = await Helpers.GetMyProfileAsync();
+
         if (profile is not null)
         {
             _model = new HelperRegistrationDto
@@ -60,13 +103,58 @@
                 MonthlyRate = profile.MonthlyRate
             };
         }
+
         _loading = false;
     }
 
     private async Task HandleSubmit()
     {
-        if (_model is null) return;
+        if (_model is null)
+            return;
+
         await Helpers.UpdateProfileAsync(_model);
         Toast.ShowInfo("Profile updated.", "Saved");
+    }
+
+    private void OnDocumentSelected(InputFileChangeEventArgs args)
+    {
+        _selectedFile = args.File;
+    }
+
+    private async Task SubmitVerification()
+    {
+        if (string.IsNullOrWhiteSpace(_documentType) ||
+            _selectedFile is null)
+        {
+            Toast.ShowInfo(
+                "Select a document type and file.",
+                "Verification");
+
+            return;
+        }
+
+        _submitting = true;
+
+        try
+        {
+            await Helpers.SubmitVerificationAsync(
+                _documentType,
+                _selectedFile);
+
+            Toast.ShowInfo(
+                "Verification submitted successfully.",
+                "Verification");
+
+            _selectedFile = null;
+            _documentType = string.Empty;
+        }
+        catch (Exception ex)
+        {
+            Toast.ShowInfo(ex.Message, "Verification failed");
+        }
+        finally
+        {
+            _submitting = false;
+        }
     }
 }

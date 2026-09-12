@@ -11,9 +11,9 @@
     --nx-primary-soft: #f3effe;
     --nx-primary-softer: #faf7ff;
 
-    --nx-accent: #0f7a37;          /* passes 4.5:1 with white */
-    --nx-accent-bright: #16a34a;   /* icons / chips on light only */
-    --nx-accent-soft: #e9f7ee;
+    --nx-accent: #6d28d9;
+    --nx-accent-bright: #8b5cf6;
+    --nx-accent-soft: #f3effe;
 
     /* Ink & surfaces */
     --nx-ink: #1c1830;

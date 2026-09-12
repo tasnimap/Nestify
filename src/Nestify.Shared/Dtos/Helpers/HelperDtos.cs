@@ -51,6 +51,7 @@ public sealed class HelperSummaryDto
     public int RatingCount { get; set; }
     public string AreaName { get; set; } = string.Empty;
     public DistanceBand? Distance { get; set; }
+    public bool IsVerified { get; set; }
 }
 
 public sealed class HelperDetailDto
@@ -65,6 +66,7 @@ public sealed class HelperDetailDto
     public string AreaName { get; set; } = string.Empty;
     public DistanceBand? Distance { get; set; }
     public bool IsMine { get; set; }
+    public bool IsVerified { get; set; }
 }
 
 public sealed class HelperRegistrationDto
@@ -75,6 +77,13 @@ public sealed class HelperRegistrationDto
     public int? DivisionId { get; set; }
     public int? DistrictId { get; set; }
     public int? UpazilaId { get; set; }
+}
+
+public sealed class HelperVerificationDto
+{
+    public string DocumentType { get; set; } = string.Empty;
+    public string DocumentUrl { get; set; } = string.Empty;
+    public string FileName { get; set; } = string.Empty;
 }
 
 public sealed class HelperFilterDto

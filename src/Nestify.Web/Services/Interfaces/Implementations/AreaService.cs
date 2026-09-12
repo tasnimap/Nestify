@@ -2,6 +2,7 @@
 // Reads the seeded administrative tables through the API. The lists never change
 // while the app is running, so each one is fetched once and kept.
 using System.Net.Http.Json;
+using System.Text.Json;
 using Nestify.Shared.Dtos.Area;
 using Nestify.Web.Services.Interfaces;
 
@@ -9,6 +10,11 @@ namespace Nestify.Web.Services.Implementations;
 
 public sealed class AreaService : IAreaService
 {
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
+
     private readonly HttpClient _httpClient;
 
     private IReadOnlyList<DivisionDto>? _divisions;
@@ -52,7 +58,10 @@ public sealed class AreaService : IAreaService
     {
         try
         {
-            return await _httpClient.GetFromJsonAsync<List<T>>(url) ?? new List<T>();
+            var response = await _httpClient.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+            var stream = await response.Content.ReadAsStreamAsync();
+            return await JsonSerializer.DeserializeAsync<List<T>>(stream, JsonOptions) ?? new List<T>();
         }
         catch (HttpRequestException)
         {
