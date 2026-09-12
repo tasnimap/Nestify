@@ -381,12 +381,15 @@ CREATE TABLE contributions (
     period_year              int           NOT NULL,
     period_month             int           NOT NULL,
     source                   smallint      NOT NULL,     -- 1 DerivedFromExpense, 2 DirectCashIn
+    fund_type                smallint      NOT NULL DEFAULT 1, -- 1 MealFund, 2 SharedBills
+    note                     varchar(200)  NOT NULL DEFAULT '',
     source_expense_id        bigint          REFERENCES expenses (id) ON DELETE RESTRICT,
     corrects_contribution_id bigint          REFERENCES contributions (id) ON DELETE RESTRICT,
     recorded_by_user_id      bigint          NOT NULL REFERENCES users (id) ON DELETE RESTRICT,
     created_at_utc           timestamptz   NOT NULL DEFAULT now(),
 
     CONSTRAINT ck_contribution_source CHECK (source BETWEEN 1 AND 2),
+    CONSTRAINT ck_contribution_fund_type CHECK (fund_type BETWEEN 1 AND 2),
     CONSTRAINT ck_contribution_month  CHECK (period_month BETWEEN 1 AND 12)
 );
 
