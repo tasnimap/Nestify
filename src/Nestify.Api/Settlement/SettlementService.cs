@@ -56,7 +56,10 @@ public sealed class SettlementService
             return (null, "This settlement period is finalized.");
         }
 
-        var spentOn = NormalizeDate(request.SpentOn, year, month);
+        if (!TryNormalizeDate(request.SpentOn, year, month, out var spentOn))
+        {
+            return (null, "The bill date must belong to the selected settlement period.");
+        }
         var id = await connection.ExecuteScalarAsync<long>(
             """
             INSERT INTO expenses (house_id, category, description, amount, spent_by_user_id,
@@ -105,7 +108,10 @@ public sealed class SettlementService
             return (null, "The payment recipient is not an active member of this home.");
         }
 
-        var paidOn = NormalizeDate(request.PaidOn, year, month);
+        if (!TryNormalizeDate(request.PaidOn, year, month, out var paidOn))
+        {
+            return (null, "The payment date must belong to the selected settlement period.");
+        }
         var id = await connection.ExecuteScalarAsync<long>(
             """
             INSERT INTO contributions (house_id, user_id, amount, paid_on, period_year,
@@ -433,12 +439,10 @@ public sealed class SettlementService
             "SELECT EXISTS (SELECT 1 FROM settlement_runs WHERE house_id = @homeId AND period_year = @year AND period_month = @month AND status = 2)",
             new { homeId, year, month }, transaction);
 
-    private static DateTime NormalizeDate(DateTime value, int year, int month)
+    private static bool TryNormalizeDate(DateTime value, int year, int month, out DateTime date)
     {
-        var date = value.Date;
-        return date.Year == year && date.Month == month
-            ? date
-            : throw new ArgumentException("The date must belong to the selected settlement period.");
+        date = value.Date;
+        return date.Year == year && date.Month == month;
     }
 
     private static void ValidatePeriod(int year, int month)
