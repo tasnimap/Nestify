@@ -1,7 +1,7 @@
 /* ============================================================
    Nestify — Domestic Help (helper) interface
    Visual layer for the /helpers pages. Same tokens as the rest
-   of the app, green helper accent, mobile first.
+   of the app, purple helper accent, mobile first.
    ============================================================ */
 
 .dh {
@@ -14,7 +14,7 @@
     min-height: 100%;
     padding: clamp(1rem, 4vw, 2.25rem) 0 clamp(3rem, 7vw, 5rem);
     background:
-        radial-gradient(90rem 32rem at 12% -12%, rgba(22, 163, 74, .12), transparent 60%),
+        radial-gradient(90rem 32rem at 12% -12%, rgba(139, 92, 246, .12), transparent 60%),
         radial-gradient(70rem 28rem at 92% -6%, rgba(109, 40, 217, .10), transparent 62%),
         linear-gradient(180deg, var(--nx-bg-alt), #fff 30rem);
     overflow-x: hidden;
@@ -55,9 +55,9 @@
     gap: .55rem;
     padding: clamp(1.25rem, 4vw, 2rem);
     border-radius: var(--dh-radius);
-    background: linear-gradient(135deg, #17311f, #0f7a37 62%, #1c8a45);
+    background: linear-gradient(135deg, #2e1065, #6d28d9 62%, #7c3aed);
     color: rgba(255, 255, 255, .8);
-    box-shadow: 0 22px 44px -28px rgba(15, 122, 55, .75);
+    box-shadow: 0 22px 44px -28px rgba(109, 40, 217, .75);
     overflow: hidden;
 }
 
@@ -127,7 +127,7 @@
 .dh-stat:hover::before { width: 6px; }
 
 .dh-stat--warn::before   { background: linear-gradient(180deg, #f59e0b, #b45309); }
-.dh-stat--accent::before { background: linear-gradient(180deg, #2fb56a, var(--dh-accent)); }
+.dh-stat--accent::before { background: linear-gradient(180deg, #a855f7, var(--dh-accent)); }
 .dh-stat--ok::before     { background: linear-gradient(180deg, #a855f7, var(--nx-primary)); }
 .dh-stat--star::before   { background: linear-gradient(180deg, #f0729b, #d1477a); }
 
@@ -231,7 +231,7 @@
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #2fb56a, var(--dh-accent));
+    background: linear-gradient(135deg, #a855f7, var(--dh-accent));
     color: #fff;
     font-size: .85rem;
     font-weight: 700;
@@ -366,7 +366,7 @@
     background: var(--dh-accent);
     border-color: var(--dh-accent);
     color: #fff;
-    box-shadow: 0 10px 22px -12px rgba(15, 122, 55, .8);
+    box-shadow: 0 10px 22px -12px rgba(109, 40, 217, .8);
 }
 
 .dh-form__actions { margin-top: .25rem; }
@@ -396,8 +396,8 @@
     padding: clamp(1.25rem, 4vw, 2rem);
     border-radius: var(--dh-radius);
     color: #fff;
-    background: linear-gradient(135deg, #17311f, #0f7a37 60%, #1f9950);
-    box-shadow: 0 26px 50px -30px rgba(15, 122, 55, .8);
+    background: linear-gradient(135deg, #2e1065, #6d28d9 60%, #8b5cf6);
+    box-shadow: 0 26px 50px -30px rgba(109, 40, 217, .8);
 }
 
 .dh-hero h2 { color: #fff; font-size: clamp(1.4rem, 4.5vw, 2rem); }
@@ -448,13 +448,13 @@
     display: grid;
     gap: .2rem;
     padding: .8rem .9rem;
-    border: 1px solid #e8f2ec;
+    border: 1px solid #ede7fa;
     border-radius: 12px;
-    background: #f8fcfa;
+    background: #fbfaff;
     transition: transform .25s var(--dh-ease), border-color .25s var(--dh-ease);
 }
 
-.dh-fact:hover { transform: translateY(-2px); border-color: #cbe7d8; }
+.dh-fact:hover { transform: translateY(-2px); border-color: #d9c9f7; }
 
 .dh-fact span,
 .dh-metric span {
@@ -571,10 +571,10 @@
     padding: clamp(1.5rem, 5vw, 3rem);
     border-radius: var(--dh-radius);
     background:
-        radial-gradient(38rem 20rem at 88% 8%, rgba(47, 181, 106, .35), transparent 65%),
-        linear-gradient(135deg, #17311f, #0f7a37 70%);
+        radial-gradient(38rem 20rem at 88% 8%, rgba(168, 85, 247, .35), transparent 65%),
+        linear-gradient(135deg, #2e1065, #6d28d9 70%);
     color: rgba(255, 255, 255, .82);
-    box-shadow: 0 28px 55px -32px rgba(15, 122, 55, .85);
+    box-shadow: 0 28px 55px -32px rgba(109, 40, 217, .85);
     overflow: hidden;
 }
 
@@ -584,7 +584,7 @@
     max-width: 18ch;
 }
 
-.dh-banner h1 .nx-display-accent { color: #b8f0ce; }
+.dh-banner h1 .nx-display-accent { color: #dcc8fb; }
 .dh-banner__lead { max-width: 54ch; font-size: clamp(.93rem, 2.4vw, 1.05rem); }
 .dh-banner__actions { display: flex; flex-wrap: wrap; gap: .6rem; }
 
@@ -733,7 +733,7 @@
 
 .dh-card:hover {
     transform: translateY(-5px);
-    border-color: #bfe6cd;
+    border-color: #d9c9f7;
     box-shadow: var(--nx-shadow-md);
     text-decoration: none;
 }
@@ -761,7 +761,7 @@
     bottom: .5rem;
     padding: .3rem .6rem;
     border-radius: 999px;
-    background: rgba(10, 40, 22, .78);
+    background: rgba(30, 15, 60, .78);
     color: #fff;
     font-size: .78rem;
     font-weight: 700;
@@ -821,9 +821,9 @@
     gap: clamp(.9rem, 3vw, 1.5rem);
     padding: clamp(1.15rem, 4vw, 1.9rem);
     border-radius: var(--dh-radius);
-    background: linear-gradient(130deg, #12261a, #0f7a37 62%, #24a35a);
+    background: linear-gradient(130deg, #1c1330, #6d28d9 62%, #9333ea);
     color: rgba(255, 255, 255, .88);
-    box-shadow: 0 26px 50px -32px rgba(15, 122, 55, .85);
+    box-shadow: 0 26px 50px -32px rgba(109, 40, 217, .85);
     overflow: hidden;
 }
 
@@ -931,7 +931,7 @@
 
 .dh-book__hint--on {
     padding: .6rem .75rem;
-    border: 1px solid #bfe6cd;
+    border: 1px solid #d9c9f7;
     border-radius: 12px;
     background: var(--nx-accent-soft);
     color: var(--nx-body);
@@ -968,7 +968,7 @@
     transition: background .25s var(--dh-ease), border-color .25s var(--dh-ease);
 }
 
-.dh-review:hover { background: #fff; border-color: #cbe7d8; }
+.dh-review:hover { background: #fff; border-color: #d9c9f7; }
 
 .dh-review__head {
     display: flex;
@@ -1014,8 +1014,8 @@
     border: 1px solid var(--nx-border-strong);
 }
 
-.dh-key--free { background: var(--nx-accent-soft); border-color: #a8dcbe; }
-.dh-key--picked { background: linear-gradient(135deg, #2fb56a, var(--dh-accent)); border-color: var(--dh-accent); }
+.dh-key--free { background: var(--nx-accent-soft); border-color: #c4b5fd; }
+.dh-key--picked { background: linear-gradient(135deg, #a855f7, var(--dh-accent)); border-color: var(--dh-accent); }
 .dh-key--booked { background: var(--nx-primary); border-color: var(--nx-primary-strong); }
 .dh-key--off { background: repeating-linear-gradient(45deg, #eef0f4, #eef0f4 3px, #e2e5ec 3px, #e2e5ec 6px); }
 
@@ -1072,7 +1072,7 @@
 
 .dh-slot--free {
     background: var(--nx-accent-soft);
-    border-color: #bfe6cd;
+    border-color: #d9c9f7;
 }
 
 .dh-slot--booked {
@@ -1107,9 +1107,9 @@ button.dh-slot:focus-visible {
 }
 
 .dh-slot--picked {
-    background: linear-gradient(135deg, #2fb56a, var(--dh-accent));
+    background: linear-gradient(135deg, #a855f7, var(--dh-accent));
     border-color: var(--dh-accent);
-    box-shadow: 0 6px 14px -8px rgba(15, 122, 55, .9);
+    box-shadow: 0 6px 14px -8px rgba(109, 40, 217, .9);
 }
 
 .dh-slot--picked::after {
@@ -1147,7 +1147,7 @@ button.dh-slot:focus-visible {
     display: grid;
     gap: .55rem;
     padding: .85rem 1rem;
-    border: 1px solid #bfe6cd;
+    border: 1px solid #d9c9f7;
     border-radius: 14px;
     background: var(--nx-accent-soft);
     animation: dh-rise .3s var(--dh-ease) both;
@@ -1204,7 +1204,7 @@ button.dh-slot:focus-visible {
     gap: .35rem;
     min-height: 30px;
     padding: .2rem .6rem;
-    border: 1px solid #bfe6cd;
+    border: 1px solid #d9c9f7;
     border-radius: 999px;
     background: #fff;
     font: inherit;
@@ -1246,7 +1246,7 @@ button.dh-slot:focus-visible {
 
 .dh-status--requested { background: #fef3c7; color: #92400e; border-color: #f6dfa0; }
 .dh-status--helperconfirmed,
-.dh-status--active { background: var(--nx-accent-soft); color: #0b5c2a; border-color: #bfe6cd; }
+.dh-status--active { background: var(--nx-accent-soft); color: #5b21b6; border-color: #d9c9f7; }
 .dh-status--completed { background: var(--nx-primary-soft); color: var(--nx-primary-strong); border-color: var(--nx-border-strong); }
 .dh-status--declined { background: var(--nx-danger-soft); color: var(--nx-danger); border-color: #f3c9c9; }
 

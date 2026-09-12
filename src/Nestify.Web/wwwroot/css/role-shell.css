@@ -61,7 +61,7 @@
 }
 
 /* ============================================================
-   Helper (Domestic Help) shell — top bar, green accent
+   Helper (Domestic Help) shell — top bar
    ============================================================ */
 
 .hnav {
@@ -592,7 +592,7 @@
 }
 
 .profile-hero--maid {
-    background: linear-gradient(135deg, #17311f, #0f7a37);
+    background: linear-gradient(135deg, #2e1065, #6d28d9);
 }
 
 .profile-hero--admin {
