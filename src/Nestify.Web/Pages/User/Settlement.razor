@@ -538,9 +538,24 @@
             <div class="stl__card-head">
                 <div>
                     <h2>House financial summary</h2>
-                    <p>How the house's costs and collected funds compare for @Workspace.PeriodLabel.</p>
+                    <p>See what the house needs, what members have paid, and what remains.</p>
                 </div>
-                <span class="stl__tag">@MoneyText(Result.BillsTotal + Result.MealFund) total costs</span>
+                <span class="stl__tag">@Workspace.PeriodLabel</span>
+            </div>
+
+            <div class="stl__chart-highlights">
+                <div class="stl__chart-highlight">
+                    <span>Total costs</span>
+                    <strong>@MoneyText(Result.BillsTotal + Result.MealFund)</strong>
+                </div>
+                <div class="stl__chart-highlight stl__chart-highlight--collected">
+                    <span>Collected</span>
+                    <strong>@MoneyText(Workspace.TotalPaid)</strong>
+                </div>
+                <div class="stl__chart-highlight stl__chart-highlight--due">
+                    <span>Collection rate</span>
+                    <strong>@CollectionRate%</strong>
+                </div>
             </div>
 
             <div class="stl__chart" role="img" aria-label="House financial summary for @Workspace.PeriodLabel">
@@ -555,7 +570,10 @@
                             <span class="stl__chart-fill stl__chart-fill--@item.ClassName"
                                   style="--chart-width: @ChartWidth(item.Amount)%"></span>
                         </div>
-                        <strong class="stl__chart-value">@MoneyText(item.Amount)</strong>
+                        <strong class="stl__chart-value">
+                            @MoneyText(item.Amount)
+                            <small>@ChartPercent(item.Amount)%</small>
+                        </strong>
                     </div>
                 }
             </div>
@@ -564,6 +582,7 @@
                 <span><i class="stl__chart-dot stl__chart-dot--cost"></i>Cost</span>
                 <span><i class="stl__chart-dot stl__chart-dot--collected"></i>Collected</span>
                 <span><i class="stl__chart-dot stl__chart-dot--due"></i>Still due</span>
+                <span class="stl__chart-help">Bars are scaled to the largest amount.</span>
             </div>
         </section>
 
@@ -717,6 +736,21 @@
 
     private string ChartWidth(decimal amount) =>
         Math.Clamp(amount / ChartMaximum * 100m, 0m, 100m).ToString("0.##", CultureInfo.InvariantCulture);
+
+    private string ChartPercent(decimal amount) =>
+        Math.Clamp(amount / ChartMaximum * 100m, 0m, 100m).ToString("0", CultureInfo.InvariantCulture);
+
+    private string CollectionRate
+    {
+        get
+        {
+            var totalCosts = Result.BillsTotal + Result.MealFund;
+            return totalCosts <= 0m
+                ? "0"
+                : Math.Clamp(Workspace.TotalPaid / totalCosts * 100m, 0m, 100m)
+                    .ToString("0", CultureInfo.InvariantCulture);
+        }
+    }
 
     private sealed record FinancialBar(string Label, decimal Amount, string ClassName);
 
