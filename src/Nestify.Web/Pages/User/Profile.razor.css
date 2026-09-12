@@ -544,6 +544,8 @@
     display: grid;
     place-items: center;
     padding: 24px;
+    box-sizing: border-box;
+    overflow-y: auto;
     background: rgba(23, 16, 43, .42);
     backdrop-filter: blur(4px);
     animation: up-fade .25s ease both;
@@ -610,6 +612,8 @@
     width: min(100%, 620px);
     max-height: calc(100vh - 48px);
     overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
     background: var(--nx-card);
     border-radius: var(--nx-radius-lg);
     box-shadow: var(--nx-shadow-lg);
@@ -617,7 +621,7 @@
 }
 
 .up-modal--sm {
-    width: min(100%, 420px);
+    width: min(100%, 460px);
 }
 
 .up-modal__head {
@@ -658,6 +662,7 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 14px;
     padding: 20px 22px;
+    box-sizing: border-box;
 }
 
 .up-modal__body--stack {
@@ -670,6 +675,7 @@
     gap: 10px;
     padding: 16px 22px;
     border-top: 1px solid var(--nx-border);
+    box-sizing: border-box;
 }
 
 .up-field {
@@ -755,6 +761,121 @@
     color: var(--nx-accent);
 }
 
+.up-chip--verified {
+    background: var(--nx-accent-soft);
+    color: var(--nx-accent);
+}
+
+.up-chip--cancel {
+    border: 1px solid var(--nx-border);
+    background: transparent;
+    color: var(--nx-muted);
+}
+
+.up-chip--cancel:hover:not(:disabled) {
+    border-color: var(--nx-danger);
+    color: var(--nx-danger);
+}
+
+.up-verification-copy,
+.up-verification-hint {
+    margin: 0;
+    font-size: .88rem;
+    line-height: 1.5;
+    color: var(--nx-muted);
+}
+
+.up-verification-hint {
+    padding: 9px 11px;
+    border-radius: var(--nx-radius-sm);
+    background: var(--nx-primary-softer);
+    color: var(--nx-primary-strong);
+}
+
+.up-file-name {
+    color: var(--nx-muted);
+    overflow-wrap: anywhere;
+}
+
+.up-document-preview {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr);
+    align-items: center;
+    gap: 14px;
+    padding: 11px;
+    border: 1px solid #ded2fb;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #fbf9ff, var(--nx-primary-softer));
+    min-width: 0;
+}
+
+.up-document-preview img {
+    width: 64px;
+    height: 64px;
+    border-radius: 10px;
+    object-fit: cover;
+    border: 1px solid var(--nx-border);
+}
+
+.up-document-preview > div {
+    display: grid;
+    gap: 5px;
+    min-width: 0;
+}
+
+.up-document-preview__status {
+    color: var(--nx-primary-strong);
+    font-size: .74rem;
+    font-weight: 800;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+}
+
+.up-document-preview__change {
+    display: inline-flex;
+    width: fit-content;
+    align-items: center;
+    padding: 5px 9px;
+    border-radius: 7px;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(83, 44, 157, .12);
+    cursor: pointer;
+    color: var(--nx-primary-strong);
+    font-size: .82rem;
+    font-weight: 700;
+}
+
+.up-document-picker ::deep .up-document-picker__input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+}
+
+.up-document-picker__choose {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 64px;
+    padding: 10px 14px;
+    border: 1px dashed #cdb8f6;
+    border-radius: 14px;
+    background: var(--nx-primary-softer);
+    color: var(--nx-primary-strong);
+    font-size: .9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: border-color .2s ease, background .2s ease, transform .2s ease;
+}
+
+.up-document-picker__choose:hover {
+    border-color: var(--nx-primary);
+    background: #f5efff;
+    transform: translateY(-1px);
+}
+
 /* ---- responsive ---- */
 
 @media (max-width: 900px) {
@@ -786,6 +907,30 @@
     .up-details,
     .up-modal__body {
         grid-template-columns: 1fr;
+    }
+
+    .up-overlay {
+        padding: 12px;
+    }
+
+    .up-modal {
+        max-height: calc(100dvh - 24px);
+    }
+
+    .up-modal__head,
+    .up-modal__body {
+        padding-left: 18px;
+        padding-right: 18px;
+    }
+
+    .up-modal__foot {
+        padding: 14px 18px;
+    }
+
+    .up-modal__foot .up-btn {
+        flex: 1 1 0;
+        padding-inline: 10px;
+        white-space: nowrap;
     }
 }
 

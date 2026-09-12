@@ -24,6 +24,7 @@ public sealed class VerificationRequestDto
     public string ApplicantName { get; set; } = string.Empty;
     public string SubjectType { get; set; } = string.Empty;   // "User" or "Domestic Helper"
     public string DocumentType { get; set; } = string.Empty;
+    public string? DocumentUrl { get; set; }
     public DateTime SubmittedUtc { get; set; }
     public VerificationStatus Status { get; set; }
 }

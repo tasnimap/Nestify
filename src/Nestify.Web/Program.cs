@@ -56,6 +56,7 @@ builder.Services.AddScoped<IMarketplaceService, MockMarketplaceService>();
 
 // Admin console — mock data until the M5/M6 endpoints land
 builder.Services.AddScoped<IAdminService, MockAdminService>();
+builder.Services.AddScoped<IVerificationAdminService, VerificationAdminService>();
 
 // Register utility services
 builder.Services.AddScoped<MoneyFormatterService>();

@@ -51,16 +51,17 @@ else
                     <h1>@_profile.FullName</h1>
                     <p class="up-head__meta">@DisplayOccupation &middot; @DisplayAddress</p>
                     <div class="up-chips">
-                        @if (_verificationPending)
+                        @if (_profile.VerificationState == VerificationState.Verified)
+                        { <span class="up-chip up-chip--verified">Verified</span> }
+                        else if (_profile.VerificationState == VerificationState.Pending)
                         {
                             <span class="up-chip up-chip--wait">Verification pending</span>
-                        }
-                        else
-                        {
-                            <button type="button" class="up-chip up-chip--apply" @onclick="ApplyForVerification">
-                                Apply for verification
+                            <button type="button" class="up-chip up-chip--cancel" disabled="@_cancellingVerification" @onclick="CancelVerification">
+                                @(_cancellingVerification ? "Cancelling..." : "Cancel application")
                             </button>
                         }
+                        else
+                        { <button type="button" class="up-chip up-chip--apply" @onclick="OpenVerification">Apply for verification</button> }
                         <span class="up-chip">House member</span>
                         <span class="up-chip">Joined @JoinedOn</span>
                     </div>
@@ -91,7 +92,9 @@ else
                         <div><dt>Email</dt><dd>@_profile.Email</dd></div>
                         <div><dt>Phone</dt><dd>@_profile.PhoneNumber</dd></div>
                         <div><dt>WhatsApp</dt><dd>@Or(_profile.WhatsappNumber, "Not added")</dd></div>
-                        <div><dt>Occupation</dt><dd>@DisplayOccupation</dd></div>
+                        <div><dt>Occupation</dt><dd>@PersonalOccupation</dd></div>
+                        @if (!string.IsNullOrWhiteSpace(_profile.OrganizationName))
+                        { <div><dt>@(_profile.Occupation == "Job holder" ? "Workplace" : "School / university")</dt><dd>@_profile.OrganizationName</dd></div> }
                         <div class="up-details__wide"><dt>Address</dt><dd>@DisplayAddress</dd></div>
                     </dl>
                 </section>
@@ -155,8 +158,22 @@ else
                 <div class="up-modal__body">
                     <div class="up-field">
                         <label for="ed-occupation">Occupation</label>
-                        <input id="ed-occupation" @bind="_draft.Occupation" />
+                        <select id="ed-occupation" @bind="_draft.Occupation">
+                            <option value="">Select your occupation</option>
+                            <option value="Student — High school">Student — High school</option>
+                            <option value="Student — College">Student — College</option>
+                            <option value="Student — University">Student — University</option>
+                            <option value="Unemployed">Unemployed</option>
+                            <option value="Job holder">Job holder</option>
+                        </select>
                     </div>
+                    @if (NeedsOrganization)
+                    {
+                        <div class="up-field">
+                            <label for="ed-organization">@OrganizationLabel</label>
+                            <input id="ed-organization" @bind="_draft.OrganizationName" placeholder="@OrganizationPlaceholder" />
+                        </div>
+                    }
                     <div class="up-field">
                         <label for="ed-wa">WhatsApp number</label>
                         <input id="ed-wa" @bind="_draft.WhatsappNumber" />
@@ -190,6 +207,53 @@ else
                         @(_saving ? "Saving..." : "Save changes")
                     </button>
                 </footer>
+            </div>
+        </div>
+    }
+
+    @if (_showVerification)
+    {
+        <div class="up-overlay" @onclick="CloseVerification">
+            <div class="up-modal up-modal--sm" @onclick:stopPropagation="true">
+                <header class="up-modal__head"><h2>Verify your account</h2><button type="button" class="up-modal__close" @onclick="CloseVerification" aria-label="Close">&times;</button></header>
+                <div class="up-modal__body up-modal__body--stack">
+                    <p class="up-verification-copy">Choose one document and upload a clear photo. An admin will review it before the verified badge is added to your account.</p>
+                    <div class="up-field">
+                        <label for="verification-document">Verification document</label>
+                        <select id="verification-document" @bind="_verificationDocumentType">
+                            <option value="">Choose a document</option>
+                            <option value="Student ID">Student ID</option>
+                            <option value="Birth Certificate">Birth certificate</option>
+                            <option value="National ID (NID)">National ID (NID)</option>
+                            <option value="Employee ID / Workplace ID">Employee ID / workplace ID</option>
+                        </select>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(_verificationDocumentType))
+                    { <p class="up-verification-hint">@DocumentHint</p> }
+                    <div class="up-field">
+                        <label for="verification-file">Document photo</label>
+                        <div class="up-document-picker">
+                            <InputFile id="verification-file" OnChange="PickVerificationDocument" accept="image/*" class="up-document-picker__input" />
+                            @if (_verificationPreviewUrl is not null)
+                            {
+                                <div class="up-document-preview">
+                                    <img src="@_verificationPreviewUrl" alt="Selected verification document preview" />
+                                    <div>
+                                        <span class="up-document-preview__status">Photo selected</span>
+                                        <small class="up-file-name">@_verificationFile?.Name</small>
+                                        <label for="verification-file" class="up-document-preview__change"><span>Replace photo</span></label>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <label for="verification-file" class="up-document-picker__choose"><span>Choose a clear document photo</span></label>
+                            }
+                        </div>
+                    </div>
+                    @if (_verificationError is not null) { <p class="up-msg up-msg--bad">@_verificationError</p> }
+                </div>
+                <footer class="up-modal__foot"><button type="button" class="up-btn" @onclick="CloseVerification">Cancel</button><button type="button" class="up-btn up-btn--solid" disabled="@_submittingVerification" @onclick="SubmitVerification">@(_submittingVerification ? "Submitting..." : "Submit for review")</button></footer>
             </div>
         </div>
     }
@@ -261,13 +325,19 @@ else
     private string? _loadError;
     private UserProfileDto? _profile;
 
-    private bool _verificationPending;
+    private bool _showVerification;
+    private bool _submittingVerification;
+    private bool _cancellingVerification;
     private bool _showPhoto;
     private bool _showEdit;
     private bool _showPassword;
     private bool _saving;
     private bool _uploading;
     private string? _photoError;
+    private string _verificationDocumentType = string.Empty;
+    private IBrowserFile? _verificationFile;
+    private string? _verificationPreviewUrl;
+    private string? _verificationError;
 
     private UpdateUserProfileDto _draft = new();
     private string? _editError;
@@ -291,7 +361,33 @@ else
 
     private string JoinedOn => _profile?.CreatedAtUtc.ToString("MMM yyyy") ?? string.Empty;
 
-    private string DisplayOccupation => Or(_profile?.Occupation, "Occupation not set");
+    private string DisplayOccupation
+    {
+        get
+        {
+            var occupation = _profile?.Occupation;
+            if (occupation?.StartsWith("Student", StringComparison.Ordinal) == true &&
+                !string.IsNullOrWhiteSpace(_profile?.OrganizationName))
+            {
+                return $"Student — {_profile.OrganizationName}";
+            }
+
+            return Or(occupation, "Occupation not set");
+        }
+    }
+    private string PersonalOccupation => _profile?.Occupation?.StartsWith("Student", StringComparison.Ordinal) == true
+        ? "Student"
+        : DisplayOccupation;
+    private bool NeedsOrganization => _draft.Occupation?.StartsWith("Student", StringComparison.Ordinal) == true || _draft.Occupation == "Job holder";
+    private string OrganizationLabel => _draft.Occupation == "Job holder" ? "Workplace name" : "School, college or university name";
+    private string OrganizationPlaceholder => _draft.Occupation == "Job holder" ? "Where do you work?" : "Where do you study?";
+    private string DocumentHint => _verificationDocumentType switch
+    {
+        "Student ID" => "Upload the front of your current school, college or university ID.",
+        "Employee ID / Workplace ID" => "Upload your employee ID or a workplace ID that shows your name.",
+        "National ID (NID)" => "Upload a clear photo of your National ID.",
+        _ => "Upload a clear photo of your birth certificate."
+    };
 
     private string DisplayAddress => Or(_profile?.Address, "Address not set");
 
@@ -401,7 +497,77 @@ else
         }
     }
 
-    private void ApplyForVerification() => _verificationPending = true;
+    private void OpenVerification()
+    {
+        _verificationDocumentType = string.Empty;
+        _verificationFile = null;
+        _verificationPreviewUrl = null;
+        _verificationError = null;
+        _showVerification = true;
+    }
+
+    private void CloseVerification() => _showVerification = false;
+
+    private async Task PickVerificationDocument(InputFileChangeEventArgs e)
+    {
+        _verificationFile = e.File;
+        _verificationError = null;
+
+        try
+        {
+            var preview = await e.File.RequestImageFileAsync("image/jpeg", 320, 320);
+            await using var stream = preview.OpenReadStream(MaxPictureBytes);
+            await using var buffer = new MemoryStream();
+            await stream.CopyToAsync(buffer);
+            _verificationPreviewUrl = $"data:image/jpeg;base64,{Convert.ToBase64String(buffer.ToArray())}";
+        }
+        catch
+        {
+            // The submission endpoint gives the user a specific error if the
+            // chosen file cannot be used. Keeping the picker available lets
+            // them choose another image here.
+            _verificationPreviewUrl = null;
+        }
+    }
+
+    private async Task SubmitVerification()
+    {
+        if (string.IsNullOrWhiteSpace(_verificationDocumentType) || _verificationFile is null)
+        {
+            _verificationError = "Choose a document type and a photo to continue.";
+            return;
+        }
+
+        _verificationError = null;
+        _submittingVerification = true;
+        try
+        {
+            using var stream = _verificationFile.OpenReadStream(MaxPictureBytes);
+            var updated = await ProfileService.SubmitVerificationAsync(_verificationDocumentType, stream, _verificationFile.Name, _verificationFile.ContentType);
+            if (updated is not null) _profile = updated;
+            _showVerification = false;
+        }
+        catch (Exception ex) { _verificationError = ex.Message; }
+        finally { _submittingVerification = false; }
+    }
+
+    private async Task CancelVerification()
+    {
+        _cancellingVerification = true;
+        try
+        {
+            var updated = await ProfileService.CancelVerificationAsync();
+            if (updated is not null) _profile = updated;
+        }
+        catch (Exception ex)
+        {
+            _verificationError = ex.Message;
+        }
+        finally
+        {
+            _cancellingVerification = false;
+        }
+    }
 
     private void OpenPhoto() => _showPhoto = true;
 
@@ -413,6 +579,7 @@ else
         _draft = new UpdateUserProfileDto
         {
             Occupation = _profile?.Occupation,
+            OrganizationName = _profile?.OrganizationName,
             Address = _profile?.Address,
             WhatsappNumber = _profile?.WhatsappNumber,
             FacebookUrl = _profile?.FacebookUrl,

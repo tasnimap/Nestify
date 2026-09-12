@@ -44,6 +44,7 @@ builder.Services.AddSingleton<JwtTokenService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<HelperService>();
 builder.Services.AddScoped<UserProfileService>();
+builder.Services.AddScoped<VerificationService>();
 builder.Services.AddScoped<HomeService>();
 builder.Services.AddSingleton(cloudinarySettings);
 builder.Services.AddHttpClient<CloudinaryUploader>();

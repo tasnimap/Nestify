@@ -26,4 +26,7 @@ public interface IUserProfileService
     /// Cloudinary and stores the link it gets back.
     /// </summary>
     Task<UserProfileDto?> UploadPictureAsync(Stream content, string fileName, string contentType);
+
+    Task<UserProfileDto?> SubmitVerificationAsync(string documentType, Stream content, string fileName, string contentType);
+    Task<UserProfileDto?> CancelVerificationAsync();
 }
