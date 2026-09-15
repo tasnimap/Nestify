@@ -1,0 +1,277 @@
+@page "/helpers/availability"
+@layout HelperLayout
+@attribute [Authorize(Roles = "DomesticHelper,DomesticHelp,Maid,Helper")]
+@implements IDisposable
+@inject MaidWorkspaceService Workspace
+@inject Nestify.Web.Services.ToastService Toast
+
+<PageTitle>Availability — Nestify</PageTitle>
+
+<div class="dh md">
+    <div class="dh__inner">
+        <header class="dh-head md-head dh-rise">
+            <div>
+                <p class="dh-kicker">Helper workspace</p>
+                <h1>Set your hours</h1>
+                <p>Tap the hours you can work each week, Saturday to Friday. Bachelors see this board when they book you, so keep it honest and up to date.</p>
+            </div>
+
+            <div class="md-switch-card">
+                <div class="md-switch-card__text">
+                    <strong>@(_available ? "Accepting bookings" : "Paused")</strong>
+                    <span>@(_available ? "You appear in search and can receive requests." : "Hidden from search. Current jobs continue as normal.")</span>
+                </div>
+                <button type="button" class="md-switch @(_available ? "md-switch--on" : null)"
+                        role="switch" aria-checked="@_available.ToString().ToLowerInvariant()"
+                        aria-label="Available for new bookings" @onclick="ToggleAvailable">
+                    <span class="md-switch__knob"></span>
+                </button>
+            </div>
+        </header>
+
+        <div class="md-stats dh-rise" style="--d:60ms">
+            <div class="md-stat">
+                <span class="md-stat__value">@_openCount</span>
+                <span class="md-stat__label">open hours / week</span>
+            </div>
+            <div class="md-stat">
+                <span class="md-stat__value">@_bookedCount</span>
+                <span class="md-stat__label">booked hours</span>
+            </div>
+            <div class="md-stat">
+                <span class="md-stat__value">@_daysWorking</span>
+                <span class="md-stat__label">working days</span>
+            </div>
+            <div class="md-stat md-stat--soft">
+                <span class="md-stat__value">@_dirtyCount</span>
+                <span class="md-stat__label">unsaved changes</span>
+            </div>
+        </div>
+
+        <section class="dh-panel md-board dh-rise @(!_available ? "md-board--paused" : null)" style="--d:120ms">
+            <div class="md-board__top">
+                <div class="md-weeknav__label">
+                    <strong>Weekly pattern</strong>
+                    <span>Saturday to Friday, repeats every week</span>
+                </div>
+
+                <ul class="dh-legend md-legend">
+                    <li><span class="dh-key dh-key--free"></span>Open</li>
+                    <li><span class="dh-key dh-key--booked"></span>Booked</li>
+                    <li><span class="dh-key dh-key--off"></span>Off</li>
+                </ul>
+            </div>
+
+            <div class="md-presets">
+                <span class="md-presets__label">Quick fill</span>
+                <div class="md-presets__row">
+                    <button type="button" class="dh-chip" @onclick="() => ApplyPreset(6, 12)">Mornings</button>
+                    <button type="button" class="dh-chip" @onclick="() => ApplyPreset(12, 17)">Afternoons</button>
+                    <button type="button" class="dh-chip" @onclick="() => ApplyPreset(17, 22)">Evenings</button>
+                    <button type="button" class="dh-chip" @onclick="() => ApplyPreset(8, 18)">Office hours</button>
+                    <button type="button" class="dh-chip" @onclick="() => ApplyPreset(6, 24)">Full days</button>
+                    <button type="button" class="dh-chip md-chip--clear" @onclick="ClearWeek">Clear week</button>
+                </div>
+            </div>
+
+            <div class="md-grid-wrap" @onpointerup="StopPaint" @onpointerleave="StopPaint">
+                <div class="md-grid" role="grid" aria-label="Weekly availability" style="--cols:@MaidWorkspaceService.Days">
+                    <div class="md-grid__corner" role="columnheader"></div>
+                    @foreach (var day in MaidWorkspaceService.Week)
+                    {
+                        var d = day;
+                        var isToday = d == DateTime.Today.DayOfWeek;
+                        var open = OpenCountForDay(d);
+                        <button type="button" role="columnheader"
+                                class="md-grid__day @(isToday ? "md-grid__day--today" : null) @(open > 0 ? "md-grid__day--on" : null)"
+                                title="Toggle the whole day"
+                                @onclick="() => ToggleDay(d)">
+                            <span class="md-grid__dow">@DayShort(d)</span>
+                            <span class="md-grid__date">@DayLetter(d)</span>
+                            <span class="md-grid__tally">@open<span>h</span></span>
+                        </button>
+                    }
+
+                    @for (var hour = MaidWorkspaceService.StartHour; hour < MaidWorkspaceService.EndHour; hour++)
+                    {
+                        var h = hour;
+                        <div class="md-grid__hour" role="rowheader">@MaidWorkspaceService.HourLabel(h)</div>
+                        @foreach (var day in MaidWorkspaceService.Week)
+                        {
+                            var key = (day, h);
+                            var state = _week[key];
+                            var booked = state == MaidSlotState.Booked;
+                            var changed = _saved[key] != state;
+                            var label = $"{day}, {MaidWorkspaceService.RangeLabel(h, h + 1)} — {StateLabel(state)}";
+
+                            <button type="button" role="gridcell"
+                                    class="md-cell md-cell--@state.ToString().ToLowerInvariant() @(changed ? "md-cell--changed" : null)"
+                                    title="@label"
+                                    aria-label="@label"
+                                    aria-pressed="@((state == MaidSlotState.Open).ToString().ToLowerInvariant())"
+                                    disabled="@booked"
+                                    @onpointerdown="() => StartPaint(key)"
+                                    @onpointerenter="() => Paint(key)"
+                                    @onclick="() => Tap(key)">
+                                @if (booked)
+                                {
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></svg>
+                                }
+                            </button>
+                        }
+                    }
+                </div>
+            </div>
+
+            <p class="dh-sched__note">Booked hours are locked by the home that booked them. The same pattern repeats every week.</p>
+        </section>
+    </div>
+
+    <div class="md-savebar @(_dirtyCount > 0 ? "md-savebar--show" : null)" aria-live="polite">
+        <div class="md-savebar__inner">
+            <span class="md-savebar__text">
+                <strong>@_dirtyCount</strong> @(_dirtyCount == 1 ? "hour" : "hours") changed
+            </span>
+            <button type="button" class="nx-btn nx-btn--ghost" @onclick="Discard">Discard</button>
+            <button type="button" class="nx-btn nx-btn--accent" @onclick="Save">Save hours</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    private Dictionary<(DayOfWeek Day, int Hour), MaidSlotState> _week = new();
+    private Dictionary<(DayOfWeek Day, int Hour), MaidSlotState> _saved = new();
+    private bool _available;
+
+    private int _openCount;
+    private int _bookedCount;
+    private int _daysWorking;
+    private int _dirtyCount;
+
+    private bool _painting;
+    private bool _paintHandled;
+    private MaidSlotState _paintTo;
+
+    protected override void OnInitialized()
+    {
+        _available = Workspace.IsAvailable;
+        Workspace.Changed += OnWorkspaceChanged;
+        LoadWeek();
+    }
+
+    private void LoadWeek()
+    {
+        _saved = Workspace.SnapshotWeek();
+        _week = new Dictionary<(DayOfWeek, int), MaidSlotState>(_saved);
+        Recount();
+    }
+
+    private void Recount()
+    {
+        _openCount = _week.Values.Count(s => s == MaidSlotState.Open);
+        _bookedCount = _week.Values.Count(s => s == MaidSlotState.Booked);
+        _daysWorking = _week.Where(kv => kv.Value != MaidSlotState.Off).Select(kv => kv.Key.Day).Distinct().Count();
+        _dirtyCount = _week.Count(kv => _saved[kv.Key] != kv.Value);
+    }
+
+    private int OpenCountForDay(DayOfWeek day) =>
+        _week.Count(kv => kv.Key.Day == day && kv.Value != MaidSlotState.Off);
+
+    private static string DayShort(DayOfWeek day) => day.ToString()[..3];
+    private static string DayLetter(DayOfWeek day) => day.ToString()[..1];
+
+    private static string StateLabel(MaidSlotState state) => state switch
+    {
+        MaidSlotState.Open => "Open",
+        MaidSlotState.Booked => "Booked",
+        _ => "Off"
+    };
+
+    private bool Editable((DayOfWeek Day, int Hour) key) => _week[key] != MaidSlotState.Booked;
+
+    // A tap flips one hour. Pointer painting handles press-and-drag on a mouse;
+    // the click handler is skipped when a paint already applied the change.
+    private void Tap((DayOfWeek Day, int Hour) key)
+    {
+        if (_paintHandled) { _paintHandled = false; return; }
+        if (!Editable(key)) return;
+        _week[key] = _week[key] == MaidSlotState.Open ? MaidSlotState.Off : MaidSlotState.Open;
+        Recount();
+    }
+
+    private void StartPaint((DayOfWeek Day, int Hour) key)
+    {
+        if (!Editable(key)) return;
+        _painting = true;
+        _paintTo = _week[key] == MaidSlotState.Open ? MaidSlotState.Off : MaidSlotState.Open;
+        _week[key] = _paintTo;
+        _paintHandled = true;
+        Recount();
+    }
+
+    private void Paint((DayOfWeek Day, int Hour) key)
+    {
+        if (!_painting || !Editable(key)) return;
+        if (_week[key] == _paintTo) return;
+        _week[key] = _paintTo;
+        Recount();
+    }
+
+    private void StopPaint() => _painting = false;
+
+    private void ToggleDay(DayOfWeek day)
+    {
+        var keys = _week.Keys.Where(k => k.Day == day && Editable(k)).ToList();
+        var anyOpen = keys.Any(k => _week[k] == MaidSlotState.Open);
+        foreach (var k in keys)
+        {
+            _week[k] = anyOpen ? MaidSlotState.Off : MaidSlotState.Open;
+        }
+        Recount();
+    }
+
+    private void ApplyPreset(int from, int to)
+    {
+        foreach (var k in _week.Keys.ToList())
+        {
+            if (!Editable(k)) continue;
+            _week[k] = k.Hour >= from && k.Hour < to ? MaidSlotState.Open : MaidSlotState.Off;
+        }
+        Recount();
+    }
+
+    private void ClearWeek()
+    {
+        foreach (var k in _week.Keys.ToList())
+        {
+            if (Editable(k)) _week[k] = MaidSlotState.Off;
+        }
+        Recount();
+    }
+
+    private void Save()
+    {
+        Workspace.SaveWeek(_week);
+        _saved = Workspace.SnapshotWeek();
+        Recount();
+        Toast.ShowSuccess($"{_openCount} open hours a week published.", "Hours saved");
+    }
+
+    private void Discard()
+    {
+        _week = new Dictionary<(DayOfWeek, int), MaidSlotState>(_saved);
+        Recount();
+    }
+
+    private void ToggleAvailable()
+    {
+        _available = !_available;
+        Workspace.SetAvailable(_available);
+        Toast.ShowInfo(_available ? "You are visible to bachelors again." : "You are hidden from new bookings.",
+            _available ? "Accepting bookings" : "Paused");
+    }
+
+    private void OnWorkspaceChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Workspace.Changed -= OnWorkspaceChanged;
+}
