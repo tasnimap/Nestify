@@ -1,119 +1,180 @@
 @page "/admin/profile"
-@layout AdminLayout
+@layout AdminShell
 @attribute [Authorize(Roles = "Admin")]
 @using System.Security.Claims
-@inject AuthenticationStateProvider AuthStateProvider
+@using Nestify.Shared.Dtos.Admin
+@inject AdminProfileClient Profiles
+@inject AuthenticationStateProvider AuthProvider
+@inject Nestify.Web.Services.Interfaces.IAuthService AuthService
+@inject NavigationManager Navigation
 
-<PageTitle>Admin Profile - Nestify</PageTitle>
+<PageTitle>My profile — Nestify Admin</PageTitle>
 
-@if (!_loading)
+<header class="adm-head adm-rise">
+    <div>
+        <p class="adm-eyebrow">Account</p>
+        <h1>My profile</h1>
+        <p>These details come from your row in the Nestify database, not from the browser session.</p>
+    </div>
+    <div class="adm-head__actions">
+        <button class="adm-btn adm-btn--danger" type="button" @onclick="SignOut">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><path d="m16 17 5-5-5-5" /><path d="M21 12H9" /></svg>
+            Log out
+        </button>
+    </div>
+</header>
+
+<section class="adm-hero adm-rise" style="--d:.06s">
+    <span class="adm-hero__avatar" aria-hidden="true">@Initials(DisplayName)</span>
+    <div class="adm-hero__body">
+        <h2 class="adm-hero__name">@DisplayName</h2>
+        <p class="adm-hero__mail">@DisplayEmail</p>
+        <div class="adm-hero__tags">
+            <span class="adm-hero__tag">@(_profile?.RoleName ?? "Administrator")</span>
+            @if (_profile is not null)
+            {
+                <span class="adm-hero__tag">Account #@_profile.Id</span>
+                <span class="adm-hero__tag">@_profile.ActiveSessions active session@(_profile.ActiveSessions == 1 ? "" : "s")</span>
+            }
+        </div>
+    </div>
+</section>
+
+@if (_loading)
 {
-    <section class="nx-section profile-page">
-        <div class="nx-container profile-wrap">
-            <header class="profile-head">
-                <div>
-                    <p class="nx-eyebrow">My Profile</p>
-                    <h1>Admin Profile</h1>
-                    <p class="profile-head__lead">
-                        An administrative account for verification decisions, report resolution,
-                        user bans, audit review, and ML retraining controls.
-                    </p>
-                </div>
-                <div class="profile-route-note">Admin account</div>
-            </header>
-
-            <div class="profile-hero profile-hero--admin">
-                <div class="profile-identity">
-                    <div class="profile-avatar">@DisplayInitials</div>
-                    <div>
-                        <p class="profile-kicker">Admin</p>
-                        <h2>@DisplayName</h2>
-                        <p>Operations Console</p>
-                    </div>
-                </div>
-                <div class="profile-badges" aria-label="Status">
-                    <span>Seeded account</span>
-                    <span>Audit logged</span>
-                    <span>Least privilege</span>
-                </div>
-            </div>
-
-            <div class="profile-grid">
-                <section class="profile-panel profile-panel--wide">
-                    <h3>Administrative Scope</h3>
-                    <div class="profile-fields">
-                        <div class="profile-field"><span>Email</span><strong>@DisplayEmail</strong></div>
-                        <div class="profile-field"><span>Role source</span><strong>Seeded configuration</strong></div>
-                        <div class="profile-field"><span>Verification queue</span><strong>Pending requests</strong></div>
-                        <div class="profile-field"><span>Reports queue</span><strong>Open reports</strong></div>
-                        <div class="profile-field"><span>Audit log</span><strong>Read-only history</strong></div>
-                        <div class="profile-field"><span>ML retrain</span><strong>Admin-triggered</strong></div>
-                    </div>
-                </section>
-
-                <section class="profile-panel">
-                    <h3>Contact</h3>
-                    <div class="profile-contact">
-                        <p><span>Phone</span><strong>Internal only</strong></p>
-                        <p><span>Recovery</span><strong>Managed outside public profile</strong></p>
-                        <p><span>Document access</span><strong>120-second signed tokens</strong></p>
-                    </div>
-                </section>
-
-                <section class="profile-panel">
-                    <h3>Permissions</h3>
-                    <ul class="profile-list">
-                        <li>Approve or reject verification requests</li>
-                        <li>Resolve reports and hide or remove content</li>
-                        <li>Ban users with mandatory audit reasons</li>
-                        <li>Trigger price model retraining</li>
-                    </ul>
-                </section>
-
-                <section class="profile-panel profile-panel--wide">
-                    <h3>Activity</h3>
-                    <div class="profile-metrics">
-                        <div class="profile-metric"><strong>9</strong><span>Pending verifications</span></div>
-                        <div class="profile-metric"><strong>4</strong><span>Open reports</span></div>
-                        <div class="profile-metric"><strong>37</strong><span>Audit events</span></div>
-                        <div class="profile-metric"><strong>1</strong><span>Active ML model</span></div>
-                    </div>
-                </section>
-
-                <section class="profile-panel">
-                    <h3>Plan Guardrails</h3>
-                    <ul class="profile-list">
-                        <li>There is no self-service endpoint that grants Admin.</li>
-                        <li>Every admin decision writes an audit log in the same transaction.</li>
-                        <li>Admin has no designed access to private household financial data.</li>
-                    </ul>
-                </section>
+    <section class="adm-card adm-rise">
+        <p>Loading your account…</p>
+    </section>
+}
+else if (_profile is null)
+{
+    <section class="adm-card adm-rise">
+        <div class="adm-card__head">
+            <div>
+                <h2>Account details are not available</h2>
+                <p>The database could not be reached, so only the details in your sign-in token are shown above.</p>
             </div>
         </div>
+        <button class="adm-btn adm-btn--ghost" type="button" @onclick="Load">Try again</button>
     </section>
+}
+else
+{
+    <div class="adm-grid adm-grid--2">
+        <section class="adm-card adm-rise" style="--d:.12s">
+            <div class="adm-card__head">
+                <div>
+                    <h2>Account</h2>
+                    <p>Stored in the users table.</p>
+                </div>
+            </div>
+            <div class="adm-kv">
+                <div class="adm-kv__row"><span>Full name</span><strong>@_profile.FullName</strong></div>
+                <div class="adm-kv__row"><span>Email</span><strong>@_profile.Email</strong></div>
+                <div class="adm-kv__row"><span>Phone</span><strong>@_profile.PhoneNumber</strong></div>
+                <div class="adm-kv__row"><span>Account type</span><strong>@AccountTypeLabel</strong></div>
+                <div class="adm-kv__row"><span>Joined</span><strong>@_profile.CreatedAtUtc.ToLocalTime().ToString("d MMMM yyyy")</strong></div>
+            </div>
+        </section>
+
+        <section class="adm-card adm-rise" style="--d:.18s">
+            <div class="adm-card__head">
+                <div>
+                    <h2>Role and sessions</h2>
+                    <p>From the roles and refresh token tables.</p>
+                </div>
+            </div>
+            <div class="adm-kv">
+                <div class="adm-kv__row"><span>Role</span><strong>@(_profile.RoleName ?? "Administrator")</strong></div>
+                <div class="adm-kv__row"><span>What it allows</span><strong>@(_profile.RoleDescription ?? "Manages verification, reports and bans")</strong></div>
+                <div class="adm-kv__row">
+                    <span>Role granted</span>
+                    <strong>@(_profile.RoleGrantedAtUtc?.ToLocalTime().ToString("d MMM yyyy") ?? "—")</strong>
+                </div>
+                <div class="adm-kv__row">
+                    <span>Last sign-in</span>
+                    <strong>@(_profile.LastSignInUtc?.ToLocalTime().ToString("d MMM yyyy, h:mm tt") ?? "—")</strong>
+                </div>
+                <div class="adm-kv__row"><span>Active sessions</span><strong>@_profile.ActiveSessions</strong></div>
+            </div>
+        </section>
+
+        <section class="adm-card adm-rise adm-span-2" style="--d:.24s">
+            <div class="adm-card__head">
+                <div>
+                    <h2>Who else is on Nestify</h2>
+                    <p>Counted live from the users table.</p>
+                </div>
+            </div>
+            <div class="adm-grid adm-grid--3">
+                <div class="adm-kpi">
+                    <p class="adm-kpi__label">Admins</p>
+                    <p class="adm-kpi__value">@_profile.AdminCount</p>
+                    <p class="adm-kpi__foot"><a href="admin/team">Manage the team</a></p>
+                </div>
+                <div class="adm-kpi adm-kpi--sky">
+                    <p class="adm-kpi__label">Other accounts</p>
+                    <p class="adm-kpi__value">@_profile.UserCount</p>
+                    <p class="adm-kpi__foot">users and domestic helpers</p>
+                </div>
+                <div class="adm-kpi adm-kpi--teal">
+                    <p class="adm-kpi__label">Your account id</p>
+                    <p class="adm-kpi__value">#@_profile.Id</p>
+                    <p class="adm-kpi__foot">used in every audit entry</p>
+                </div>
+            </div>
+        </section>
+    </div>
 }
 
 @code {
-    private bool _loading = true;
+    private AdminProfileDto? _profile;
     private ClaimsPrincipal? _user;
+    private bool _loading = true;
 
-    private string DisplayName => GetClaimValue(ClaimTypes.Name, "name") ?? "Nestify Admin";
-    private string DisplayEmail => GetClaimValue(ClaimTypes.Email, "email") ?? "admin@nestify.local";
-    private string DisplayInitials => CreateInitials(DisplayName);
+    private string DisplayName =>
+        _profile?.FullName ?? Claim(ClaimTypes.Name, "name") ?? "Nestify admin";
+
+    private string DisplayEmail =>
+        _profile?.Email ?? Claim(ClaimTypes.Email, "email") ?? "—";
+
+    private string AccountTypeLabel => _profile?.AccountType switch
+    {
+        1 => "User (1)",
+        2 => "Domestic helper (2)",
+        3 => "Admin (3)",
+        _ => "—"
+    };
 
     protected override async Task OnInitializedAsync()
     {
-        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-        _user = authState.User;
+        _user = (await AuthProvider.GetAuthenticationStateAsync()).User;
+        await Load();
+    }
+
+    private async Task Load()
+    {
+        _loading = true;
+        _profile = await Profiles.GetAsync();
         _loading = false;
     }
 
-    private string? GetClaimValue(params string[] claimTypes) =>
-        _user?.Claims.FirstOrDefault(c => claimTypes.Any(t => string.Equals(c.Type, t, StringComparison.OrdinalIgnoreCase)))?.Value;
-
-    private static string CreateInitials(string name)
+    private async Task SignOut()
     {
-        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-        return parts.Length == 0 ? "U" : string.Concat(parts.Take(2).Select(p => char.ToUpperInvariant(p[0])));
+        await AuthService.LogoutAsync();
+        Navigation.NavigateTo("/", forceLoad: false);
+    }
+
+    private string? Claim(params string[] types) =>
+        _user?.Claims.FirstOrDefault(c => types.Any(t => string.Equals(c.Type, t, StringComparison.OrdinalIgnoreCase)))?.Value;
+
+    private static string Initials(string name)
+    {
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return parts.Length == 0
+            ? "A"
+            : parts.Length == 1
+                ? parts[0][..1].ToUpperInvariant()
+                : (parts[0][..1] + parts[^1][..1]).ToUpperInvariant();
     }
 }
