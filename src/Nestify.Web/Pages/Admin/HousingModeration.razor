@@ -1,0 +1,362 @@
+@page "/admin/housing"
+@layout AdminShell
+@attribute [Authorize(Roles = "Admin")]
+@inject AdminConsoleService Store
+
+<PageTitle>Housing posts — Nestify Admin</PageTitle>
+
+<header class="adm-head adm-rise">
+    <div>
+        <p class="adm-eyebrow">Moderation</p>
+        <h1>Housing posts</h1>
+        <p>What users reported sits on the first tab. The other tabs hold every seat, sublet and whole-house listing the browse page is serving right now.</p>
+    </div>
+    <div class="adm-head__actions">
+        <span class="adm-badge adm-badge--pending">@OpenReports open reports</span>
+        <span class="adm-badge adm-badge--ok">@LiveCount live posts</span>
+    </div>
+</header>
+
+<div class="adm-toolbar adm-rise" style="--d:.08s">
+    <div class="adm-tabs">
+        <button class="adm-tab @(_tab == 0 ? "adm-tab--on" : null)" type="button" @onclick="() => SetTab(0)">
+            Reports<span class="adm-tab__count">@OpenReports</span>
+        </button>
+        <button class="adm-tab @(_tab == 1 ? "adm-tab--on" : null)" type="button" @onclick="() => SetTab(1)">
+            Live posts<span class="adm-tab__count">@LiveCount</span>
+        </button>
+        <button class="adm-tab @(_tab == 2 ? "adm-tab--on" : null)" type="button" @onclick="() => SetTab(2)">
+            Taken down<span class="adm-tab__count">@Store.Housing.Count(p => p.State == PostState.Removed)</span>
+        </button>
+    </div>
+    <label class="adm-search adm-toolbar__grow">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
+        <input type="search" placeholder="Search title, area, district or owner" @bind="Query" @bind:event="oninput" />
+    </label>
+</div>
+
+@if (_tab == 0)
+{
+    var reports = Store.Reports
+        .Where(r => r.Scope == PlanScope.Housing && Matches(r.PostTitle + r.Reason + r.ReportedBy))
+        .OrderBy(r => r.State).ThenByDescending(r => r.RaisedOn)
+        .ToList();
+
+    var reportPage = ClampPage(reports.Count);
+
+    if (reports.Count == 0)
+    {
+        <EmptyState Title="No reports here" Message="Nothing has been reported on a housing post yet." />
+    }
+    else
+    {
+        <div class="adm-rows">
+            @foreach (var report in reports.Skip((reportPage - 1) * PageSize).Take(PageSize))
+            {
+                var post = Store.Housing.FirstOrDefault(p => p.Id == report.PostId);
+                <article class="adm-row adm-rise">
+                    @if (post is not null)
+                    {
+                        <span class="adm-shot-wrap">
+                            <img class="adm-shot" src="@post.Cover" alt="" loading="lazy" />
+                            @if (post.Photos.Count > 1)
+                            {
+                                <span class="adm-shot-wrap__count">@post.Photos.Count photos</span>
+                            }
+                        </span>
+                    }
+                    <div class="adm-row__main">
+                        <p class="adm-row__title">@report.PostTitle</p>
+                        <p class="adm-row__meta">
+                            Reported for <strong>@report.Reason</strong> by @report.ReportedBy · @AdminConsoleService.Ago(report.RaisedOn)
+                        </p>
+                        <p class="adm-row__note">@report.Details</p>
+                        @if (post is not null)
+                        {
+                            <div class="adm-row__facts">
+                                <span class="adm-fact adm-fact--price">@AdminConsoleService.Taka(post.Rent) / month</span>
+                                <span class="adm-fact">@post.ListingType</span>
+                                <span class="adm-fact">@post.FullArea</span>
+                                <span class="adm-fact">@post.Owner</span>
+                                @if (post.State == PostState.Removed)
+                                {
+                                    <span class="adm-fact">already taken down</span>
+                                }
+                            </div>
+                        }
+                    </div>
+                    <div class="adm-row__side">
+                        @if (post is not null)
+                        {
+                            <button class="adm-btn adm-btn--ghost adm-btn--sm" type="button" @onclick="() => _preview = post">View post</button>
+                        }
+                        @if (report.State == ReportState.Open)
+                        {
+                            @if (post is not null && post.State == PostState.Live)
+                            {
+                                <button class="adm-btn adm-btn--danger adm-btn--sm" type="button" @onclick="() => AskRemove(post, report)">Strike down</button>
+                            }
+                            <button class="adm-btn adm-btn--ghost adm-btn--sm" type="button" @onclick="() => Store.DismissReport(report.Id)">Dismiss</button>
+                        }
+                        else
+                        {
+                            <span class="adm-badge @(report.State == ReportState.Resolved ? "adm-badge--ok" : "adm-badge--muted")">@report.State</span>
+                        }
+                    </div>
+                </article>
+            }
+        </div>
+
+        <Pager Page="reportPage" PageSize="PageSize" Total="reports.Count" PageChanged="p => _page = p" />
+    }
+}
+else
+{
+    var wanted = _tab == 1 ? PostState.Live : PostState.Removed;
+    var posts = Store.Housing
+        .Where(p => p.State == wanted && Matches(p.Title + p.Area + p.District + p.Owner))
+        .OrderByDescending(p => p.PostedOn)
+        .ToList();
+
+    var postPage = ClampPage(posts.Count);
+
+    if (posts.Count == 0)
+    {
+        <EmptyState Title="Nothing to show" Message="No post matches this filter right now." />
+    }
+    else
+    {
+        <div class="adm-rows">
+            @foreach (var post in posts.Skip((postPage - 1) * PageSize).Take(PageSize))
+            {
+                <article class="adm-row adm-rise">
+                    <span class="adm-shot-wrap">
+                        <img class="adm-shot" src="@post.Cover" alt="" loading="lazy" />
+                        @if (post.Photos.Count > 1)
+                        {
+                            <span class="adm-shot-wrap__count">@post.Photos.Count photos</span>
+                        }
+                    </span>
+                    <div class="adm-row__main">
+                        <p class="adm-row__title">@post.Title</p>
+                        <p class="adm-row__meta">
+                            @post.Owner
+                            @if (post.OwnerVerified)
+                            {
+                                <span class="adm-verified">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m5 12 5 5 9-10" /></svg>
+                                    verified
+                                </span>
+                            }
+                            · posted @AdminConsoleService.Ago(post.PostedOn)
+                        </p>
+                        <p class="adm-desc">@post.Description</p>
+                        <div class="adm-row__facts">
+                            <span class="adm-fact adm-fact--price">@AdminConsoleService.Taka(post.Rent) / month</span>
+                            <span class="adm-fact">@post.ListingType · @post.Seats seat@(post.Seats == 1 ? "" : "s")</span>
+                            <span class="adm-fact">@post.FullArea</span>
+                            <span class="adm-fact">@post.Eligibility</span>
+                            @if (post.ReportCount > 0)
+                            {
+                                <span class="adm-badge adm-badge--pending">@post.ReportCount report@(post.ReportCount == 1 ? "" : "s")</span>
+                            }
+                        </div>
+                        @if (post.State == PostState.Removed && post.RemovalReason is not null)
+                        {
+                            <p class="adm-row__note">Taken down — @post.RemovalReason</p>
+                        }
+                    </div>
+                    <div class="adm-row__side">
+                        <button class="adm-btn adm-btn--ghost adm-btn--sm" type="button" @onclick="() => _preview = post">View post</button>
+                        @if (post.State == PostState.Live)
+                        {
+                            <button class="adm-btn adm-btn--danger adm-btn--sm" type="button" @onclick="() => AskRemove(post, null)">Strike down</button>
+                        }
+                        else
+                        {
+                            <button class="adm-btn adm-btn--ok adm-btn--sm" type="button" @onclick="() => Store.RestoreHousingPost(post.Id)">Put back</button>
+                        }
+                    </div>
+                </article>
+            }
+        </div>
+
+        <Pager Page="postPage" PageSize="PageSize" Total="posts.Count" PageChanged="p => _page = p" />
+    }
+}
+
+@if (_preview is not null)
+{
+    <div class="adm-modal" role="dialog" aria-modal="true">
+        <div class="adm-modal__box adm-modal__box--wide">
+            <div class="adm-modal__head">
+                <div>
+                    <h2>@_preview.Title</h2>
+                    <p>The post exactly as a seeker sees it.</p>
+                </div>
+                <button class="adm-icon-btn" type="button" aria-label="Close" @onclick="() => _preview = null">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
+                </button>
+            </div>
+
+            <PhotoGallery Photos="_preview.Photos" />
+            <p class="adm-desc" style="-webkit-line-clamp:none;margin-bottom:1rem;">@_preview.Description</p>
+
+            <div class="adm-kv">
+                <div class="adm-kv__row"><span>Rent</span><strong>@AdminConsoleService.Taka(_preview.Rent) / month</strong></div>
+                <div class="adm-kv__row"><span>Listing type</span><strong>@_preview.ListingType · @_preview.Seats seat@(_preview.Seats == 1 ? "" : "s")</strong></div>
+                <div class="adm-kv__row"><span>Area</span><strong>@_preview.Area, @_preview.District, @_preview.Division</strong></div>
+                <div class="adm-kv__row"><span>Who can apply</span><strong>@_preview.Eligibility</strong></div>
+                <div class="adm-kv__row"><span>Posted by</span><strong>@_preview.Owner @(_preview.OwnerVerified ? "(verified)" : "(not verified)")</strong></div>
+                <div class="adm-kv__row"><span>Posted</span><strong>@_preview.PostedOn.ToString("d MMM yyyy, h:mm tt")</strong></div>
+                <div class="adm-kv__row"><span>Photos</span><strong>@_preview.Photos.Count</strong></div>
+                <div class="adm-kv__row"><span>Reports</span><strong>@ReportsFor(_preview.Id)</strong></div>
+            </div>
+
+            <div class="adm-modal__foot">
+                <button class="adm-btn adm-btn--ghost" type="button" @onclick="() => _preview = null">Close</button>
+                @if (_preview.State == PostState.Live)
+                {
+                    <button class="adm-btn adm-btn--danger" type="button" @onclick="() => AskRemove(_preview, null)">Strike down post</button>
+                }
+                else
+                {
+                    <button class="adm-btn adm-btn--ok" type="button" @onclick="() => PutBack(_preview)">Put back</button>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@if (_target is not null)
+{
+    <div class="adm-modal" role="dialog" aria-modal="true">
+        <div class="adm-modal__box">
+            <div class="adm-modal__head">
+                <div>
+                    <h2>Strike down this post</h2>
+                    <p>@_target.Title</p>
+                </div>
+                <button class="adm-icon-btn" type="button" aria-label="Close" @onclick="Cancel">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
+                </button>
+            </div>
+
+            <div class="adm-form">
+                <div class="adm-field">
+                    <label for="reason">Reason</label>
+                    <select id="reason" class="adm-select" @bind="_reason">
+                        @foreach (var reason in Reasons)
+                        {
+                            <option value="@reason">@reason</option>
+                        }
+                    </select>
+                </div>
+                <div class="adm-field">
+                    <label for="note">Note for the audit log</label>
+                    <textarea id="note" class="adm-textarea" @bind="_note" placeholder="What did you see on the post?"></textarea>
+                </div>
+                <p class="adm-note">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 8h.01M11 12h1v4h1" /></svg>
+                    The post leaves browse and search straight away, and the action is written to the audit log under your name.
+                </p>
+            </div>
+
+            <div class="adm-modal__foot">
+                <button class="adm-btn adm-btn--ghost" type="button" @onclick="Cancel">Cancel</button>
+                <button class="adm-btn adm-btn--danger" type="button" @onclick="ConfirmRemove">Strike down post</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private static readonly string[] Reasons =
+    {
+        "Fake listing",
+        "Misleading photos or rent",
+        "Duplicate post",
+        "Abusive or improper content",
+        "Scam or advance payment demand",
+        "Wrong rent",
+        "Other policy breach"
+    };
+
+    private const int PageSize = 10;
+
+    private int _tab;
+    private int _page = 1;
+    private string _query = "";
+    private HousingPost? _target;
+    private HousingPost? _preview;
+    private PostReport? _linkedReport;
+    private string _reason = Reasons[0];
+    private string _note = "";
+
+    private string Query
+    {
+        get => _query;
+        set { _query = value; _page = 1; }
+    }
+
+    private void SetTab(int tab)
+    {
+        _tab = tab;
+        _page = 1;
+    }
+
+    // Keeps the page in range when a strike shortens the list under the reader.
+    private int ClampPage(int total)
+    {
+        var pageCount = Math.Max(1, (int)Math.Ceiling(total / (double)PageSize));
+        _page = Math.Clamp(_page, 1, pageCount);
+        return _page;
+    }
+
+    private int OpenReports => Store.Reports.Count(r => r.Scope == PlanScope.Housing && r.State == ReportState.Open);
+
+    private int LiveCount => Store.Housing.Count(p => p.State == PostState.Live);
+
+    private int ReportsFor(string postId) => Store.Reports.Count(r => r.PostId == postId);
+
+    private bool Matches(string haystack) =>
+        string.IsNullOrWhiteSpace(_query) ||
+        haystack.Contains(_query, StringComparison.OrdinalIgnoreCase);
+
+    private void AskRemove(HousingPost? post, PostReport? report)
+    {
+        if (post is null) return;
+        _preview = null;
+        _target = post;
+        _linkedReport = report;
+        _reason = Reasons.Contains(report?.Reason) ? report!.Reason : Reasons[0];
+        _note = "";
+    }
+
+    private void PutBack(HousingPost post)
+    {
+        Store.RestoreHousingPost(post.Id);
+        _preview = null;
+    }
+
+    private void Cancel()
+    {
+        _target = null;
+        _linkedReport = null;
+    }
+
+    private void ConfirmRemove()
+    {
+        if (_target is null) return;
+
+        var reason = string.IsNullOrWhiteSpace(_note) ? _reason : $"{_reason} — {_note}";
+        Store.RemoveHousingPost(_target.Id, reason);
+
+        if (_linkedReport is not null)
+        {
+            Store.ResolveReport(_linkedReport.Id, "Post struck down");
+        }
+
+        Cancel();
+    }
+}
