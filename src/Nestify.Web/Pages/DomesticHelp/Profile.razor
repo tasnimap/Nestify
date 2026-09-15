@@ -1,48 +1,57 @@
 @page "/helpers/profile"
 @layout HelperLayout
 @attribute [Authorize(Roles = "DomesticHelper,DomesticHelp,Maid,Helper")]
+@implements IDisposable
 @using System.Security.Claims
-@using Microsoft.AspNetCore.Components.Forms
-@using Nestify.Shared.Dtos.Profile
+@using Nestify.Shared.Dtos.Helpers
 @using Nestify.Web.Components
-@inject AuthenticationStateProvider AuthStateProvider
-@inject IUserProfileService ProfileService
-@inject IHelperService Helpers
+@inject MaidAccountClient Account
+@inject MaidWorkspaceService Workspace
+@inject AuthenticationStateProvider AuthProvider
+@inject Nestify.Web.Services.Interfaces.IAuthService AuthService
+@inject Nestify.Web.Services.MoneyFormatterService Money
+@inject Nestify.Web.Services.ToastService Toast
+@inject NavigationManager Navigation
 
-<PageTitle>Maid Profile - Nestify</PageTitle>
+<PageTitle>My profile — Nestify</PageTitle>
 
-@if (_loading)
-{
-    <div class="dh"><div class="dh__inner"><p class="dh-muted">Loading profile...</p></div></div>
-}
-else
-{
-    <div class="dh">
-        <div class="dh__inner">
-            <header class="dh-head dh-rise">
-                <p class="dh-kicker">My profile</p>
-                <h1>Maid Profile</h1>
-                <p>
-                    A domestic helper profile with service area, availability, monthly rates,
-                    verification status, and engagement history.
-                </p>
-            </header>
+<div class="dh md">
+    <div class="dh__inner">
+        <header class="md-profile dh-rise">
+            <div class="md-profile__glow" aria-hidden="true"></div>
 
-            <div class="dh-hero dh-rise" style="--d:80ms">
-                <div class="dh-identity">
-                    <div class="dh-avatar">@DisplayInitials</div>
-                    <div>
-                        <p class="dh-kicker">DomesticHelper</p>
-                        <h2>@DisplayName</h2>
-                        <p>@(_helper?.AreaName ?? "Area not set")</p>
-                    </div>
+            <div class="md-profile__ring">
+                <button type="button" class="md-photo" @onclick="OpenPhoto" title="View photo" aria-label="View profile photo">
+                    <img src="@P.PhotoUrl" alt="Profile photo of @DisplayName" />
+                    <span class="md-photo__hint">View</span>
+                </button>
+                <span class="md-profile__status @(Workspace.IsAvailable ? "md-profile__status--on" : null)" title="@(Workspace.IsAvailable ? "Accepting bookings" : "Paused")"></span>
+                <label class="md-photo__change">
+                    <InputFile OnChange="PickPhoto" accept="image/*" class="md-photo__file" disabled="@_uploading" />
+                    <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2Z" /><circle cx="12" cy="13" r="4" /></svg>
+                    <span>@(_uploading ? "Loading…" : "Change")</span>
+                </label>
+            </div>
+
+            <div class="md-profile__body">
+                <p class="dh-kicker">@(_account?.RoleName ?? "Domestic Helper")</p>
+                <h1>@DisplayName</h1>
+                <p class="md-profile__headline">@P.Headline</p>
+                <div class="md-profile__meta">
+                    <RatingStars Value="Workspace.RatingAverage" Count="Workspace.RatingCount" />
+                    <span class="dh-profile__dot" aria-hidden="true"></span>
+                    <span class="dh-profile__where">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>
+                        @P.Area
+                    </span>
                 </div>
-                <div class="dh-badges" aria-label="Status">
-                    @if (_profile?.VerificationState == VerificationState.Verified)
+                <div class="dh-badges">
+                    <span>@(Workspace.IsAvailable ? "Accepting bookings" : "Paused")</span>
+                    @if (_account is not null)
                     {
-                        <span>Verified</span>
+                        <span>Member since @_account.CreatedAtUtc.ToLocalTime().ToString("MMM yyyy")</span>
                     }
-                    else if (_profile?.VerificationState == VerificationState.Pending)
+                    @if (P.VerificationPending)
                     {
                         <span>Verification pending</span>
                     }
@@ -50,198 +59,570 @@ else
                     {
                         <button type="button" class="dh-chip dh-chip--on" @onclick="OpenVerification">Apply for verification</button>
                     }
-                    <span>@(_helper is null ? "No profile yet" : "Active")</span>
-                    <span>@(_helper?.RatingAverage.ToString("0.0") ?? "0.0") rating</span>
                 </div>
             </div>
 
-            <div class="dh-grid dh-grid--profile">
-                <section class="dh-panel dh-panel--span2 dh-rise" style="--d:140ms">
-                    <div class="dh-panel__head"><h2>Helper Details</h2></div>
-                    @if (_helper is null)
+            <div class="md-profile__actions">
+                <button class="nx-btn nx-btn--light" type="button" @onclick="OpenEdit">
+                    <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" /></svg>
+                    Edit profile
+                </button>
+                <button class="nx-btn nx-btn--ghost" type="button" @onclick="OpenPassword">Change password</button>
+                <button class="nx-btn nx-btn--ghost" type="button" @onclick="SignOut">Log out</button>
+            </div>
+        </header>
+
+        <div class="md-stats dh-rise" style="--d:60ms">
+            <div class="md-stat">
+                <span class="md-stat__value">@Workspace.RatingAverage.ToString("0.0")</span>
+                <span class="md-stat__label">rating</span>
+            </div>
+            <div class="md-stat">
+                <span class="md-stat__value">@Workspace.CompletedEngagementCount</span>
+                <span class="md-stat__label">completed</span>
+            </div>
+            <div class="md-stat">
+                <span class="md-stat__value">@Workspace.ActiveEngagementCount</span>
+                <span class="md-stat__label">active</span>
+            </div>
+            <div class="md-stat md-stat--soft">
+                <span class="md-stat__value">@P.ExperienceYears<small> yrs</small></span>
+                <span class="md-stat__label">experience</span>
+            </div>
+        </div>
+
+        <div class="dh-grid md-profile-grid">
+            <section class="dh-panel dh-rise" style="--d:120ms">
+                <div class="dh-panel__head">
+                    <h2>Account</h2>
+                    <span class="md-source md-source--live">From your account</span>
+                </div>
+                @if (_loading)
+                {
+                    <div class="dh-skeleton">
+                        <div class="dh-skeleton__bar"></div>
+                        <div class="dh-skeleton__bar"></div>
+                    </div>
+                }
+                else if (_account is null)
+                {
+                    <p class="dh-muted">Your account details could not be loaded right now. Only what is in your sign-in token is shown above.</p>
+                    <button class="nx-btn nx-btn--ghost" type="button" @onclick="Load">Try again</button>
+                }
+                else
+                {
+                    <div class="dh-facts">
+                        <div class="dh-fact"><span>Full name</span><strong>@DisplayName</strong></div>
+                        <div class="dh-fact"><span>Email</span><strong>@_account.Email</strong></div>
+                        <div class="dh-fact"><span>Phone</span><strong>@DisplayPhone</strong></div>
+                        <div class="dh-fact"><span>Joined</span><strong>@_account.CreatedAtUtc.ToLocalTime().ToString("d MMMM yyyy")</strong></div>
+                        <div class="dh-fact"><span>Role granted</span><strong>@(_account.RoleGrantedAtUtc?.ToLocalTime().ToString("d MMM yyyy") ?? "—")</strong></div>
+                    </div>
+                }
+            </section>
+
+            <section class="dh-panel dh-rise" style="--d:180ms">
+                <div class="dh-panel__head">
+                    <h2>About me</h2>
+                    <button type="button" class="md-link" @onclick="OpenEdit">Edit</button>
+                </div>
+                <p class="md-bio">@P.Bio</p>
+                <div class="dh-facts">
+                    <div class="dh-fact"><span>Languages</span><strong>@P.Languages</strong></div>
+                    <div class="dh-fact"><span>Preferred hours</span><strong>@P.PreferredHours</strong></div>
+                    <div class="dh-fact"><span>WhatsApp</span><strong>@P.WhatsappNumber</strong></div>
+                    <div class="dh-fact"><span>Address</span><strong>@P.Address</strong></div>
+                </div>
+            </section>
+
+            <section class="dh-panel dh-rise" style="--d:240ms">
+                <div class="dh-panel__head">
+                    <h2>Services and rate</h2>
+                    <button type="button" class="md-link" @onclick="OpenEdit">Edit</button>
+                </div>
+                <div class="dh-tags">
+                    @foreach (var s in P.Services)
                     {
-                        <p class="dh-muted">You haven't registered as a helper yet. <a href="helpers/register">Register now</a>.</p>
+                        <span class="dh-tag">@MaidWorkspaceService.ServiceLabel(s)</span>
                     }
-                    else
+                    @if (P.Services.Count == 0)
                     {
-                        <div class="dh-facts">
-                            <div class="dh-fact"><span>Display name</span><strong>@DisplayName</strong></div>
-                            <div class="dh-fact"><span>Services</span><strong>@string.Join(", ", _helper.Services)</strong></div>
-                            <div class="dh-fact"><span>Monthly rate</span><strong>BDT @_helper.MonthlyRate.ToString("N0")</strong></div>
-                            <div class="dh-fact"><span>Availability</span><strong>@_helper.AvailabilityWindow</strong></div>
+                        <span class="dh-muted">No services picked yet.</span>
+                    }
+                </div>
+                <p class="md-rate">@Money.Format(P.MonthlyRate)<span>/month</span></p>
+                <div class="dh-facts">
+                    <div class="dh-fact"><span>Service area</span><strong>@P.Area</strong></div>
+                    <div class="dh-fact"><span>Open hours per week</span><strong>@Workspace.OpenHoursPerWeek() h</strong></div>
+                </div>
+            </section>
+
+            <section class="dh-panel dh-rise" style="--d:300ms">
+                <div class="dh-panel__head">
+                    <h2>Verification</h2>
+                    <span class="md-source">Sample</span>
+                </div>
+                <div class="md-verify">
+                    <span class="md-verify__icon @(P.VerificationPending ? "md-verify__icon--pending" : null)" aria-hidden="true">
+                        <svg class="nx-icon" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" /></svg>
+                    </span>
+                    <div>
+                        @if (P.VerificationPending)
+                        {
+                            <strong>Under review</strong>
+                            <p class="dh-muted">Your @P.VerificationDocument is with an admin. You'll get the verified badge once it is approved.</p>
+                        }
+                        else
+                        {
+                            <strong>Not applied yet</strong>
+                            <p class="dh-muted">Verified helpers are shown first in search and get more requests. Upload an NID or birth certificate for an admin to check.</p>
+                        }
+                    </div>
+                </div>
+                @if (P.VerificationPending)
+                {
+                    <button class="nx-btn nx-btn--ghost" type="button" @onclick="CancelVerification">Withdraw application</button>
+                }
+                else
+                {
+                    <button class="nx-btn nx-btn--accent" type="button" @onclick="OpenVerification">Apply for verification</button>
+                }
+            </section>
+
+            <section class="dh-panel dh-panel--wide dh-rise" style="--d:360ms">
+                <div class="dh-panel__head">
+                    <h2>Recent reviews</h2>
+                    <a class="md-link" href="helpers/reviews">See all</a>
+                </div>
+                <div class="md-review-strip">
+                    @foreach (var r in Workspace.Reviews.OrderByDescending(r => r.CreatedAtUtc).Take(3))
+                    {
+                        <div class="md-review md-review--compact">
+                            <div class="md-review__head">
+                                <span class="dh-item__avatar" aria-hidden="true">@Initials(r.ReviewerName)</span>
+                                <div class="md-review__who">
+                                    <strong>@r.ReviewerName</strong>
+                                    <span>@r.Service</span>
+                                </div>
+                                <RatingStars Value="r.Rating" ShowCount="false" />
+                            </div>
+                            <p class="md-review__text">@r.Comment</p>
                         </div>
                     }
-                </section>
-
-                <section class="dh-panel dh-rise" style="--d:200ms">
-                    <div class="dh-panel__head"><h2>Contact</h2></div>
-                    <div class="dh-facts">
-                        <div class="dh-fact"><span>Phone</span><strong>Hidden until engagement confirmation</strong></div>
-                        <div class="dh-fact"><span>WhatsApp</span><strong>Hidden until engagement confirmation</strong></div>
-                        <div class="dh-fact"><span>Messenger</span><strong>Hidden until engagement confirmation</strong></div>
-                    </div>
-                </section>
-
-                <section class="dh-panel dh-rise" style="--d:260ms">
-                    <div class="dh-panel__head"><h2>Permissions</h2></div>
-                    <ul class="dh-bullets">
-                        <li>Edit only her own helper profile</li>
-                        <li>Confirm or cancel assigned engagements</li>
-                        <li>Receive reviews only from completed engagements</li>
-                        <li>Remain a normal User in addition to DomesticHelper</li>
-                    </ul>
-                </section>
-
-                <section class="dh-panel dh-panel--span2 dh-rise" style="--d:320ms">
-                    <div class="dh-panel__head"><h2>Activity</h2></div>
-                    <div class="dh-metrics">
-                        <div class="dh-metric"><strong>@_completedCount</strong><span>Completed jobs</span></div>
-                        <div class="dh-metric"><strong>@(_helper?.RatingCount ?? 0)</strong><span>Reviews</span></div>
-                        <div class="dh-metric"><strong>@(_helper?.RatingAverage.ToString("0.0") ?? "0.0")</strong><span>Average rating</span></div>
-                        <div class="dh-metric"><strong>@_openCount</strong><span>Open requests</span></div>
-                    </div>
-                </section>
-
-                <section class="dh-panel dh-rise" style="--d:380ms">
-                    <div class="dh-panel__head"><h2>Plan Guardrails</h2></div>
-                    <ul class="dh-bullets">
-                        <li>One helper profile is allowed per account.</li>
-                        <li>Helper edit routes are addressed as /helpers/me to avoid IDOR.</li>
-                        <li>Reviews are tied to engagements, so anonymous review bombing is blocked.</li>
-                    </ul>
-                </section>
-            </div>
+                </div>
+            </section>
         </div>
     </div>
+</div>
 
-    @if (_showVerification)
-    {
-        <div class="up-overlay" @onclick="CloseVerification">
-            <div class="up-modal up-modal--sm" @onclick:stopPropagation="true">
-                <header class="up-modal__head">
-                    <h2>Verify your account</h2>
-                    <button type="button" class="up-modal__close" @onclick="CloseVerification" aria-label="Close">&times;</button>
-                </header>
-                <div class="up-modal__body up-modal__body--stack">
-                    <p class="up-verification-copy">Choose one document and upload a clear photo. An admin will review it before the verified badge is added to your account.</p>
-                    <div class="up-field">
-                        <label for="dh-verification-document">Verification document</label>
-                        <select id="dh-verification-document" @bind="_verificationDocumentType">
-                            <option value="">Choose a document</option>
-                            <option value="Student ID">Student ID</option>
-                            <option value="Birth Certificate">Birth certificate</option>
-                            <option value="National ID (NID)">National ID (NID)</option>
-                            <option value="Employee ID / Workplace ID">Employee ID / workplace ID</option>
-                        </select>
+@* ---------- photo lightbox ---------- *@
+@if (_showPhoto)
+{
+    <div class="md-overlay md-overlay--dark" @onclick="ClosePhoto">
+        <figure class="md-lightbox" @onclick:stopPropagation="true">
+            <img src="@P.PhotoUrl" alt="Profile photo of @DisplayName" />
+            <figcaption>@DisplayName</figcaption>
+            <button type="button" class="md-modal__close md-lightbox__close" @onclick="ClosePhoto" aria-label="Close">&times;</button>
+        </figure>
+    </div>
+}
+
+@* ---------- edit profile ---------- *@
+@if (_showEdit && _draft is not null)
+{
+    <div class="md-overlay" @onclick="CloseEdit">
+        <div class="md-modal" role="dialog" aria-modal="true" aria-labelledby="edit-title" @onclick:stopPropagation="true">
+            <header class="md-modal__head">
+                <h2 id="edit-title">Edit profile</h2>
+                <button type="button" class="md-modal__close" @onclick="CloseEdit" aria-label="Close">&times;</button>
+            </header>
+
+            <div class="md-modal__body">
+                <p class="md-modal__section">Basics</p>
+                <div class="md-form">
+                    <div class="md-field">
+                        <label for="ed-name">Full name</label>
+                        <input id="ed-name" @bind="_draft.FullName" />
                     </div>
-                    <div class="up-field">
-                        <label for="dh-verification-file">Document photo</label>
-                        <InputFile id="dh-verification-file" OnChange="PickVerificationDocument" accept="image/*" />
+                    <div class="md-field">
+                        <label for="ed-phone">Phone</label>
+                        <input id="ed-phone" type="tel" @bind="_draft.PhoneNumber" />
                     </div>
-                    @if (_verificationError is not null)
+                    <div class="md-field">
+                        <label for="ed-email">Email</label>
+                        <input id="ed-email" value="@(_account?.Email ?? "—")" disabled />
+                        <small>Email can't be changed here.</small>
+                    </div>
+                    <div class="md-field">
+                        <label for="ed-wa">WhatsApp number</label>
+                        <input id="ed-wa" type="tel" @bind="_draft.WhatsappNumber" />
+                    </div>
+                    <div class="md-field md-field--wide">
+                        <label for="ed-headline">Headline</label>
+                        <input id="ed-headline" maxlength="90" @bind="_draft.Headline" placeholder="One line about what you do best" />
+                    </div>
+                    <div class="md-field md-field--wide">
+                        <label for="ed-bio">About me</label>
+                        <textarea id="ed-bio" rows="4" maxlength="600" @bind="_draft.Bio"></textarea>
+                    </div>
+                </div>
+
+                <p class="md-modal__section">Services</p>
+                <div class="dh-chips">
+                    @foreach (var type in Enum.GetValues<ServiceType>())
                     {
-                        <p class="up-msg up-msg--bad">@_verificationError</p>
+                        var t = type;
+                        var on = _draft.Services.Contains(t);
+                        <button type="button" class="dh-chip @(on ? "dh-chip--on" : null)" aria-pressed="@on.ToString().ToLowerInvariant()" @onclick="() => ToggleService(t)">
+                            @MaidWorkspaceService.ServiceLabel(t)
+                        </button>
                     }
                 </div>
-                <footer class="up-modal__foot">
-                    <button type="button" class="up-btn" @onclick="CloseVerification">Cancel</button>
-                    <button type="button" class="up-btn up-btn--solid" disabled="@_submittingVerification" @onclick="SubmitVerification">
-                        @(_submittingVerification ? "Submitting..." : "Submit for review")
-                    </button>
-                </footer>
+
+                <p class="md-modal__section">Work and rate</p>
+                <div class="md-form">
+                    <div class="md-field">
+                        <label for="ed-rate">Monthly rate (BDT)</label>
+                        <input id="ed-rate" type="number" min="0" step="100" @bind="_draft.MonthlyRate" />
+                    </div>
+                    <div class="md-field">
+                        <label for="ed-exp">Years of experience</label>
+                        <input id="ed-exp" type="number" min="0" max="50" @bind="_draft.ExperienceYears" />
+                    </div>
+                    <div class="md-field">
+                        <label for="ed-hours">Preferred hours</label>
+                        <input id="ed-hours" @bind="_draft.PreferredHours" placeholder="e.g. Sat-Thu, 8 AM - 2 PM" />
+                    </div>
+                    <div class="md-field">
+                        <label for="ed-lang">Languages</label>
+                        <input id="ed-lang" @bind="_draft.Languages" placeholder="Bangla, English" />
+                    </div>
+                    <div class="md-field">
+                        <label for="ed-area">Service area</label>
+                        <input id="ed-area" @bind="_draft.Area" placeholder="Dhanmondi, Dhaka" />
+                    </div>
+                    <div class="md-field">
+                        <label for="ed-address">Address</label>
+                        <input id="ed-address" @bind="_draft.Address" />
+                    </div>
+                </div>
+
+                @if (_editError is not null)
+                {
+                    <p class="md-msg md-msg--bad">@_editError</p>
+                }
             </div>
+
+            <footer class="md-modal__foot">
+                <button type="button" class="nx-btn nx-btn--ghost" @onclick="CloseEdit">Cancel</button>
+                <button type="button" class="nx-btn nx-btn--accent" @onclick="SaveEdit">Save changes</button>
+            </footer>
         </div>
-    }
+    </div>
+}
+
+@* ---------- verification ---------- *@
+@if (_showVerification)
+{
+    <div class="md-overlay" @onclick="CloseVerification">
+        <div class="md-modal md-modal--sm" role="dialog" aria-modal="true" @onclick:stopPropagation="true">
+            <header class="md-modal__head">
+                <h2>Verify your account</h2>
+                <button type="button" class="md-modal__close" @onclick="CloseVerification" aria-label="Close">&times;</button>
+            </header>
+            <div class="md-modal__body md-modal__body--stack">
+                <p class="dh-muted">Choose one document and upload a clear photo. An admin will review it before the verified badge is added to your profile.</p>
+                <div class="md-field">
+                    <label for="vf-type">Document</label>
+                    <select id="vf-type" @bind="_verificationType">
+                        <option value="">Choose a document</option>
+                        <option value="National ID (NID)">National ID (NID)</option>
+                        <option value="Birth certificate">Birth certificate</option>
+                        <option value="Passport">Passport</option>
+                    </select>
+                </div>
+                <div class="md-field">
+                    <label for="vf-file">Document photo</label>
+                    <label class="md-picker @(_verificationPreview is not null ? "md-picker--has" : null)" for="vf-file">
+                        <InputFile id="vf-file" OnChange="PickVerification" accept="image/*" class="md-photo__file" />
+                        @if (_verificationPreview is not null)
+                        {
+                            <img src="@_verificationPreview" alt="Document preview" />
+                            <span class="md-picker__label">Replace photo</span>
+                        }
+                        else
+                        {
+                            <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path d="m17 8-5-5-5 5" /><path d="M12 3v12" /></svg>
+                            <span class="md-picker__label">Choose a clear document photo</span>
+                        }
+                    </label>
+                </div>
+                @if (_verificationError is not null)
+                {
+                    <p class="md-msg md-msg--bad">@_verificationError</p>
+                }
+            </div>
+            <footer class="md-modal__foot">
+                <button type="button" class="nx-btn nx-btn--ghost" @onclick="CloseVerification">Cancel</button>
+                <button type="button" class="nx-btn nx-btn--accent" @onclick="SubmitVerification">Submit for review</button>
+            </footer>
+        </div>
+    </div>
+}
+
+@* ---------- change password ---------- *@
+@if (_showPassword)
+{
+    <div class="md-overlay" @onclick="ClosePassword">
+        <div class="md-modal md-modal--sm" role="dialog" aria-modal="true" @onclick:stopPropagation="true">
+            <header class="md-modal__head">
+                <h2>Change password</h2>
+                <button type="button" class="md-modal__close" @onclick="ClosePassword" aria-label="Close">&times;</button>
+            </header>
+            <div class="md-modal__body md-modal__body--stack">
+                <div class="md-field">
+                    <label for="pw-current">Current password</label>
+                    <div class="md-pw">
+                        <input id="pw-current" type="@(_showCurrent ? "text" : "password")" @bind="_currentPassword" />
+                        <button type="button" class="md-pw__toggle" @onclick="() => _showCurrent = !_showCurrent">@(_showCurrent ? "Hide" : "Show")</button>
+                    </div>
+                </div>
+                <div class="md-field">
+                    <label for="pw-new">New password</label>
+                    <div class="md-pw">
+                        <input id="pw-new" type="@(_showNew ? "text" : "password")" @bind="_newPassword" />
+                        <button type="button" class="md-pw__toggle" @onclick="() => _showNew = !_showNew">@(_showNew ? "Hide" : "Show")</button>
+                    </div>
+                </div>
+                <div class="md-field">
+                    <label for="pw-confirm">Confirm new password</label>
+                    <div class="md-pw">
+                        <input id="pw-confirm" type="@(_showConfirm ? "text" : "password")" @bind="_confirmPassword" />
+                        <button type="button" class="md-pw__toggle" @onclick="() => _showConfirm = !_showConfirm">@(_showConfirm ? "Hide" : "Show")</button>
+                    </div>
+                </div>
+                @if (_passwordError is not null)
+                {
+                    <p class="md-msg md-msg--bad">@_passwordError</p>
+                }
+            </div>
+            <footer class="md-modal__foot">
+                <button type="button" class="nx-btn nx-btn--ghost" @onclick="ClosePassword">Cancel</button>
+                <button type="button" class="nx-btn nx-btn--accent" @onclick="SavePassword">Update password</button>
+            </footer>
+        </div>
+    </div>
 }
 
 @code {
-    private const long MaxFileBytes = 5 * 1024 * 1024;
+    private const long MaxPhotoBytes = 5 * 1024 * 1024;
 
-    private bool _loading = true;
+    private HelperAccountDto? _account;
     private ClaimsPrincipal? _user;
-    private UserProfileDto? _profile;
-    private Nestify.Shared.Dtos.Helpers.HelperDetailDto? _helper;
-    private int _completedCount;
-    private int _openCount;
+    private bool _loading = true;
+
+    private bool _showPhoto;
+    private bool _uploading;
+
+    private bool _showEdit;
+    private MaidProfile? _draft;
+    private string? _editError;
 
     private bool _showVerification;
-    private bool _submittingVerification;
-    private string _verificationDocumentType = string.Empty;
-    private IBrowserFile? _verificationFile;
+    private string _verificationType = string.Empty;
+    private string? _verificationPreview;
     private string? _verificationError;
 
-    private string DisplayName => GetClaimValue(ClaimTypes.Name, "name") ?? _profile?.FullName ?? "Helper";
+    private bool _showPassword;
+    private bool _showCurrent, _showNew, _showConfirm;
+    private string _currentPassword = string.Empty;
+    private string _newPassword = string.Empty;
+    private string _confirmPassword = string.Empty;
+
+    private MaidProfile P => Workspace.Profile;
+
+    private string DisplayName =>
+        P.FullName ?? _account?.FullName ?? Claim(ClaimTypes.Name, "name") ?? "Helper";
+
+    private string DisplayPhone => P.PhoneNumber ?? _account?.PhoneNumber ?? "—";
 
     protected override async Task OnInitializedAsync()
     {
-        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-        _user = authState.User;
+        Workspace.Changed += OnWorkspaceChanged;
+        _user = (await AuthProvider.GetAuthenticationStateAsync()).User;
+        await Load();
+    }
 
-        _profile = await ProfileService.GetMyProfileAsync();
-        _helper = await Helpers.GetMyProfileAsync();
-
-        if (_helper is not null)
-        {
-            var engagements = await Helpers.GetMyEngagementsAsync();
-            var mine = engagements.Where(e => e.MyRole == Nestify.Shared.Dtos.Helpers.EngagementRole.Helper).ToList();
-            _completedCount = mine.Count(e => e.Status == Nestify.Shared.Dtos.Helpers.EngagementStatus.Completed);
-            _openCount = mine.Count(e => e.Status == Nestify.Shared.Dtos.Helpers.EngagementStatus.Requested);
-        }
-
+    private async Task Load()
+    {
+        _loading = true;
+        _account = await Account.GetAsync();
         _loading = false;
     }
 
-    private string DisplayInitials => CreateInitials(DisplayName);
+    // ---------- photo ----------
 
-    private string? GetClaimValue(params string[] claimTypes) =>
-        _user?.Claims.FirstOrDefault(c => claimTypes.Any(t => string.Equals(c.Type, t, StringComparison.OrdinalIgnoreCase)))?.Value;
+    private void OpenPhoto() => _showPhoto = true;
+    private void ClosePhoto() => _showPhoto = false;
 
-    private static string CreateInitials(string name)
+    // No storage yet, so the picked picture is shown straight from the browser.
+    private async Task PickPhoto(InputFileChangeEventArgs e)
     {
-        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-        return parts.Length == 0 ? "U" : string.Concat(parts.Take(2).Select(p => char.ToUpperInvariant(p[0])));
+        var file = e.File;
+        if (file.Size > MaxPhotoBytes)
+        {
+            Toast.ShowWarning("The picture must be 5 MB or smaller.", "Photo");
+            return;
+        }
+
+        _uploading = true;
+        try
+        {
+            Workspace.SetPhoto(await ToDataUrl(file));
+            Toast.ShowSuccess("Profile photo updated.", "Photo");
+        }
+        catch
+        {
+            Toast.ShowWarning("Could not read that picture.", "Photo");
+        }
+        finally
+        {
+            _uploading = false;
+        }
     }
+
+    private static async Task<string> ToDataUrl(IBrowserFile file)
+    {
+        using var stream = file.OpenReadStream(MaxPhotoBytes);
+        using var memory = new MemoryStream();
+        await stream.CopyToAsync(memory);
+        return $"data:{file.ContentType};base64,{Convert.ToBase64String(memory.ToArray())}";
+    }
+
+    // ---------- edit ----------
+
+    private void OpenEdit()
+    {
+        _draft = P.Clone();
+        _draft.FullName ??= _account?.FullName ?? Claim(ClaimTypes.Name, "name");
+        _draft.PhoneNumber ??= _account?.PhoneNumber;
+        _draft.Services = P.Services.ToList();
+        _editError = null;
+        _showEdit = true;
+    }
+
+    private void CloseEdit() => _showEdit = false;
+
+    private void ToggleService(ServiceType type)
+    {
+        if (_draft is null) return;
+        if (!_draft.Services.Remove(type)) _draft.Services.Add(type);
+    }
+
+    private void SaveEdit()
+    {
+        if (_draft is null) return;
+
+        if (string.IsNullOrWhiteSpace(_draft.FullName)) { _editError = "Your name can't be empty."; return; }
+        if (string.IsNullOrWhiteSpace(_draft.PhoneNumber)) { _editError = "Add a phone number so clients can reach you."; return; }
+        if (_draft.Services.Count == 0) { _editError = "Pick at least one service."; return; }
+        if (_draft.MonthlyRate <= 0) { _editError = "Set a monthly rate."; return; }
+
+        Workspace.SaveProfile(_draft);
+        _showEdit = false;
+        Toast.ShowSuccess("Your profile has been updated.", "Saved");
+    }
+
+    // ---------- verification ----------
 
     private void OpenVerification()
     {
-        _verificationDocumentType = string.Empty;
-        _verificationFile = null;
+        _verificationType = string.Empty;
+        _verificationPreview = null;
         _verificationError = null;
         _showVerification = true;
     }
 
     private void CloseVerification() => _showVerification = false;
 
-    private Task PickVerificationDocument(InputFileChangeEventArgs e)
+    private async Task PickVerification(InputFileChangeEventArgs e)
     {
-        _verificationFile = e.File;
-        return Task.CompletedTask;
+        try
+        {
+            _verificationPreview = await ToDataUrl(e.File);
+            _verificationError = null;
+        }
+        catch
+        {
+            _verificationError = "Could not read that photo. Try a smaller image.";
+        }
     }
 
-    private async Task SubmitVerification()
+    private void SubmitVerification()
     {
-        if (string.IsNullOrWhiteSpace(_verificationDocumentType) || _verificationFile is null)
+        if (string.IsNullOrWhiteSpace(_verificationType) || _verificationPreview is null)
         {
             _verificationError = "Choose a document type and a photo to continue.";
             return;
         }
 
-        _verificationError = null;
-        _submittingVerification = true;
-        try
-        {
-            using var stream = _verificationFile.OpenReadStream(MaxFileBytes);
-            var updated = await ProfileService.SubmitVerificationAsync(_verificationDocumentType, stream, _verificationFile.Name, _verificationFile.ContentType);
-            if (updated is not null) _profile = updated;
-            _showVerification = false;
-        }
-        catch (Exception ex)
-        {
-            _verificationError = ex.Message;
-        }
-        finally
-        {
-            _submittingVerification = false;
-        }
+        Workspace.SubmitVerification(_verificationType);
+        _showVerification = false;
+        Toast.ShowSuccess("An admin will review your document shortly.", "Submitted");
     }
+
+    private void CancelVerification()
+    {
+        Workspace.CancelVerification();
+        Toast.ShowInfo("Your verification application was withdrawn.", "Verification");
+    }
+
+    // ---------- password ----------
+
+    private void OpenPassword()
+    {
+        _currentPassword = _newPassword = _confirmPassword = string.Empty;
+        _showCurrent = _showNew = _showConfirm = false;
+        _passwordError = null;
+        _showPassword = true;
+    }
+
+    private string? _passwordError;
+
+    private void ClosePassword() => _showPassword = false;
+
+    private void SavePassword()
+    {
+        if (string.IsNullOrWhiteSpace(_currentPassword)) { _passwordError = "Enter your current password."; return; }
+        if (_newPassword.Length < 8) { _passwordError = "The new password needs at least 8 characters."; return; }
+        if (_newPassword != _confirmPassword) { _passwordError = "The two new passwords don't match."; return; }
+
+        _showPassword = false;
+        Toast.ShowSuccess("Password updated.", "Security");
+    }
+
+    // ---------- misc ----------
+
+    private async Task SignOut()
+    {
+        await AuthService.LogoutAsync();
+        Navigation.NavigateTo("/", forceLoad: false);
+    }
+
+    private string? Claim(params string[] types) =>
+        _user?.Claims.FirstOrDefault(c => types.Any(t => string.Equals(c.Type, t, StringComparison.OrdinalIgnoreCase)))?.Value;
+
+    private static string Initials(string name)
+    {
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return parts.Length == 0
+            ? "H"
+            : parts.Length == 1
+                ? parts[0][..1].ToUpperInvariant()
+                : (parts[0][..1] + parts[^1][..1]).ToUpperInvariant();
+    }
+
+    private void OnWorkspaceChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Workspace.Changed -= OnWorkspaceChanged;
 }
