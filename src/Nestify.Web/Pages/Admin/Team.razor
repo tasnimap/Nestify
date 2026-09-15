@@ -1,0 +1,183 @@
+@page "/admin/team"
+@layout AdminShell
+@attribute [Authorize(Roles = "Admin")]
+@inject AdminConsoleService Store
+
+<PageTitle>Admin accounts — Nestify Admin</PageTitle>
+
+<header class="adm-head adm-rise">
+    <div>
+        <p class="adm-eyebrow">Team</p>
+        <h1>Admin accounts</h1>
+        <p>Admins are created here, never through public sign-up. Give a new admin their own account instead of sharing yours.</p>
+    </div>
+    <div class="adm-head__actions">
+        <button class="adm-btn adm-btn--primary" type="button" @onclick="StartNew">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+            Add an admin
+        </button>
+    </div>
+</header>
+
+<div class="adm-grid adm-grid--3" style="margin-bottom:1.15rem;">
+    <article class="adm-kpi adm-rise" style="--d:.04s">
+        <p class="adm-kpi__label">Active admins</p>
+        <p class="adm-kpi__value">@Store.Admins.Count(a => a.IsActive)</p>
+        <p class="adm-kpi__foot">can sign in right now</p>
+    </article>
+    <article class="adm-kpi adm-kpi--amber adm-rise" style="--d:.1s">
+        <p class="adm-kpi__label">Suspended</p>
+        <p class="adm-kpi__value">@Store.Admins.Count(a => !a.IsActive)</p>
+        <p class="adm-kpi__foot">kept for the audit trail</p>
+    </article>
+    <article class="adm-kpi adm-kpi--sky adm-rise" style="--d:.16s">
+        <p class="adm-kpi__label">Actions logged</p>
+        <p class="adm-kpi__value">@Store.Audit.Count</p>
+        <p class="adm-kpi__foot">across the whole team</p>
+    </article>
+</div>
+
+<section class="adm-card adm-rise" style="--d:.22s">
+    <div class="adm-card__head">
+        <div>
+            <h2>Everyone with console access</h2>
+            <p>Suspending an admin blocks sign-in but keeps their past actions in the log.</p>
+        </div>
+    </div>
+
+    <div class="adm-table__scroll">
+        <table class="adm-table">
+            <thead>
+                <tr>
+                    <th>Admin</th>
+                    <th>Scope</th>
+                    <th>Added</th>
+                    <th>Last active</th>
+                    <th>Status</th>
+                    <th class="adm-table__right">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var admin in Store.Admins)
+                {
+                    var current = admin;
+                    <tr>
+                        <td>
+                            <div class="adm-table__strong">@current.FullName</div>
+                            <div class="adm-table__sub">@current.Email · @current.Phone</div>
+                        </td>
+                        <td>@current.Scope</td>
+                        <td>@current.CreatedOn.ToString("d MMM yyyy")</td>
+                        <td>@AdminConsoleService.Ago(current.LastActive)</td>
+                        <td>
+                            <span class="adm-badge @(current.IsActive ? "adm-badge--ok" : "adm-badge--muted")">
+                                @(current.IsActive ? "Active" : "Suspended")
+                            </span>
+                        </td>
+                        <td class="adm-table__right">
+                            <div class="adm-table__actions">
+                                <button class="adm-btn @(current.IsActive ? "adm-btn--danger" : "adm-btn--ok") adm-btn--sm"
+                                        type="button" @onclick="() => Store.ToggleAdmin(current.Id)">
+                                    @(current.IsActive ? "Suspend" : "Restore")
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>
+
+@if (_draft is not null)
+{
+    <div class="adm-modal" role="dialog" aria-modal="true">
+        <div class="adm-modal__box">
+            <div class="adm-modal__head">
+                <div>
+                    <h2>Create an admin account</h2>
+                    <p>They sign in with this email and the temporary password you set.</p>
+                </div>
+                <button class="adm-icon-btn" type="button" aria-label="Close" @onclick="() => _draft = null">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
+                </button>
+            </div>
+
+            <div class="adm-form">
+                <div class="adm-field">
+                    <label for="admin-name">Full name</label>
+                    <input id="admin-name" class="adm-input" @bind="_draft.FullName" placeholder="Rezwana Karim" />
+                </div>
+                <div class="adm-field">
+                    <label for="admin-email">Email</label>
+                    <input id="admin-email" class="adm-input" type="email" @bind="_draft.Email" placeholder="name@nestify.com" />
+                </div>
+                <div class="adm-grid adm-grid--2">
+                    <div class="adm-field">
+                        <label for="admin-phone">Phone</label>
+                        <input id="admin-phone" class="adm-input" @bind="_draft.Phone" placeholder="017xx-xxxxxx" />
+                    </div>
+                    <div class="adm-field">
+                        <label for="admin-scope">Scope</label>
+                        <select id="admin-scope" class="adm-select" @bind="_draft.Scope">
+                            <option>Full access</option>
+                            <option>Verification</option>
+                            <option>Moderation</option>
+                            <option>Finance</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="adm-field">
+                    <label for="admin-pass">Temporary password</label>
+                    <input id="admin-pass" class="adm-input" type="text" @bind="_password" placeholder="They change it on first sign-in" />
+                </div>
+
+                @if (_error is not null)
+                {
+                    <p class="adm-badge adm-badge--danger">@_error</p>
+                }
+
+                <p class="adm-note">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z" /><path d="m9 12 2 2 4-4" /></svg>
+                    Creating an admin is itself an audited action, so the log shows who added whom.
+                </p>
+            </div>
+
+            <div class="adm-modal__foot">
+                <button class="adm-btn adm-btn--ghost" type="button" @onclick="() => _draft = null">Cancel</button>
+                <button class="adm-btn adm-btn--primary" type="button" @onclick="Create">Create account</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private AdminAccount? _draft;
+    private string _password = "";
+    private string? _error;
+
+    private void StartNew()
+    {
+        _draft = new AdminAccount { Scope = "Moderation" };
+        _password = "";
+        _error = null;
+    }
+
+    private void Create()
+    {
+        if (_draft is null) return;
+
+        if (string.IsNullOrWhiteSpace(_draft.FullName) ||
+            string.IsNullOrWhiteSpace(_draft.Email) ||
+            string.IsNullOrWhiteSpace(_password))
+        {
+            _error = "Name, email and a temporary password are needed.";
+            return;
+        }
+
+        Store.AddAdmin(_draft);
+        _draft = null;
+        _password = "";
+        _error = null;
+    }
+}
