@@ -1,89 +1,189 @@
 @page "/admin/verifications"
-@layout AdminLayout
+@layout AdminShell
 @attribute [Authorize(Roles = "Admin")]
-@using Nestify.Shared.Dtos.Admin
-@inject IVerificationAdminService VerificationAdmin
-@inject Nestify.Web.Services.ToastService Toast
+@inject AdminConsoleService Store
 
 <PageTitle>Verifications — Nestify Admin</PageTitle>
 
-<div class="rc-page">
-    <header class="rc-head">
-        <h1>Verification queue</h1>
-        <p>Approve or reject identity documents submitted by users and helpers.</p>
-    </header>
+<header class="adm-head adm-rise">
+    <div>
+        <p class="adm-eyebrow">Trust</p>
+        <h1>Verification requests</h1>
+        <p>Users and domestic helpers pay a fee and send a document. Open a request, check the details, then approve or decline it.</p>
+    </div>
+    <div class="adm-head__actions">
+        <a class="adm-btn adm-btn--ghost" href="admin/pricing">Change the fees</a>
+    </div>
+</header>
 
-    <section class="rc-panel rc-panel--wide">
-        @if (_items is null)
-        {
-            <p class="rc-row__meta">Loading…</p>
-        }
-        else if (_items.Count == 0)
-        {
-            <div class="rc-empty"><h3>Queue is clear</h3><p>No verification requests to review.</p></div>
-        }
-        else
-        {
-            <div class="rc-table__scroll">
-                <table class="rc-table">
-                    <thead>
-                        <tr><th>Applicant</th><th>Subject</th><th>Document</th><th>Submitted</th><th>Status</th><th></th></tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var v in _items)
-                        {
-                            <tr>
-                                <td>@v.ApplicantName</td>
-                                <td>@v.SubjectType</td>
-                                <td>
-                                    <span>@v.DocumentType</span>
-                                    @if (!string.IsNullOrWhiteSpace(v.DocumentUrl))
-                                    {
-                                        <a class="rc-row__meta" href="@v.DocumentUrl" target="_blank" rel="noopener">View photo</a>
-                                    }
-                                </td>
-                                <td>@v.SubmittedUtc.ToLocalTime().ToString("dd MMM, HH:mm")</td>
-                                <td>
-                                    <span class="rc-badge @StatusClass(v.Status)">
-                                        <span class="rc-badge__dot"></span>@v.Status
-                                    </span>
-                                </td>
-                                <td>
-                                    @if (v.Status == VerificationStatus.Pending)
-                                    {
-                                        <div class="rc-row__actions">
-                                            <button class="nx-btn nx-btn--accent" @onclick="() => Decide(v, true)">Approve</button>
-                                            <button class="nx-btn nx-btn--ghost" @onclick="() => Decide(v, false)">Reject</button>
-                                        </div>
-                                    }
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        }
-    </section>
+<div class="adm-grid adm-grid--4" style="margin-bottom:1.15rem;">
+    <article class="adm-kpi adm-kpi--amber adm-rise" style="--d:.04s">
+        <p class="adm-kpi__label">Waiting</p>
+        <p class="adm-kpi__value">@Count(ApplicationState.Pending)</p>
+        <p class="adm-kpi__foot">requests need a decision</p>
+    </article>
+    <article class="adm-kpi adm-kpi--teal adm-rise" style="--d:.1s">
+        <p class="adm-kpi__label">Approved</p>
+        <p class="adm-kpi__value">@Count(ApplicationState.Approved)</p>
+        <p class="adm-kpi__foot">in this queue</p>
+    </article>
+    <article class="adm-kpi adm-kpi--rose adm-rise" style="--d:.16s">
+        <p class="adm-kpi__label">Declined</p>
+        <p class="adm-kpi__value">@Count(ApplicationState.Declined)</p>
+        <p class="adm-kpi__foot">in this queue</p>
+    </article>
+    <article class="adm-kpi adm-rise" style="--d:.22s">
+        <p class="adm-kpi__label">Fees collected</p>
+        <p class="adm-kpi__value">@AdminConsoleService.Taka(Store.Applications.Sum(a => a.FeePaid))</p>
+        <p class="adm-kpi__foot">from this queue</p>
+    </article>
 </div>
 
+<div class="adm-toolbar adm-rise" style="--d:.28s">
+    <div class="adm-tabs">
+        <button class="adm-tab @(_kind is null ? "adm-tab--on" : null)" type="button" @onclick="() => _kind = null">
+            Everyone<span class="adm-tab__count">@Store.Applications.Count</span>
+        </button>
+        <button class="adm-tab @(_kind == ApplicantKind.User ? "adm-tab--on" : null)" type="button" @onclick="() => _kind = ApplicantKind.User">
+            Users<span class="adm-tab__count">@Store.Applications.Count(a => a.Kind == ApplicantKind.User)</span>
+        </button>
+        <button class="adm-tab @(_kind == ApplicantKind.DomesticHelper ? "adm-tab--on" : null)" type="button" @onclick="() => _kind = ApplicantKind.DomesticHelper">
+            Domestic helpers<span class="adm-tab__count">@Store.Applications.Count(a => a.Kind == ApplicantKind.DomesticHelper)</span>
+        </button>
+    </div>
+    <label class="adm-search adm-toolbar__grow">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
+        <input type="search" placeholder="Search applicant, document or area" @bind="_query" @bind:event="oninput" />
+    </label>
+</div>
+
+@if (Filtered.Count == 0)
+{
+    <EmptyState Title="Queue is clear" Message="No verification request matches this filter." />
+}
+else
+{
+    <div class="adm-rows">
+        @foreach (var application in Filtered)
+        {
+            <article class="adm-row adm-rise">
+                <span class="adm-thumb @(application.Kind == ApplicantKind.DomesticHelper ? "adm-thumb--amber" : null)" aria-hidden="true">
+                    @Initials(application.Applicant)
+                </span>
+                <div class="adm-row__main">
+                    <p class="adm-row__title">@application.Applicant</p>
+                    <p class="adm-row__meta">
+                        @AdminConsoleService.KindLabel(application.Kind) · @application.DocumentType · @application.Area
+                        · paid @AdminConsoleService.Taka(application.FeePaid) · @AdminConsoleService.Ago(application.SubmittedOn)
+                    </p>
+                    @if (application.State != ApplicationState.Pending && !string.IsNullOrWhiteSpace(application.Decision))
+                    {
+                        <p class="adm-row__note">@application.Decision</p>
+                    }
+                </div>
+                <div class="adm-row__side">
+                    @if (application.State == ApplicationState.Pending)
+                    {
+                        <button class="adm-btn adm-btn--ghost adm-btn--sm" type="button" @onclick="() => Open(application)">View details</button>
+                        <button class="adm-btn adm-btn--ok adm-btn--sm" type="button" @onclick="() => Decide(application, true, string.Empty)">Approve</button>
+                        <button class="adm-btn adm-btn--danger adm-btn--sm" type="button" @onclick="() => Open(application)">Decline</button>
+                    }
+                    else
+                    {
+                        <span class="adm-badge @(application.State == ApplicationState.Approved ? "adm-badge--ok" : "adm-badge--danger")">@application.State</span>
+                    }
+                </div>
+            </article>
+        }
+    </div>
+}
+
+@if (_selected is not null)
+{
+    <div class="adm-modal" role="dialog" aria-modal="true">
+        <div class="adm-modal__box adm-modal__box--wide">
+            <div class="adm-modal__head">
+                <div>
+                    <h2>@_selected.Applicant</h2>
+                    <p>@AdminConsoleService.KindLabel(_selected.Kind) verification request</p>
+                </div>
+                <button class="adm-icon-btn" type="button" aria-label="Close" @onclick="Close">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
+                </button>
+            </div>
+
+            <div class="adm-kv">
+                <div class="adm-kv__row"><span>Document type</span><strong>@_selected.DocumentType</strong></div>
+                <div class="adm-kv__row"><span>Document number</span><strong>@_selected.DocumentNumber</strong></div>
+                <div class="adm-kv__row"><span>Phone</span><strong>@_selected.Phone</strong></div>
+                <div class="adm-kv__row"><span>Area</span><strong>@_selected.Area</strong></div>
+                <div class="adm-kv__row"><span>Fee paid</span><strong>@AdminConsoleService.Taka(_selected.FeePaid)</strong></div>
+                <div class="adm-kv__row"><span>Submitted</span><strong>@_selected.SubmittedOn.ToString("d MMM yyyy, h:mm tt")</strong></div>
+            </div>
+
+            <div class="adm-form" style="margin-top:1.15rem;">
+                <div class="adm-field">
+                    <label for="decision-note">Note</label>
+                    <textarea id="decision-note" class="adm-textarea" @bind="_note"
+                              placeholder="Why are you approving or declining this request?"></textarea>
+                    <span class="adm-field__hint">The note goes into the audit log and is shown to the applicant when declined.</span>
+                </div>
+            </div>
+
+            <div class="adm-modal__foot">
+                <button class="adm-btn adm-btn--ghost" type="button" @onclick="Close">Cancel</button>
+                <button class="adm-btn adm-btn--danger" type="button" @onclick="() => Decide(_selected, false, _note)">Decline</button>
+                <button class="adm-btn adm-btn--ok" type="button" @onclick="() => Decide(_selected, true, _note)">Approve</button>
+            </div>
+        </div>
+    </div>
+}
+
 @code {
-    private List<VerificationRequestDto>? _items;
+    private ApplicantKind? _kind;
+    private string _query = "";
+    private VerificationApplication? _selected;
+    private string _note = "";
 
-    protected override async Task OnInitializedAsync() => await Load();
+    private List<VerificationApplication> Filtered =>
+        Store.Applications
+            .Where(a => _kind is null || a.Kind == _kind)
+            .Where(a => string.IsNullOrWhiteSpace(_query) ||
+                        (a.Applicant + a.DocumentType + a.DocumentNumber + a.Area)
+                            .Contains(_query, StringComparison.OrdinalIgnoreCase))
+            .OrderBy(a => a.State)
+            .ThenBy(a => a.SubmittedOn)
+            .ToList();
 
-    private async Task Load() => _items = await VerificationAdmin.GetQueueAsync();
+    private int Count(ApplicationState state) => Store.Applications.Count(a => a.State == state);
 
-    private async Task Decide(VerificationRequestDto v, bool approve)
+    private void Open(VerificationApplication application)
     {
-        await VerificationAdmin.DecideAsync(v.Id, approve);
-        Toast.ShowInfo($"{v.ApplicantName} {(approve ? "approved" : "rejected")}.", "Verification");
-        await Load();
+        _selected = application;
+        _note = "";
     }
 
-    private static string StatusClass(VerificationStatus s) => s switch
+    private void Close() => _selected = null;
+
+    private void Decide(VerificationApplication? application, bool approve, string note)
     {
-        VerificationStatus.Pending => "rc-badge--pending",
-        VerificationStatus.Approved => "rc-badge--ok",
-        _ => "rc-badge--danger"
-    };
+        if (application is null) return;
+
+        var text = string.IsNullOrWhiteSpace(note)
+            ? (approve ? "Documents matched" : "Documents could not be verified")
+            : note;
+
+        Store.DecideApplication(application.Id, approve, text);
+        Close();
+    }
+
+    private static string Initials(string name)
+    {
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return parts.Length == 0
+            ? "?"
+            : parts.Length == 1
+                ? parts[0][..1].ToUpperInvariant()
+                : (parts[0][..1] + parts[^1][..1]).ToUpperInvariant();
+    }
 }
