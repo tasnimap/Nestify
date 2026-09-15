@@ -54,9 +54,12 @@ builder.Services.AddScoped<IHelperService, HelperService>();
 // M4 · Second-hand marketplace — swap MockMarketplaceService for MarketplaceService when the API lands
 builder.Services.AddScoped<IMarketplaceService, MockMarketplaceService>();
 
-// Admin console — mock data until the M5/M6 endpoints land
-builder.Services.AddScoped<IAdminService, MockAdminService>();
-builder.Services.AddScoped<IVerificationAdminService, VerificationAdminService>();
+// Admin console — front-end only sample data, kept as a Singleton so moderation
+// decisions survive navigating between the admin pages.
+builder.Services.AddSingleton<Nestify.Web.Admin.AdminConsoleService>();
+
+// The admin profile page is the one admin screen backed by the database.
+builder.Services.AddScoped<Nestify.Web.Admin.AdminProfileClient>();
 
 // Register utility services
 builder.Services.AddScoped<MoneyFormatterService>();
