@@ -1,0 +1,17 @@
+namespace Nestify.Shared.Dtos.Helpers;
+
+// The signed-in helper's own row, read straight from the users table.
+public sealed class HelperAccountDto
+{
+    public long Id { get; set; }
+    public string FullName { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string PhoneNumber { get; set; } = string.Empty;
+    public short AccountType { get; set; }
+    public DateTime CreatedAtUtc { get; set; }
+    public string? RoleName { get; set; }
+    public string? RoleDescription { get; set; }
+    public DateTime? RoleGrantedAtUtc { get; set; }
+    public int ActiveSessions { get; set; }
+    public DateTime? LastSignInUtc { get; set; }
+}
