@@ -1,0 +1,29 @@
+@* Counts a number up when the tile first appears, so the dashboard feels alive. *@
+
+<span>@Prefix@_shown.ToString(Format)@Suffix</span>
+
+@code {
+    [Parameter] public int Value { get; set; }
+    [Parameter] public string Prefix { get; set; } = "";
+    [Parameter] public string Suffix { get; set; } = "";
+    [Parameter] public string Format { get; set; } = "N0";
+
+    private int _shown;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        const int steps = 26;
+        for (var i = 1; i <= steps; i++)
+        {
+            var t = i / (double)steps;
+            _shown = (int)Math.Round(Value * (1 - Math.Pow(1 - t, 3)));
+            StateHasChanged();
+            await Task.Delay(22);
+        }
+
+        _shown = Value;
+        StateHasChanged();
+    }
+}
