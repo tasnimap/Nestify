@@ -1,5 +1,6 @@
 // Program.cs
 using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -22,7 +23,11 @@ builder.Services.AddScoped<AuthenticationStateProvider>(sp =>
     sp.GetRequiredService<CustomAuthStateProvider>());
 
 // HttpClient that automatically sends the stored bearer token on every API call.
-builder.Services.AddScoped<AuthorizationMessageHandler>();
+builder.Services.AddScoped(sp => new AuthorizationMessageHandler(
+    sp.GetRequiredService<ILocalStorageService>(),
+    sp.GetRequiredService<CustomAuthStateProvider>(),
+    sp.GetRequiredService<NavigationManager>(),
+    apiBaseUrl));
 builder.Services.AddScoped(sp =>
 {
     var handler = sp.GetRequiredService<AuthorizationMessageHandler>();

@@ -5,7 +5,7 @@ namespace Nestify.Web.Auth;
 // One place that knows which interface a role belongs to and where its home is.
 public static class RoleRoutes
 {
-    public const string UserHome = "housing";
+    public const string UserHome = "home";
     public const string HelperHome = "helpers/dashboard";
     public const string AdminHome = "admin";
 

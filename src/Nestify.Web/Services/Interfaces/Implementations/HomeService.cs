@@ -44,6 +44,11 @@ public sealed class HomeService : IHomeService
             return null;
         }
 
+        if (response.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            throw new ApplicationException("Your session has ended. Please sign in again.");
+        }
+
         if (!response.IsSuccessStatusCode)
         {
             throw new ApplicationException(await ReadMessageAsync(response) ?? "Could not load your home.");

@@ -9,6 +9,7 @@ namespace Nestify.Web.Auth;
 public sealed class CustomAuthStateProvider : AuthenticationStateProvider
 {
     private const string TokenStorageKey = "authToken";
+    private const string RefreshStorageKey = "refreshToken";
     private readonly ILocalStorageService _localStorage;
 
     public CustomAuthStateProvider(ILocalStorageService localStorage)
@@ -21,7 +22,21 @@ public sealed class CustomAuthStateProvider : AuthenticationStateProvider
         var token = await _localStorage.GetItemAsync<string>(TokenStorageKey);
         if (string.IsNullOrWhiteSpace(token))
         {
-            return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+            return Anonymous();
+        }
+
+        // An expired access token is still a live session as long as the refresh
+        // token is there: AuthorizationMessageHandler swaps it on the next call.
+        // Without one there is nothing left to renew, so treat it as logged out
+        // instead of letting the app run into 401s.
+        if (JwtToken.IsExpired(token))
+        {
+            var refreshToken = await _localStorage.GetItemAsync<string>(RefreshStorageKey);
+            if (string.IsNullOrWhiteSpace(refreshToken))
+            {
+                await _localStorage.RemoveItemAsync(TokenStorageKey);
+                return Anonymous();
+            }
         }
 
         try
@@ -31,7 +46,7 @@ public sealed class CustomAuthStateProvider : AuthenticationStateProvider
         }
         catch
         {
-            return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+            return Anonymous();
         }
     }
 
@@ -51,16 +66,16 @@ public sealed class CustomAuthStateProvider : AuthenticationStateProvider
         }
     }
 
-    public void MarkUserAsLoggedOut()
-    {
-        var anonymous = new ClaimsPrincipal(new ClaimsIdentity());
-        NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(anonymous)));
-    }
+    public void MarkUserAsLoggedOut() =>
+        NotifyAuthenticationStateChanged(Task.FromResult(Anonymous()));
+
+    private static AuthenticationState Anonymous() =>
+        new(new ClaimsPrincipal(new ClaimsIdentity()));
 
     private static IEnumerable<Claim> ParseClaimsFromJwt(string jwt)
     {
         var payload = jwt.Split('.')[1];
-        var jsonBytes = ParseBase64WithoutPadding(payload);
+        var jsonBytes = JwtToken.DecodeBase64Url(payload);
         var keyValuePairs = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(jsonBytes)!;
 
         return keyValuePairs.SelectMany(kvp => CreateClaims(kvp.Key, kvp.Value));
@@ -87,16 +102,5 @@ public sealed class CustomAuthStateProvider : AuthenticationStateProvider
         }
 
         yield return new Claim(claimType, value.ToString());
-    }
-
-    private static byte[] ParseBase64WithoutPadding(string base64)
-    {
-        base64 = base64.Replace('-', '+').Replace('_', '/');
-        switch (base64.Length % 4)
-        {
-            case 2: base64 += "=="; break;
-            case 3: base64 += "="; break;
-        }
-        return Convert.FromBase64String(base64);
     }
 }
