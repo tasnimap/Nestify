@@ -56,8 +56,8 @@ builder.Services.AddScoped<IHomeService, HomeService>();
 
 builder.Services.AddScoped<IHelperService, HelperService>();
 
-// M4 · Second-hand marketplace — swap MockMarketplaceService for MarketplaceService when the API lands
-builder.Services.AddScoped<IMarketplaceService, MockMarketplaceService>();
+// M4 - Second-hand marketplace, backed by api/v1/marketplace (Marketplace.sql).
+builder.Services.AddScoped<IMarketplaceService, MarketplaceService>();
 
 // Admin console — front-end only sample data, kept as a Singleton so moderation
 // decisions survive navigating between the admin pages.

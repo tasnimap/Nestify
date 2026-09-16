@@ -1,10 +1,10 @@
 @inject Nestify.Web.Services.ToastService Toast
 
-@* Frontend-phase image picker, shared by the housing and marketplace post forms.
-   A picked file is shrunk in the browser and kept as a data URL so the listing
-   preview shows the real picture; NOTHING is uploaded yet — the photos are
-   validated and stored server-side in a later phase (§11.5.3). The limits shown
-   here are UX guidance, never a guarantee. *@
+@* Image picker shared by the housing and marketplace post forms. A picked file
+   is shrunk in the browser and kept as a data URL so the preview shows the real
+   picture; the API uploads those to Cloudinary when the listing is saved and
+   keeps only the hosted link. The limits shown here are UX guidance, never a
+   guarantee. *@
 
 <div class="mk-up">
     <label class="mk-up__zone @(_full ? "is-full" : null)">

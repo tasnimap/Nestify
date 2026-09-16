@@ -118,7 +118,7 @@
                                 @if (it.Status == ListingStatus.Active)
                                 {
                                     <a class="nx-btn nx-btn--ghost" href="marketplace/items/@it.Id/edit">Edit</a>
-                                    <button class="nx-btn nx-btn--ghost" @onclick="() => MarkSold(it.Id)">Mark sold</button>
+                                    <button class="nx-btn nx-btn--ghost" @onclick="() => OpenSoldPicker(it.Id)">Mark sold</button>
                                 }
                                 <span class="mk-row__actions-spacer"></span>
                                 @if (it.Status != ListingStatus.Removed)
@@ -146,6 +146,68 @@
 @if (_showPostModal)
 {
     <ItemPostModal OnClose="ClosePostModal" OnCreated="OnItemCreated" />
+}
+
+@if (_soldItemId is not null)
+{
+    <div class="mk-modal-overlay" @onclick="CloseSoldPicker">
+        <div class="mk-modal" @onclick:stopPropagation="true">
+            <header class="mk-modal__header">
+                <h2>Who bought it?</h2>
+                <button type="button" class="mk-modal__close" @onclick="CloseSoldPicker" aria-label="Close">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path d="M18 6 6 18M6 6l12 12" />
+                    </svg>
+                </button>
+            </header>
+
+            <div class="mk-modal__body">
+                @if (_soldLoading)
+                {
+                    <p class="mk-muted">Loading buy requests…</p>
+                }
+                else
+                {
+                    <p class="mk-muted">
+                        Pick the accepted request you sold the item to. That buyer is told they got it;
+                        every other request is closed and nobody can withdraw after this.
+                    </p>
+
+                    <div class="mk-sold-options">
+                        @foreach (var interest in _soldOptions)
+                        {
+                            <label class="mk-sold-option @(_soldPick == interest.Id ? "is-picked" : null)">
+                                <input type="radio" name="mk-sold-buyer" value="@interest.Id"
+                                       checked="@(_soldPick == interest.Id)"
+                                       @onchange="() => _soldPick = interest.Id" />
+                                <span class="mk-sold-option__body">
+                                    <strong>@interest.BuyerDisplayName</strong>
+                                    <InterestStatusBadge Status="interest.Status" />
+                                    <span class="mk-muted mk-plain">@interest.Message</span>
+                                </span>
+                            </label>
+                        }
+
+                        <label class="mk-sold-option @(_soldPick is null ? "is-picked" : null)">
+                            <input type="radio" name="mk-sold-buyer" value=""
+                                   checked="@(_soldPick is null)"
+                                   @onchange="() => _soldPick = null" />
+                            <span class="mk-sold-option__body">
+                                <strong>Sold outside Nestify</strong>
+                                <span class="mk-muted">@(_soldOptions.Count == 0 ? "You have not accepted any request on this listing." : "None of these buyers took it.")</span>
+                            </span>
+                        </label>
+                    </div>
+
+                    <div class="mk-row__actions">
+                        <span class="mk-row__actions-spacer"></span>
+                        <button type="button" class="nx-btn nx-btn--ghost" @onclick="CloseSoldPicker" disabled="@_soldBusy">Cancel</button>
+                        <button type="button" class="nx-btn nx-btn--primary" @onclick="ConfirmSold" disabled="@_soldBusy">Mark as sold</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
 }
 
 @if (_photoItem is not null && _photoItem.Images.Count > 0)
@@ -208,12 +270,58 @@
         }
     }
 
-    private async Task MarkSold(string id)
+    private string? _soldItemId;
+    private bool _soldLoading;
+    private bool _soldBusy;
+    private string? _soldPick;
+    private List<BuyInterestDto> _soldOptions = new();
+
+    private async Task OpenSoldPicker(string id)
     {
-        if (await Marketplace.MarkSoldAsync(id))
+        _soldItemId = id;
+        _soldPick = null;
+        _soldLoading = true;
+        try
         {
-            Toast.ShowSuccess("Listing marked as sold.", "Updated");
-            await LoadAsync();
+            _soldOptions = (await Marketplace.GetItemInterestsAsync(id))
+                .Where(i => i.Status == BuyInterestStatus.Accepted)
+                .ToList();
+            _soldPick = _soldOptions.FirstOrDefault()?.Id;
+        }
+        finally
+        {
+            _soldLoading = false;
+        }
+    }
+
+    private void CloseSoldPicker()
+    {
+        if (_soldBusy) return;
+        _soldItemId = null;
+    }
+
+    private async Task ConfirmSold()
+    {
+        if (_soldItemId is null) return;
+        _soldBusy = true;
+        try
+        {
+            if (await Marketplace.MarkSoldAsync(_soldItemId, _soldPick))
+            {
+                Toast.ShowSuccess(_soldPick is null
+                    ? "Listing marked as sold."
+                    : "Listing marked as sold. The buyer has been told, and the other requests are closed.", "Updated");
+                _soldItemId = null;
+                await LoadAsync();
+            }
+            else
+            {
+                Toast.ShowWarning("Couldn't mark it sold. Reload and try again.", "Not updated");
+            }
+        }
+        finally
+        {
+            _soldBusy = false;
         }
     }
 

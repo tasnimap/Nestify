@@ -1,12 +1,12 @@
 @using Nestify.Shared.Dtos.Area
-@inject IMarketplaceService Marketplace
 @inject IAreaService Areas
 @inject Nestify.Web.Services.MoneyFormatterService Money
+@inject Nestify.Web.Services.ToastService Toast
 
-@* Shared create/edit form for a marketplace listing. Hosts the ML price-
-   suggestion slot (§10.8) and a live "buyer's view" preview. *@
+@* Shared create/edit form for a marketplace listing, with a live
+   "buyer's view" preview. *@
 
-<EditForm Model="Model" OnValidSubmit="HandleValidSubmit" class="mk-form">
+<EditForm Model="Model" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit" class="mk-form">
     <DataAnnotationsValidator />
 
     <div class="mk-form__grid">
@@ -29,8 +29,7 @@
             <div class="field-row">
                 <div class="field">
                     <label for="mk-category">Category</label>
-                    <InputSelect id="mk-category" class="field__input" @bind-Value="Model.Category"
-                                 @bind-Value:after="RefreshSuggestionAsync">
+                    <InputSelect id="mk-category" class="field__input" @bind-Value="Model.Category">
                         @foreach (var c in _categories)
                         {
                             <option value="@c">@MarketplaceView.Label(c)</option>
@@ -39,8 +38,7 @@
                 </div>
                 <div class="field">
                     <label for="mk-condition">Condition</label>
-                    <InputSelect id="mk-condition" class="field__input" @bind-Value="Model.Condition"
-                                 @bind-Value:after="RefreshSuggestionAsync">
+                    <InputSelect id="mk-condition" class="field__input" @bind-Value="Model.Condition">
                         @foreach (var c in _conditions)
                         {
                             <option value="@c">@MarketplaceView.Label(c)</option>
@@ -51,40 +49,10 @@
 
             <div class="field">
                 <label for="mk-price" class="field__label--required">Price (৳)</label>
-                <InputNumber id="mk-price" class="field__input mk-form__price" @bind-Value="Model.PriceBdt" step="50" />
+                <InputNumber id="mk-price" class="field__input mk-form__price" @bind-Value="Model.PriceBdt" @bind-Value:after="ClampPrice"
+                             min="1" step="any" />
                 <ValidationMessage For="@(() => Model.PriceBdt)" />
             </div>
-
-            @if (_loadingSuggestion)
-            {
-                <div class="mk-suggest mk-suggest--loading">Estimating a fair price…</div>
-            }
-            else if (_suggestion is not null)
-            {
-                <div class="mk-suggest">
-                    <div class="mk-suggest__head">
-                        <span class="mk-suggest__spark" aria-hidden="true">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-                                 stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1" />
-                            </svg>
-                        </span>
-                        <div>
-                            <strong>Suggested price</strong>
-                            <p class="mk-muted">@_suggestion.Basis</p>
-                        </div>
-                    </div>
-                    <div class="mk-suggest__band">
-                        <span class="mk-price mk-price--sm">@Money.Format(_suggestion.SuggestedLow)</span>
-                        <span class="mk-suggest__track"><span class="mk-suggest__dot"></span></span>
-                        <span class="mk-price mk-price--sm">@Money.Format(_suggestion.SuggestedHigh)</span>
-                    </div>
-                    <button type="button" class="mk-suggest__use" @onclick="UseSuggestion">
-                        Use @Money.Format(_suggestion.SuggestedPoint)
-                    </button>
-                    <p class="mk-suggest__note">This is advice from recent listings. You set the final price.</p>
-                </div>
-            }
 
             <div class="field-row">
                 <div class="field">
@@ -180,6 +148,7 @@
     </div>
 
     <div class="mk-form__foot">
+        <ValidationSummary class="mk-form__errors" />
         <button type="button" class="nx-btn nx-btn--ghost" @onclick="OnCancel" disabled="@Busy">Cancel</button>
         <button type="submit" class="nx-btn nx-btn--primary" disabled="@Busy">
             @(Busy ? "Saving…" : SubmitLabel)
@@ -203,9 +172,6 @@
     private IReadOnlyList<DistrictDto> _districts = Array.Empty<DistrictDto>();
     private IReadOnlyList<UpazilaDto> _upazilas = Array.Empty<UpazilaDto>();
 
-    private PriceSuggestionDto? _suggestion;
-    private bool _loadingSuggestion;
-
     private string PreviewTitle => string.IsNullOrWhiteSpace(Model.Title) ? "Your item title" : Model.Title;
     private string PreviewSeed => Model.Images.FirstOrDefault() ?? $"tile:{PreviewTitle}";
 
@@ -213,7 +179,6 @@
     {
         _divisions = await Areas.GetDivisionsAsync();
         await RestoreAreaAsync();
-        await RefreshSuggestionAsync();
     }
 
     // The edit page hands us a saved listing, which keeps names rather than ids.
@@ -285,32 +250,20 @@
     private static int? ParseId(object? value) =>
         int.TryParse(value?.ToString(), out var id) ? id : null;
 
-    private async Task RefreshSuggestionAsync()
+    private void ClampPrice()
     {
-        _loadingSuggestion = true;
-        try
+        if (Model.PriceBdt < 0)
         {
-            _suggestion = await Marketplace.GetPriceSuggestionAsync(Model.Category, Model.Condition);
-        }
-        catch
-        {
-            _suggestion = null;
-        }
-        finally
-        {
-            _loadingSuggestion = false;
-        }
-    }
-
-    private void UseSuggestion()
-    {
-        if (_suggestion is not null)
-        {
-            Model.PriceBdt = _suggestion.SuggestedPoint;
+            Model.PriceBdt = 0;
         }
     }
 
     private void OnImagesChanged(IReadOnlyList<string> images) => Model.Images = images.ToList();
+
+    // The title and description sit at the top of a long form, so say why the
+    // button did nothing instead of leaving the messages scrolled out of view.
+    private void HandleInvalidSubmit() =>
+        Toast.ShowWarning("Fix the highlighted fields first — the title and description have minimum lengths.", "Not published yet");
 
     private Task HandleValidSubmit() => OnValidSubmit.InvokeAsync();
 }

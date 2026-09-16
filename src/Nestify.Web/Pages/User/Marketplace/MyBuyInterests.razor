@@ -43,7 +43,7 @@
             <div class="mk-rows">
                 @foreach (var r in _rows)
                 {
-                    <article class="mk-row @(r.Status is BuyInterestStatus.Withdrawn or BuyInterestStatus.Declined ? "mk-row--muted" : null)">
+                    <article class="mk-row @(r.Status is BuyInterestStatus.Withdrawn or BuyInterestStatus.Declined or BuyInterestStatus.Closed ? "mk-row--muted" : null)">
                         <div class="mk-row__top">
                             <div class="mk-row__thumb">
                                 <MediaTile Seed="@r.ItemCoverImage" Label="@r.ItemTitle" />
@@ -59,7 +59,16 @@
                                 </div>
                                 <p class="mk-row__msg mk-plain">@r.Message</p>
 
-                                @if (r.Status == BuyInterestStatus.Accepted && r.Contact is not null)
+                                @if (r.Status == BuyInterestStatus.Fulfilled)
+                                {
+                                    <p class="mk-outcome mk-outcome--won">Successfully purchased. The seller marked this item as sold to you — arrange the handover with them below.</p>
+                                }
+                                else if (r.Status == BuyInterestStatus.Closed)
+                                {
+                                    <p class="mk-outcome">This item was sold to another buyer, so your request is closed.</p>
+                                }
+
+                                @if (r.Status is BuyInterestStatus.Accepted or BuyInterestStatus.Fulfilled && r.Contact is not null)
                                 {
                                     <ContactCard Contact="r.Contact" Heading="Seller contact — shared with you" />
                                 }

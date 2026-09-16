@@ -64,6 +64,8 @@ public static class MarketplaceView
         BuyInterestStatus.Accepted => "Accepted",
         BuyInterestStatus.Declined => "Declined",
         BuyInterestStatus.Withdrawn => "Withdrawn",
+        BuyInterestStatus.Fulfilled => "Successfully purchased",
+        BuyInterestStatus.Closed => "Sold to someone else",
         _ => status.ToString()
     };
 
@@ -72,6 +74,8 @@ public static class MarketplaceView
         BuyInterestStatus.Pending => "pending",
         BuyInterestStatus.Accepted => "accepted",
         BuyInterestStatus.Declined => "declined",
+        BuyInterestStatus.Fulfilled => "fulfilled",
+        BuyInterestStatus.Closed => "closed",
         _ => "withdrawn"
     };
 

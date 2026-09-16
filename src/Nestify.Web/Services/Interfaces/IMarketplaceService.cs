@@ -20,7 +20,8 @@ public interface IMarketplaceService
     Task<MarketplaceItemDetailDto?> GetItemForEditAsync(string id);
     Task<bool> UpdateItemAsync(string id, UpdateMarketplaceItemDto dto);
     Task<IReadOnlyList<MyListingDto>> GetMyListingsAsync();
-    Task<bool> MarkSoldAsync(string id);
+    /// <summary>Marks the listing sold to the picked request; null means sold outside Nestify.</summary>
+    Task<bool> MarkSoldAsync(string id, string? buyerInterestId);
     Task<bool> DeleteItemAsync(string id);
 
     /// <summary>Advisory only — fills the sell form's ML price-suggestion slot (§10.8).</summary>
@@ -32,4 +33,7 @@ public interface IMarketplaceService
     Task<bool> RespondToInterestAsync(string interestId, bool accept);
     Task<IReadOnlyList<MyBuyInterestDto>> GetMyBuyInterestsAsync();
     Task<bool> WithdrawInterestAsync(string interestId);
+
+    // ---- Reports ----
+    Task<(bool Ok, string Message)> ReportItemAsync(string itemId, string reason, string? details);
 }

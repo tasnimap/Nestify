@@ -68,7 +68,7 @@
 
                 <div class="mk-lens__row">
                     <span class="mk-lens__label">Price range (৳)</span>
-                    <div class="mk-lens__price">
+                    <div class="mk-lens__price" @key="_priceBoxKey">
                         <input type="number" min="0" step="100" placeholder="Min" inputmode="numeric"
                                value="@_filter.MinPrice" @onchange="OnMinPrice" aria-label="Minimum price" />
                         <span class="mk-lens__dash">–</span>
@@ -232,6 +232,7 @@
     private int? _upazilaId;
 
     private MarketplaceItemFilterDto _filter = new();
+    private int _priceBoxKey;
     private MarketplacePageDto<MarketplaceItemSummaryDto>? _page;
     private bool _loading = true;
     private bool _error;
@@ -298,14 +299,32 @@
 
     private Task OnMinPrice(ChangeEventArgs e)
     {
-        _filter.MinPrice = decimal.TryParse(e.Value?.ToString(), out var v) && v > 0 ? v : null;
+        _filter.MinPrice = ReadPrice(e.Value);
         return ApplyAsync();
     }
 
     private Task OnMaxPrice(ChangeEventArgs e)
     {
-        _filter.MaxPrice = decimal.TryParse(e.Value?.ToString(), out var v) && v > 0 ? v : null;
+        _filter.MaxPrice = ReadPrice(e.Value);
         return ApplyAsync();
+    }
+
+    // Negative or unreadable input clears the box instead of filtering on it.
+    // The key bump makes Blazor rebuild the inputs so the typed "-" disappears.
+    private decimal? ReadPrice(object? value)
+    {
+        var text = value?.ToString();
+        if (decimal.TryParse(text, out var v) && v > 0)
+        {
+            return v;
+        }
+
+        if (!string.IsNullOrWhiteSpace(text))
+        {
+            _priceBoxKey++;
+        }
+
+        return null;
     }
 
     private async Task OnDivision(ChangeEventArgs e)
