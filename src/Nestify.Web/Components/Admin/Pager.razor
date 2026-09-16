@@ -1,0 +1,50 @@
+@* Ten posts to a page, with the usual numbered steps. *@
+
+@if (Total > 0)
+{
+    <nav class="adm-pager" aria-label="Pages">
+        <span class="adm-pager__note">
+            Showing @First–@Last of @Total
+        </span>
+
+        <div class="adm-pager__steps">
+            <button class="adm-pager__btn" type="button" aria-label="Previous page"
+                    disabled="@(Page <= 1)" @onclick="() => Go(Page - 1)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="m15 5-7 7 7 7" /></svg>
+            </button>
+
+            @for (var i = 1; i <= PageCount; i++)
+            {
+                var number = i;
+                <button class="adm-pager__btn @(number == Page ? "adm-pager__btn--on" : null)"
+                        type="button" @onclick="() => Go(number)">
+                    @number
+                </button>
+            }
+
+            <button class="adm-pager__btn" type="button" aria-label="Next page"
+                    disabled="@(Page >= PageCount)" @onclick="() => Go(Page + 1)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="m9 5 7 7-7 7" /></svg>
+            </button>
+        </div>
+    </nav>
+}
+
+@code {
+    [Parameter] public int Page { get; set; } = 1;
+    [Parameter] public int PageSize { get; set; } = 10;
+    [Parameter] public int Total { get; set; }
+    [Parameter] public EventCallback<int> PageChanged { get; set; }
+
+    private int PageCount => Math.Max(1, (int)Math.Ceiling(Total / (double)PageSize));
+
+    private int First => Total == 0 ? 0 : ((Page - 1) * PageSize) + 1;
+
+    private int Last => Math.Min(Page * PageSize, Total);
+
+    private Task Go(int page)
+    {
+        var wanted = Math.Clamp(page, 1, PageCount);
+        return wanted == Page ? Task.CompletedTask : PageChanged.InvokeAsync(wanted);
+    }
+}

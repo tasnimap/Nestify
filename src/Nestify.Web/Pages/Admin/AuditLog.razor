@@ -1,53 +1,143 @@
 @page "/admin/audit"
-@layout AdminLayout
+@layout AdminShell
 @attribute [Authorize(Roles = "Admin")]
-@using Nestify.Shared.Dtos.Admin
-@inject IAdminService Admin
+@inject AdminConsoleService Store
 
 <PageTitle>Audit log — Nestify Admin</PageTitle>
 
-<div class="rc-page">
-    <header class="rc-head">
+<header class="adm-head adm-rise">
+    <div>
+        <p class="adm-eyebrow">Accountability</p>
         <h1>Audit log</h1>
-        <p>Every admin action is recorded here. This view is read-only.</p>
-    </header>
+        <p>Every decision an admin makes lands here with a name and a timestamp. Nothing in this list can be edited or deleted.</p>
+    </div>
+    <div class="adm-head__actions">
+        <span class="adm-badge adm-badge--info">@Store.Audit.Count entries</span>
+    </div>
+</header>
 
-    <section class="rc-panel rc-panel--wide">
-        @if (_items is null)
+<div class="adm-toolbar adm-rise" style="--d:.08s">
+    <div class="adm-tabs">
+        <button class="adm-tab @(_admin is null ? "adm-tab--on" : null)" type="button" @onclick="() => _admin = null">
+            All admins
+        </button>
+        @foreach (var name in Store.Audit.Select(a => a.Admin).Distinct())
         {
-            <p class="rc-row__meta">Loading…</p>
+            var current = name;
+            <button class="adm-tab @(_admin == current ? "adm-tab--on" : null)" type="button" @onclick="() => _admin = current">
+                @current
+            </button>
         }
-        else if (_items.Count == 0)
-        {
-            <div class="rc-empty"><h3>No entries</h3><p>Admin actions will show up here.</p></div>
-        }
-        else
-        {
-            <div class="rc-table__scroll">
-                <table class="rc-table">
+    </div>
+    <label class="adm-search adm-toolbar__grow">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
+        <input type="search" placeholder="Search action, target or note" @bind="_query" @bind:event="oninput" />
+    </label>
+</div>
+
+@if (Filtered.Count == 0)
+{
+    <EmptyState Title="No entries" Message="Nothing matches this filter yet." />
+}
+else
+{
+    <div class="adm-grid adm-grid--2">
+        <section class="adm-card adm-rise">
+            <div class="adm-card__head">
+                <div>
+                    <h2>Timeline</h2>
+                    <p>Newest first.</p>
+                </div>
+            </div>
+            <div class="adm-timeline">
+                @foreach (var entry in Filtered.Take(14))
+                {
+                    <div class="adm-tl">
+                        <div class="adm-tl__rail">
+                            <span class="adm-tl__dot @DotClass(entry.Kind)">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m5 12 5 5 9-10" /></svg>
+                            </span>
+                        </div>
+                        <div class="adm-tl__body">
+                            <p class="adm-tl__title">@entry.Action — @entry.Target</p>
+                            <p class="adm-tl__meta">@entry.Admin · @AdminConsoleService.Ago(entry.At)</p>
+                            @if (entry.Note is not null)
+                            {
+                                <p class="adm-row__note">@entry.Note</p>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </section>
+
+        <section class="adm-card adm-rise" style="--d:.1s">
+            <div class="adm-card__head">
+                <div>
+                    <h2>Full record</h2>
+                    <p>Every entry, exactly as stored.</p>
+                </div>
+            </div>
+            <div class="adm-table__scroll">
+                <table class="adm-table">
                     <thead>
-                        <tr><th>When</th><th>Actor</th><th>Action</th><th>Target</th><th>Note</th></tr>
+                        <tr>
+                            <th>When</th>
+                            <th>Admin</th>
+                            <th>Action</th>
+                            <th>Target</th>
+                        </tr>
                     </thead>
                     <tbody>
-                        @foreach (var a in _items)
+                        @foreach (var entry in Filtered)
                         {
                             <tr>
-                                <td>@a.OccurredUtc.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</td>
-                                <td>@a.Actor</td>
-                                <td>@a.Action</td>
-                                <td>@a.Target</td>
-                                <td>@(a.Note ?? "—")</td>
+                                <td>
+                                    <div>@entry.At.ToString("d MMM")</div>
+                                    <div class="adm-table__sub">@entry.At.ToString("h:mm tt")</div>
+                                </td>
+                                <td>@entry.Admin</td>
+                                <td>
+                                    <span class="adm-badge @BadgeClass(entry.Kind)">@entry.Action</span>
+                                </td>
+                                <td>
+                                    <div class="adm-table__strong">@entry.Target</div>
+                                    @if (entry.Note is not null)
+                                    {
+                                        <div class="adm-table__sub">@entry.Note</div>
+                                    }
+                                </td>
                             </tr>
                         }
                     </tbody>
                 </table>
             </div>
-        }
-    </section>
-</div>
+        </section>
+    </div>
+}
 
 @code {
-    private List<AuditEntryDto>? _items;
+    private string? _admin;
+    private string _query = "";
 
-    protected override async Task OnInitializedAsync() => _items = await Admin.GetAuditLogAsync();
+    private List<AuditEntry> Filtered =>
+        Store.Audit
+            .Where(a => _admin is null || a.Admin == _admin)
+            .Where(a => string.IsNullOrWhiteSpace(_query) ||
+                        (a.Action + a.Target + a.Note).Contains(_query, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+    private static string DotClass(string kind) => kind switch
+    {
+        "ok" => "adm-tl__dot--ok",
+        "danger" => "adm-tl__dot--danger",
+        _ => ""
+    };
+
+    private static string BadgeClass(string kind) => kind switch
+    {
+        "ok" => "adm-badge--ok",
+        "danger" => "adm-badge--danger",
+        _ => "adm-badge--info"
+    };
 }

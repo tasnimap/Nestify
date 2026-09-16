@@ -55,7 +55,6 @@ public sealed class AuthService : IAuthService
         await _localStorage.RemoveItemAsync(RefreshStorageKey);
         _authStateProvider.MarkUserAsLoggedOut();
         _profiles.Clear();
-        _httpClient.DefaultRequestHeaders.Authorization = null;
     }
 
     private async Task<AuthResponseDto?> SendAsync<TRequest>(string url, TRequest request)
@@ -104,8 +103,9 @@ public sealed class AuthService : IAuthService
         await _localStorage.SetItemAsync(TokenStorageKey, auth.Token);
         await _localStorage.SetItemAsync(RefreshStorageKey, auth.RefreshToken);
         _authStateProvider.MarkUserAsAuthenticated(auth.Token);
-        _httpClient.DefaultRequestHeaders.Authorization =
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", auth.Token);
+        // No default Authorization header: a header pinned here would stick to the
+        // client for the life of the app and stop AuthorizationMessageHandler from
+        // ever swapping in a refreshed token.
     }
 
     private sealed class MessageBody

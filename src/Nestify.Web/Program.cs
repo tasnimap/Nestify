@@ -1,5 +1,6 @@
 // Program.cs
 using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -22,7 +23,11 @@ builder.Services.AddScoped<AuthenticationStateProvider>(sp =>
     sp.GetRequiredService<CustomAuthStateProvider>());
 
 // HttpClient that automatically sends the stored bearer token on every API call.
-builder.Services.AddScoped<AuthorizationMessageHandler>();
+builder.Services.AddScoped(sp => new AuthorizationMessageHandler(
+    sp.GetRequiredService<ILocalStorageService>(),
+    sp.GetRequiredService<CustomAuthStateProvider>(),
+    sp.GetRequiredService<NavigationManager>(),
+    apiBaseUrl));
 builder.Services.AddScoped(sp =>
 {
     var handler = sp.GetRequiredService<AuthorizationMessageHandler>();
@@ -51,12 +56,22 @@ builder.Services.AddScoped<IHomeService, HomeService>();
 
 builder.Services.AddScoped<IHelperService, HelperService>();
 
-// M4 · Second-hand marketplace — swap MockMarketplaceService for MarketplaceService when the API lands
-builder.Services.AddScoped<IMarketplaceService, MockMarketplaceService>();
+// M4 - Second-hand marketplace, backed by api/v1/marketplace (Marketplace.sql).
+builder.Services.AddScoped<IMarketplaceService, MarketplaceService>();
 
-// Admin console — mock data until the M5/M6 endpoints land
-builder.Services.AddScoped<IAdminService, MockAdminService>();
-builder.Services.AddScoped<IVerificationAdminService, VerificationAdminService>();
+// Admin console — front-end only sample data, kept as a Singleton so moderation
+// decisions survive navigating between the admin pages.
+builder.Services.AddSingleton<Nestify.Web.Admin.AdminConsoleService>();
+
+// The admin profile page is the one admin screen backed by the database.
+builder.Services.AddScoped<Nestify.Web.Admin.AdminProfileClient>();
+
+// Helper (maid) workspace — sample availability, schedule, requests and reviews
+// kept as a Singleton so edits survive navigating between the helper pages.
+builder.Services.AddSingleton<Nestify.Web.Maid.MaidWorkspaceService>();
+
+// The helper profile page reads the signed-in helper's own users row.
+builder.Services.AddScoped<Nestify.Web.Maid.MaidAccountClient>();
 
 // Register utility services
 builder.Services.AddScoped<MoneyFormatterService>();

@@ -1,0 +1,254 @@
+@page "/admin"
+@layout AdminShell
+@attribute [Authorize(Roles = "Admin")]
+@inject AdminConsoleService Store
+
+<PageTitle>Dashboard — Nestify Admin</PageTitle>
+
+<header class="adm-head adm-rise">
+    <div>
+        <p class="adm-eyebrow">Control room</p>
+        <h1>Dashboard</h1>
+        <p>Everything the platform earned, everyone it serves, and what moderation cleared this month.</p>
+    </div>
+    <div class="adm-head__actions">
+        <a class="adm-btn adm-btn--ghost" href="admin/audit">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 8v5l3 2" /><circle cx="12" cy="12" r="9" /></svg>
+            Audit log
+        </a>
+        <a class="adm-btn adm-btn--primary" href="admin/verifications">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z" /><path d="m9 12 2 2 4-4" /></svg>
+            @Store.PendingApplications waiting
+        </a>
+    </div>
+</header>
+
+<div class="adm-grid adm-grid--4" style="margin-bottom:1rem;">
+    <article class="adm-kpi adm-rise" style="--d:.04s">
+        <div class="adm-kpi__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 2v20" /><path d="M17 6.5c0-1.9-2.2-3-5-3s-5 1.1-5 3 2.2 2.8 5 3.3 5 1.4 5 3.4-2.2 3.3-5 3.3-5-1.2-5-3" /></svg>
+        </div>
+        <p class="adm-kpi__label">Revenue this month</p>
+        <p class="adm-kpi__value"><CountUp Value="Store.MonthRevenue" Prefix="৳" /></p>
+        <p class="adm-kpi__foot">
+            <span class="adm-trend adm-trend--up">▲ @GrowthPercent%</span> vs last month
+        </p>
+    </article>
+
+    <article class="adm-kpi adm-kpi--sky adm-rise" style="--d:.1s">
+        <div class="adm-kpi__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9.5" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /></svg>
+        </div>
+        <p class="adm-kpi__label">Registered users</p>
+        <p class="adm-kpi__value"><CountUp Value="Stats.TotalUsers" /></p>
+        <p class="adm-kpi__foot">@Stats.ActiveThisMonth.ToString("N0") active this month</p>
+    </article>
+
+    <article class="adm-kpi adm-kpi--teal adm-rise" style="--d:.16s">
+        <div class="adm-kpi__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m3 10 9-7 9 7v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><path d="M9 21v-7h6v7" /></svg>
+        </div>
+        <p class="adm-kpi__label">Homes found</p>
+        <p class="adm-kpi__value"><CountUp Value="Stats.HomesFound" /></p>
+        <p class="adm-kpi__foot">through Nestify listings</p>
+    </article>
+
+    <article class="adm-kpi adm-kpi--rose adm-rise" style="--d:.22s">
+        <div class="adm-kpi__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" /><path d="M12 9v4M12 17h.01" /></svg>
+        </div>
+        <p class="adm-kpi__label">Fake posts removed</p>
+        <p class="adm-kpi__value"><CountUp Value="Stats.FakePostsRemoved" /></p>
+        <p class="adm-kpi__foot">@Store.OpenReports reports still open</p>
+    </article>
+</div>
+
+<div class="adm-grid adm-grid--2" style="margin-bottom:1rem;">
+    <section class="adm-card adm-rise adm-span-2" style="--d:.28s">
+        <div class="adm-card__head">
+            <div>
+                <h2>Revenue over the year</h2>
+                <p>Monthly earnings split between housing plans, marketplace plans and verification fees.</p>
+            </div>
+            <div class="adm-chips">
+                <span class="adm-chip">Year total @AdminConsoleService.Taka(Store.YearRevenue)</span>
+            </div>
+        </div>
+        <AdminLineChart Title="Revenue by month" Prefix="৳" Labels="Months" Series="RevenueSeries" />
+    </section>
+
+    <section class="adm-card adm-rise" style="--d:.34s">
+        <div class="adm-card__head">
+            <div>
+                <h2>Where the money comes from</h2>
+                <p>Share of this month's earnings.</p>
+            </div>
+        </div>
+        <AdminDonut Title="Revenue split" Slices="RevenueSplit"
+                    Center="@AdminConsoleService.Taka(Store.MonthRevenue)" CenterLabel="September" />
+    </section>
+
+    <section class="adm-card adm-rise" style="--d:.4s">
+        <div class="adm-card__head">
+            <div>
+                <h2>People on Nestify</h2>
+                <p>New accounts added over the last six months.</p>
+            </div>
+        </div>
+        <div class="adm-bars">
+            @for (var i = 0; i < Store.Growth.Count; i++)
+            {
+                var point = Store.Growth[i];
+                var height = Math.Round(100.0 * point.Users / MaxGrowth, 1);
+                <div class="adm-bar">
+                    <span class="adm-bar__cap">@point.Users.ToString("N0")</span>
+                    <div class="adm-bar__track">
+                        <div class="adm-bar__fill" style="height:@Css(height)%;--d:@Css(i * 0.08)s"></div>
+                    </div>
+                    <span class="adm-bar__label">@point.Month</span>
+                </div>
+            }
+        </div>
+        <div class="adm-chips" style="margin-top:1rem;">
+            <span class="adm-chip">@Stats.TotalUsers.ToString("N0") users</span>
+            <span class="adm-chip">@Stats.TotalHelpers.ToString("N0") domestic helpers</span>
+            <span class="adm-chip">@Stats.TotalAdmins admins</span>
+            <span class="adm-chip">@Stats.VerifiedAccounts.ToString("N0") verified</span>
+        </div>
+    </section>
+</div>
+
+<div class="adm-grid adm-grid--2">
+    <section class="adm-card adm-rise" style="--d:.46s">
+        <div class="adm-card__head">
+            <div>
+                <h2>What Nestify did for people</h2>
+                <p>Outcomes counted since launch.</p>
+            </div>
+        </div>
+        <div class="adm-meter">
+            @for (var i = 0; i < Outcomes.Count; i++)
+            {
+                var outcome = Outcomes[i];
+                var index = i;
+                <div class="adm-meter__row">
+                    <div class="adm-meter__top">
+                        <span>@outcome.Label</span>
+                        <strong>@outcome.Value.ToString("N0")</strong>
+                    </div>
+                    <div class="adm-meter__track">
+                        <div class="adm-meter__fill"
+                             style="width:@Css(Math.Round(100.0 * outcome.Value / MaxOutcome, 1))%;--d:@Css(index * 0.1)s"></div>
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
+
+    <section class="adm-card adm-rise" style="--d:.52s">
+        <div class="adm-card__head">
+            <div>
+                <h2>Latest admin actions</h2>
+                <p>The five most recent entries in the audit log.</p>
+            </div>
+            <a class="adm-btn adm-btn--ghost adm-btn--sm" href="admin/audit">See all</a>
+        </div>
+        <div class="adm-timeline">
+            @foreach (var entry in Store.Audit.Take(5))
+            {
+                <div class="adm-tl">
+                    <div class="adm-tl__rail">
+                        <span class="adm-tl__dot @DotClass(entry.Kind)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m5 12 5 5 9-10" /></svg>
+                        </span>
+                    </div>
+                    <div class="adm-tl__body">
+                        <p class="adm-tl__title">@entry.Action — @entry.Target</p>
+                        <p class="adm-tl__meta">@entry.Admin · @AdminConsoleService.Ago(entry.At)</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
+
+    <section class="adm-card adm-rise adm-span-2" style="--d:.58s">
+        <div class="adm-card__head">
+            <div>
+                <h2>Marketplace and housing at a glance</h2>
+                <p>Live content the moderation pages are working on right now.</p>
+            </div>
+        </div>
+        <div class="adm-grid adm-grid--4">
+            <div class="adm-kpi adm-kpi--sky">
+                <p class="adm-kpi__label">Live housing posts</p>
+                <p class="adm-kpi__value">@Stats.LiveHousingPosts</p>
+                <p class="adm-kpi__foot"><a href="admin/housing">Open moderation</a></p>
+            </div>
+            <div class="adm-kpi adm-kpi--teal">
+                <p class="adm-kpi__label">Live market posts</p>
+                <p class="adm-kpi__value">@Stats.LiveMarketPosts</p>
+                <p class="adm-kpi__foot"><a href="admin/marketplace">Open moderation</a></p>
+            </div>
+            <div class="adm-kpi adm-kpi--amber">
+                <p class="adm-kpi__label">Items sold</p>
+                <p class="adm-kpi__value">@Stats.ItemsSold.ToString("N0")</p>
+                <p class="adm-kpi__foot">of @Stats.ItemsListed.ToString("N0") listed</p>
+            </div>
+            <div class="adm-kpi">
+                <p class="adm-kpi__label">Helpers hired</p>
+                <p class="adm-kpi__value">@Stats.HelpersHired</p>
+                <p class="adm-kpi__foot">domestic help arranged</p>
+            </div>
+        </div>
+    </section>
+</div>
+
+@code {
+    private PlatformStats Stats => Store.Stats;
+
+    private List<string> Months => Store.Revenue.Select(r => r.Month).ToList();
+
+    private List<ChartSeries> RevenueSeries => new()
+    {
+        new ChartSeries { Name = "Total", Color = "#6d28d9", Values = Store.Revenue.Select(r => r.Total).ToList() },
+        new ChartSeries { Name = "Housing", Color = "#0f9b8e", Values = Store.Revenue.Select(r => r.Housing).ToList() },
+        new ChartSeries { Name = "Marketplace", Color = "#b45309", Values = Store.Revenue.Select(r => r.Marketplace).ToList() }
+    };
+
+    private List<DonutSlice> RevenueSplit => new()
+    {
+        new DonutSlice { Name = "Housing plans", Value = Store.Revenue[^1].Housing, Color = "#6d28d9" },
+        new DonutSlice { Name = "Marketplace plans", Value = Store.Revenue[^1].Marketplace, Color = "#0f9b8e" },
+        new DonutSlice { Name = "Verification fees", Value = Store.Revenue[^1].Verification, Color = "#f0a338" }
+    };
+
+    private List<(string Label, int Value)> Outcomes => _outcomes ??= new()
+    {
+        ("Homes found through Nestify", Stats.HomesFound),
+        ("Domestic helpers hired", Stats.HelpersHired),
+        ("Items bought and sold", Stats.ItemsSold),
+        ("Accounts verified", Stats.VerifiedAccounts),
+        ("Fake posts taken down", Stats.FakePostsRemoved)
+    };
+
+    private List<(string Label, int Value)>? _outcomes;
+
+    private int MaxOutcome => Outcomes.Max(o => o.Value);
+
+    private int MaxGrowth => Store.Growth.Max(g => g.Users);
+
+    private string GrowthPercent =>
+        Store.LastMonthRevenue == 0
+            ? "0"
+            : (100.0 * (Store.MonthRevenue - Store.LastMonthRevenue) / Store.LastMonthRevenue).ToString("0.#");
+
+    private static string DotClass(string kind) => kind switch
+    {
+        "ok" => "adm-tl__dot--ok",
+        "danger" => "adm-tl__dot--danger",
+        _ => ""
+    };
+
+    private static string Css(double value) =>
+        value.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+}

@@ -55,7 +55,7 @@
                 <div class="mk-rows">
                     @foreach (var interest in _interests)
                     {
-                        <article class="mk-row @(interest.Status is BuyInterestStatus.Declined ? "mk-row--muted" : null)">
+                        <article class="mk-row @(interest.Status is BuyInterestStatus.Declined or BuyInterestStatus.Closed ? "mk-row--muted" : null)">
                             <div class="mk-row__top">
                                 <div class="mk-row__grow">
                                     <div class="mk-row__title">
@@ -69,7 +69,7 @@
                                     </div>
                                     <p class="mk-row__msg mk-plain">@interest.Message</p>
 
-                                    @if (interest.Status == BuyInterestStatus.Accepted && interest.Contact is not null)
+                                    @if (interest.Status is BuyInterestStatus.Accepted or BuyInterestStatus.Fulfilled && interest.Contact is not null)
                                     {
                                         <ContactCard Contact="interest.Contact" Heading="Buyer contact — shared with you" />
                                     }

@@ -1,0 +1,176 @@
+@inherits LayoutComponentBase
+@implements IDisposable
+@using Nestify.Web.Admin
+@inject NavigationManager Navigation
+@inject AdminConsoleService Store
+@inject Nestify.Web.Services.Interfaces.IAuthService AuthService
+
+<div class="adm">
+    <a class="skip-link" href="#adm-main">Skip to main content</a>
+
+    <aside class="adm__side @(_open ? "adm__side--open" : null)">
+        <a class="adm__brand" href="admin" @onclick="CloseDrawer">
+            <span class="adm__mark" aria-hidden="true">N</span>
+            <span>
+                <span class="adm__brand-name">Nestify</span>
+                <span class="adm__brand-tag">Admin</span>
+            </span>
+        </a>
+
+        <p class="adm__group">Overview</p>
+        <NavLink class="adm__link" href="admin" Match="NavLinkMatch.All" @onclick="CloseDrawer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5" /><rect x="14" y="3" width="7" height="5" rx="1.5" /><rect x="14" y="12" width="7" height="9" rx="1.5" /><rect x="3" y="16" width="7" height="5" rx="1.5" /></svg>
+            Dashboard
+        </NavLink>
+
+        <p class="adm__group">Moderation</p>
+        <NavLink class="adm__link" href="admin/housing" @onclick="CloseDrawer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m3 10 9-7 9 7v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><path d="M9 21v-7h6v7" /></svg>
+            Housing posts
+            @if (_housingReports > 0)
+            {
+                <span class="adm__link-pill">@_housingReports</span>
+            }
+        </NavLink>
+        <NavLink class="adm__link" href="admin/marketplace" @onclick="CloseDrawer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 6h18l-1.5 9.5a2 2 0 0 1-2 1.7H6.5a2 2 0 0 1-2-1.7z" /><circle cx="9" cy="20" r="1.4" /><circle cx="17" cy="20" r="1.4" /></svg>
+            Marketplace posts
+            @if (_marketReports > 0)
+            {
+                <span class="adm__link-pill">@_marketReports</span>
+            }
+        </NavLink>
+        <NavLink class="adm__link" href="admin/verifications" @onclick="CloseDrawer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z" /><path d="m9 12 2 2 4-4" /></svg>
+            Verifications
+            @if (_pending > 0)
+            {
+                <span class="adm__link-pill">@_pending</span>
+            }
+        </NavLink>
+
+        <p class="adm__group">Platform</p>
+        <NavLink class="adm__link" href="admin/pricing" @onclick="CloseDrawer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20.6 13.4 12 22l-9-9V4a1 1 0 0 1 1-1h8z" /><circle cx="7.5" cy="7.5" r="1.4" /></svg>
+            Fees &amp; plans
+        </NavLink>
+        <NavLink class="adm__link" href="admin/team" @onclick="CloseDrawer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M19 8v6M22 11h-6" /></svg>
+            Admin accounts
+        </NavLink>
+        <NavLink class="adm__link" href="admin/audit" @onclick="CloseDrawer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6" /><path d="M8 13h8M8 17h6" /></svg>
+            Audit log
+        </NavLink>
+
+        <span class="adm__side-spacer"></span>
+
+        <div class="adm__side-foot">
+            <a class="adm__who" href="admin/profile" @onclick="CloseDrawer">
+                <span class="adm__avatar" aria-hidden="true">@Initials(_name)</span>
+                <span>
+                    <span class="adm__who-name">@(_name ?? "Admin")</span>
+                    <span class="adm__who-role">View profile</span>
+                </span>
+            </a>
+            <button class="adm__signout" type="button" @onclick="SignOut">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><path d="m16 17 5-5-5-5" /><path d="M21 12H9" /></svg>
+                Log out
+            </button>
+        </div>
+    </aside>
+
+    @if (_open)
+    {
+        <button class="adm__scrim" type="button" aria-label="Close menu" @onclick="CloseDrawer"></button>
+    }
+
+    <div class="adm__main">
+        <header class="adm__bar">
+            <button class="adm__burger" type="button" aria-label="Open menu" @onclick="() => _open = true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+            </button>
+            <div>
+                <div class="adm__bar-title">Nestify control room</div>
+                <div class="adm__bar-sub">Signed in as @(_name ?? "Admin")</div>
+            </div>
+            <div class="adm__bar-right">
+                <span class="adm__clock">@DateTime.Now.ToString("dddd, d MMM yyyy")</span>
+            </div>
+        </header>
+
+        <main id="adm-main" class="adm__page" tabindex="-1">
+            @Body
+        </main>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter] private Task<AuthenticationState>? AuthState { get; set; }
+
+    private bool _open;
+    private string? _name;
+    private int _pending;
+    private int _housingReports;
+    private int _marketReports;
+
+    protected override void OnInitialized()
+    {
+        Navigation.LocationChanged += OnLocationChanged;
+        Store.Changed += OnStoreChanged;
+        Refresh();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (AuthState is not null)
+        {
+            var state = await AuthState;
+            _name = state.User.Identity?.Name;
+            if (!string.IsNullOrWhiteSpace(_name)) Store.CurrentAdmin = _name!;
+        }
+    }
+
+    private void OnStoreChanged() => InvokeAsync(Refresh);
+
+    private void Refresh()
+    {
+        _pending = Store.PendingApplications;
+        _housingReports = Store.Reports.Count(r => r.Scope == PlanScope.Housing && r.State == ReportState.Open);
+        _marketReports = Store.Reports.Count(r => r.Scope == PlanScope.Marketplace && r.State == ReportState.Open);
+        StateHasChanged();
+    }
+
+    private void CloseDrawer() => _open = false;
+
+    private async Task SignOut()
+    {
+        CloseDrawer();
+        await AuthService.LogoutAsync();
+        Navigation.NavigateTo("/", forceLoad: false);
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        if (_open)
+        {
+            _open = false;
+            StateHasChanged();
+        }
+    }
+
+    private static string Initials(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return "A";
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return parts.Length == 1
+            ? parts[0][..1].ToUpperInvariant()
+            : (parts[0][..1] + parts[^1][..1]).ToUpperInvariant();
+    }
+
+    public void Dispose()
+    {
+        Navigation.LocationChanged -= OnLocationChanged;
+        Store.Changed -= OnStoreChanged;
+    }
+}

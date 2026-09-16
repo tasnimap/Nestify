@@ -1,0 +1,108 @@
+@* Hand-drawn SVG line chart. The stroke animates in with CSS, no chart library. *@
+
+<div class="adm-chart__wrap">
+    <svg class="adm-chart" viewBox="0 0 @W @H" role="img" aria-label="@Title">
+        <defs>
+            @foreach (var s in Series)
+            {
+                <linearGradient id="@GradientId(s)" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="@s.Color" stop-opacity="0.28" />
+                    <stop offset="100%" stop-color="@s.Color" stop-opacity="0" />
+                </linearGradient>
+            }
+        </defs>
+
+        @for (var i = 0; i <= 4; i++)
+        {
+            var y = Top + (PlotHeight / 4.0) * i;
+            <line class="adm-chart__grid" x1="@F(Left)" y1="@F(y)" x2="@F(W - Right)" y2="@F(y)" />
+            @Tick(4, y + 3.5, AxisLabel(4 - i), null)
+        }
+
+        @foreach (var s in Series)
+        {
+            <path class="adm-chart__area" d="@AreaPath(s)" fill="url(#@GradientId(s))" />
+            <path class="adm-chart__line" d="@LinePath(s)" stroke="@s.Color" />
+        }
+
+        @foreach (var s in Series)
+        {
+            for (var i = 0; i < s.Values.Count; i++)
+            {
+                var index = i;
+                <circle class="adm-chart__dot" cx="@F(X(index))" cy="@F(Y(s.Values[index]))" r="3.4"
+                        fill="#fff" stroke="@s.Color" stroke-width="2.4"
+                        style="animation-delay:@F(0.4 + index * 0.05)s">
+                    <title>@s.Name · @Labels[index]: @Prefix@s.Values[index].ToString("N0")</title>
+                </circle>
+            }
+        }
+
+        @for (var i = 0; i < Labels.Count; i++)
+        {
+            @Tick(X(i), H - 6, Labels[i], "middle")
+        }
+    </svg>
+</div>
+
+@code {
+    // Razor keeps <text> for its own escaping, so SVG text nodes are built by hand.
+    private RenderFragment Tick(double x, double y, string value, string? anchor) => builder =>
+    {
+        builder.OpenElement(0, "text");
+        builder.AddAttribute(1, "class", "adm-chart__tick");
+        builder.AddAttribute(2, "x", F(x));
+        builder.AddAttribute(3, "y", F(y));
+        if (anchor is not null)
+        {
+            builder.AddAttribute(4, "text-anchor", anchor);
+        }
+        builder.AddContent(5, value);
+        builder.CloseElement();
+    };
+
+    [Parameter] public IReadOnlyList<string> Labels { get; set; } = Array.Empty<string>();
+    [Parameter] public IReadOnlyList<ChartSeries> Series { get; set; } = Array.Empty<ChartSeries>();
+    [Parameter] public string Title { get; set; } = "Chart";
+    [Parameter] public string Prefix { get; set; } = "";
+
+    private const double W = 660;
+    private const double H = 240;
+    private const double Left = 46;
+    private const double Right = 14;
+    private const double Top = 16;
+    private const double Bottom = 28;
+
+    private double PlotHeight => H - Top - Bottom;
+    private double PlotWidth => W - Left - Right;
+
+    private double Max => Math.Max(1, Series.SelectMany(s => s.Values).DefaultIfEmpty(0).Max()) * 1.08;
+
+    private double X(int index) =>
+        Labels.Count <= 1 ? Left : Left + PlotWidth * index / (Labels.Count - 1);
+
+    private double Y(int value) => Top + PlotHeight - PlotHeight * (value / Max);
+
+    private string LinePath(ChartSeries s)
+    {
+        var points = s.Values.Select((v, i) => $"{F(X(i))},{F(Y(v))}");
+        return "M" + string.Join(" L", points);
+    }
+
+    private string AreaPath(ChartSeries s)
+    {
+        var baseline = F(Top + PlotHeight);
+        return LinePath(s) + $" L{F(X(s.Values.Count - 1))},{baseline} L{F(X(0))},{baseline} Z";
+    }
+
+    private string AxisLabel(int step)
+    {
+        var value = Max / 4 * step;
+        return value >= 1000 ? Prefix + (value / 1000).ToString("0.#") + "k" : Prefix + value.ToString("0");
+    }
+
+    private string GradientId(ChartSeries s) => "adgrad-" + Math.Abs((Title + s.Name).GetHashCode());
+
+    private static string F(double value) =>
+        value.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+}

@@ -1,0 +1,12 @@
+<div class="adm-empty adm-rise">
+    <span class="adm-empty__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 7h16v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z" /><path d="M4 7l2-4h12l2 4" /><path d="M10 12h4" /></svg>
+    </span>
+    <h3>@Title</h3>
+    <p>@Message</p>
+</div>
+
+@code {
+    [Parameter] public string Title { get; set; } = "Nothing here";
+    [Parameter] public string Message { get; set; } = "";
+}

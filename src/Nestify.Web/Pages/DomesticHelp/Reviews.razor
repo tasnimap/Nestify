@@ -1,0 +1,255 @@
+@page "/helpers/reviews"
+@layout HelperLayout
+@attribute [Authorize(Roles = "DomesticHelper,DomesticHelp,Maid,Helper")]
+@implements IDisposable
+@using Nestify.Web.Components
+@using Nestify.Web.Components.Helper
+@inject MaidWorkspaceService Workspace
+@inject Nestify.Web.Services.ToastService Toast
+
+<PageTitle>My reviews — Nestify</PageTitle>
+
+<div class="dh md">
+    <div class="dh__inner">
+        <header class="dh-head md-head dh-rise">
+            <div>
+                <p class="dh-kicker">Helper workspace</p>
+                <h1>What your clients say</h1>
+                <p>Only bachelors who actually took your service can leave a review, so every word here is from someone you worked for.</p>
+            </div>
+            <div class="md-score">
+                <span class="md-score__num">@Workspace.RatingAverage.ToString("0.0")</span>
+                <RatingStars Value="Workspace.RatingAverage" ShowCount="false" />
+                <span class="md-score__count">@Workspace.RatingCount reviews</span>
+            </div>
+        </header>
+
+        <div class="md-reviews">
+            <aside class="dh-panel md-breakdown dh-rise" style="--d:80ms">
+                <div class="dh-panel__head"><h2>Rating breakdown</h2></div>
+                <ul class="md-bars">
+                    @for (var star = 5; star >= 1; star--)
+                    {
+                        var s = star;
+                        var count = Workspace.Reviews.Count(r => r.Rating == s);
+                        var pct = Workspace.RatingCount == 0 ? 0 : count * 100.0 / Workspace.RatingCount;
+                        <li>
+                            <button type="button" class="md-bar @(_filter == s ? "md-bar--on" : null)" @onclick="() => ToggleFilter(s)"
+                                    aria-pressed="@((_filter == s).ToString().ToLowerInvariant())">
+                                <span class="md-bar__star">@s <i aria-hidden="true">★</i></span>
+                                <span class="md-bar__track"><span class="md-bar__fill" style="--w:@pct.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)%"></span></span>
+                                <span class="md-bar__count">@count</span>
+                            </button>
+                        </li>
+                    }
+                </ul>
+
+                <div class="md-tags">
+                    <p class="md-tags__label">Clients often mention</p>
+                    <div class="dh-chips">
+                        @foreach (var tag in TopTags)
+                        {
+                            <span class="md-tag">@tag.Key <b>@tag.Count()</b></span>
+                        }
+                    </div>
+                </div>
+
+                <div class="md-tip">
+                    <strong>Tip</strong>
+                    <span>Replying to reviews shows new clients you listen. Short and warm works best.</span>
+                </div>
+            </aside>
+
+            <section class="md-reviews__list">
+                <div class="md-filters dh-rise" style="--d:120ms">
+                    <div class="md-filters__chips" role="group" aria-label="Filter reviews">
+                        <button type="button" class="dh-chip @(_filter is null ? "dh-chip--on" : null)" @onclick="() => SetFilter(null)">All (@Workspace.RatingCount)</button>
+                        <button type="button" class="dh-chip @(_filter == 5 ? "dh-chip--on" : null)" @onclick="() => ToggleFilter(5)">5 ★</button>
+                        <button type="button" class="dh-chip @(_filter == 4 ? "dh-chip--on" : null)" @onclick="() => ToggleFilter(4)">4 ★</button>
+                        <button type="button" class="dh-chip @(_filter == 3 ? "dh-chip--on" : null)" @onclick="() => ToggleFilter(3)">3 ★ and below</button>
+                        <button type="button" class="dh-chip @(_unreplied ? "dh-chip--on" : null)" @onclick="ToggleUnreplied">Needs reply</button>
+                    </div>
+                    <select class="md-select" value="@_sort" @onchange="OnSortChanged" aria-label="Sort reviews">
+                        <option value="new">Newest first</option>
+                        <option value="high">Highest rated</option>
+                        <option value="low">Lowest rated</option>
+                    </select>
+                </div>
+
+                @if (Filtered.Count == 0)
+                {
+                    <div class="dh-panel dh-rise">
+                        <div class="dh-empty">
+                            <span class="dh-empty__art" aria-hidden="true">
+                                <svg class="nx-icon" viewBox="0 0 24 24"><path d="M12 3 14.5 9h6l-5 4 2 6-5.5-4-5.5 4 2-6-5-4h6Z" /></svg>
+                            </span>
+                            <h3>No reviews match</h3>
+                            <p>Try a different filter.</p>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <ul class="md-review-list" @key="_page">
+                        @foreach (var r in PageItems)
+                        {
+                            var i = PageItems.IndexOf(r);
+                            <li class="md-review dh-rise" style="--d:@(140 + i * 50)ms" @key="r.Id">
+                                <div class="md-review__head">
+                                    <span class="dh-item__avatar" aria-hidden="true">@Initials(r.ReviewerName)</span>
+                                    <div class="md-review__who">
+                                        <strong>@r.ReviewerName</strong>
+                                        <span>@r.Service · @r.Area · @Ago(r.CreatedAtUtc)</span>
+                                    </div>
+                                    <RatingStars Value="r.Rating" ShowCount="false" />
+                                </div>
+                                <p class="md-review__text">@r.Comment</p>
+                                @if (r.Tags.Count > 0)
+                                {
+                                    <div class="dh-chips">
+                                        @foreach (var t in r.Tags)
+                                        {
+                                            <span class="md-tag md-tag--small">@t</span>
+                                        }
+                                    </div>
+                                }
+
+                                @if (r.Reply is not null && _replying != r.Id)
+                                {
+                                    <div class="md-reply">
+                                        <span class="md-reply__label">Your reply</span>
+                                        <p>@r.Reply</p>
+                                        <button type="button" class="md-link" @onclick="() => StartReply(r)">Edit</button>
+                                    </div>
+                                }
+                                else if (_replying == r.Id)
+                                {
+                                    <div class="md-reply md-reply--edit">
+                                        <label class="nx-sr-only" for="reply-@r.Id">Reply to @r.ReviewerName</label>
+                                        <textarea id="reply-@r.Id" rows="3" placeholder="Thank them, or explain what you changed." @bind="_replyText" @bind:event="oninput"></textarea>
+                                        <div class="md-reply__actions">
+                                            <button type="button" class="nx-btn nx-btn--ghost" @onclick="CancelReply">Cancel</button>
+                                            <button type="button" class="nx-btn nx-btn--accent" disabled="@string.IsNullOrWhiteSpace(_replyText)" @onclick="() => SaveReply(r)">Post reply</button>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <button type="button" class="md-link md-review__replybtn" @onclick="() => StartReply(r)">
+                                        <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 17-5-5 5-5" /><path d="M20 18v-2a4 4 0 0 0-4-4H4" /></svg>
+                                        Reply
+                                    </button>
+                                }
+                            </li>
+                        }
+                    </ul>
+                    <MaidPager Page="_page" PageSize="PageSize" Total="Filtered.Count" PageChanged="GoPage" />
+                }
+            </section>
+        </div>
+    </div>
+</div>
+
+@code {
+    private const int PageSize = 10;
+
+    private int? _filter;
+    private bool _unreplied;
+    private string _sort = "new";
+    private int _page = 1;
+    private string? _replying;
+    private string _replyText = string.Empty;
+
+    private List<MaidReview> Filtered
+    {
+        get
+        {
+            IEnumerable<MaidReview> q = Workspace.Reviews;
+            if (_filter is { } f) q = f <= 3 ? q.Where(r => r.Rating <= 3) : q.Where(r => r.Rating == f);
+            if (_unreplied) q = q.Where(r => r.Reply is null);
+            q = _sort switch
+            {
+                "high" => q.OrderByDescending(r => r.Rating).ThenByDescending(r => r.CreatedAtUtc),
+                "low" => q.OrderBy(r => r.Rating).ThenByDescending(r => r.CreatedAtUtc),
+                _ => q.OrderByDescending(r => r.CreatedAtUtc)
+            };
+            return q.ToList();
+        }
+    }
+
+    private List<MaidReview> PageItems => Filtered.Skip((_page - 1) * PageSize).Take(PageSize).ToList();
+
+    private IEnumerable<IGrouping<string, string>> TopTags => Workspace.Reviews
+        .SelectMany(r => r.Tags)
+        .GroupBy(t => t)
+        .OrderByDescending(g => g.Count())
+        .Take(6);
+
+    protected override void OnInitialized() => Workspace.Changed += OnWorkspaceChanged;
+
+    private void ToggleFilter(int star) => SetFilter(_filter == star ? null : star);
+
+    private void SetFilter(int? star)
+    {
+        _filter = star;
+        _page = 1;
+    }
+
+    private void ToggleUnreplied()
+    {
+        _unreplied = !_unreplied;
+        _page = 1;
+    }
+
+    private void OnSortChanged(ChangeEventArgs e)
+    {
+        _sort = e.Value?.ToString() ?? "new";
+        _page = 1;
+    }
+
+    private void GoPage(int page)
+    {
+        _page = page;
+        CancelReply();
+    }
+
+    private void StartReply(MaidReview r)
+    {
+        _replying = r.Id;
+        _replyText = r.Reply ?? string.Empty;
+    }
+
+    private void CancelReply()
+    {
+        _replying = null;
+        _replyText = string.Empty;
+    }
+
+    private void SaveReply(MaidReview r)
+    {
+        Workspace.ReplyToReview(r.Id, _replyText);
+        Toast.ShowSuccess($"Your reply to {r.ReviewerName} is live.", "Reply posted");
+        CancelReply();
+    }
+
+    private static string Ago(DateTime at)
+    {
+        var span = DateTime.Now - at;
+        if (span.TotalDays >= 60) return $"{(int)(span.TotalDays / 30)} months ago";
+        if (span.TotalDays >= 14) return $"{(int)(span.TotalDays / 7)} weeks ago";
+        if (span.TotalDays >= 1) return $"{(int)span.TotalDays}d ago";
+        return "today";
+    }
+
+    private static string Initials(string name)
+    {
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return parts.Length == 1
+            ? parts[0][..1].ToUpperInvariant()
+            : (parts[0][..1] + parts[^1][..1]).ToUpperInvariant();
+    }
+
+    private void OnWorkspaceChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Workspace.Changed -= OnWorkspaceChanged;
+}

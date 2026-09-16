@@ -44,15 +44,18 @@ public enum ListingStatus
 }
 
 /// <summary>
-/// Buy-interest state machine. Mirrors M1's booking Pending/Accepted/Rejected/Withdrawn.
-/// Pending → Accepted is the contact-disclosure transition.
+/// Buy-interest state machine. Pending → Accepted is the contact-disclosure
+/// transition. When the seller marks the listing sold, the chosen buyer's request
+/// becomes Fulfilled and every other open request becomes Closed.
 /// </summary>
 public enum BuyInterestStatus
 {
     Pending,
     Accepted,
     Declined,
-    Withdrawn
+    Withdrawn,
+    Fulfilled,
+    Closed
 }
 
 /// <summary>Card-sized projection used by the browse grid and "my listings".</summary>
@@ -226,4 +229,26 @@ public sealed class PriceSuggestionDto
     public decimal SuggestedPoint { get; set; }
     public string Basis { get; set; } = string.Empty;
     public int ComparableCount { get; set; }
+}
+
+/// <summary>
+/// Body of "mark as sold". BuyerInterestId is the request the seller picked;
+/// null means the item was sold outside Nestify.
+/// </summary>
+public sealed class MarkSoldDto
+{
+    public string? BuyerInterestId { get; set; }
+}
+
+/// <summary>Body of "I want this" on a listing.</summary>
+public sealed class ExpressInterestDto
+{
+    public string Message { get; set; } = string.Empty;
+}
+
+/// <summary>Body of "report this listing". Reason is one of the names in marketplace_report_reasons.</summary>
+public sealed class ReportListingDto
+{
+    public string Reason { get; set; } = string.Empty;
+    public string? Details { get; set; }
 }

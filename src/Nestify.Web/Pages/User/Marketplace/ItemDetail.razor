@@ -234,10 +234,19 @@
         }
     }
 
-    private void SubmitReport()
+    private async Task SubmitReport()
     {
-        _showReport = false;
-        _reportDetail = string.Empty;
-        Toast.ShowInfo("Thanks — our team will review this listing.", "Report submitted");
+        if (_item is null) return;
+        var (ok, message) = await Marketplace.ReportItemAsync(_item.Id, _reportReason, _reportDetail);
+        if (ok)
+        {
+            _showReport = false;
+            _reportDetail = string.Empty;
+            Toast.ShowInfo("Thanks — our team will review this listing.", "Report submitted");
+        }
+        else
+        {
+            Toast.ShowWarning(message, "Report not sent");
+        }
     }
 }

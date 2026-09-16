@@ -1,0 +1,75 @@
+@* Revenue split ring. Each arc sweeps in on load. *@
+
+<div class="adm-donut">
+    <svg width="160" height="160" viewBox="0 0 160 160" role="img" aria-label="@Title">
+        <circle cx="80" cy="80" r="54" fill="none" stroke="#f1eefb" stroke-width="20" />
+
+        @{
+            double used = 0;
+            var index = 0;
+        }
+        @foreach (var slice in Slices)
+        {
+            var length = Total == 0 ? 0 : Circumference * slice.Value / Total;
+            var offset = -used;
+            used += length;
+            var delay = index++ * 0.12;
+
+            <circle class="adm-donut__seg" cx="80" cy="80" r="54" fill="none"
+                    stroke="@slice.Color" stroke-width="20" stroke-linecap="butt"
+                    stroke-dasharray="@F(length) @F(Circumference - length)"
+                    stroke-dashoffset="@F(offset)"
+                    transform="rotate(-90 80 80)"
+                    style="animation-delay:@F(delay)s">
+                <title>@slice.Name: @Percent(slice.Value)%</title>
+            </circle>
+        }
+
+        @Label("adm-donut__mid", 78, Center, "19")
+        @Label("adm-donut__sub", 95, CenterLabel, null)
+    </svg>
+
+    <div class="adm-legend">
+        @foreach (var slice in Slices)
+        {
+            <div class="adm-legend__row">
+                <span class="adm-legend__dot" style="background:@slice.Color"></span>
+                <span class="adm-legend__name">@slice.Name</span>
+                <span class="adm-legend__val">@Percent(slice.Value)%</span>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    // Razor reserves <text>, so the two centre labels are built by hand.
+    private RenderFragment Label(string cssClass, double y, string value, string? fontSize) => builder =>
+    {
+        builder.OpenElement(0, "text");
+        builder.AddAttribute(1, "class", cssClass);
+        builder.AddAttribute(2, "x", "80");
+        builder.AddAttribute(3, "y", F(y));
+        builder.AddAttribute(4, "text-anchor", "middle");
+        if (fontSize is not null)
+        {
+            builder.AddAttribute(5, "font-size", fontSize);
+        }
+        builder.AddContent(6, value);
+        builder.CloseElement();
+    };
+
+    [Parameter] public IReadOnlyList<DonutSlice> Slices { get; set; } = Array.Empty<DonutSlice>();
+    [Parameter] public string Title { get; set; } = "Split";
+    [Parameter] public string Center { get; set; } = "";
+    [Parameter] public string CenterLabel { get; set; } = "";
+
+    private const double Circumference = 2 * Math.PI * 54;
+
+    private double Total => Slices.Sum(s => s.Value);
+
+    private string Percent(int value) =>
+        Total == 0 ? "0" : (value / Total * 100).ToString("0.#");
+
+    private static string F(double value) =>
+        value.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+}

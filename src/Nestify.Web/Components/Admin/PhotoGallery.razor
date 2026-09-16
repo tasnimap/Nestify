@@ -1,0 +1,59 @@
+@* Every photo on a post, the way the seeker or buyer sees them. *@
+
+@if (Photos.Count > 0)
+{
+    <div class="adm-gallery">
+        <div class="adm-gallery__stage">
+            <img class="adm-gallery__main" src="@Photos[Index]" alt="Photo @(Index + 1) of @Photos.Count" />
+
+            @if (Photos.Count > 1)
+            {
+                <button class="adm-gallery__nav adm-gallery__nav--prev" type="button" aria-label="Previous photo" @onclick="Previous">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="m15 5-7 7 7 7" /></svg>
+                </button>
+                <button class="adm-gallery__nav adm-gallery__nav--next" type="button" aria-label="Next photo" @onclick="Next">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="m9 5 7 7-7 7" /></svg>
+                </button>
+                <span class="adm-gallery__count">@(Index + 1) / @Photos.Count</span>
+            }
+        </div>
+
+        @if (Photos.Count > 1)
+        {
+            <div class="adm-gallery__strip">
+                @for (var i = 0; i < Photos.Count; i++)
+                {
+                    var position = i;
+                    <button class="adm-gallery__thumb @(position == Index ? "adm-gallery__thumb--on" : null)"
+                            type="button" aria-label="Show photo @(position + 1)" @onclick="() => _index = position">
+                        <img src="@Photos[position]" alt="" loading="lazy" />
+                    </button>
+                }
+            </div>
+        }
+    </div>
+}
+
+@code {
+    [Parameter] public IReadOnlyList<string> Photos { get; set; } = Array.Empty<string>();
+
+    private int _index;
+
+    private int Index => Photos.Count == 0 ? 0 : Math.Clamp(_index, 0, Photos.Count - 1);
+
+    private IReadOnlyList<string>? _shown;
+
+    // Start at the first photo again only when a different post is opened.
+    protected override void OnParametersSet()
+    {
+        if (!ReferenceEquals(_shown, Photos))
+        {
+            _shown = Photos;
+            _index = 0;
+        }
+    }
+
+    private void Previous() => _index = Index == 0 ? Photos.Count - 1 : Index - 1;
+
+    private void Next() => _index = Index == Photos.Count - 1 ? 0 : Index + 1;
+}

@@ -5,6 +5,7 @@ using Nestify.Api.Auth;
 using Nestify.Api.Data;
 using Nestify.Api.Helpers;
 using Nestify.Api.Homes;
+using Nestify.Api.Marketplace;
 using Nestify.Api.Profiles;
 using Nestify.Api.Settlement;
 
@@ -38,6 +39,9 @@ var jwtSettings = new JwtSettings
     RefreshTokenDays = int.TryParse(Environment.GetEnvironmentVariable("JWT_REFRESH_DAYS"), out var d) ? d : 7
 };
 
+// snake_case columns map onto PascalCase row properties without an alias on every column.
+Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
+
 // ---- Services ----
 builder.Services.AddSingleton(jwtSettings);
 builder.Services.AddSingleton(new DbConnectionFactory(connectionString));
@@ -48,6 +52,7 @@ builder.Services.AddScoped<UserProfileService>();
 builder.Services.AddScoped<VerificationService>();
 builder.Services.AddScoped<HomeService>();
 builder.Services.AddScoped<SettlementService>();
+builder.Services.AddScoped<MarketplaceService>();
 builder.Services.AddSingleton(cloudinarySettings);
 builder.Services.AddHttpClient<CloudinaryUploader>();
 

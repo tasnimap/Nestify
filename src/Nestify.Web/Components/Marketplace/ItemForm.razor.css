@@ -137,6 +137,7 @@
 
 .mk-form__foot {
     display: flex;
+    flex-wrap: wrap;
     justify-content: flex-end;
     gap: .75rem;
     padding-top: 1rem;
