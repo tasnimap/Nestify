@@ -114,7 +114,9 @@
                         <div><dt>Join code</dt><dd class="hm-code">@_home.JoinCode</dd></div>
                         <div class="hm-details__wide"><dt>Location</dt><dd>@_home.AddressLine, @_home.AreaName, @_home.Division</dd></div>
                         <div><dt>Coordinates</dt><dd>@_home.Latitude.ToString("0.0000"), @_home.Longitude.ToString("0.0000")</dd></div>
-                        <div><dt>Members</dt><dd>@_home.Members.Count</dd></div>
+                        <div><dt>Max occupants</dt><dd>@_home.MaxOccupants</dd></div>
+                        <div><dt>Living here now</dt><dd>@_home.Members.Count</dd></div>
+                        <div><dt>Free seats</dt><dd>@_home.FreeSeats</dd></div>
                     </dl>
                     <a class="hm-maplink" target="_blank" rel="noopener"
                        href="@($"https://www.openstreetmap.org/?mlat={_home.Latitude}&mlon={_home.Longitude}#map=17/{_home.Latitude}/{_home.Longitude}")">
@@ -269,6 +271,11 @@
                     <label for="ch-division">Division</label>
                     <input id="ch-division" @bind="_create.Division" />
                 </div>
+                <div class="hm-field">
+                    <label for="ch-max">Max occupants</label>
+                    <input id="ch-max" type="number" min="1" @bind="_create.MaxOccupants" />
+                    <p class="hm-note">How many people can live here at most. Free seats are worked out from the current members.</p>
+                </div>
                 <div class="hm-field hm-field--wide">
                     <label>Location on map</label>
                     <div id="create-map" class="hm-map"></div>
@@ -339,6 +346,11 @@
                 <div class="hm-field">
                     <label for="eh-division">Division</label>
                     <input id="eh-division" @bind="_edit.Division" />
+                </div>
+                <div class="hm-field">
+                    <label for="eh-max">Max occupants</label>
+                    <input id="eh-max" type="number" min="1" @bind="_edit.MaxOccupants" />
+                    <p class="hm-note">How many people can live here at most. Free seats are worked out from the current members.</p>
                 </div>
                 <div class="hm-field hm-field--wide">
                     <label>Location on map</label>
@@ -602,7 +614,8 @@
             AreaName = "Mirpur",
             Division = "Dhaka",
             Latitude = 23.8223,
-            Longitude = 90.3654
+            Longitude = 90.3654,
+            MaxOccupants = 4
         };
         _showCreate = true;
         _pendingMap = "create-map";
@@ -632,6 +645,11 @@
         if (string.IsNullOrWhiteSpace(_create.Name) || string.IsNullOrWhiteSpace(_create.AddressLine))
         {
             _formError = "House name and address are required.";
+            return;
+        }
+        if (_create.MaxOccupants < 1)
+        {
+            _formError = "Max occupants must be at least 1.";
             return;
         }
 
@@ -707,7 +725,8 @@
             AreaName = _home.AreaName,
             Division = _home.Division,
             Latitude = _home.Latitude,
-            Longitude = _home.Longitude
+            Longitude = _home.Longitude,
+            MaxOccupants = _home.MaxOccupants
         };
         _showEditDetails = true;
         _pendingMap = "edit-map";
@@ -718,6 +737,11 @@
         if (string.IsNullOrWhiteSpace(_edit.Name) || string.IsNullOrWhiteSpace(_edit.AddressLine))
         {
             _formError = "House name and address are required.";
+            return;
+        }
+        if (_edit.MaxOccupants < _home!.Members.Count)
+        {
+            _formError = $"Max occupants cannot be lower than the {_home.Members.Count} people already living here.";
             return;
         }
 

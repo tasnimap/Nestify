@@ -1,4 +1,4 @@
-// src/Nestify.Shared/Dtos/Home/HomeDtos.cs
+﻿// src/Nestify.Shared/Dtos/Home/HomeDtos.cs
 // The homes / home_members tables from User_Home.sql, shaped the way the /home
 // page needs them. Role numbers here are the database numbers: 1 Manager,
 // 2 Co-manager, 3 Member.
@@ -24,6 +24,7 @@ public sealed class HomeDto
     public string Division { get; set; } = string.Empty;
     public double Latitude { get; set; }
     public double Longitude { get; set; }
+    public int MaxOccupants { get; set; }
     public string JoinCode { get; set; } = string.Empty;
     public DateTime CreatedAtUtc { get; set; }
     public List<HomeMemberDto> Members { get; set; } = new();
@@ -58,6 +59,7 @@ public sealed class HomeDetailsDto
     public string Division { get; set; } = string.Empty;
     public double Latitude { get; set; }
     public double Longitude { get; set; }
+    public int MaxOccupants { get; set; }
 }
 
 public sealed class JoinHomeDto

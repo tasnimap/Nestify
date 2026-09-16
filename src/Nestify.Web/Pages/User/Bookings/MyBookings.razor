@@ -1,6 +1,7 @@
 @page "/bookings/mine"
 @attribute [Authorize(Roles = "User")]
 @using Nestify.Shared.Dtos.Housing
+@using Nestify.Web.Components.Housing
 @inject IHousingService Housing
 @inject NavigationManager Nav
 @inject ToastService Toast
@@ -17,7 +18,7 @@
                     Track your booking requests and manage your connections with listing managers.
                 </p>
             </div>
-            
+
             <div class="hs-head__actions">
                 <a class="nx-btn nx-btn--ghost" href="housing">Browse listings</a>
                 <a class="nx-btn nx-btn--ghost" href="housing/mine">My posts</a>
@@ -62,7 +63,7 @@
                                 </h2>
                                 <div class="hs-row__badges">
                                     <span class="hs-chip hs-chip--type">@HousingView.Label(booking.Post.ListingType)</span>
-                                    <span class="hs-badge @(GetStatusClass(booking.Status))">@booking.Status</span>
+                                    <span class="hs-badge @(GetStatusClass(booking.Status))">@HousingView.Label(booking)</span>
                                 </div>
                                 <div class="hs-row__meta">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
@@ -89,19 +90,21 @@
                             </p>
                         }
 
+                        @if (booking.Status == BookingStatus.Accepted)
+                        {
+                            <p class="hs-row__message">
+                                <span class="hs-row__message-label">Accepted by @booking.ManagerName</span>
+                                Reach out to sort out moving in - they can give you the join code or add you by email.
+                            </p>
+                            <ContactDisclosureCard Contact="_contacts.GetValueOrDefault(booking.BookingId)" />
+                        }
+
                         <div class="hs-row__actions">
                             <a class="nx-btn nx-btn--ghost" href="housing/@booking.Post.Id">View listing</a>
-                            @if (booking.Status == BookingStatus.Accepted)
-                            {
-                                <button type="button" class="nx-btn nx-btn--ghost" 
-                                        @onclick="() => ViewManagerContact(booking.BookingId)">
-                                    View manager contact
-                                </button>
-                            }
                             @if (booking.Status == BookingStatus.Pending)
                             {
                                 <span class="hs-row__actions-spacer"></span>
-                                <button type="button" class="nx-btn nx-btn--ghost hs-danger-btn" 
+                                <button type="button" class="nx-btn nx-btn--ghost hs-danger-btn"
                                         @onclick="() => WithdrawBooking(booking.BookingId)">
                                     Withdraw request
                                 </button>
@@ -123,12 +126,20 @@
         await LoadBookings();
     }
 
+    private Dictionary<string, ContactDisclosureDto?> _contacts = new();
+
     private async Task LoadBookings()
     {
         _loading = true;
         try
         {
             _bookings = (await Housing.GetMyBookingsAsync()).ToList();
+
+            // The contact of whoever accepted is shown right on the card.
+            foreach (var booking in _bookings.Where(b => b.Status == BookingStatus.Accepted))
+            {
+                _contacts[booking.BookingId] = await Housing.GetBookingContactAsync(booking.BookingId);
+            }
         }
         catch
         {
@@ -140,30 +151,21 @@
         }
     }
 
-    private async Task ViewManagerContact(string bookingId)
-    {
-        try
-        {
-            var contact = await Housing.GetBookingContactAsync(bookingId);
-            if (contact != null)
-            {
-                Toast.ShowInfo($"Name: {contact.Name}\nEmail: {contact.Email}\nPhone: {contact.Phone}", "Manager Contact");
-            }
-            else
-            {
-                Toast.ShowWarning("Contact information is not available.", "Not Available");
-            }
-        }
-        catch
-        {
-            Toast.ShowError($"Failed to retrieve contact information.", "Error");
-        }
-    }
-
     private async Task WithdrawBooking(string bookingId)
     {
-        // Placeholder for withdraw functionality (future implementation)
-        Toast.ShowInfo("Withdraw functionality coming soon.", "Info");
+        var ok = await Housing.WithdrawBookingAsync(bookingId);
+        if (!ok)
+        {
+            Toast.ShowError("That request can't be withdrawn any more.", "Error");
+            return;
+        }
+
+        var booking = _bookings.FirstOrDefault(b => b.BookingId == bookingId);
+        if (booking is not null)
+        {
+            booking.Status = BookingStatus.Withdrawn;
+        }
+        Toast.ShowSuccess("Request withdrawn.", "Done");
     }
 
     private string GetStatusClass(BookingStatus status) => status switch
@@ -172,6 +174,8 @@
         BookingStatus.Accepted => "hs-badge--accepted",
         BookingStatus.Rejected => "hs-badge--rejected",
         BookingStatus.Withdrawn => "hs-badge--withdrawn",
+        BookingStatus.Joined => "hs-badge--joined",
+        BookingStatus.HouseFull => "hs-badge--filled",
         _ => ""
     };
 }

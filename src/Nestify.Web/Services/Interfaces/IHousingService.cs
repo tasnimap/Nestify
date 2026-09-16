@@ -81,4 +81,7 @@ public interface IHousingService
     /// use GetBookingContactAsync for PII disclosure (§11.4.2).
     /// </summary>
     Task<IReadOnlyList<MyBookingDto>> GetMyBookingsAsync();
+
+    /// <summary>Seeker takes back a request that is still Pending.</summary>
+    Task<bool> WithdrawBookingAsync(string bookingId);
 }

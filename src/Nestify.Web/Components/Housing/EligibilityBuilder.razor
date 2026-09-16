@@ -27,24 +27,14 @@
         </div>
     </div>
 
-    <div class="field-row">
-        <div class="field">
-            <label for="hs-elig-marital">Marital status</label>
-            <InputSelect id="hs-elig-marital" class="field__input" @bind-Value="Value.MaritalStatus">
-                <option value="">No requirement</option>
-                <option value="@MaritalStatus.Single">Single only</option>
-                <option value="@MaritalStatus.Married">Married only</option>
-            </InputSelect>
+    <div class="field">
+        <label>Age range (optional)</label>
+        <div class="hs-elig__age">
+            <InputNumber class="field__input" @bind-Value="Value.MinAge" placeholder="Min" min="0" />
+            <span>–</span>
+            <InputNumber class="field__input" @bind-Value="Value.MaxAge" placeholder="Max" min="0" />
         </div>
-
-        <div class="field">
-            <label>Age range</label>
-            <div class="hs-elig__age">
-                <InputNumber class="field__input" @bind-Value="Value.MinAge" placeholder="Min" min="0" />
-                <span>–</span>
-                <InputNumber class="field__input" @bind-Value="Value.MaxAge" placeholder="Max" min="0" />
-            </div>
-        </div>
+        <p class="field__helper">Fill in only a minimum, only a maximum, both, or neither.</p>
     </div>
 
     <label class="hs-elig__check">
@@ -53,8 +43,13 @@
     </label>
 
     <label class="hs-elig__check">
-        <InputCheckbox @bind-Value="Value.StudentOnly" />
-        <span>Student ID required</span>
+        <InputCheckbox @bind-Value="Value.NonSmokerOnly" />
+        <span>Non-smokers only</span>
+    </label>
+
+    <label class="hs-elig__check">
+        <InputCheckbox @bind-Value="Value.NonDrinkerOnly" />
+        <span>Non-drinkers only</span>
     </label>
 </div>
 

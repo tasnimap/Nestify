@@ -1,6 +1,7 @@
 using System.Data;
 using Dapper;
 using Nestify.Api.Data;
+using Nestify.Api.Housing;
 using Nestify.Shared.Dtos.Home;
 
 namespace Nestify.Api.Homes;
@@ -42,6 +43,11 @@ public sealed class HomeService
             return (null, "House name and address are required.");
         }
 
+        if (dto.MaxOccupants < 1)
+        {
+            return (null, "Max occupants must be at least 1.");
+        }
+
         using var connection = await _db.OpenAsync();
         if (await FindHomeIdAsync(connection, userId) is not null)
         {
@@ -73,6 +79,11 @@ public sealed class HomeService
         await connection.ExecuteAsync(
             "INSERT INTO home_members (home_id, user_id, role) VALUES (@homeId, @userId, @role)",
             new { homeId, userId, role = RoleManager },
+            transaction);
+
+        await connection.ExecuteAsync(
+            "INSERT INTO home_capacity (home_id, max_occupants) VALUES (@homeId, @max)",
+            new { homeId, max = MaxOccupantsOrDefault(dto) },
             transaction);
 
         // Creating your own house answers any request you were still waiting on.
@@ -163,10 +174,15 @@ public sealed class HomeService
             return (false, $"{request.FullName} already belongs to a home.");
         }
 
+        if (await IsFullAsync(connection, me!.HomeId))
+        {
+            return (false, "The house is full. Raise max occupants first.");
+        }
+
         using var transaction = connection.BeginTransaction();
         await connection.ExecuteAsync(
             "INSERT INTO home_members (home_id, user_id, role) VALUES (@homeId, @userId, @role)",
-            new { homeId = me!.HomeId, userId = request.UserId, role = RoleMember },
+            new { homeId = me.HomeId, userId = request.UserId, role = RoleMember },
             transaction);
         await connection.ExecuteAsync(
             @"UPDATE home_join_requests
@@ -174,6 +190,7 @@ public sealed class HomeService
               WHERE id = @id",
             new { status = RequestApproved, decidedBy = userId, id = requestId },
             transaction);
+        await HousingHooks.AfterMemberJoinedAsync(connection, transaction, me.HomeId, request.UserId);
         transaction.Commit();
 
         return (true, $"{request.FullName} joined the house.");
@@ -213,6 +230,15 @@ public sealed class HomeService
             return (false, "Only the manager or a co-manager can edit house details.");
         }
 
+        // The cap can never drop below the people already living there.
+        var living = await CountActiveMembersAsync(connection, me.HomeId);
+        var max = MaxOccupantsOrDefault(dto);
+        if (max < living)
+        {
+            return (false, $"Max occupants cannot be lower than the {living} people already living here.");
+        }
+
+        using var transaction = connection.BeginTransaction();
         await connection.ExecuteAsync(
             @"UPDATE homes
               SET name = @name, address_line = @address, area_name = @area, division = @division,
@@ -227,7 +253,14 @@ public sealed class HomeService
                 latitude = (decimal)dto.Latitude,
                 longitude = (decimal)dto.Longitude,
                 homeId = me.HomeId
-            });
+            },
+            transaction);
+        await connection.ExecuteAsync(
+            @"INSERT INTO home_capacity (home_id, max_occupants) VALUES (@homeId, @max)
+              ON CONFLICT (home_id) DO UPDATE SET max_occupants = EXCLUDED.max_occupants, updated_at_utc = now()",
+            new { homeId = me.HomeId, max },
+            transaction);
+        transaction.Commit();
 
         return (true, "House details updated.");
     }
@@ -271,6 +304,11 @@ public sealed class HomeService
                 : "That person already belongs to another home.");
         }
 
+        if (await IsFullAsync(connection, me.HomeId))
+        {
+            return (false, "The house is full. Raise max occupants first.");
+        }
+
         using var transaction = connection.BeginTransaction();
         await connection.ExecuteAsync(
             "INSERT INTO home_members (home_id, user_id, role) VALUES (@homeId, @userId, @role)",
@@ -296,6 +334,7 @@ public sealed class HomeService
                 pending = RequestPending
             },
             transaction);
+        await HousingHooks.AfterMemberJoinedAsync(connection, transaction, me.HomeId, target.Id);
         transaction.Commit();
 
         return (true, $"{target.FullName} was added.");
@@ -412,6 +451,21 @@ public sealed class HomeService
         return (true, "You left the home.");
     }
 
+    private static int MaxOccupantsOrDefault(HomeDetailsDto dto) => dto.MaxOccupants < 1 ? 4 : dto.MaxOccupants;
+
+    private static async Task<int> CountActiveMembersAsync(IDbConnection connection, long homeId) =>
+        await connection.ExecuteScalarAsync<int>(
+            "SELECT count(*) FROM home_members WHERE home_id = @homeId AND left_at_utc IS NULL",
+            new { homeId });
+
+    private static async Task<bool> IsFullAsync(IDbConnection connection, long homeId)
+    {
+        var max = await connection.ExecuteScalarAsync<int?>(
+            "SELECT max_occupants FROM home_capacity WHERE home_id = @homeId",
+            new { homeId }) ?? 4;
+        return await CountActiveMembersAsync(connection, homeId) >= max;
+    }
+
     private static async Task<long?> FindHomeIdAsync(IDbConnection connection, long userId) =>
         await connection.ExecuteScalarAsync<long?>(
             "SELECT home_id FROM home_members WHERE user_id = @userId AND left_at_utc IS NULL",
@@ -514,11 +568,13 @@ public sealed class HomeService
         }
 
         var home = await connection.QueryFirstOrDefaultAsync<HomeDto>(
-            @"SELECT id::text AS Id, name AS Name, address_line AS AddressLine, area_name AS AreaName,
-                     division AS Division, latitude AS Latitude, longitude AS Longitude,
-                     join_code AS JoinCode, created_at_utc AS CreatedAtUtc
-              FROM homes
-              WHERE id = @homeId",
+            @"SELECT h.id::text AS Id, h.name AS Name, h.address_line AS AddressLine, h.area_name AS AreaName,
+                     h.division AS Division, h.latitude AS Latitude, h.longitude AS Longitude,
+                     h.join_code AS JoinCode, h.created_at_utc AS CreatedAtUtc,
+                     COALESCE(c.max_occupants, 4) AS MaxOccupants
+              FROM homes h
+              LEFT JOIN home_capacity c ON c.home_id = h.id
+              WHERE h.id = @homeId",
             new { homeId });
 
         if (home is null)

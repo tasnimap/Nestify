@@ -17,7 +17,7 @@
                     Manage the seats and houses you've posted on Nestify. Review booking requests and keep your listings up to date.
                 </p>
             </div>
-            
+
             <div class="hs-head__actions">
                 <a class="nx-btn nx-btn--ghost" href="housing">Browse listings</a>
                 <a class="nx-btn nx-btn--ghost" href="bookings/mine">My bookings</a>
@@ -79,8 +79,8 @@
                                 </h2>
                                 <div class="hs-row__badges">
                                     <span class="hs-chip hs-chip--type">@HousingView.Label(postDto.Post.ListingType)</span>
-                                    <span class="hs-badge @(postDto.Post.Status == PostStatus.Active ? "hs-badge--status-active" : "hs-badge--status-closed")">
-                                        @postDto.Post.Status
+                                    <span class="hs-badge hs-badge--@HousingView.StatusModifier(postDto.Post.Status)">
+                                        @HousingView.Label(postDto.Post.Status)
                                     </span>
                                     @if (postDto.PendingBookingRequestCount > 0)
                                     {
@@ -131,7 +131,7 @@
                                                         <p class="hs-requester__name">@requester.RequesterName</p>
                                                         <p class="hs-requester__date">Requested @requester.RequestedAtUtc.ToString("g")</p>
                                                     </div>
-                                                    <span class="hs-badge @GetRequesterBadgeClass(requester.Status)">@requester.Status</span>
+                                                    <span class="hs-badge @GetRequesterBadgeClass(requester.Status)">@HousingView.Label(requester.Status)</span>
                                                 </div>
                                                 @if (!string.IsNullOrEmpty(requester.Message))
                                                 {
@@ -140,11 +140,11 @@
                                                 @if (requester.Status == BookingStatus.Pending)
                                                 {
                                                     <div class="hs-requester__actions">
-                                                        <button type="button" class="nx-btn nx-btn--primary nx-btn--sm" 
+                                                        <button type="button" class="nx-btn nx-btn--primary nx-btn--sm"
                                                                 @onclick="() => AcceptBooking(requester.BookingId)">
                                                             Accept
                                                         </button>
-                                                        <button type="button" class="nx-btn nx-btn--ghost nx-btn--sm" 
+                                                        <button type="button" class="nx-btn nx-btn--ghost nx-btn--sm"
                                                                 @onclick="() => RejectBooking(requester.BookingId)">
                                                             Reject
                                                         </button>
@@ -152,12 +152,7 @@
                                                 }
                                                 else if (requester.Status == BookingStatus.Accepted)
                                                 {
-                                                    <div class="hs-requester__actions">
-                                                        <button type="button" class="nx-btn nx-btn--ghost nx-btn--sm" 
-                                                                @onclick="() => ViewContact(requester.BookingId)">
-                                                            View contact
-                                                        </button>
-                                                    </div>
+                                                    <ContactDisclosureCard Contact="_contacts.GetValueOrDefault(requester.BookingId)" />
                                                 }
                                             </div>
                                         }
@@ -170,7 +165,7 @@
                             <a class="nx-btn nx-btn--ghost" href="housing/@postDto.Post.Id">View</a>
                             @if (postDto.BookingRequestCount > 0)
                             {
-                                <button type="button" class="nx-btn nx-btn--ghost" 
+                                <button type="button" class="nx-btn nx-btn--ghost"
                                         @onclick="() => LoadRequesters(postDto.Post.Id)">
                                     @(_expandedPostId == postDto.Post.Id ? "Hide requests" : "Preview requests")
                                 </button>
@@ -211,6 +206,7 @@
     private bool _loading = true;
     private string? _expandedPostId;
     private List<BookingRequesterDto> _currentRequesters = new();
+    private Dictionary<string, ContactDisclosureDto?> _contacts = new();
     private bool _requestersLoading;
     private bool _showPostModal;
 
@@ -262,7 +258,7 @@
         _requestersLoading = true;
         try
         {
-            _currentRequesters = (await Housing.GetRequestersAsync(postId)).ToList();
+            await RefreshRequesters(postId);
         }
         catch
         {
@@ -274,6 +270,28 @@
         }
     }
 
+    // Contact details for accepted requests are shown right in the row, the
+    // same way the marketplace does it, so they are fetched with the list.
+    private async Task RefreshRequesters(string postId)
+    {
+        _currentRequesters = (await Housing.GetRequestersAsync(postId)).ToList();
+        foreach (var requester in _currentRequesters.Where(r => r.Status == BookingStatus.Accepted))
+        {
+            if (!_contacts.ContainsKey(requester.BookingId))
+            {
+                _contacts[requester.BookingId] = await Housing.GetBookingContactAsync(requester.BookingId);
+            }
+        }
+
+        // Keep the pending / total pills on the card in step with the list.
+        var post = _posts.FirstOrDefault(p => p.Post.Id == postId);
+        if (post is not null)
+        {
+            post.BookingRequestCount = _currentRequesters.Count;
+            post.PendingBookingRequestCount = _currentRequesters.Count(r => r.Status == BookingStatus.Pending);
+        }
+    }
+
     private async Task AcceptBooking(string bookingId)
     {
         try
@@ -281,11 +299,10 @@
             var ok = await Housing.AcceptBookingAsync(bookingId);
             if (ok)
             {
-                Toast.ShowSuccess("Booking request accepted.", "Success");
-                // Reload current requesters
+                Toast.ShowSuccess("Request accepted. Contact details are now shared both ways.", "Success");
                 if (_expandedPostId != null)
                 {
-                    _currentRequesters = (await Housing.GetRequestersAsync(_expandedPostId)).ToList();
+                    await RefreshRequesters(_expandedPostId);
                 }
             }
             else
@@ -307,10 +324,9 @@
             if (ok)
             {
                 Toast.ShowSuccess("Booking request rejected.", "Success");
-                // Reload current requesters
                 if (_expandedPostId != null)
                 {
-                    _currentRequesters = (await Housing.GetRequestersAsync(_expandedPostId)).ToList();
+                    await RefreshRequesters(_expandedPostId);
                 }
             }
             else
@@ -321,26 +337,6 @@
         catch
         {
             Toast.ShowError($"An error occurred.", "Failed");
-        }
-    }
-
-    private async Task ViewContact(string bookingId)
-    {
-        try
-        {
-            var contact = await Housing.GetBookingContactAsync(bookingId);
-            if (contact != null)
-            {
-                Toast.ShowInfo($"Name: {contact.Name}\nEmail: {contact.Email}\nPhone: {contact.Phone}", "Contact Info");
-            }
-            else
-            {
-                Toast.ShowWarning("Contact information is not available.", "Not Available");
-            }
-        }
-        catch
-        {
-            Toast.ShowError($"Failed to retrieve contact information.", "Error");
         }
     }
 
@@ -424,6 +420,8 @@
         BookingStatus.Accepted => "hs-badge--accepted",
         BookingStatus.Rejected => "hs-badge--rejected",
         BookingStatus.Withdrawn => "hs-badge--withdrawn",
+        BookingStatus.Joined => "hs-badge--joined",
+        BookingStatus.HouseFull => "hs-badge--filled",
         _ => ""
     };
 }

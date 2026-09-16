@@ -2,13 +2,13 @@
    Project_Distribution. The whole title links to the detail page. *@
 @inject Nestify.Web.Services.MoneyFormatterService Money
 
-<article class="hs-card @(Post.Status == PostStatus.Closed ? "hs-card--closed" : null)">
+<article class="hs-card @(Post.Status != PostStatus.Active ? "hs-card--closed" : null)">
     <div class="hs-card__media">
         <div class="hs-card__top">
             <span class="hs-chip hs-chip--type">@HousingView.ShortLabel(Post.ListingType)</span>
-            @if (Post.Status == PostStatus.Closed)
+            @if (Post.Status != PostStatus.Active)
             {
-                <span class="hs-chip hs-chip--closed">Closed</span>
+                <span class="hs-chip hs-chip--closed">@HousingView.Label(Post.Status)</span>
             }
         </div>
 

@@ -1,4 +1,4 @@
-// Program.cs
+﻿// Program.cs
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -45,10 +45,10 @@ builder.Services.AddSingleton<ICurrentUserService, MockCurrentUserService>();
 
 // M1 · Area cascade — served from the seeded administrative tables
 builder.Services.AddScoped<IAreaService, AreaService>();
-builder.Services.AddScoped<IHousingService, MockHousingService>();
-
-// Delete this line + IHouseLookupService + MockHouseLookupService once that's on main.
-builder.Services.AddScoped<IHouseLookupService, MockHouseLookupService>();
+// M1/M2 - Housing posts and bookings, backed by api/v1/housing (Housing.sql).
+// The same client also answers the house selector on /housing/new.
+builder.Services.AddScoped<IHousingService, HousingService>();
+builder.Services.AddScoped<IHouseLookupService, HousingService>();
 
 // M3 - Home module, backed by api/v1/homes (User_Home.sql).
 builder.Services.AddScoped<IHomeService, HomeService>();

@@ -587,6 +587,10 @@
 .hs-badge--status-rejected { background: var(--nx-danger-soft); color: var(--nx-danger); border-color: #f3c9c9; }
 .hs-badge--withdrawn,
 .hs-badge--status-withdrawn { background: var(--nx-bg-alt); color: var(--nx-muted); border-color: var(--nx-border); }
+.hs-badge--joined,
+.hs-badge--status-joined { background: var(--nx-primary-soft); color: var(--nx-primary); border-color: var(--nx-primary); }
+.hs-badge--filled,
+.hs-badge--status-filled { background: #fdf3e7; color: #8a4b12; border-color: #f0d8b8; }
 
 .hs-count-pill {
     display: inline-grid;
@@ -838,6 +842,22 @@
 }
 
 /* ---------- eligibility builder ---------- */
+
+.hs-form__house {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: .6rem;
+    margin-top: .6rem;
+}
+.hs-form__house div {
+    display: grid;
+    gap: .15rem;
+    padding: .6rem .8rem;
+    border: 1px solid var(--nx-border);
+    border-radius: .6rem;
+}
+.hs-form__house span { font-size: .8rem; color: var(--nx-muted); }
+.hs-form__house strong { font-size: 1.1rem; }
 
 .hs-elig { display: grid; gap: .8rem; }
 
