@@ -4,7 +4,7 @@
 @using System.Globalization
 @inject ToastService ToastService
 @inject MoneyFormatterService MoneyFormatterService
-@inject SettlementWorkspaceService Workspace
+@inject ISettlementService SettlementApi
 
 <PageTitle>Settlement — Nestify</PageTitle>
 
@@ -21,11 +21,13 @@
                 </p>
             </div>
 
+            @if (!_loading && _ws is not null)
+            {
             <div class="stl__header-side">
                 <div class="stl__period">
                     <button type="button"
                             class="stl__period-nav"
-                            disabled="@(!Workspace.HasPreviousMonth)"
+                            disabled="@(!HasPreviousMonth || _busy)"
                             title="Previous month"
                             aria-label="Previous month"
                             @onclick="GoToPreviousMonth">
@@ -33,129 +35,244 @@
                     </button>
 
                     <span class="stl__period-label" aria-live="polite">
-                        @if (Workspace.IsLatestMonth)
+                        @if (IsOpen)
                         {
-                            <span class="stl__period-dot" title="Current month"></span>
+                            <span class="stl__period-dot" title="Open book"></span>
                         }
-                        @Workspace.PeriodLabel
+                        @PeriodLabel
                     </span>
 
                     <button type="button"
                             class="stl__period-nav"
-                            disabled="@(!Workspace.HasNextMonth)"
+                            disabled="@(!HasNextMonth || _busy)"
                             title="Next month"
                             aria-label="Next month"
                             @onclick="GoToNextMonth">
                         <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
                     </button>
                 </div>
-                <button type="button"
-                        class="nx-btn @(Workspace.IsFinalized ? "nx-btn--ghost" : "nx-btn--primary")"
-                        disabled="@Workspace.IsFinalized"
-                        @onclick="FinalizePeriod">
-                    @(Workspace.IsFinalized ? "Month locked" : "Finalize month")
-                </button>
+                @if (_ws is not null && _ws.CanManage && IsOpen)
+                {
+                    <button type="button"
+                            class="nx-btn nx-btn--ghost"
+                            disabled="@_busy"
+                            aria-expanded="@_showAddMember"
+                            @onclick="() => _showAddMember = !_showAddMember">
+                        <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="4" /><path d="M2 21a7 7 0 0 1 14 0" /><path d="M19 8v6" /><path d="M16 11h6" /></svg>
+                        Add member
+                    </button>
+                    <button type="button"
+                            class="nx-btn nx-btn--primary"
+                            disabled="@_busy"
+                            @onclick="FinalizePeriod">
+                        Finalize month
+                    </button>
+                }
+                else if (IsFinalized)
+                {
+                    <button type="button" class="nx-btn nx-btn--ghost" disabled>Month locked</button>
+                }
             </div>
+            }
         </header>
 
-        @if (Workspace.IsFinalized)
+        @if (_loading)
         {
-            <div class="stl__locked" role="status" style="--delay: 40ms">
-                <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true">
-                    <rect x="4" y="10" width="16" height="11" rx="2" />
-                    <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+            <p class="stl__empty">Loading the book…</p>
+        }
+        else if (_ws is null)
+        {
+            <div class="stl__nobook" style="--delay: 40ms">
+                <svg class="nx-icon stl__nobook-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Z" />
+                    <path d="M9 21v-7h6v7" />
                 </svg>
-                <div>
-                    <strong>@Workspace.PeriodLabel is finalized</strong>
-                    <span>Meals, bills, and payments are read-only now. The statement below is the final word.</span>
-                </div>
+                <h2>You are not in a home yet</h2>
+                <p>
+                    The settlement book belongs to the home you live in. Join a home with an invite code,
+                    or create one and invite your flatmates, and the book will show up here.
+                </p>
+                <a class="nx-btn nx-btn--primary" href="home">Go to my home</a>
             </div>
         }
-
-        <div class="stl__metrics">
-            <article class="stl__metric stl__metric--bills" style="--delay: 60ms">
-                <span class="stl__metric-label">Monthly bills</span>
-                <strong class="stl__metric-value"><MoneyDisplay Amount="Workspace.BillsTotal" /></strong>
-                <span class="stl__metric-foot">@Result.BillShare.ToString("N2") each · @Workspace.Bills.Count bills</span>
-            </article>
-
-            <article class="stl__metric stl__metric--meals" style="--delay: 120ms">
-                <span class="stl__metric-label">Meal fund</span>
-                <strong class="stl__metric-value"><MoneyDisplay Amount="Workspace.MealFundTotal" /></strong>
-                <span class="stl__metric-foot">@Workspace.TotalMeals.ToString("0.#") meals eaten</span>
-            </article>
-
-            <article class="stl__metric stl__metric--rate" style="--delay: 180ms">
-                <span class="stl__metric-label">Cost per meal</span>
-                <strong class="stl__metric-value">৳@Workspace.PerMealRate.ToString("0.00")</strong>
-                <span class="stl__metric-foot">meal fund ÷ total meals</span>
-            </article>
-
-            <article class="stl__metric @(Workspace.OutstandingBills > 0 ? "stl__metric--due" : "stl__metric--clear")" style="--delay: 240ms">
-                <span class="stl__metric-label">Still to collect</span>
-                <strong class="stl__metric-value"><MoneyDisplay Amount="Math.Max(0m, Workspace.OutstandingBills)" /></strong>
-                <span class="stl__metric-foot">
-                    @(Workspace.OutstandingBills > 0 ? "bill money not yet paid in" : "all bill money is in")
-                </span>
-            </article>
-        </div>
-
-        <nav class="stl__tabs" style="--tab-index: @((int)_tab)" role="tablist" aria-label="Settlement sections">
-            <span class="stl__tab-pill" aria-hidden="true"></span>
-            @foreach (var tab in Tabs)
+        else if (!HasBook)
+        {
+            <div class="stl__nobook" style="--delay: 40ms">
+                <h2>No book for @PeriodLabel</h2>
+                @if (_ws.CanManage)
+                {
+                    <p>
+                        Opening the book takes a snapshot of everyone living in the home right now
+                        (@_ws.AddableMembers.Count members). Meals, bills and payments all start at zero.
+                    </p>
+                    <button type="button" class="nx-btn nx-btn--primary" disabled="@_busy" @onclick="OpenBook">
+                        Open book for @PeriodLabel
+                    </button>
+                }
+                else
+                {
+                    <p>The manager has not opened this month's book yet.</p>
+                }
+            </div>
+        }
+        else
+        {
+            @if (IsFinalized)
             {
-                <button type="button"
-                        role="tab"
-                        class="stl__tab @(_tab == tab.Key ? "is-active" : null)"
-                        aria-selected="@(_tab == tab.Key)"
-                        @onclick="() => _tab = tab.Key">
-                    @((MarkupString)tab.Icon)
-                    <span>@tab.Label</span>
-                </button>
+                <div class="stl__locked" role="status" style="--delay: 40ms">
+                    <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <rect x="4" y="10" width="16" height="11" rx="2" />
+                        <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+                    </svg>
+                    <div>
+                        <strong>@PeriodLabel is finalized</strong>
+                        <span>Meals, bills, and payments are read-only now. The statement below is the final word.</span>
+                    </div>
+                </div>
             }
-        </nav>
 
-        <div class="stl__panel" @key="(_tab, Workspace.CurrentMonth)">
-            @switch (_tab)
+            @if (_showAddMember && CanManageOpen)
             {
-                case Tab.Meals:
-                    @RenderMealSheet
-                    break;
-                case Tab.Bills:
-                    @RenderBills
-                    break;
-                case Tab.Payments:
-                    @RenderPayments
-                    break;
-                default:
-                    @RenderStatement
-                    break;
+                <section class="stl__card stl__add-member" style="--delay: 40ms">
+                    <div class="stl__card-head">
+                        <div>
+                            <h2>Add a member to this book</h2>
+                            <p>
+                                People who joined the home after the book was opened are not in it yet.
+                                Add them here so they get a meal column and a share of the bills.
+                            </p>
+                        </div>
+                        <button type="button" class="stl__bill-remove" title="Close" @onclick="() => _showAddMember = false">×</button>
+                    </div>
+
+                    @if (_ws.AddableMembers.Count == 0)
+                    {
+                        <p class="stl__empty">Everyone living in the home is already in this month's book.</p>
+                    }
+                    else
+                    {
+                        <ul class="stl__add-list">
+                            @foreach (var (member, index) in _ws.AddableMembers.Select((m, i) => (m, i)))
+                            {
+                                <li class="stl__add-row" @key="member.UserId">
+                                    <span class="stl__avatar stl__avatar--@(index % 4)">@member.Name[0]</span>
+                                    <span class="stl__member-name">@member.Name</span>
+                                    <button type="button"
+                                            class="nx-btn nx-btn--primary"
+                                            disabled="@_busy"
+                                            @onclick="() => AddMember(member.UserId)">
+                                        Add to book
+                                    </button>
+                                </li>
+                            }
+                        </ul>
+                    }
+                </section>
             }
-        </div>
+
+            <div class="stl__metrics">
+                <article class="stl__metric stl__metric--bills" style="--delay: 60ms">
+                    <span class="stl__metric-label">Monthly bills</span>
+                    <strong class="stl__metric-value"><MoneyDisplay Amount="_ws.BillsTotal" /></strong>
+                    <span class="stl__metric-foot">@_ws.BillShare.ToString("N2") each · @_ws.Bills.Count bills</span>
+                </article>
+
+                <article class="stl__metric stl__metric--meals" style="--delay: 120ms">
+                    <span class="stl__metric-label">Meal fund</span>
+                    <strong class="stl__metric-value"><MoneyDisplay Amount="_ws.MealFundTotal" /></strong>
+                    <span class="stl__metric-foot">@_ws.TotalMeals.ToString("0.#") meals eaten</span>
+                </article>
+
+                <article class="stl__metric stl__metric--rate" style="--delay: 180ms">
+                    <span class="stl__metric-label">Cost per meal</span>
+                    <strong class="stl__metric-value">৳@_ws.PerMealRate.ToString("0.00")</strong>
+                    <span class="stl__metric-foot">meal fund ÷ total meals</span>
+                </article>
+
+                <article class="stl__metric @(_ws.OutstandingBills > 0 ? "stl__metric--due" : "stl__metric--clear")" style="--delay: 240ms">
+                    <span class="stl__metric-label">Still to collect</span>
+                    <strong class="stl__metric-value"><MoneyDisplay Amount="Math.Max(0m, _ws.OutstandingBills)" /></strong>
+                    <span class="stl__metric-foot">
+                        @(_ws.OutstandingBills > 0 ? "bill money not yet paid in" : "all bill money is in")
+                    </span>
+                </article>
+            </div>
+
+            <nav class="stl__tabs" style="--tab-index: @((int)_tab)" role="tablist" aria-label="Settlement sections">
+                <span class="stl__tab-pill" aria-hidden="true"></span>
+                @foreach (var tab in Tabs)
+                {
+                    <button type="button"
+                            role="tab"
+                            class="stl__tab @(_tab == tab.Key ? "is-active" : null)"
+                            aria-selected="@(_tab == tab.Key)"
+                            @onclick="() => _tab = tab.Key">
+                        @((MarkupString)tab.Icon)
+                        <span>@tab.Label</span>
+                    </button>
+                }
+            </nav>
+
+            <div class="stl__panel" @key="(_tab, _year, _month)">
+                @switch (_tab)
+                {
+                    case Tab.Meals:
+                        @RenderMealSheet
+                        break;
+                    case Tab.Bills:
+                        @RenderBills
+                        break;
+                    case Tab.Payments:
+                        @RenderPayments
+                        break;
+                    default:
+                        @RenderStatement
+                        break;
+                }
+            </div>
+        }
     </div>
 </section>
+
+@* ===================== member strip ===================== *@
+
+@code {
+    private RenderFragment RenderMemberStrip => @<div class="stl__stack">
+        <div class="stl__member-strip">
+            @foreach (var (member, index) in Members.Select((m, i) => (m, i)))
+            {
+                <article class="stl__member-chip" style="--delay: @(index * 60)ms">
+                    <span class="stl__avatar stl__avatar--@(index % 4)">@member.Name[0]</span>
+                    <div>
+                        <span class="stl__member-name">
+                            @member.Name
+                            @if (!member.IsActive)
+                            {
+                                <span class="stl__left-tag">left</span>
+                            }
+                        </span>
+                        <strong>@_sheet.MemberTotal(member.UserId).ToString("0.#") meals</strong>
+                    </div>
+                </article>
+            }
+        </div>
+    </div>;
+}
 
 @* ===================== meal sheet ===================== *@
 
 @code {
     private RenderFragment RenderMealSheet => @<div class="stl__stack">
-        <div class="stl__member-strip">
-            @foreach (var (member, index) in Workspace.MemberNames.Select((m, i) => (m, i)))
-            {
-                <article class="stl__member-chip" style="--delay: @(index * 60)ms">
-                    <span class="stl__avatar stl__avatar--@(index)">@member[0]</span>
-                    <div>
-                        <span class="stl__member-name">@member</span>
-                        <strong>@Workspace.GetMemberMealTotal(member).ToString("0.#") meals</strong>
-                    </div>
-                </article>
-            }
-        </div>
+        @RenderMemberStrip
 
         <section class="stl__card" style="--delay: 240ms">
             <div class="stl__card-head">
                 <div>
                     <h2>Meal sheet</h2>
+                    @if (!_ws!.CanManage && IsOpen)
+                    {
+                        <p>You can fill in your own column. The manager fills in everyone else's.</p>
+                    }
                 </div>
                 <div class="stl__card-actions">
                     <div class="stl__view-toggle" role="radiogroup" aria-label="Which columns to show">
@@ -174,14 +291,14 @@
                             Everyone
                         </button>
                     </div>
-                    <span class="stl__tag">@Workspace.TotalMeals.ToString("0.#") total</span>
-                    @if (!Workspace.IsFinalized)
+                    <span class="stl__tag">@_sheet.Total.ToString("0.#") total</span>
+                    @if (IsOpen)
                     {
                         <button type="button"
                                 class="nx-btn nx-btn--primary stl__save"
-                                disabled="@(!Workspace.HasUnsavedMeals)"
+                                disabled="@(!_sheet.HasUnsaved || _busy)"
                                 @onclick="SaveMeals">
-                            @(Workspace.HasUnsavedMeals ? "Save changes" : "All saved")
+                            @(_sheet.HasUnsaved ? "Save changes" : "All saved")
                         </button>
                     }
                 </div>
@@ -195,7 +312,7 @@
                             @foreach (var member in VisibleMembers)
                             {
                                 <th>
-                                    <span class="stl__sheet-member">@member</span>
+                                    <span class="stl__sheet-member">@member.Name</span>
                                     <span class="stl__slot-legend">
                                         <i title="Breakfast">B</i>
                                         <i title="Lunch">L</i>
@@ -210,7 +327,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var day in Workspace.Days)
+                        @foreach (var day in Days)
                         {
                             <tr class="@(day.DayOfWeek is DayOfWeek.Friday or DayOfWeek.Saturday ? "is-weekend" : null)">
                                 <th class="stl__sheet-date">
@@ -219,24 +336,25 @@
                                 </th>
                                 @foreach (var member in VisibleMembers)
                                 {
-                                    var key = new SettlementWorkspaceService.MealCellKey(DateOnly.FromDateTime(day), member);
-                                    var cell = Workspace.GetMealCell(key);
+                                    var key = new MealSheetState.CellKey(day, member.UserId);
+                                    var cell = _sheet.Get(key);
+                                    var locked = !CanEditColumn(member);
                                     <td>
                                         <div class="stl__slots @(cell.IsDirty ? "is-dirty" : null)">
                                             @foreach (var slot in MealSlots)
                                             {
-                                                @if (slot != SettlementWorkspaceService.MealSlot.Breakfast)
+                                                @if (slot != MealSheetState.Slot.Breakfast)
                                                 {
                                                     <span class="stl__slot-sep" aria-hidden="true">+</span>
                                                 }
                                                 <input class="stl__slot @(cell[slot] == 0m ? "is-zero" : null)"
                                                        type="number"
                                                        min="0"
-                                                       max="5"
-                                                       step="0.25"
-                                                       value="@cell[slot].ToString("0.##")"
-                                                       disabled="@Workspace.IsFinalized"
-                                                       aria-label="@($"{member} {slot.ToString().ToLowerInvariant()} on {day:dd MMM}")"
+                                                       max="10"
+                                                       step="0.5"
+                                                       value="@cell[slot].ToString("0.##", CultureInfo.InvariantCulture)"
+                                                       disabled="@locked"
+                                                       aria-label="@($"{member.Name} {slot.ToString().ToLowerInvariant()} on {day:dd MMM}")"
                                                        @onchange="args => ChangeMealSlot(key, slot, args.Value?.ToString())" />
                                             }
                                             <span class="stl__slot-sum" aria-hidden="true">@cell.Total.ToString("0.##")</span>
@@ -245,7 +363,7 @@
                                 }
                                 @if (!_onlyMyColumn)
                                 {
-                                    <td class="stl__sheet-total">@Workspace.GetDayMealTotal(day).ToString("0.#")</td>
+                                    <td class="stl__sheet-total">@_sheet.DayTotal(day).ToString("0.#")</td>
                                 }
                             </tr>
                         }
@@ -259,19 +377,19 @@
                                     <span class="stl__slot-totals">
                                         @foreach (var slot in MealSlots)
                                         {
-                                            @if (slot != SettlementWorkspaceService.MealSlot.Breakfast)
+                                            @if (slot != MealSheetState.Slot.Breakfast)
                                             {
                                                 <span class="stl__slot-sep" aria-hidden="true">+</span>
                                             }
-                                            <i>@Workspace.GetMemberSlotTotal(member, slot).ToString("0.##")</i>
+                                            <i>@_sheet.MemberSlotTotal(member.UserId, slot).ToString("0.##")</i>
                                         }
                                     </span>
-                                    <span class="stl__slot-grand">@Workspace.GetMemberMealTotal(member).ToString("0.##")</span>
+                                    <span class="stl__slot-grand">@_sheet.MemberTotal(member.UserId).ToString("0.##")</span>
                                 </th>
                             }
                             @if (!_onlyMyColumn)
                             {
-                                <th class="stl__sheet-total">@Workspace.TotalMeals.ToString("0.#")</th>
+                                <th class="stl__sheet-total">@_sheet.Total.ToString("0.#")</th>
                             }
                         </tr>
                     </tfoot>
@@ -289,67 +407,66 @@
             <div class="stl__card-head">
                 <div>
                     <h2>Monthly bills</h2>
-                    <p>Everything here is split equally between all @Workspace.MemberNames.Count members of the home.</p>
+                    <p>Everything here is split equally between all @Members.Count members in this book.</p>
                 </div>
                 <span class="stl__tag stl__tag--strong">
-                    <MoneyDisplay Amount="Result.BillShare" /> per person
+                    <MoneyDisplay Amount="_ws!.BillShare" /> per person
                 </span>
             </div>
 
-            <ul class="stl__bills">
-                @foreach (var (bill, index) in Workspace.Bills.Select((b, i) => (b, i)))
-                {
-                    <li class="stl__bill @(bill.IsSettled ? "is-settled" : null)" style="--delay: @(120 + index * 55)ms" @key="bill.Id">
-                        <span class="stl__bill-icon stl__bill-icon--@bill.Icon">@((MarkupString)BillIcon(bill.Icon))</span>
+            @if (_ws.Bills.Count == 0)
+            {
+                <p class="stl__empty">No bills in this book.</p>
+            }
+            else
+            {
+                <ul class="stl__bills">
+                    @foreach (var (bill, index) in _ws.Bills.Select((b, i) => (b, i)))
+                    {
+                        var icon = BillIconKey(bill.Description);
+                        <li class="stl__bill" style="--delay: @(120 + index * 55)ms" @key="bill.Id">
+                            <span class="stl__bill-icon stl__bill-icon--@icon">@((MarkupString)BillIcon(icon))</span>
 
-                        <div class="stl__bill-body">
-                            <span class="stl__bill-name">@bill.Name</span>
-                            <span class="stl__bill-split">
-                                <MoneyDisplay Amount="@(Workspace.MemberNames.Count == 0 ? 0m : Math.Round(bill.Amount / Workspace.MemberNames.Count, 2))" />
-                                each
-                            </span>
-                        </div>
+                            <div class="stl__bill-body">
+                                <span class="stl__bill-name">@bill.Description</span>
+                                <span class="stl__bill-split">
+                                    <MoneyDisplay Amount="@(Members.Count == 0 ? 0m : Math.Round(bill.Amount / Members.Count, 2))" />
+                                    each
+                                </span>
+                            </div>
 
-                        <div class="stl__bill-amount">
-                            <span class="stl__bill-currency">৳</span>
-                            <input type="number"
-                                   min="0"
-                                   step="10"
-                                   class="stl__bill-input"
-                                   value="@bill.Amount.ToString("0.##")"
-                                   disabled="@Workspace.IsFinalized"
-                                   aria-label="@($"{bill.Name} amount")"
-                                   @onchange="args => ChangeBillAmount(bill.Id, args.Value?.ToString())" />
-                        </div>
+                            <div class="stl__bill-amount">
+                                <span class="stl__bill-currency">৳</span>
+                                <input type="number"
+                                       min="0"
+                                       step="10"
+                                       class="stl__bill-input"
+                                       value="@bill.Amount.ToString("0.##", CultureInfo.InvariantCulture)"
+                                       disabled="@(!CanManageOpen)"
+                                       aria-label="@($"{bill.Description} amount")"
+                                       @onchange="args => ChangeBillAmount(bill, args.Value?.ToString())" />
+                            </div>
 
-                        <button type="button"
-                                class="stl__bill-status @(bill.IsSettled ? "is-on" : null)"
-                                disabled="@Workspace.IsFinalized"
-                                title="@(bill.IsSettled ? "Paid to the provider" : "Not paid yet")"
-                                @onclick="() => Workspace.ToggleBillSettled(bill.Id)">
-                            <span class="stl__bill-status-dot"></span>
-                            @(bill.IsSettled ? "Paid" : "Due")
-                        </button>
-
-                        @if (bill.IsCustom && !Workspace.IsFinalized)
-                        {
-                            <button type="button" class="stl__bill-remove" title="Remove bill" @onclick="() => RemoveBill(bill)">×</button>
-                        }
-                        else
-                        {
-                            <span class="stl__bill-remove stl__bill-remove--empty"></span>
-                        }
-                    </li>
-                }
-            </ul>
+                            @if (CanManageOpen)
+                            {
+                                <button type="button" class="stl__bill-remove" title="Remove bill" disabled="@_busy" @onclick="() => RemoveBill(bill)">×</button>
+                            }
+                            else
+                            {
+                                <span class="stl__bill-remove stl__bill-remove--empty"></span>
+                            }
+                        </li>
+                    }
+                </ul>
+            }
 
             <div class="stl__bills-foot">
-                <span>Total for @Workspace.PeriodLabel</span>
-                <strong><MoneyDisplay Amount="Workspace.BillsTotal" /></strong>
+                <span>Total for @PeriodLabel</span>
+                <strong><MoneyDisplay Amount="_ws.BillsTotal" /></strong>
             </div>
         </section>
 
-        @if (!Workspace.IsFinalized)
+        @if (CanManageOpen)
         {
             <section class="stl__card stl__card--form" style="--delay: 200ms">
                 <div class="stl__card-head">
@@ -371,7 +488,7 @@
                                 Label="Amount"
                                 For="@(() => _billModel.Amount)" />
 
-                    <button type="submit" class="nx-btn nx-btn--primary">Add bill</button>
+                    <button type="submit" class="nx-btn nx-btn--primary" disabled="@_busy">Add bill</button>
                 </EditForm>
             </section>
         }
@@ -383,20 +500,26 @@
 @code {
     private RenderFragment RenderPayments => @<div class="stl__stack">
         <div class="stl__member-strip stl__member-strip--wide">
-            @foreach (var (member, index) in Workspace.MemberNames.Select((m, i) => (m, i)))
+            @foreach (var (member, index) in Members.Select((m, i) => (m, i)))
             {
                 <article class="stl__paid-card" style="--delay: @(index * 60)ms">
                     <div class="stl__paid-head">
-                        <span class="stl__avatar stl__avatar--@(index)">@member[0]</span>
-                        <span class="stl__member-name">@member</span>
+                        <span class="stl__avatar stl__avatar--@(index % 4)">@member.Name[0]</span>
+                        <span class="stl__member-name">
+                            @member.Name
+                            @if (!member.IsActive)
+                            {
+                                <span class="stl__left-tag">left</span>
+                            }
+                        </span>
                     </div>
-                    <strong class="stl__paid-total"><MoneyDisplay Amount="Workspace.GetPaidTotal(member)" /></strong>
+                    <strong class="stl__paid-total"><MoneyDisplay Amount="PaidTotal(member.UserId)" /></strong>
                     <div class="stl__paid-split">
                         <span class="stl__paid-pill stl__paid-pill--meal">
-                            Meals <b>@MoneyText(Workspace.GetPaidTotal(member, SettlementWorkspaceService.PaymentKind.MealFund))</b>
+                            Meals <b>@MoneyText(PaidTotal(member.UserId, FundMeal))</b>
                         </span>
                         <span class="stl__paid-pill stl__paid-pill--shared">
-                            Bills <b>@MoneyText(Workspace.GetPaidTotal(member, SettlementWorkspaceService.PaymentKind.SharedBills))</b>
+                            Bills <b>@MoneyText(PaidTotal(member.UserId, FundShared))</b>
                         </span>
                     </div>
                 </article>
@@ -410,30 +533,30 @@
                         <h2>What everyone has paid</h2>
                         <p>Each payment is either money for meals or money toward the shared bills.</p>
                     </div>
-                    <span class="stl__tag">@Workspace.Payments.Count entries</span>
+                    <span class="stl__tag">@_ws!.Payments.Count entries</span>
                 </div>
 
-                @if (Workspace.Payments.Count == 0)
+                @if (_ws.Payments.Count == 0)
                 {
                     <p class="stl__empty">No payments logged for this month yet.</p>
                 }
                 else
                 {
                     <ul class="stl__ledger">
-                        @foreach (var (payment, index) in Workspace.Payments.Select((p, i) => (p, i)))
+                        @foreach (var (payment, index) in _ws.Payments.Select((p, i) => (p, i)))
                         {
                             <li class="stl__ledger-row" style="--delay: @(index * 40)ms" @key="payment.Id">
-                                <span class="stl__ledger-kind stl__ledger-kind--@(payment.Kind == SettlementWorkspaceService.PaymentKind.MealFund ? "meal" : "shared")">
-                                    @payment.KindLabel
+                                <span class="stl__ledger-kind stl__ledger-kind--@(payment.FundType == FundMeal ? "meal" : "shared")">
+                                    @(payment.FundType == FundMeal ? "Meal fund" : "Shared bills")
                                 </span>
                                 <div class="stl__ledger-body">
-                                    <strong>@payment.Member</strong>
-                                    <span>@payment.Note · <DateDisplay DateTime="payment.PaidOnUtc" Format="date" /></span>
+                                    <strong>@payment.MemberName</strong>
+                                    <span>@payment.Note · <DateDisplay DateTime="payment.PaidOn" Format="date" /></span>
                                 </div>
                                 <span class="stl__ledger-amount"><MoneyDisplay Amount="payment.Amount" /></span>
-                                @if (!Workspace.IsFinalized)
+                                @if (CanManageOpen)
                                 {
-                                    <button type="button" class="stl__bill-remove" title="Remove payment" @onclick="() => RemovePayment(payment)">×</button>
+                                    <button type="button" class="stl__bill-remove" title="Remove payment" disabled="@_busy" @onclick="() => RemovePayment(payment)">×</button>
                                 }
                             </li>
                         }
@@ -441,13 +564,13 @@
                 }
             </section>
 
-            @if (!Workspace.IsFinalized)
+            @if (CanManageOpen)
             {
                 <aside class="stl__card stl__card--form" style="--delay: 300ms">
                     <div class="stl__card-head">
                         <div>
                             <h2>Log a payment</h2>
-                            <p>Record money you handed over this month.</p>
+                            <p>Record money a member handed over this month.</p>
                         </div>
                     </div>
 
@@ -456,10 +579,10 @@
 
                         <div class="field">
                             <label for="payment-member">Who paid</label>
-                            <select id="payment-member" class="field__input" @bind="_paymentModel.Member">
-                                @foreach (var member in Workspace.MemberNames)
+                            <select id="payment-member" class="field__input" @bind="_paymentModel.UserId">
+                                @foreach (var member in Members)
                                 {
-                                    <option value="@member">@member</option>
+                                    <option value="@member.UserId">@member.Name</option>
                                 }
                             </select>
                         </div>
@@ -469,17 +592,17 @@
                             <div class="stl__segment" role="radiogroup" aria-label="Payment purpose">
                                 <button type="button"
                                         role="radio"
-                                        aria-checked="@(_paymentModel.Kind == SettlementWorkspaceService.PaymentKind.MealFund)"
-                                        class="stl__segment-btn @(_paymentModel.Kind == SettlementWorkspaceService.PaymentKind.MealFund ? "is-active" : null)"
-                                        @onclick="() => _paymentModel.Kind = SettlementWorkspaceService.PaymentKind.MealFund">
+                                        aria-checked="@(_paymentModel.FundType == FundMeal)"
+                                        class="stl__segment-btn @(_paymentModel.FundType == FundMeal ? "is-active" : null)"
+                                        @onclick="() => _paymentModel.FundType = FundMeal">
                                     Meal related
                                     <small>groceries, bazar</small>
                                 </button>
                                 <button type="button"
                                         role="radio"
-                                        aria-checked="@(_paymentModel.Kind == SettlementWorkspaceService.PaymentKind.SharedBills)"
-                                        class="stl__segment-btn @(_paymentModel.Kind == SettlementWorkspaceService.PaymentKind.SharedBills ? "is-active" : null)"
-                                        @onclick="() => _paymentModel.Kind = SettlementWorkspaceService.PaymentKind.SharedBills">
+                                        aria-checked="@(_paymentModel.FundType == FundShared)"
+                                        class="stl__segment-btn @(_paymentModel.FundType == FundShared ? "is-active" : null)"
+                                        @onclick="() => _paymentModel.FundType = FundShared">
                                     Shared bills
                                     <small>rent, utilities</small>
                                 </button>
@@ -499,7 +622,7 @@
                                    Placeholder="Groceries for the week"
                                    For="@(() => _paymentModel.Note)" />
 
-                        <button type="submit" class="nx-btn nx-btn--primary nx-btn--block">Save payment</button>
+                        <button type="submit" class="nx-btn nx-btn--primary nx-btn--block" disabled="@_busy">Save payment</button>
                     </EditForm>
                 </aside>
             }
@@ -540,7 +663,7 @@
                     <h2>House financial summary</h2>
                     <p>See what the house needs, what members have paid, and what remains.</p>
                 </div>
-                <span class="stl__tag">@Workspace.PeriodLabel</span>
+                <span class="stl__tag">@PeriodLabel</span>
             </div>
 
             <div class="stl__chart-highlights">
@@ -550,7 +673,7 @@
                 </div>
                 <div class="stl__chart-highlight stl__chart-highlight--collected">
                     <span>Collected</span>
-                    <strong>@MoneyText(Workspace.TotalPaid)</strong>
+                    <strong>@MoneyText(TotalPaid)</strong>
                 </div>
                 <div class="stl__chart-highlight stl__chart-highlight--due">
                     <span>Collection rate</span>
@@ -558,7 +681,7 @@
                 </div>
             </div>
 
-            <div class="stl__chart" role="img" aria-label="House financial summary for @Workspace.PeriodLabel">
+            <div class="stl__chart" role="img" aria-label="House financial summary for @PeriodLabel">
                 @foreach (var item in FinancialBars)
                 {
                     <div class="stl__chart-row">
@@ -589,11 +712,12 @@
         <div class="stl__statements">
             @foreach (var (line, index) in Result.Lines.Select((l, i) => (l, i)))
             {
-                <article class="stl__statement @(line.HouseOwesMember ? "is-credit" : "is-debit")" style="--delay: @(120 + index * 90)ms" @key="line.Member">
+                var totalOwed = line.MealCost + line.EqualShare;
+                <article class="stl__statement @(line.NetAmount > 0m ? "is-credit" : "is-debit")" style="--delay: @(120 + index * 90)ms" @key="line.UserId">
                     <header class="stl__statement-head">
-                        <span class="stl__avatar stl__avatar--@(index)">@line.Member[0]</span>
+                        <span class="stl__avatar stl__avatar--@(index % 4)">@line.MemberName[0]</span>
                         <div>
-                            <span class="stl__member-name">@line.Member</span>
+                            <span class="stl__member-name">@line.MemberName</span>
                             <span class="stl__statement-sub">@line.Meals.ToString("0.#") meals this month</span>
                         </div>
                     </header>
@@ -605,27 +729,27 @@
                         </div>
                         <div>
                             <dt>Bill share</dt>
-                            <dd><MoneyDisplay Amount="line.BillShare" /></dd>
+                            <dd><MoneyDisplay Amount="line.EqualShare" /></dd>
                         </div>
                         <div class="stl__statement-rows-sum">
                             <dt>Total owed</dt>
-                            <dd><MoneyDisplay Amount="line.TotalOwed" /></dd>
+                            <dd><MoneyDisplay Amount="totalOwed" /></dd>
                         </div>
                         <div>
                             <dt>Contributed</dt>
-                            <dd class="stl__statement-paid"><MoneyDisplay Amount="line.TotalPaid" /></dd>
+                            <dd class="stl__statement-paid"><MoneyDisplay Amount="line.Contributions" /></dd>
                         </div>
                     </dl>
 
                     <div class="stl__meter" aria-hidden="true">
-                        <span class="stl__meter-fill" style="--fill: @MeterWidth(line)%"></span>
+                        <span class="stl__meter-fill" style="--fill: @MeterWidth(line.Contributions, totalOwed)%"></span>
                     </div>
 
                     <footer class="stl__statement-foot">
                         <span class="stl__statement-verdict">
-                            @(line.HouseOwesMember ? "The house owes " + line.Member : line.Net == 0m ? "Settled up" : line.Member + " owes the house")
+                            @(line.NetAmount > 0m ? "The house owes " + line.MemberName : line.NetAmount == 0m ? "Settled up" : line.MemberName + " owes the house")
                         </span>
-                        <strong class="stl__statement-net">@MoneyText(Math.Abs(line.Net))</strong>
+                        <strong class="stl__statement-net">@MoneyText(Math.Abs(line.NetAmount))</strong>
                     </footer>
                 </article>
             }
@@ -642,19 +766,19 @@
             <ul class="stl__balance">
                 <li>
                     <span>Collected for bills</span>
-                    <strong><MoneyDisplay Amount="Workspace.SharedFundTotal" /></strong>
+                    <strong><MoneyDisplay Amount="_ws!.SharedFundTotal" /></strong>
                 </li>
                 <li>
                     <span>Bills to pay</span>
                     <strong><MoneyDisplay Amount="Result.BillsTotal" /></strong>
                 </li>
-                <li class="@(Workspace.OutstandingBills > 0 ? "is-warning" : "is-good")">
+                <li class="@(_ws.OutstandingBills > 0 ? "is-warning" : "is-good")">
                     <span>
-                        @(Workspace.OutstandingBills > 0 ? "Still to collect"
-                            : Workspace.OutstandingBills < 0 ? "Surplus held"
+                        @(_ws.OutstandingBills > 0 ? "Still to collect"
+                            : _ws.OutstandingBills < 0 ? "Surplus held"
                             : "Fully collected")
                     </span>
-                    <strong>@MoneyText(Math.Abs(Workspace.OutstandingBills))</strong>
+                    <strong>@MoneyText(Math.Abs(_ws.OutstandingBills))</strong>
                 </li>
             </ul>
 
@@ -662,16 +786,49 @@
             {
                 <p class="stl__note">
                     The @MoneyText(Math.Abs(ResidualLine.RoundingAdjustment)) rounding difference goes to
-                    @ResidualLine.Member, who has the largest meal cost.
+                    @ResidualLine.MemberName, who has the largest meal cost.
+                </p>
+            }
+
+            @if (IsOpen && Result.NetTotal != 0m)
+            {
+                <p class="stl__note">
+                    Payments and costs differ by @MoneyText(Math.Abs(Result.NetTotal)). The book can be finalized once they match.
                 </p>
             }
         </section>
+
+        @if (Result.Transfers.Count > 0)
+        {
+            <section class="stl__card" style="--delay: 600ms">
+                <div class="stl__card-head">
+                    <div>
+                        <h2>Who pays whom</h2>
+                        <p>The fewest hand-overs that settle everyone up.</p>
+                    </div>
+                </div>
+                <ul class="stl__transfers">
+                    @foreach (var transfer in Result.Transfers)
+                    {
+                        <li>
+                            <span><strong>@transfer.FromMemberName</strong> pays <strong>@transfer.ToMemberName</strong></span>
+                            <strong>@MoneyText(transfer.Amount)</strong>
+                        </li>
+                    }
+                </ul>
+            </section>
+        }
     </div>;
 }
 
 @* ===================== state & handlers ===================== *@
 
 @code {
+    private const short FundMeal = 1;
+    private const short FundShared = 2;
+    private const short BookOpen = 1;
+    private const short BookFinalized = 2;
+
     private enum Tab { Meals, Bills, Payments, Statement }
 
     private sealed record TabDef(Tab Key, string Label, string Icon);
@@ -684,52 +841,95 @@
         new(Tab.Statement, "Statement", """<svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18"/><path d="m7 14 3.5-4 3 3L20 6"/></svg>""")
     ];
 
+    private static readonly MealSheetState.Slot[] MealSlots =
+    [
+        MealSheetState.Slot.Breakfast,
+        MealSheetState.Slot.Lunch,
+        MealSheetState.Slot.Dinner
+    ];
+
     private Tab _tab = Tab.Meals;
     private bool _onlyMyColumn;
+    private bool _loading = true;
+    private bool _busy;
 
-    private IEnumerable<string> VisibleMembers => _onlyMyColumn
-        ? [Workspace.CurrentMember]
-        : Workspace.MemberNames;
+    private List<SettlementBookDto> _books = [];
+    private int _year = DateTime.Today.Year;
+    private int _month = DateTime.Today.Month;
+    private SettlementWorkspaceDto? _ws;
+    private readonly MealSheetState _sheet = new();
+    private bool _showAddMember;
 
     private readonly BillFormModel _billModel = new();
     private readonly PaymentFormModel _paymentModel = new();
 
-    private SettlementWorkspaceService.SettlementResult Result => Workspace.CalculateSettlement();
+    // ---- derived state ----
 
-    protected override void OnInitialized() => ResetForms();
+    private bool HasBook => _ws is { BookStatus: > 0 };
+    private bool IsOpen => _ws is { BookStatus: BookOpen };
+    private bool IsFinalized => _ws is { BookStatus: BookFinalized };
+    private bool CanManageOpen => _ws is { CanManage: true } && IsOpen;
 
-    private void GoToPreviousMonth()
+    private List<SettlementMemberDto> Members => _ws?.Members ?? [];
+    private SettlementResultDto Result => _ws?.Result ?? new SettlementResultDto();
+
+    private string PeriodLabel => new DateTime(_year, _month, 1).ToString("MMMM yyyy", CultureInfo.InvariantCulture);
+
+    private IEnumerable<DateOnly> Days =>
+        Enumerable.Range(1, DateTime.DaysInMonth(_year, _month)).Select(d => new DateOnly(_year, _month, d));
+
+    private IEnumerable<SettlementMemberDto> VisibleMembers => _onlyMyColumn
+        ? Members.Where(m => m.IsMe)
+        : Members;
+
+    private bool CanEditColumn(SettlementMemberDto member) =>
+        IsOpen && (_ws!.CanManage || member.IsMe);
+
+    // Months you can step through: from the earliest book (or today) up to today, or
+    // one month past the latest finalized book so the manager can open the next one.
+    private (int Year, int Month) MinMonth
     {
-        Workspace.GoToPreviousMonth();
-        ResetForms();
+        get
+        {
+            var today = (DateTime.Today.Year, DateTime.Today.Month);
+            return _books.Count == 0 ? today : Min(today, (_books[0].Year, _books[0].Month));
+        }
     }
 
-    private void GoToNextMonth()
+    private (int Year, int Month) MaxMonth
     {
-        Workspace.GoToNextMonth();
-        ResetForms();
+        get
+        {
+            var today = (DateTime.Today.Year, DateTime.Today.Month);
+            if (_books.Count == 0)
+            {
+                return today;
+            }
+
+            var last = _books[^1];
+            var lastMonth = (last.Year, last.Month);
+            var limit = last.Status == BookFinalized ? Shift(lastMonth, 1) : lastMonth;
+            return Max(today, limit);
+        }
     }
 
-    /// <summary>Clears the entry forms so a half-typed row never carries over to another month.</summary>
-    private void ResetForms()
-    {
-        _billModel.Name = string.Empty;
-        _billModel.Amount = 0m;
+    private bool HasPreviousMonth => Compare((_year, _month), MinMonth) > 0;
+    private bool HasNextMonth => Compare((_year, _month), MaxMonth) < 0;
 
-        _paymentModel.Amount = 0m;
-        _paymentModel.Note = string.Empty;
-        _paymentModel.PaidOn = Workspace.GetDefaultFormDate();
-    }
+    private decimal TotalPaid => _ws?.Payments.Sum(p => p.Amount) ?? 0m;
 
-    private SettlementWorkspaceService.SettlementLine? ResidualLine =>
+    private decimal PaidTotal(long userId, short? fundType = null) =>
+        _ws?.Payments.Where(p => p.UserId == userId && (fundType is null || p.FundType == fundType)).Sum(p => p.Amount) ?? 0m;
+
+    private SettlementLineDto? ResidualLine =>
         Result.Lines.FirstOrDefault(line => line.RoundingAdjustment != 0m);
 
     private IEnumerable<FinancialBar> FinancialBars =>
     [
         new("Monthly bills", Result.BillsTotal, "bills"),
         new("Meal fund", Result.MealFund, "meals"),
-        new("Shared bills collected", Workspace.SharedFundTotal, "collected"),
-        new("Still to collect", Math.Max(0m, Workspace.OutstandingBills), "due")
+        new("Shared bills collected", _ws?.SharedFundTotal ?? 0m, "collected"),
+        new("Still to collect", Math.Max(0m, _ws?.OutstandingBills ?? 0m), "due")
     ];
 
     private decimal ChartMaximum => Math.Max(1m, FinancialBars.Max(item => item.Amount));
@@ -747,10 +947,250 @@
             var totalCosts = Result.BillsTotal + Result.MealFund;
             return totalCosts <= 0m
                 ? "0"
-                : Math.Clamp(Workspace.TotalPaid / totalCosts * 100m, 0m, 100m)
+                : Math.Clamp(TotalPaid / totalCosts * 100m, 0m, 100m)
                     .ToString("0", CultureInfo.InvariantCulture);
         }
     }
+
+    // ---- loading ----
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var books = await SettlementApi.GetBooksAsync();
+            if (books is null)
+            {
+                _ws = null;
+                return;
+            }
+
+            _books = books.ToList();
+            var open = _books.FirstOrDefault(b => b.Status == BookOpen);
+            var start = open ?? _books.LastOrDefault();
+            (_year, _month) = start is null
+                ? (DateTime.Today.Year, DateTime.Today.Month)
+                : (start.Year, start.Month);
+
+            await LoadMonthAsync();
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError(ex.Message, "Could not load the settlement book");
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task LoadMonthAsync()
+    {
+        _ws = await SettlementApi.GetAsync(_year, _month);
+        _sheet.Load(_ws?.Meals ?? []);
+        ResetForms();
+    }
+
+    private async Task ReloadAsync()
+    {
+        _books = (await SettlementApi.GetBooksAsync())?.ToList() ?? [];
+        await LoadMonthAsync();
+    }
+
+    private async Task GoToPreviousMonth()
+    {
+        (_year, _month) = Shift((_year, _month), -1);
+        await SwitchMonthAsync();
+    }
+
+    private async Task GoToNextMonth()
+    {
+        (_year, _month) = Shift((_year, _month), 1);
+        await SwitchMonthAsync();
+    }
+
+    private async Task SwitchMonthAsync()
+    {
+        _busy = true;
+        try
+        {
+            await LoadMonthAsync();
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError(ex.Message, "Could not load that month");
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private void ResetForms()
+    {
+        _billModel.Name = string.Empty;
+        _billModel.Amount = 0m;
+
+        _paymentModel.UserId = Members.FirstOrDefault(m => m.IsMe)?.UserId ?? Members.FirstOrDefault()?.UserId ?? 0;
+        _paymentModel.Amount = 0m;
+        _paymentModel.Note = string.Empty;
+        _paymentModel.PaidOn = DefaultFormDate();
+    }
+
+    private DateTime DefaultFormDate()
+    {
+        var today = DateTime.Today;
+        return today.Year == _year && today.Month == _month ? today : new DateTime(_year, _month, 1);
+    }
+
+    // ---- actions ----
+
+    private Task OpenBook() => RunAsync(
+        () => SettlementApi.OpenBookAsync(_year, _month),
+        $"The book for {PeriodLabel} is open.", "Book opened");
+
+    private Task AddMember(long userId) => RunAsync(
+        () => SettlementApi.AddMemberAsync(_year, _month, userId),
+        "They are now part of this month's book.", "Member added");
+
+    private async Task SaveMeals()
+    {
+        var entries = _sheet.DirtyEntries();
+        if (entries.Count == 0)
+        {
+            return;
+        }
+
+        await RunAsync(
+            () => SettlementApi.SaveMealsAsync(_year, _month, new SaveSettlementMealsRequest { Entries = entries }),
+            "The meal sheet is up to date.", "Meals saved");
+    }
+
+    private void ChangeMealSlot(MealSheetState.CellKey key, MealSheetState.Slot slot, string? rawValue)
+    {
+        if (decimal.TryParse(rawValue, NumberStyles.Number, CultureInfo.InvariantCulture, out var value))
+        {
+            _sheet.Set(key, slot, value);
+        }
+    }
+
+    private async Task ChangeBillAmount(SettlementBillDto bill, string? rawValue)
+    {
+        if (!decimal.TryParse(rawValue, NumberStyles.Number, CultureInfo.InvariantCulture, out var value) || value == bill.Amount)
+        {
+            return;
+        }
+
+        await RunAsync(
+            () => SettlementApi.UpdateBillAsync(_year, _month, bill.Id, value),
+            $"{bill.Description} is now {MoneyText(value)}.", "Bill updated");
+    }
+
+    private async Task AddBill()
+    {
+        _busy = true;
+        try
+        {
+            var (data, error) = await SettlementApi.AddBillAsync(_year, _month, new CreateSettlementBillRequest
+            {
+                Description = _billModel.Name,
+                Amount = _billModel.Amount,
+                SpentOn = DefaultFormDate()
+            });
+
+            if (data is null)
+            {
+                ToastService.ShowError(error ?? "Could not add the bill.", "Bill not added");
+                return;
+            }
+
+            ToastService.ShowSuccess($"{data.Description} will be split equally.", "Bill added");
+            await ReloadAsync();
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError(ex.Message, "Bill not added");
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private Task RemoveBill(SettlementBillDto bill) => RunAsync(
+        () => SettlementApi.DeleteBillAsync(_year, _month, bill.Id),
+        $"{bill.Description} was removed from this month.", "Bill removed");
+
+    private async Task AddPayment()
+    {
+        _busy = true;
+        try
+        {
+            var (data, error) = await SettlementApi.AddPaymentAsync(_year, _month, new CreateSettlementPaymentRequest
+            {
+                UserId = _paymentModel.UserId,
+                Amount = _paymentModel.Amount,
+                FundType = _paymentModel.FundType,
+                Note = _paymentModel.Note,
+                PaidOn = _paymentModel.PaidOn
+            });
+
+            if (data is null)
+            {
+                ToastService.ShowError(error ?? "Could not record the payment.", "Payment not saved");
+                return;
+            }
+
+            ToastService.ShowSuccess(
+                $"{MoneyFormatterService.Format(data.Amount)} recorded for {data.MemberName}.",
+                "Payment saved");
+            await ReloadAsync();
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError(ex.Message, "Payment not saved");
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private Task RemovePayment(SettlementPaymentDto payment) => RunAsync(
+        () => SettlementApi.DeletePaymentAsync(_year, _month, payment.Id),
+        $"Removed {MoneyText(payment.Amount)} from {payment.MemberName}.", "Payment removed");
+
+    private Task FinalizePeriod() => RunAsync(
+        () => SettlementApi.FinalizeAsync(_year, _month),
+        $"{PeriodLabel} is now locked.", "Month finalized");
+
+    // Runs one API call, toasts the outcome and reloads the book on success.
+    private async Task RunAsync(Func<Task<(bool Ok, string Message)>> action, string successText, string successTitle)
+    {
+        _busy = true;
+        try
+        {
+            var (ok, message) = await action();
+            if (!ok)
+            {
+                ToastService.ShowError(message, "Not done");
+                return;
+            }
+
+            ToastService.ShowSuccess(successText, successTitle);
+            await ReloadAsync();
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError(ex.Message, "Not done");
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    // ---- small helpers ----
 
     private sealed record FinancialBar(string Label, decimal Amount, string ClassName);
 
@@ -759,14 +1199,14 @@
         [Required(ErrorMessage = "Give the bill a name.")]
         public string Name { get; set; } = string.Empty;
 
-        [Range(0.01, 1000000, ErrorMessage = "Amount must be greater than ৳0.00.")]
+        [Range(0, 1000000, ErrorMessage = "Amount cannot be negative.")]
         public decimal Amount { get; set; }
     }
 
     private sealed class PaymentFormModel
     {
-        [Required]
-        public string Member { get; set; } = "Rafi";
+        [Range(1, long.MaxValue, ErrorMessage = "Pick who paid.")]
+        public long UserId { get; set; }
 
         [Range(0.01, 1000000, ErrorMessage = "Amount must be greater than ৳0.00.")]
         public decimal Amount { get; set; }
@@ -777,99 +1217,43 @@
         [Required(ErrorMessage = "Add a short note so the house knows what this was.")]
         public string Note { get; set; } = string.Empty;
 
-        public SettlementWorkspaceService.PaymentKind Kind { get; set; } =
-            SettlementWorkspaceService.PaymentKind.MealFund;
+        public short FundType { get; set; } = FundMeal;
     }
 
     private static string MoneyText(decimal amount) => $"৳{amount:N2}";
 
-    /// <summary>How full the contributed-vs-owed meter is, capped so a big overpayment still fits.</summary>
-    private static string MeterWidth(SettlementWorkspaceService.SettlementLine line)
+    private static string MeterWidth(decimal paid, decimal owed)
     {
-        if (line.TotalOwed <= 0m)
+        if (owed <= 0m)
         {
-            return line.TotalPaid > 0m ? "100" : "0";
+            return paid > 0m ? "100" : "0";
         }
 
-        var ratio = line.TotalPaid / line.TotalOwed * 100m;
-        return Math.Clamp(ratio, 0m, 100m).ToString("0.#", CultureInfo.InvariantCulture);
+        return Math.Clamp(paid / owed * 100m, 0m, 100m).ToString("0.#", CultureInfo.InvariantCulture);
     }
 
-    private static readonly SettlementWorkspaceService.MealSlot[] MealSlots =
-    [
-        SettlementWorkspaceService.MealSlot.Breakfast,
-        SettlementWorkspaceService.MealSlot.Lunch,
-        SettlementWorkspaceService.MealSlot.Dinner
-    ];
-
-    private void ChangeMealSlot(
-        SettlementWorkspaceService.MealCellKey key,
-        SettlementWorkspaceService.MealSlot slot,
-        string? rawValue)
+    private static (int Year, int Month) Shift((int Year, int Month) value, int months)
     {
-        if (decimal.TryParse(rawValue, NumberStyles.Number, CultureInfo.InvariantCulture, out var value))
-        {
-            Workspace.ChangeMealSlot(key, slot, value);
-        }
+        var date = new DateTime(value.Year, value.Month, 1).AddMonths(months);
+        return (date.Year, date.Month);
     }
 
-    private void SaveMeals()
+    private static int Compare((int Year, int Month) a, (int Year, int Month) b) =>
+        a.Year != b.Year ? a.Year.CompareTo(b.Year) : a.Month.CompareTo(b.Month);
+
+    private static (int Year, int Month) Min((int Year, int Month) a, (int Year, int Month) b) => Compare(a, b) <= 0 ? a : b;
+    private static (int Year, int Month) Max((int Year, int Month) a, (int Year, int Month) b) => Compare(a, b) >= 0 ? a : b;
+
+    private static string BillIconKey(string description)
     {
-        Workspace.MarkMealsSaved();
-        ToastService.ShowSuccess("The meal sheet is up to date.", "Meals saved");
-    }
-
-    private void ChangeBillAmount(Guid billId, string? rawValue)
-    {
-        if (decimal.TryParse(rawValue, NumberStyles.Number, CultureInfo.InvariantCulture, out var value))
-        {
-            Workspace.UpdateBillAmount(billId, value);
-        }
-    }
-
-    private void AddBill()
-    {
-        Workspace.AddBill(_billModel.Name, _billModel.Amount);
-        ToastService.ShowSuccess($"{_billModel.Name} will be split equally from now on.", "Bill added");
-
-        _billModel.Name = string.Empty;
-        _billModel.Amount = 0m;
-    }
-
-    private void RemoveBill(SettlementWorkspaceService.BillEntry bill)
-    {
-        Workspace.RemoveBill(bill.Id);
-        ToastService.ShowInfo($"{bill.Name} was removed from this month.", "Bill removed");
-    }
-
-    private void AddPayment()
-    {
-        Workspace.AddPayment(
-            _paymentModel.Member,
-            _paymentModel.Amount,
-            _paymentModel.Kind,
-            _paymentModel.Note,
-            _paymentModel.PaidOn);
-
-        ToastService.ShowSuccess(
-            $"{MoneyFormatterService.Format(_paymentModel.Amount)} recorded for {_paymentModel.Member}.",
-            "Payment saved");
-
-        _paymentModel.Amount = 0m;
-        _paymentModel.Note = string.Empty;
-        _paymentModel.PaidOn = Workspace.GetDefaultFormDate();
-    }
-
-    private void RemovePayment(SettlementWorkspaceService.PaymentEntry payment)
-    {
-        Workspace.RemovePayment(payment.Id);
-        ToastService.ShowInfo($"Removed {MoneyText(payment.Amount)} from {payment.Member}.", "Payment removed");
-    }
-
-    private void FinalizePeriod()
-    {
-        Workspace.FinalizePeriod();
-        ToastService.ShowSuccess($"{Workspace.PeriodLabel} is now locked.", "Month finalized");
+        var name = description.ToLowerInvariant();
+        if (name.Contains("rent")) return "rent";
+        if (name.Contains("electric") || name.Contains("current")) return "electricity";
+        if (name.Contains("water")) return "water";
+        if (name.Contains("internet") || name.Contains("wifi")) return "internet";
+        if (name.Contains("gas")) return "gas";
+        if (name.Contains("garbage") || name.Contains("clean")) return "garbage";
+        return "other";
     }
 
     private static string BillIcon(string icon) => icon switch

@@ -188,6 +188,97 @@
 .stl__locked strong { display: block; color: var(--nx-ink); }
 .stl__locked span { color: var(--nx-muted); font-size: .88rem; }
 
+/* ---------- no book yet ---------- */
+
+.stl__nobook {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .6rem;
+    padding: 2.5rem 1.5rem;
+    border: 1px dashed var(--nx-border-strong);
+    border-radius: var(--nx-radius-lg, var(--nx-radius));
+    background: rgba(255, 255, 255, .7);
+    text-align: center;
+    animation: stl-rise .62s cubic-bezier(.22, 1, .36, 1) both;
+    animation-delay: var(--delay, 0ms);
+}
+
+.stl__nobook h2 { font-size: 1.25rem; }
+.stl__nobook p { max-width: 34rem; color: var(--nx-muted); font-size: .92rem; }
+.stl__nobook .nx-btn { margin-top: .6rem; }
+
+.stl__nobook-icon {
+    width: 2.6rem;
+    height: 2.6rem;
+    color: var(--nx-primary);
+}
+
+/* ---------- member strip extras ---------- */
+
+.stl__left-tag {
+    display: inline-block;
+    margin-left: .35rem;
+    padding: .05rem .45rem;
+    border-radius: 999px;
+    background: var(--nx-danger-soft);
+    color: var(--nx-danger);
+    font-size: .68rem;
+    font-weight: 700;
+    vertical-align: middle;
+}
+
+.stl__add-member {
+    margin-bottom: 1.25rem;
+}
+
+.stl__add-list {
+    display: grid;
+    gap: .5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.stl__add-row {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .6rem .8rem;
+    border: 1px solid var(--nx-border);
+    border-radius: var(--nx-radius);
+    background: rgba(255, 255, 255, .7);
+}
+
+.stl__add-row .stl__member-name {
+    flex: 1;
+    min-width: 0;
+}
+
+/* ---------- transfers ---------- */
+
+.stl__transfers {
+    display: grid;
+    gap: .5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.stl__transfers li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .8rem;
+    padding: .7rem .9rem;
+    border: 1px solid var(--nx-border);
+    border-radius: var(--nx-radius);
+    background: #fff;
+    font-size: .92rem;
+}
+
+.stl__transfers li strong { color: var(--nx-ink); }
+
 /* ---------- metric strip ---------- */
 
 .stl__metrics {
@@ -706,7 +797,7 @@
 
 .stl__bill {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto auto auto;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
     align-items: center;
     gap: .9rem;
     padding: .8rem 1rem;
@@ -721,8 +812,6 @@
     border-color: var(--nx-border-strong);
     box-shadow: var(--nx-shadow-sm);
 }
-
-.stl__bill.is-settled { background: linear-gradient(90deg, var(--nx-accent-soft), #fff 55%); }
 
 .stl__bill-icon {
     display: grid;
@@ -800,38 +889,6 @@
 }
 
 .stl__bill-input:focus { outline: none; }
-
-.stl__bill-status {
-    display: inline-flex;
-    align-items: center;
-    gap: .4rem;
-    padding: .35rem .7rem;
-    border: 1px solid var(--nx-border);
-    border-radius: 999px;
-    background: #fff;
-    color: var(--nx-muted);
-    font: inherit;
-    font-size: .78rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background .25s ease, color .25s ease, border-color .25s ease, transform .2s ease;
-}
-
-.stl__bill-status:hover:not(:disabled) { transform: translateY(-1px); }
-
-.stl__bill-status-dot {
-    width: .45rem;
-    height: .45rem;
-    border-radius: 999px;
-    background: currentColor;
-    transition: background .25s ease;
-}
-
-.stl__bill-status.is-on {
-    border-color: transparent;
-    background: var(--nx-accent-soft);
-    color: #0b5c2a;
-}
 
 .stl__bill-remove {
     width: 1.8rem;
@@ -1433,7 +1490,7 @@
         grid-template-columns: auto minmax(0, 1fr) auto;
         grid-template-areas:
             "icon   body   remove"
-            "amount status status";
+            "amount amount amount";
         gap: .7rem .6rem;
     }
 
@@ -1441,7 +1498,6 @@
     .stl__bill-body   { grid-area: body; }
     .stl__bill-remove { grid-area: remove; }
     .stl__bill-amount { grid-area: amount; }
-    .stl__bill-status { grid-area: status; justify-self: end; }
 
     .stl__bill:hover { transform: none; }
     .stl__bill-input { width: 4.6rem; }
@@ -1477,18 +1533,8 @@
     .stl__headline h1 { font-size: 2rem; }
     .stl__header-side { gap: .5rem; }
 
-    /* the amount and the status pill each need a full row this narrow */
-    .stl__bill {
-        grid-template-columns: auto minmax(0, 1fr) auto;
-        grid-template-areas:
-            "icon   body   remove"
-            "amount amount amount"
-            "status status status";
-    }
-
     .stl__bill-amount { justify-self: stretch; }
     .stl__bill-input { width: 100%; }
-    .stl__bill-status { justify-self: stretch; justify-content: center; }
 
     /* let the month switcher span the row so the arrows sit under the thumbs */
     .stl__period { flex: 1; justify-content: space-between; }
