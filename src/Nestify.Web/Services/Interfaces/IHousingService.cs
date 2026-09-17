@@ -57,6 +57,9 @@ public interface IHousingService
     /// </summary>
     Task<bool> RequestBookingAsync(string postId, string? message);
 
+    /// <summary>Report a post to the admins. The message explains a refusal.</summary>
+    Task<(bool Ok, string Message)> ReportPostAsync(string postId, string reason, string? details);
+
     /// <summary>
     /// Manager/CoManager view of everyone who's requested this post (§11.4.4). Rows never
     /// carry contact — see <see cref="GetBookingContactAsync"/>.
@@ -81,4 +84,7 @@ public interface IHousingService
     /// use GetBookingContactAsync for PII disclosure (§11.4.2).
     /// </summary>
     Task<IReadOnlyList<MyBookingDto>> GetMyBookingsAsync();
+
+    /// <summary>Seeker takes back a request that is still Pending.</summary>
+    Task<bool> WithdrawBookingAsync(string bookingId);
 }

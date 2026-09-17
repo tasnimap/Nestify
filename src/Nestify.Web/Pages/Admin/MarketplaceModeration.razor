@@ -1,7 +1,8 @@
 @page "/admin/marketplace"
 @layout AdminShell
 @attribute [Authorize(Roles = "Admin")]
-@inject AdminConsoleService Store
+@inject IAdminService Admin
+@inject ToastService Toast
 
 <PageTitle>Marketplace posts — Nestify Admin</PageTitle>
 
@@ -26,7 +27,7 @@
             Live items<span class="adm-tab__count">@LiveCount</span>
         </button>
         <button class="adm-tab @(_tab == 2 ? "adm-tab--on" : null)" type="button" @onclick="() => SetTab(2)">
-            Taken down<span class="adm-tab__count">@Store.Market.Count(p => p.State == PostState.Removed)</span>
+            Taken down<span class="adm-tab__count">@_items.Count(p => p.State == ModeratedPostState.Removed)</span>
         </button>
     </div>
     <label class="adm-search adm-toolbar__grow">
@@ -43,11 +44,15 @@
     </div>
 </div>
 
-@if (_tab == 0)
+@if (_loading)
 {
-    var reports = Store.Reports
-        .Where(r => r.Scope == PlanScope.Marketplace && Matches(r.PostTitle + r.Reason + r.ReportedBy))
-        .OrderBy(r => r.State).ThenByDescending(r => r.RaisedOn)
+    <EmptyState Title="Loading" Message="Fetching listings and reports." />
+}
+else if (_tab == 0)
+{
+    var reports = _reports
+        .Where(r => Matches(r.PostTitle + r.Reason + r.ReportedBy))
+        .OrderBy(r => r.State).ThenByDescending(r => r.RaisedAtUtc)
         .ToList();
 
     var reportPage = ClampPage(reports.Count);
@@ -61,9 +66,9 @@
         <div class="adm-rows">
             @foreach (var report in reports.Skip((reportPage - 1) * PageSize).Take(PageSize))
             {
-                var item = Store.Market.FirstOrDefault(p => p.Id == report.PostId);
+                var item = _items.FirstOrDefault(p => p.Id == report.PostId);
                 <article class="adm-row adm-rise">
-                    @if (item is not null)
+                    @if (item is not null && item.Photos.Count > 0)
                     {
                         <span class="adm-shot-wrap">
                             <img class="adm-shot" src="@item.Cover" alt="" loading="lazy" />
@@ -76,9 +81,12 @@
                     <div class="adm-row__main">
                         <p class="adm-row__title">@report.PostTitle</p>
                         <p class="adm-row__meta">
-                            Reported for <strong>@report.Reason</strong> by @report.ReportedBy · @AdminConsoleService.Ago(report.RaisedOn)
+                            Reported for <strong>@report.Reason</strong> by @report.ReportedBy · @AdminConsoleService.Ago(report.RaisedAtUtc)
                         </p>
-                        <p class="adm-row__note">@report.Details</p>
+                        @if (!string.IsNullOrWhiteSpace(report.Details))
+                        {
+                            <p class="adm-row__note">@report.Details</p>
+                        }
                         @if (item is not null)
                         {
                             <div class="adm-row__facts">
@@ -86,11 +94,15 @@
                                 <span class="adm-fact">@item.Category · @item.Condition</span>
                                 <span class="adm-fact">@item.Area</span>
                                 <span class="adm-fact">@item.Seller</span>
-                                @if (item.State == PostState.Removed)
+                                @if (item.State == ModeratedPostState.Removed)
                                 {
                                     <span class="adm-fact">already taken down</span>
                                 }
                             </div>
+                        }
+                        else
+                        {
+                            <p class="adm-row__note">The seller has since sold or removed this listing.</p>
                         }
                     </div>
                     <div class="adm-row__side">
@@ -98,17 +110,17 @@
                         {
                             <button class="adm-btn adm-btn--ghost adm-btn--sm" type="button" @onclick="() => _preview = item">View item</button>
                         }
-                        @if (report.State == ReportState.Open)
+                        @if (report.State == ModerationReportState.Open)
                         {
-                            @if (item is not null && item.State == PostState.Live)
+                            @if (item is not null && item.State == ModeratedPostState.Live)
                             {
                                 <button class="adm-btn adm-btn--danger adm-btn--sm" type="button" @onclick="() => AskRemove(item, report)">Strike down</button>
                             }
-                            <button class="adm-btn adm-btn--ghost adm-btn--sm" type="button" @onclick="() => Store.DismissReport(report.Id)">Dismiss</button>
+                            <button class="adm-btn adm-btn--ghost adm-btn--sm" type="button" disabled="@_busy" @onclick="() => Dismiss(report)">Dismiss</button>
                         }
                         else
                         {
-                            <span class="adm-badge @(report.State == ReportState.Resolved ? "adm-badge--ok" : "adm-badge--muted")">@report.State</span>
+                            <span class="adm-badge @(report.State == ModerationReportState.Resolved ? "adm-badge--ok" : "adm-badge--muted")">@report.State</span>
                         }
                     </div>
                 </article>
@@ -120,11 +132,11 @@
 }
 else
 {
-    var wanted = _tab == 1 ? PostState.Live : PostState.Removed;
-    var items = Store.Market
+    var wanted = _tab == 1 ? ModeratedPostState.Live : ModeratedPostState.Removed;
+    var items = _items
         .Where(p => p.State == wanted && (_category is null || p.Category == _category))
         .Where(p => Matches(p.Title + p.Category + p.Area + p.Seller))
-        .OrderByDescending(p => p.PostedOn)
+        .OrderByDescending(p => p.PostedAtUtc)
         .ToList();
 
     var itemPage = ClampPage(items.Count);
@@ -139,13 +151,16 @@ else
             @foreach (var item in items.Skip((itemPage - 1) * PageSize).Take(PageSize))
             {
                 <article class="adm-row adm-rise">
-                    <span class="adm-shot-wrap">
-                        <img class="adm-shot" src="@item.Cover" alt="" loading="lazy" />
-                        @if (item.Photos.Count > 1)
-                        {
-                            <span class="adm-shot-wrap__count">@item.Photos.Count photos</span>
-                        }
-                    </span>
+                    @if (item.Photos.Count > 0)
+                    {
+                        <span class="adm-shot-wrap">
+                            <img class="adm-shot" src="@item.Cover" alt="" loading="lazy" />
+                            @if (item.Photos.Count > 1)
+                            {
+                                <span class="adm-shot-wrap__count">@item.Photos.Count photos</span>
+                            }
+                        </span>
+                    }
                     <div class="adm-row__main">
                         <p class="adm-row__title">@item.Title</p>
                         <p class="adm-row__meta">
@@ -157,7 +172,7 @@ else
                                     verified
                                 </span>
                             }
-                            · posted @AdminConsoleService.Ago(item.PostedOn)
+                            · posted @AdminConsoleService.Ago(item.PostedAtUtc)
                         </p>
                         <p class="adm-desc">@item.Description</p>
                         <div class="adm-row__facts">
@@ -170,20 +185,20 @@ else
                                 <span class="adm-badge adm-badge--pending">@item.ReportCount report@(item.ReportCount == 1 ? "" : "s")</span>
                             }
                         </div>
-                        @if (item.State == PostState.Removed && item.RemovalReason is not null)
+                        @if (item.State == ModeratedPostState.Removed && item.RemovalReason is not null)
                         {
                             <p class="adm-row__note">Taken down — @item.RemovalReason</p>
                         }
                     </div>
                     <div class="adm-row__side">
                         <button class="adm-btn adm-btn--ghost adm-btn--sm" type="button" @onclick="() => _preview = item">View item</button>
-                        @if (item.State == PostState.Live)
+                        @if (item.State == ModeratedPostState.Live)
                         {
                             <button class="adm-btn adm-btn--danger adm-btn--sm" type="button" @onclick="() => AskRemove(item, null)">Strike down</button>
                         }
                         else
                         {
-                            <button class="adm-btn adm-btn--ok adm-btn--sm" type="button" @onclick="() => Store.RestoreMarketItem(item.Id)">Put back</button>
+                            <button class="adm-btn adm-btn--ok adm-btn--sm" type="button" disabled="@_busy" @onclick="() => PutBack(item)">Put back</button>
                         }
                     </div>
                 </article>
@@ -217,20 +232,20 @@ else
                 <div class="adm-kv__row"><span>Condition</span><strong>@_preview.Condition</strong></div>
                 <div class="adm-kv__row"><span>Handover area</span><strong>@_preview.Area</strong></div>
                 <div class="adm-kv__row"><span>Seller</span><strong>@_preview.Seller @(_preview.SellerVerified ? "(verified)" : "(not verified)")</strong></div>
-                <div class="adm-kv__row"><span>Posted</span><strong>@_preview.PostedOn.ToString("d MMM yyyy, h:mm tt")</strong></div>
+                <div class="adm-kv__row"><span>Posted</span><strong>@_preview.PostedAtUtc.ToLocalTime().ToString("d MMM yyyy, h:mm tt")</strong></div>
                 <div class="adm-kv__row"><span>Photos</span><strong>@_preview.Photos.Count</strong></div>
-                <div class="adm-kv__row"><span>Reports</span><strong>@ReportsFor(_preview.Id)</strong></div>
+                <div class="adm-kv__row"><span>Reports</span><strong>@_preview.ReportCount</strong></div>
             </div>
 
             <div class="adm-modal__foot">
                 <button class="adm-btn adm-btn--ghost" type="button" @onclick="() => _preview = null">Close</button>
-                @if (_preview.State == PostState.Live)
+                @if (_preview.State == ModeratedPostState.Live)
                 {
                     <button class="adm-btn adm-btn--danger" type="button" @onclick="() => AskRemove(_preview, null)">Strike down item</button>
                 }
                 else
                 {
-                    <button class="adm-btn adm-btn--ok" type="button" @onclick="() => PutBack(_preview)">Put back</button>
+                    <button class="adm-btn adm-btn--ok" type="button" disabled="@_busy" @onclick="() => PutBack(_preview)">Put back</button>
                 }
             </div>
         </div>
@@ -273,7 +288,7 @@ else
 
             <div class="adm-modal__foot">
                 <button class="adm-btn adm-btn--ghost" type="button" @onclick="Cancel">Cancel</button>
-                <button class="adm-btn adm-btn--danger" type="button" @onclick="ConfirmRemove">Strike down item</button>
+                <button class="adm-btn adm-btn--danger" type="button" disabled="@_busy" @onclick="ConfirmRemove">Strike down item</button>
             </div>
         </div>
     </div>
@@ -292,15 +307,32 @@ else
 
     private const int PageSize = 10;
 
+    private List<AdminMarketItemDto> _items = new();
+    private List<AdminReportDto> _reports = new();
+    private bool _loading = true;
+    private bool _busy;
+
     private int _tab;
     private int _page = 1;
     private string _query = "";
     private string? _category;
-    private MarketItem? _target;
-    private MarketItem? _preview;
-    private PostReport? _linkedReport;
+    private AdminMarketItemDto? _target;
+    private AdminMarketItemDto? _preview;
+    private AdminReportDto? _linkedReport;
     private string _reason = Reasons[0];
     private string _note = "";
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        var items = Admin.GetMarketItemsAsync();
+        var reports = Admin.GetMarketReportsAsync();
+        _items = await items;
+        _reports = await reports;
+        _loading = false;
+    }
 
     private string Query
     {
@@ -328,19 +360,17 @@ else
         return _page;
     }
 
-    private List<string> Categories => Store.Market.Select(i => i.Category).Distinct().OrderBy(c => c).ToList();
+    private List<string> Categories => _items.Select(i => i.Category).Distinct().OrderBy(c => c).ToList();
 
-    private int OpenReports => Store.Reports.Count(r => r.Scope == PlanScope.Marketplace && r.State == ReportState.Open);
+    private int OpenReports => _reports.Count(r => r.State == ModerationReportState.Open);
 
-    private int LiveCount => Store.Market.Count(p => p.State == PostState.Live);
-
-    private int ReportsFor(string itemId) => Store.Reports.Count(r => r.PostId == itemId);
+    private int LiveCount => _items.Count(p => p.State == ModeratedPostState.Live);
 
     private bool Matches(string haystack) =>
         string.IsNullOrWhiteSpace(_query) ||
         haystack.Contains(_query, StringComparison.OrdinalIgnoreCase);
 
-    private void AskRemove(MarketItem? item, PostReport? report)
+    private void AskRemove(AdminMarketItemDto? item, AdminReportDto? report)
     {
         if (item is null) return;
         _preview = null;
@@ -350,10 +380,33 @@ else
         _note = "";
     }
 
-    private void PutBack(MarketItem item)
+    private async Task PutBack(AdminMarketItemDto item)
     {
-        Store.RestoreMarketItem(item.Id);
+        _busy = true;
+        var (ok, message) = await Admin.RestoreMarketItemAsync(item.Id);
+        _busy = false;
+        if (!ok)
+        {
+            Toast.ShowError(message);
+            return;
+        }
+
         _preview = null;
+        await LoadAsync();
+    }
+
+    private async Task Dismiss(AdminReportDto report)
+    {
+        _busy = true;
+        var ok = await Admin.DismissReportAsync(ModerationScope.Marketplace, report.Id);
+        _busy = false;
+        if (!ok)
+        {
+            Toast.ShowError("Could not dismiss the report.");
+            return;
+        }
+
+        await LoadAsync();
     }
 
     private void Cancel()
@@ -362,18 +415,21 @@ else
         _linkedReport = null;
     }
 
-    private void ConfirmRemove()
+    private async Task ConfirmRemove()
     {
         if (_target is null) return;
 
-        var reason = string.IsNullOrWhiteSpace(_note) ? _reason : $"{_reason} — {_note}";
-        Store.RemoveMarketItem(_target.Id, reason);
-
-        if (_linkedReport is not null)
+        var reason = string.IsNullOrWhiteSpace(_note) ? _reason : $"{_reason} — {_note.Trim()}";
+        _busy = true;
+        var (ok, message) = await Admin.TakeDownMarketItemAsync(_target.Id, reason, _linkedReport?.Id);
+        _busy = false;
+        if (!ok)
         {
-            Store.ResolveReport(_linkedReport.Id, "Item struck down");
+            Toast.ShowError(message);
+            return;
         }
 
         Cancel();
+        await LoadAsync();
     }
 }

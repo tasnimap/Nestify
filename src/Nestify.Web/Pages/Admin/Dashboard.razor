@@ -2,6 +2,7 @@
 @layout AdminShell
 @attribute [Authorize(Roles = "Admin")]
 @inject AdminConsoleService Store
+@inject IAdminService Admin
 
 <PageTitle>Dashboard — Nestify Admin</PageTitle>
 
@@ -58,8 +59,8 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" /><path d="M12 9v4M12 17h.01" /></svg>
         </div>
         <p class="adm-kpi__label">Fake posts removed</p>
-        <p class="adm-kpi__value"><CountUp Value="Stats.FakePostsRemoved" /></p>
-        <p class="adm-kpi__foot">@Store.OpenReports reports still open</p>
+        <p class="adm-kpi__value"><CountUp Value="_summary.PostsTakenDown" /></p>
+        <p class="adm-kpi__foot">@(_summary.OpenHousingReports + _summary.OpenMarketReports) reports still open</p>
     </article>
 </div>
 
@@ -112,7 +113,7 @@
         <div class="adm-chips" style="margin-top:1rem;">
             <span class="adm-chip">@Stats.TotalUsers.ToString("N0") users</span>
             <span class="adm-chip">@Stats.TotalHelpers.ToString("N0") domestic helpers</span>
-            <span class="adm-chip">@Stats.TotalAdmins admins</span>
+            <span class="adm-chip">@_summary.ActiveAdmins admins</span>
             <span class="adm-chip">@Stats.VerifiedAccounts.ToString("N0") verified</span>
         </div>
     </section>
@@ -153,22 +154,29 @@
             </div>
             <a class="adm-btn adm-btn--ghost adm-btn--sm" href="admin/audit">See all</a>
         </div>
-        <div class="adm-timeline">
-            @foreach (var entry in Store.Audit.Take(5))
-            {
-                <div class="adm-tl">
-                    <div class="adm-tl__rail">
-                        <span class="adm-tl__dot @DotClass(entry.Kind)">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m5 12 5 5 9-10" /></svg>
-                        </span>
+        @if (_audit.Count == 0)
+        {
+            <EmptyState Title="Nothing yet" Message="Admin actions will show up here as they happen." />
+        }
+        else
+        {
+            <div class="adm-timeline">
+                @foreach (var entry in _audit)
+                {
+                    <div class="adm-tl">
+                        <div class="adm-tl__rail">
+                            <span class="adm-tl__dot @DotClass(entry.Kind)">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m5 12 5 5 9-10" /></svg>
+                            </span>
+                        </div>
+                        <div class="adm-tl__body">
+                            <p class="adm-tl__title">@entry.Action — @entry.Target</p>
+                            <p class="adm-tl__meta">@entry.Admin · @AdminConsoleService.Ago(entry.AtUtc)</p>
+                        </div>
                     </div>
-                    <div class="adm-tl__body">
-                        <p class="adm-tl__title">@entry.Action — @entry.Target</p>
-                        <p class="adm-tl__meta">@entry.Admin · @AdminConsoleService.Ago(entry.At)</p>
-                    </div>
-                </div>
-            }
-        </div>
+                }
+            </div>
+        }
     </section>
 
     <section class="adm-card adm-rise adm-span-2" style="--d:.58s">
@@ -181,12 +189,12 @@
         <div class="adm-grid adm-grid--4">
             <div class="adm-kpi adm-kpi--sky">
                 <p class="adm-kpi__label">Live housing posts</p>
-                <p class="adm-kpi__value">@Stats.LiveHousingPosts</p>
+                <p class="adm-kpi__value">@_summary.LiveHousingPosts</p>
                 <p class="adm-kpi__foot"><a href="admin/housing">Open moderation</a></p>
             </div>
             <div class="adm-kpi adm-kpi--teal">
                 <p class="adm-kpi__label">Live market posts</p>
-                <p class="adm-kpi__value">@Stats.LiveMarketPosts</p>
+                <p class="adm-kpi__value">@_summary.LiveMarketItems</p>
                 <p class="adm-kpi__foot"><a href="admin/marketplace">Open moderation</a></p>
             </div>
             <div class="adm-kpi adm-kpi--amber">
@@ -204,7 +212,19 @@
 </div>
 
 @code {
+    private AdminSummaryDto _summary = new();
+    private List<AdminAuditEntryDto> _audit = new();
+
     private PlatformStats Stats => Store.Stats;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var summary = Admin.GetSummaryAsync();
+        var audit = Admin.GetAuditAsync(5);
+        _summary = await summary;
+        _audit = await audit;
+        _outcomes = null;
+    }
 
     private List<string> Months => Store.Revenue.Select(r => r.Month).ToList();
 
@@ -228,12 +248,12 @@
         ("Domestic helpers hired", Stats.HelpersHired),
         ("Items bought and sold", Stats.ItemsSold),
         ("Accounts verified", Stats.VerifiedAccounts),
-        ("Fake posts taken down", Stats.FakePostsRemoved)
+        ("Fake posts taken down", _summary.PostsTakenDown)
     };
 
     private List<(string Label, int Value)>? _outcomes;
 
-    private int MaxOutcome => Outcomes.Max(o => o.Value);
+    private int MaxOutcome => Math.Max(1, Outcomes.Max(o => o.Value));
 
     private int MaxGrowth => Store.Growth.Max(g => g.Users);
 

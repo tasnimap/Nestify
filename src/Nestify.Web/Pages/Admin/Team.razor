@@ -1,7 +1,8 @@
 @page "/admin/team"
 @layout AdminShell
 @attribute [Authorize(Roles = "Admin")]
-@inject AdminConsoleService Store
+@inject IAdminService Admin
+@inject ToastService Toast
 
 <PageTitle>Admin accounts — Nestify Admin</PageTitle>
 
@@ -22,17 +23,17 @@
 <div class="adm-grid adm-grid--3" style="margin-bottom:1.15rem;">
     <article class="adm-kpi adm-rise" style="--d:.04s">
         <p class="adm-kpi__label">Active admins</p>
-        <p class="adm-kpi__value">@Store.Admins.Count(a => a.IsActive)</p>
+        <p class="adm-kpi__value">@_admins.Count(a => a.IsActive)</p>
         <p class="adm-kpi__foot">can sign in right now</p>
     </article>
     <article class="adm-kpi adm-kpi--amber adm-rise" style="--d:.1s">
         <p class="adm-kpi__label">Suspended</p>
-        <p class="adm-kpi__value">@Store.Admins.Count(a => !a.IsActive)</p>
+        <p class="adm-kpi__value">@_admins.Count(a => !a.IsActive)</p>
         <p class="adm-kpi__foot">kept for the audit trail</p>
     </article>
     <article class="adm-kpi adm-kpi--sky adm-rise" style="--d:.16s">
         <p class="adm-kpi__label">Actions logged</p>
-        <p class="adm-kpi__value">@Store.Audit.Count</p>
+        <p class="adm-kpi__value">@_auditCount</p>
         <p class="adm-kpi__foot">across the whole team</p>
     </article>
 </div>
@@ -45,48 +46,55 @@
         </div>
     </div>
 
-    <div class="adm-table__scroll">
-        <table class="adm-table">
-            <thead>
-                <tr>
-                    <th>Admin</th>
-                    <th>Scope</th>
-                    <th>Added</th>
-                    <th>Last active</th>
-                    <th>Status</th>
-                    <th class="adm-table__right">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var admin in Store.Admins)
-                {
-                    var current = admin;
+    @if (_loading)
+    {
+        <EmptyState Title="Loading" Message="Fetching admin accounts." />
+    }
+    else
+    {
+        <div class="adm-table__scroll">
+            <table class="adm-table">
+                <thead>
                     <tr>
-                        <td>
-                            <div class="adm-table__strong">@current.FullName</div>
-                            <div class="adm-table__sub">@current.Email · @current.Phone</div>
-                        </td>
-                        <td>@current.Scope</td>
-                        <td>@current.CreatedOn.ToString("d MMM yyyy")</td>
-                        <td>@AdminConsoleService.Ago(current.LastActive)</td>
-                        <td>
-                            <span class="adm-badge @(current.IsActive ? "adm-badge--ok" : "adm-badge--muted")">
-                                @(current.IsActive ? "Active" : "Suspended")
-                            </span>
-                        </td>
-                        <td class="adm-table__right">
-                            <div class="adm-table__actions">
-                                <button class="adm-btn @(current.IsActive ? "adm-btn--danger" : "adm-btn--ok") adm-btn--sm"
-                                        type="button" @onclick="() => Store.ToggleAdmin(current.Id)">
-                                    @(current.IsActive ? "Suspend" : "Restore")
-                                </button>
-                            </div>
-                        </td>
+                        <th>Admin</th>
+                        <th>Scope</th>
+                        <th>Added</th>
+                        <th>Last active</th>
+                        <th>Status</th>
+                        <th class="adm-table__right">Action</th>
                     </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+                </thead>
+                <tbody>
+                    @foreach (var admin in _admins)
+                    {
+                        var current = admin;
+                        <tr>
+                            <td>
+                                <div class="adm-table__strong">@current.FullName</div>
+                                <div class="adm-table__sub">@current.Email · @current.Phone</div>
+                            </td>
+                            <td>@current.Scope</td>
+                            <td>@current.CreatedAtUtc.ToLocalTime().ToString("d MMM yyyy")</td>
+                            <td>@AdminConsoleService.Ago(current.LastActiveUtc)</td>
+                            <td>
+                                <span class="adm-badge @(current.IsActive ? "adm-badge--ok" : "adm-badge--muted")">
+                                    @(current.IsActive ? "Active" : "Suspended")
+                                </span>
+                            </td>
+                            <td class="adm-table__right">
+                                <div class="adm-table__actions">
+                                    <button class="adm-btn @(current.IsActive ? "adm-btn--danger" : "adm-btn--ok") adm-btn--sm"
+                                            type="button" disabled="@_busy" @onclick="() => Toggle(current)">
+                                        @(current.IsActive ? "Suspend" : "Restore")
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
 </section>
 
 @if (_draft is not null)
@@ -129,7 +137,7 @@
                 </div>
                 <div class="adm-field">
                     <label for="admin-pass">Temporary password</label>
-                    <input id="admin-pass" class="adm-input" type="text" @bind="_password" placeholder="They change it on first sign-in" />
+                    <input id="admin-pass" class="adm-input" type="text" @bind="_draft.Password" placeholder="At least 8 characters" />
                 </div>
 
                 @if (_error is not null)
@@ -145,39 +153,77 @@
 
             <div class="adm-modal__foot">
                 <button class="adm-btn adm-btn--ghost" type="button" @onclick="() => _draft = null">Cancel</button>
-                <button class="adm-btn adm-btn--primary" type="button" @onclick="Create">Create account</button>
+                <button class="adm-btn adm-btn--primary" type="button" disabled="@_busy" @onclick="Create">Create account</button>
             </div>
         </div>
     </div>
 }
 
 @code {
-    private AdminAccount? _draft;
-    private string _password = "";
+    private List<AdminAccountDto> _admins = new();
+    private int _auditCount;
+    private bool _loading = true;
+    private bool _busy;
+
+    private CreateAdminDto? _draft;
     private string? _error;
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        var admins = Admin.GetAdminsAsync();
+        var audit = Admin.GetAuditAsync(1000);
+        _admins = await admins;
+        _auditCount = (await audit).Count;
+        _loading = false;
+    }
 
     private void StartNew()
     {
-        _draft = new AdminAccount { Scope = "Moderation" };
-        _password = "";
+        _draft = new CreateAdminDto { Scope = "Moderation" };
         _error = null;
     }
 
-    private void Create()
+    private async Task Create()
     {
         if (_draft is null) return;
 
         if (string.IsNullOrWhiteSpace(_draft.FullName) ||
             string.IsNullOrWhiteSpace(_draft.Email) ||
-            string.IsNullOrWhiteSpace(_password))
+            _draft.Password.Length < 8)
         {
-            _error = "Name, email and a temporary password are needed.";
+            _error = "Name, email and an 8+ character temporary password are needed.";
             return;
         }
 
-        Store.AddAdmin(_draft);
+        _busy = true;
+        var (ok, message) = await Admin.CreateAdminAsync(_draft);
+        _busy = false;
+
+        if (!ok)
+        {
+            _error = message;
+            return;
+        }
+
         _draft = null;
-        _password = "";
         _error = null;
+        await LoadAsync();
+    }
+
+    private async Task Toggle(AdminAccountDto admin)
+    {
+        _busy = true;
+        var (ok, message) = await Admin.ToggleAdminAsync(admin.Id);
+        _busy = false;
+        if (!ok)
+        {
+            Toast.ShowError(message);
+            return;
+        }
+
+        await LoadAsync();
     }
 }

@@ -1,7 +1,7 @@
 @page "/admin/audit"
 @layout AdminShell
 @attribute [Authorize(Roles = "Admin")]
-@inject AdminConsoleService Store
+@inject IAdminService Admin
 
 <PageTitle>Audit log — Nestify Admin</PageTitle>
 
@@ -12,7 +12,7 @@
         <p>Every decision an admin makes lands here with a name and a timestamp. Nothing in this list can be edited or deleted.</p>
     </div>
     <div class="adm-head__actions">
-        <span class="adm-badge adm-badge--info">@Store.Audit.Count entries</span>
+        <span class="adm-badge adm-badge--info">@_entries.Count entries</span>
     </div>
 </header>
 
@@ -21,7 +21,7 @@
         <button class="adm-tab @(_admin is null ? "adm-tab--on" : null)" type="button" @onclick="() => _admin = null">
             All admins
         </button>
-        @foreach (var name in Store.Audit.Select(a => a.Admin).Distinct())
+        @foreach (var name in _entries.Select(a => a.Admin).Distinct())
         {
             var current = name;
             <button class="adm-tab @(_admin == current ? "adm-tab--on" : null)" type="button" @onclick="() => _admin = current">
@@ -35,7 +35,11 @@
     </label>
 </div>
 
-@if (Filtered.Count == 0)
+@if (_loading)
+{
+    <EmptyState Title="Loading" Message="Fetching the log." />
+}
+else if (Filtered.Count == 0)
 {
     <EmptyState Title="No entries" Message="Nothing matches this filter yet." />
 }
@@ -60,7 +64,7 @@ else
                         </div>
                         <div class="adm-tl__body">
                             <p class="adm-tl__title">@entry.Action — @entry.Target</p>
-                            <p class="adm-tl__meta">@entry.Admin · @AdminConsoleService.Ago(entry.At)</p>
+                            <p class="adm-tl__meta">@entry.Admin · @AdminConsoleService.Ago(entry.AtUtc)</p>
                             @if (entry.Note is not null)
                             {
                                 <p class="adm-row__note">@entry.Note</p>
@@ -91,10 +95,11 @@ else
                     <tbody>
                         @foreach (var entry in Filtered)
                         {
+                            var at = entry.AtUtc.ToLocalTime();
                             <tr>
                                 <td>
-                                    <div>@entry.At.ToString("d MMM")</div>
-                                    <div class="adm-table__sub">@entry.At.ToString("h:mm tt")</div>
+                                    <div>@at.ToString("d MMM")</div>
+                                    <div class="adm-table__sub">@at.ToString("h:mm tt")</div>
                                 </td>
                                 <td>@entry.Admin</td>
                                 <td>
@@ -117,11 +122,19 @@ else
 }
 
 @code {
+    private List<AdminAuditEntryDto> _entries = new();
+    private bool _loading = true;
     private string? _admin;
     private string _query = "";
 
-    private List<AuditEntry> Filtered =>
-        Store.Audit
+    protected override async Task OnInitializedAsync()
+    {
+        _entries = await Admin.GetAuditAsync(1000);
+        _loading = false;
+    }
+
+    private List<AdminAuditEntryDto> Filtered =>
+        _entries
             .Where(a => _admin is null || a.Admin == _admin)
             .Where(a => string.IsNullOrWhiteSpace(_query) ||
                         (a.Action + a.Target + a.Note).Contains(_query, StringComparison.OrdinalIgnoreCase))

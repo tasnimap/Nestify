@@ -44,13 +44,17 @@ CREATE TABLE IF NOT EXISTS meal_entries (
     house_id                 bigint NOT NULL REFERENCES homes (id) ON DELETE CASCADE,
     user_id                  bigint NOT NULL REFERENCES users (id) ON DELETE RESTRICT,
     meal_date                date NOT NULL,
-    meal_count               numeric(4,1) NOT NULL,
+    breakfast                numeric(4,1) NOT NULL DEFAULT 0,
+    lunch                    numeric(4,1) NOT NULL DEFAULT 0,
+    dinner                   numeric(4,1) NOT NULL DEFAULT 0,
+    meal_count               numeric(4,1) NOT NULL DEFAULT 0,
     period_year              int NOT NULL,
     period_month             int NOT NULL,
     supersedes_meal_entry_id bigint REFERENCES meal_entries (id) ON DELETE RESTRICT,
     recorded_by_user_id      bigint NOT NULL REFERENCES users (id) ON DELETE RESTRICT,
     recorded_at_utc          timestamptz NOT NULL DEFAULT now(),
-    CONSTRAINT ck_meal_count CHECK (meal_count BETWEEN 0 AND 10),
+    CONSTRAINT ck_meal_slots CHECK (breakfast BETWEEN 0 AND 10 AND lunch BETWEEN 0 AND 10 AND dinner BETWEEN 0 AND 10),
+    CONSTRAINT ck_meal_count CHECK (meal_count BETWEEN 0 AND 30),
     CONSTRAINT ck_meal_month CHECK (period_month BETWEEN 1 AND 12)
 );
 
@@ -105,21 +109,36 @@ BEGIN
     END IF;
 END $$;
 
+-- One row per home per month: the "book". Opened by a manager (status 1),
+-- totals filled in and locked at finalize (status 2).
 CREATE TABLE IF NOT EXISTS settlement_runs (
     id                         bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     house_id                   bigint NOT NULL REFERENCES homes (id) ON DELETE CASCADE,
     period_year                int NOT NULL,
     period_month               int NOT NULL,
-    total_meal_spending        numeric(18,2) NOT NULL,
-    total_meals                numeric(10,1) NOT NULL,
-    per_meal_rate              numeric(18,6) NOT NULL,
-    total_equal_costs          numeric(18,2) NOT NULL,
-    member_count_at_settlement int NOT NULL,
+    total_meal_spending        numeric(18,2) NOT NULL DEFAULT 0,
+    total_meals                numeric(10,1) NOT NULL DEFAULT 0,
+    per_meal_rate              numeric(18,6) NOT NULL DEFAULT 0,
+    total_equal_costs          numeric(18,2) NOT NULL DEFAULT 0,
+    member_count_at_settlement int NOT NULL DEFAULT 0,
     status                     smallint NOT NULL DEFAULT 1,
-    computed_by_user_id        bigint NOT NULL REFERENCES users (id) ON DELETE RESTRICT,
-    computed_at_utc            timestamptz NOT NULL DEFAULT now(),
+    opened_by_user_id          bigint NOT NULL REFERENCES users (id) ON DELETE RESTRICT,
+    opened_at_utc              timestamptz NOT NULL DEFAULT now(),
+    computed_by_user_id        bigint REFERENCES users (id) ON DELETE RESTRICT,
+    computed_at_utc            timestamptz,
     CONSTRAINT ck_settlement_status CHECK (status BETWEEN 1 AND 2),
     CONSTRAINT ck_settlement_month CHECK (period_month BETWEEN 1 AND 12)
+);
+
+-- Who is in the book: everyone in the home when it was opened, plus anyone
+-- a manager adds later. Leaving the home does not remove someone from the book.
+CREATE TABLE IF NOT EXISTS settlement_members (
+    id                bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    settlement_run_id bigint NOT NULL REFERENCES settlement_runs (id) ON DELETE CASCADE,
+    user_id           bigint NOT NULL REFERENCES users (id) ON DELETE RESTRICT,
+    added_by_user_id  bigint NOT NULL REFERENCES users (id) ON DELETE RESTRICT,
+    added_at_utc      timestamptz NOT NULL DEFAULT now(),
+    CONSTRAINT ux_settlement_member UNIQUE (settlement_run_id, user_id)
 );
 
 CREATE TABLE IF NOT EXISTS settlement_lines (
@@ -162,14 +181,16 @@ CREATE INDEX IF NOT EXISTS ix_contribution_house_period_fund
     ON contributions (house_id, period_year, period_month, fund_type);
 CREATE UNIQUE INDEX IF NOT EXISTS ux_contribution_expense
     ON contributions (source_expense_id) WHERE source_expense_id IS NOT NULL;
-CREATE UNIQUE INDEX IF NOT EXISTS ux_settlement_finalized
-    ON settlement_runs (house_id, period_year, period_month) WHERE status = 2;
+CREATE UNIQUE INDEX IF NOT EXISTS ux_settlement_book
+    ON settlement_runs (house_id, period_year, period_month);
+CREATE UNIQUE INDEX IF NOT EXISTS ux_settlement_open
+    ON settlement_runs (house_id) WHERE status = 1;
 CREATE UNIQUE INDEX IF NOT EXISTS ux_settlement_line
     ON settlement_lines (settlement_run_id, user_id);
 CREATE INDEX IF NOT EXISTS ix_settlement_line_user
     ON settlement_lines (user_id);
-CREATE INDEX IF NOT EXISTS ix_settlement_run_house_period
-    ON settlement_runs (house_id, period_year, period_month);
+CREATE INDEX IF NOT EXISTS ix_settlement_member_user
+    ON settlement_members (user_id);
 CREATE INDEX IF NOT EXISTS ix_settlement_transfer_run
     ON settlement_transfers (settlement_run_id);
 

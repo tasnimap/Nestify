@@ -1,4 +1,4 @@
-// src/Nestify.Web/Services/Interfaces/Implementations/HomeService.cs
+﻿// src/Nestify.Web/Services/Interfaces/Implementations/HomeService.cs
 // The real IHomeService, talking to api/v1/homes (User_Home.sql). The page still
 // only sees HomeView / HomeRules, so nothing in MyHome.razor changes.
 //
@@ -164,7 +164,8 @@ public sealed class HomeService : IHomeService
         AreaName = request.AreaName,
         Division = request.Division,
         Latitude = request.Latitude,
-        Longitude = request.Longitude
+        Longitude = request.Longitude,
+        MaxOccupants = request.MaxOccupants
     };
 
     private static HomeView? ToView(HomeDto? dto)
@@ -183,6 +184,7 @@ public sealed class HomeService : IHomeService
             Division = dto.Division,
             Latitude = dto.Latitude,
             Longitude = dto.Longitude,
+            MaxOccupants = dto.MaxOccupants,
             JoinCode = dto.JoinCode,
             CreatedAtUtc = dto.CreatedAtUtc,
             PendingRequests = dto.PendingRequests.Select(r => new HomeJoinRequestView

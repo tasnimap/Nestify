@@ -1,10 +1,13 @@
 namespace Nestify.Shared.Dtos.Settlement;
 
+// BookStatus: 0 = no book opened for this month, 1 = open, 2 = finalized.
 public sealed class SettlementWorkspaceDto
 {
     public int Year { get; set; }
     public int Month { get; set; }
+    public short BookStatus { get; set; }
     public bool IsFinalized { get; set; }
+    public bool CanManage { get; set; }
     public decimal BillsTotal { get; set; }
     public decimal MealFundTotal { get; set; }
     public decimal SharedFundTotal { get; set; }
@@ -13,10 +16,18 @@ public sealed class SettlementWorkspaceDto
     public decimal BillShare { get; set; }
     public decimal OutstandingBills { get; set; }
     public List<SettlementMemberDto> Members { get; set; } = [];
+    public List<SettlementMemberDto> AddableMembers { get; set; } = [];
     public List<SettlementBillDto> Bills { get; set; } = [];
     public List<SettlementPaymentDto> Payments { get; set; } = [];
     public List<SettlementMealDto> Meals { get; set; } = [];
     public SettlementResultDto? Result { get; set; }
+}
+
+public sealed class SettlementBookDto
+{
+    public int Year { get; set; }
+    public int Month { get; set; }
+    public short Status { get; set; }
 }
 
 public sealed class SettlementMemberDto
@@ -25,6 +36,7 @@ public sealed class SettlementMemberDto
     public string Name { get; set; } = string.Empty;
     public short Role { get; set; }
     public bool IsMe { get; set; }
+    public bool IsActive { get; set; }
 }
 
 public sealed class SettlementBillDto
@@ -53,6 +65,9 @@ public sealed class SettlementMealDto
     public long UserId { get; set; }
     public string MemberName { get; set; } = string.Empty;
     public DateTime MealDate { get; set; }
+    public decimal Breakfast { get; set; }
+    public decimal Lunch { get; set; }
+    public decimal Dinner { get; set; }
     public decimal MealCount { get; set; }
     public DateTime RecordedAtUtc { get; set; }
 }
@@ -90,11 +105,21 @@ public sealed class SettlementTransferDto
     public decimal Amount { get; set; }
 }
 
+public sealed class AddSettlementMemberRequest
+{
+    public long UserId { get; set; }
+}
+
 public sealed class CreateSettlementBillRequest
 {
     public string Description { get; set; } = string.Empty;
     public decimal Amount { get; set; }
     public DateTime SpentOn { get; set; }
+}
+
+public sealed class UpdateSettlementBillRequest
+{
+    public decimal Amount { get; set; }
 }
 
 public sealed class CreateSettlementPaymentRequest
@@ -115,5 +140,7 @@ public sealed class SettlementMealChangeDto
 {
     public long UserId { get; set; }
     public DateTime MealDate { get; set; }
-    public decimal MealCount { get; set; }
+    public decimal Breakfast { get; set; }
+    public decimal Lunch { get; set; }
+    public decimal Dinner { get; set; }
 }

@@ -10,7 +10,8 @@ public enum ListingType
 public enum PostStatus
 {
     Active,
-    Closed
+    Closed,
+    Filled
 }
 
 public enum BookingStatus
@@ -18,7 +19,9 @@ public enum BookingStatus
     Pending,
     Accepted,
     Rejected,
-    Withdrawn
+    Withdrawn,
+    Joined,
+    HouseFull
 }
 
 public enum Gender
@@ -34,12 +37,6 @@ public enum Occupation
     Both
 }
 
-public enum MaritalStatus
-{
-    Single,
-    Married
-}
-
 /// <summary>
 /// Eligibility requirements attached to a post (§2.5). Every field is nullable —
 /// null means "no constraint". Rendered as chips; never used to filter client-side (§5.3).
@@ -48,15 +45,15 @@ public sealed class EligibilityDto
 {
     public Gender? Gender { get; set; }
     public Occupation? Occupation { get; set; }
-    public MaritalStatus? MaritalStatus { get; set; }
     public int? MinAge { get; set; }
     public int? MaxAge { get; set; }
     public bool VerifiedOnly { get; set; }
-    public bool StudentOnly { get; set; }
+    public bool NonSmokerOnly { get; set; }
+    public bool NonDrinkerOnly { get; set; }
 
     public bool IsEmpty =>
-        Gender is null && Occupation is null && MaritalStatus is null &&
-        MinAge is null && MaxAge is null && !VerifiedOnly && !StudentOnly;
+        Gender is null && Occupation is null &&
+        MinAge is null && MaxAge is null && !VerifiedOnly && !NonSmokerOnly && !NonDrinkerOnly;
 }
 
 /// <summary>Card-sized projection used by the Browse grid and "my posts".</summary>
@@ -91,6 +88,9 @@ public sealed class HousingPostDetailDto
 
     /// <summary>True when the signed-in user owns this post — gates Edit/Close, hides Book.</summary>
     public bool IsMine { get; set; }
+
+    /// <summary>True when the viewer already lives in a home — booking is blocked for them.</summary>
+    public bool ViewerHasHome { get; set; }
     public List<string> ImageUrls { get; set; } = new();
 }
 
@@ -155,6 +155,9 @@ public sealed class HouseOptionDto
     public string Name { get; set; } = string.Empty;
     public string AreaName { get; set; } = string.Empty;
     public string Division { get; set; } = string.Empty;
+    public int MaxOccupants { get; set; }
+    public int CurrentOccupants { get; set; }
+    public int FreeSeats => Math.Max(0, MaxOccupants - CurrentOccupants);
 }
 
 /// <summary>
@@ -190,6 +193,13 @@ public sealed class RejectBookingRequestDto
     public string? Message { get; set; }
 }
 
+// A seeker reports a post; the reason must match a housing_report_reasons name.
+public sealed class ReportHousingPostDto
+{
+    public string Reason { get; set; } = string.Empty;
+    public string? Details { get; set; }
+}
+
 /// <summary>
 /// Contact disclosure for an Accepted booking (§11.4.2). Only returns when the
 /// booking is Accepted and the caller is a party to it (requester or post manager).
@@ -212,4 +222,5 @@ public sealed class MyBookingDto
     public DateTime RequestedAtUtc { get; set; }
     public string? Message { get; set; }
     public string? ManagerName { get; set; } // Populated only when Status == Accepted
+    public string HomeName { get; set; } = string.Empty;
 }

@@ -19,8 +19,8 @@ public sealed class HousingPostFormModel
 
     public ListingType ListingType { get; set; } = ListingType.SingleSeat;
 
-    [Range(1, 20, ErrorMessage = "Enter a seat count between 1 and 20.")]
-    public int SeatsAvailable { get; set; } = 1;
+    /// <summary>Not typed in — filled from the house's max occupants minus its current members.</summary>
+    public int SeatsAvailable { get; set; }
 
     [Range(0, 1_000_000, ErrorMessage = "Enter a rent between ৳0 and ৳10,00,000.")]
     public decimal MonthlyRent { get; set; }

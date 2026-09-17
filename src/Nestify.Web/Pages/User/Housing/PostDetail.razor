@@ -112,15 +112,19 @@
 
                     <div class="hs-detail__actions">
                         <button class="nx-btn nx-btn--primary" disabled="@(!CanBook || _bookingSubmitting)" @onclick="OpenBookingModal">
-                            @(_post.Status == PostStatus.Closed ? "Listing closed" : "Book this listing")
+                            @BookLabel
                         </button>
+                        @if (_post.ViewerHasHome && !_post.IsMine)
+                        {
+                            <p class="field__helper">You already live in a home, so you can't book a seat here.</p>
+                        }
                         @if (_post.IsMine)
                         {
                             <a class="nx-btn nx-btn--ghost" href="housing/@_post.Id/edit">Edit listing</a>
                         }
                         @if (!_post.IsMine)
                         {
-                            <button class="nx-btn nx-btn--ghost" @onclick="HandleReport">
+                            <button class="nx-btn nx-btn--ghost" @onclick="() => _showReport = !_showReport">
                                 <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true">
                                     <path d="M12 9v4M12 17h.01M10.3 3.9 2.6 17a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" />
                                 </svg>
@@ -128,6 +132,25 @@
                             </button>
                         }
                     </div>
+
+                    @if (_showReport)
+                    {
+                        <div class="hs-actionbox__report">
+                            <label class="field__label" for="hs-report-reason">Reason</label>
+                            <select id="hs-report-reason" class="field__input" @bind="_reportReason">
+                                @foreach (var reason in ReportReasons)
+                                {
+                                    <option value="@reason">@reason</option>
+                                }
+                            </select>
+                            <textarea class="field__input" rows="2" maxlength="300" placeholder="Add any detail (optional)"
+                                      @bind="_reportDetail"></textarea>
+                            <div class="hs-detail__actions">
+                                <button class="nx-btn nx-btn--primary" disabled="@_reportSubmitting" @onclick="SubmitReport">Submit report</button>
+                                <button class="nx-btn nx-btn--ghost" @onclick="() => _showReport = false">Cancel</button>
+                            </div>
+                        </div>
+                    }
 
                     <p class="hs-actionbox__safe">
                         Contact details are shared only after the manager accepts your request.
@@ -189,7 +212,14 @@
     private bool _showLightbox;
     private int _lightboxIndex;
 
-    private bool CanBook => _post is { Status: PostStatus.Active, IsMine: false };
+    private bool CanBook => _post is { Status: PostStatus.Active, IsMine: false, ViewerHasHome: false };
+
+    private string BookLabel => _post?.Status switch
+    {
+        PostStatus.Closed => "Listing closed",
+        PostStatus.Filled => "House is full",
+        _ => "Book this listing"
+    };
 
     protected override Task OnParametersSetAsync() => LoadAsync();
 
@@ -249,9 +279,40 @@
         }
     }
 
-    private void HandleReport()
+    // Same names as housing_report_reasons in Admin.sql.
+    private static readonly string[] ReportReasons =
     {
-        // ReportDialog is owned by Ishmam (§2) and wired in during F4 polish.
-        Toast.ShowInfo("Reporting will be wired up once the shared ReportDialog lands.", "Coming soon");
+        "Fake listing",
+        "Misleading photos or rent",
+        "Duplicate post",
+        "Abusive or improper content",
+        "Scam or advance payment demand",
+        "Wrong rent",
+        "Other"
+    };
+
+    private bool _showReport;
+    private bool _reportSubmitting;
+    private string _reportReason = ReportReasons[0];
+    private string _reportDetail = string.Empty;
+
+    private async Task SubmitReport()
+    {
+        if (_post is null) return;
+
+        _reportSubmitting = true;
+        var (ok, message) = await Housing.ReportPostAsync(_post.Id, _reportReason, _reportDetail);
+        _reportSubmitting = false;
+
+        if (ok)
+        {
+            _showReport = false;
+            _reportDetail = string.Empty;
+            Toast.ShowInfo("Thanks — our team will review this post.", "Report submitted");
+        }
+        else
+        {
+            Toast.ShowWarning(message, "Report not sent");
+        }
     }
 }

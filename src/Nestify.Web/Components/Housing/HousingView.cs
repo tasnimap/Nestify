@@ -1,4 +1,4 @@
-using Nestify.Shared.Dtos.Housing;
+ï»¿using Nestify.Shared.Dtos.Housing;
 
 namespace Nestify.Web.Components.Housing;
 
@@ -24,11 +24,16 @@ public static class HousingView
     {
         PostStatus.Active => "Active",
         PostStatus.Closed => "Closed",
+        PostStatus.Filled => "House is full",
         _ => status.ToString()
     };
 
-    public static string StatusModifier(PostStatus status) =>
-        status == PostStatus.Active ? "status-active" : "status-closed";
+    public static string StatusModifier(PostStatus status) => status switch
+    {
+        PostStatus.Active => "status-active",
+        PostStatus.Filled => "status-filled",
+        _ => "status-closed"
+    };
 
     public static string Label(BookingStatus status) => status switch
     {
@@ -36,7 +41,16 @@ public static class HousingView
         BookingStatus.Accepted => "Accepted",
         BookingStatus.Rejected => "Rejected",
         BookingStatus.Withdrawn => "Withdrawn",
+        BookingStatus.Joined => "Joined",
+        BookingStatus.HouseFull => "House is full",
         _ => status.ToString()
+    };
+
+    // Seeker-side label: a joined booking names the home it got them into.
+    public static string Label(MyBookingDto booking) => booking.Status switch
+    {
+        BookingStatus.Joined => $"Joined {booking.HomeName}",
+        _ => Label(booking.Status)
     };
 
     public static string StatusModifier(BookingStatus status) => status switch
@@ -45,6 +59,8 @@ public static class HousingView
         BookingStatus.Accepted => "status-accepted",
         BookingStatus.Rejected => "status-rejected",
         BookingStatus.Withdrawn => "status-withdrawn",
+        BookingStatus.Joined => "status-joined",
+        BookingStatus.HouseFull => "status-filled",
         _ => "status-default"
     };
 
@@ -69,10 +85,6 @@ public static class HousingView
                 _ => "Students or working professionals"
             });
         }
-        if (e.MaritalStatus is { } marital)
-        {
-            chips.Add(marital == MaritalStatus.Single ? "Single applicants only" : "Married applicants only");
-        }
         if (e.MinAge is { } minAge && e.MaxAge is { } maxAge)
         {
             chips.Add($"Age {minAge}–{maxAge}");
@@ -89,9 +101,13 @@ public static class HousingView
         {
             chips.Add("Verified accounts only");
         }
-        if (e.StudentOnly)
+        if (e.NonSmokerOnly)
         {
-            chips.Add("Student ID required");
+            chips.Add("Non-smokers only");
+        }
+        if (e.NonDrinkerOnly)
+        {
+            chips.Add("Non-drinkers only");
         }
 
         return chips;

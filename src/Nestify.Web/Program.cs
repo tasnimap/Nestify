@@ -1,4 +1,4 @@
-// Program.cs
+﻿// Program.cs
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -45,10 +45,10 @@ builder.Services.AddSingleton<ICurrentUserService, MockCurrentUserService>();
 
 // M1 · Area cascade — served from the seeded administrative tables
 builder.Services.AddScoped<IAreaService, AreaService>();
-builder.Services.AddScoped<IHousingService, MockHousingService>();
-
-// Delete this line + IHouseLookupService + MockHouseLookupService once that's on main.
-builder.Services.AddScoped<IHouseLookupService, MockHouseLookupService>();
+// M1/M2 - Housing posts and bookings, backed by api/v1/housing (Housing.sql).
+// The same client also answers the house selector on /housing/new.
+builder.Services.AddScoped<IHousingService, HousingService>();
+builder.Services.AddScoped<IHouseLookupService, HousingService>();
 
 // M3 - Home module, backed by api/v1/homes (User_Home.sql).
 builder.Services.AddScoped<IHomeService, HomeService>();
@@ -59,11 +59,18 @@ builder.Services.AddScoped<IHelperService, HelperService>();
 // M4 - Second-hand marketplace, backed by api/v1/marketplace (Marketplace.sql).
 builder.Services.AddScoped<IMarketplaceService, MarketplaceService>();
 
-// Admin console — front-end only sample data, kept as a Singleton so moderation
-// decisions survive navigating between the admin pages.
+// M3 - Monthly settlement book, backed by api/v1/settlement (Settlement.sql).
+builder.Services.AddScoped<ISettlementService, SettlementService>();
+
+// Admin console — moderation, fees and plans, admin accounts and the audit
+// log, backed by api/v1/admin (Admin.sql).
+builder.Services.AddScoped<IAdminService, AdminService>();
+
+// Verification queue and dashboard charts are still sample data, kept as a
+// Singleton so decisions survive navigating between the admin pages.
 builder.Services.AddSingleton<Nestify.Web.Admin.AdminConsoleService>();
 
-// The admin profile page is the one admin screen backed by the database.
+// The admin profile page reads the signed-in admin's own users row.
 builder.Services.AddScoped<Nestify.Web.Admin.AdminProfileClient>();
 
 // Helper (maid) workspace — sample availability, schedule, requests and reviews
@@ -77,6 +84,5 @@ builder.Services.AddScoped<Nestify.Web.Maid.MaidAccountClient>();
 builder.Services.AddScoped<MoneyFormatterService>();
 builder.Services.AddScoped<DateFormatterService>();
 builder.Services.AddScoped<ToastService>();
-builder.Services.AddScoped<SettlementWorkspaceService>();
 
 await builder.Build().RunAsync();

@@ -21,6 +21,19 @@
                 <p class="field__error">Pick which house this listing belongs to.</p>
             }
         </div>
+
+        @if (SelectedHouse is { } house)
+        {
+            <div class="hs-form__house">
+                <div><span>Max occupants</span><strong>@house.MaxOccupants</strong></div>
+                <div><span>Living there now</span><strong>@house.CurrentOccupants</strong></div>
+                <div><span>Seats free</span><strong>@house.FreeSeats</strong></div>
+            </div>
+            @if (house.FreeSeats == 0)
+            {
+                <p class="field__error">This house is full — there is no seat to post about.</p>
+            }
+        }
     }
 
     <div class="field">
@@ -38,21 +51,14 @@
         <p class="field__helper">Plain text only — links and formatting won't render.</p>
     </div>
 
-    <div class="field-row">
-        <div class="field">
-            <label for="hs-type">Listing type</label>
-            <InputSelect id="hs-type" class="field__input" @bind-Value="Model.ListingType">
-                @foreach (var t in _listingTypes)
-                {
-                    <option value="@t">@HousingView.Label(t)</option>
-                }
-            </InputSelect>
-        </div>
-        <div class="field">
-            <label for="hs-seats" class="field__label--required">Seats available</label>
-            <InputNumber id="hs-seats" class="field__input" @bind-Value="Model.SeatsAvailable" min="1" />
-            <ValidationMessage For="@(() => Model.SeatsAvailable)" />
-        </div>
+    <div class="field">
+        <label for="hs-type">Listing type</label>
+        <InputSelect id="hs-type" class="field__input" @bind-Value="Model.ListingType">
+            @foreach (var t in _listingTypes)
+            {
+                <option value="@t">@HousingView.Label(t)</option>
+            }
+        </InputSelect>
     </div>
 
     <div class="field">
@@ -93,6 +99,15 @@
     private readonly ListingType[] _listingTypes = Enum.GetValues<ListingType>();
     private bool _submitted;
     private bool ShowHouseValidation => _submitted && string.IsNullOrEmpty(SelectedHouseId);
+    private HouseOptionDto? SelectedHouse => HouseOptions?.FirstOrDefault(h => h.Id == SelectedHouseId);
+
+    protected override void OnParametersSet()
+    {
+        if (SelectedHouse is { } house)
+        {
+            Model.SeatsAvailable = house.FreeSeats;
+        }
+    }
 
     private void OnImagesChanged(IReadOnlyList<string> images) => Model.ImageUrls = images.ToList();
 
@@ -105,6 +120,10 @@
 
         // A house is only required when a selector is actually shown (Create, not Edit).
         if (HouseOptions is { Count: > 0 } && string.IsNullOrEmpty(SelectedHouseId))
+        {
+            return Task.CompletedTask;
+        }
+        if (SelectedHouse is { FreeSeats: 0 })
         {
             return Task.CompletedTask;
         }

@@ -72,3 +72,28 @@ CREATE TABLE home_join_requests (
 
 CREATE UNIQUE INDEX ux_join_request_pending ON home_join_requests (user_id) WHERE status = 1;
 CREATE INDEX        ix_join_requests_home   ON home_join_requests (home_id, status);
+
+
+-- ========================= Capacity =========================
+--
+-- How many people a home can hold at most. "How many live here now" is not
+-- stored anywhere: it is counted from home_members where left_at_utc IS NULL,
+-- and free seats = max_occupants - that count. When the two meet, the home's
+-- housing posts are marked filled (see Housing.sql).
+--
+-- Safe to run on its own if homes already exists.
+
+DROP TABLE IF EXISTS home_capacity CASCADE;
+
+CREATE TABLE home_capacity (
+    home_id        bigint      PRIMARY KEY REFERENCES homes (id) ON DELETE CASCADE,
+    max_occupants  smallint    NOT NULL DEFAULT 4,
+    updated_at_utc timestamptz NOT NULL DEFAULT now(),
+
+    CONSTRAINT ck_home_capacity_min CHECK (max_occupants >= 1)
+);
+
+-- Homes made before this table existed get the default so nothing reads NULL.
+INSERT INTO home_capacity (home_id)
+SELECT id FROM homes
+ON CONFLICT (home_id) DO NOTHING;
