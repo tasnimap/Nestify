@@ -81,6 +81,7 @@ public sealed class HousingService
         var where = new List<string>
         {
             "p.status = @active",
+            "NOT EXISTS (SELECT 1 FROM post_takedowns t WHERE t.scope = 1 AND t.post_id = p.id AND t.restored_at_utc IS NULL)",
             "p.home_id <> COALESCE((SELECT home_id FROM home_members WHERE user_id = @userId AND left_at_utc IS NULL), 0)",
             "(COALESCE(r.verified_only, false) = false OR COALESCE((SELECT is_verified FROM user_additional_profile_info WHERE user_id = @userId), false))"
         };
@@ -168,6 +169,15 @@ public sealed class HousingService
             }
 
             if (row.VerifiedOnly && !await IsVerifiedAsync(connection, userId))
+            {
+                return null;
+            }
+
+            // A post an admin struck down is gone for everyone but the owner.
+            var takenDown = await connection.ExecuteScalarAsync<bool>(
+                "SELECT EXISTS (SELECT 1 FROM post_takedowns WHERE scope = 1 AND post_id = @postId AND restored_at_utc IS NULL)",
+                new { postId });
+            if (takenDown)
             {
                 return null;
             }
@@ -356,6 +366,49 @@ public sealed class HousingService
     }
 
     // ------------------------------------------------------------ bookings
+
+    // ------------------------------------------------------------ reports
+
+    // Anyone but the post's own home can report it once while a report is open
+    // (housing_reports in Admin.sql). Admins see it on the moderation page.
+    public async Task<(bool Ok, string Message)> ReportAsync(long userId, long postId, ReportHousingPostDto dto)
+    {
+        using var connection = await _db.OpenAsync();
+
+        var reasonId = await connection.ExecuteScalarAsync<short?>(
+            "SELECT id FROM housing_report_reasons WHERE lower(name) = lower(@reason)",
+            new { reason = (dto.Reason ?? string.Empty).Trim() });
+        if (reasonId is null)
+        {
+            return (false, "Pick a reason for the report.");
+        }
+
+        var row = await connection.QuerySingleOrDefaultAsync<(long HomeId, short Status)>(
+            "SELECT home_id, status FROM housing_posts WHERE id = @postId", new { postId });
+        if (row == default || row.Status != PostActive)
+        {
+            return (false, "That post is no longer live.");
+        }
+
+        if (await IsOwnerAsync(connection, userId, row.HomeId))
+        {
+            return (false, "You cannot report your own post.");
+        }
+
+        var alreadyOpen = await connection.ExecuteScalarAsync<bool>(
+            "SELECT EXISTS (SELECT 1 FROM housing_reports WHERE post_id = @postId AND reported_by_user_id = @userId AND state = 1)",
+            new { postId, userId });
+        if (alreadyOpen)
+        {
+            return (false, "You already reported this post.");
+        }
+
+        var details = (dto.Details ?? string.Empty).Trim();
+        await connection.ExecuteAsync(
+            "INSERT INTO housing_reports (post_id, reported_by_user_id, reason_id, details) VALUES (@postId, @userId, @reasonId, @details)",
+            new { postId, userId, reasonId, details = details.Length == 0 ? null : details[..Math.Min(300, details.Length)] });
+        return (true, "Report submitted.");
+    }
 
     // A seeker asks for a seat. Not on a closed post, not on their own home's post,
     // and not twice while an earlier request is still open.

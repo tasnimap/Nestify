@@ -193,6 +193,13 @@ public sealed class RejectBookingRequestDto
     public string? Message { get; set; }
 }
 
+// A seeker reports a post; the reason must match a housing_report_reasons name.
+public sealed class ReportHousingPostDto
+{
+    public string Reason { get; set; } = string.Empty;
+    public string? Details { get; set; }
+}
+
 /// <summary>
 /// Contact disclosure for an Accepted booking (§11.4.2). Only returns when the
 /// booking is Accepted and the caller is a party to it (requester or post manager).

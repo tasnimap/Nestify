@@ -92,6 +92,29 @@ public sealed class HousingService : IHousingService, IHouseLookupService
         }
     }
 
+    public async Task<(bool Ok, string Message)> ReportPostAsync(string postId, string reason, string? details)
+    {
+        try
+        {
+            var response = await _httpClient.PostAsJsonAsync(
+                $"api/v1/housing/posts/{postId}/report", new ReportHousingPostDto { Reason = reason, Details = details });
+            string? message = null;
+            try
+            {
+                message = (await response.Content.ReadFromJsonAsync<MessageBody>())?.Message;
+            }
+            catch
+            {
+            }
+
+            return (response.IsSuccessStatusCode, message ?? (response.IsSuccessStatusCode ? "Report submitted." : "Could not send the report."));
+        }
+        catch (HttpRequestException)
+        {
+            return (false, "Could not reach the server.");
+        }
+    }
+
     public async Task<IReadOnlyList<BookingRequesterDto>> GetRequestersAsync(string postId) =>
         await GetOrNullAsync<List<BookingRequesterDto>>($"api/v1/housing/posts/{postId}/bookings")
         ?? new List<BookingRequesterDto>();

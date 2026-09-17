@@ -9,16 +9,38 @@ namespace Nestify.Api.Settlement;
 public sealed class SettlementService
 {
     private const short EqualSplit = 1;
-    private const short MealPurchase = 2;
     private const short MealFund = 1;
     private const short SharedBills = 2;
-    private const short Finalized = 2;
+    private const short BookNone = 0;
+    private const short BookOpen = 1;
+    private const short BookFinalized = 2;
+
+    // Every book starts with these lines at 0 so the manager only fills in amounts.
+    private static readonly string[] DefaultBills = ["Rent", "Electricity", "Water", "Gas", "Internet"];
 
     private readonly DbConnectionFactory _db;
 
     public SettlementService(DbConnectionFactory db)
     {
         _db = db;
+    }
+
+    public async Task<List<SettlementBookDto>?> GetBooksAsync(long userId)
+    {
+        using var connection = await _db.OpenAsync();
+        var membership = await GetMembershipAsync(connection, null, userId);
+        if (membership is null)
+        {
+            return null;
+        }
+
+        return (await connection.QueryAsync<SettlementBookDto>(
+            """
+            SELECT period_year AS Year, period_month AS Month, status AS Status
+            FROM settlement_runs
+            WHERE house_id = @homeId
+            ORDER BY period_year, period_month
+            """, new { homeId = membership.HomeId })).ToList();
     }
 
     public async Task<SettlementWorkspaceDto?> GetAsync(long userId, int year, int month)
@@ -31,7 +53,99 @@ public sealed class SettlementService
             return null;
         }
 
-        return await LoadWorkspaceAsync(connection, null, membership.HomeId, userId, year, month);
+        return await LoadWorkspaceAsync(connection, null, membership, userId, year, month);
+    }
+
+    public async Task<(bool Ok, string Message)> OpenBookAsync(long userId, int year, int month)
+    {
+        ValidatePeriod(year, month);
+        using var connection = await _db.OpenAsync();
+        var membership = await GetManagerMembershipAsync(connection, userId);
+        if (membership is null)
+        {
+            return (false, "Only a home manager or co-manager can open the book.");
+        }
+
+        using var transaction = connection.BeginTransaction();
+        if (await GetBookAsync(connection, transaction, membership.HomeId, year, month) is not null)
+        {
+            transaction.Rollback();
+            return (false, "A book already exists for this month.");
+        }
+
+        var openExists = await connection.ExecuteScalarAsync<bool>(
+            "SELECT EXISTS (SELECT 1 FROM settlement_runs WHERE house_id = @homeId AND status = 1)",
+            new { homeId = membership.HomeId }, transaction);
+        if (openExists)
+        {
+            transaction.Rollback();
+            return (false, "Finalize the open book before opening another month.");
+        }
+
+        var runId = await connection.ExecuteScalarAsync<long>(
+            """
+            INSERT INTO settlement_runs (house_id, period_year, period_month, status, opened_by_user_id)
+            VALUES (@homeId, @year, @month, 1, @userId)
+            RETURNING id
+            """, new { homeId = membership.HomeId, year, month, userId }, transaction);
+
+        await connection.ExecuteAsync(
+            """
+            INSERT INTO settlement_members (settlement_run_id, user_id, added_by_user_id)
+            SELECT @runId, user_id, @userId
+            FROM home_members
+            WHERE home_id = @homeId AND left_at_utc IS NULL
+            """, new { runId, homeId = membership.HomeId, userId }, transaction);
+
+        var firstDay = new DateTime(year, month, 1);
+        foreach (var name in DefaultBills)
+        {
+            await connection.ExecuteAsync(
+                """
+                INSERT INTO expenses (house_id, category, description, amount, spent_by_user_id,
+                                      spent_on, period_year, period_month, created_by_user_id)
+                VALUES (@homeId, @category, @name, 0, @userId, @firstDay, @year, @month, @userId)
+                """, new { homeId = membership.HomeId, category = EqualSplit, name, userId, firstDay, year, month },
+                transaction);
+        }
+
+        transaction.Commit();
+        return (true, "The book is open.");
+    }
+
+    public async Task<(bool Ok, string Message)> AddMemberAsync(
+        long userId, int year, int month, AddSettlementMemberRequest request)
+    {
+        ValidatePeriod(year, month);
+        using var connection = await _db.OpenAsync();
+        var membership = await GetManagerMembershipAsync(connection, userId);
+        if (membership is null)
+        {
+            return (false, "Only a home manager or co-manager can add members to the book.");
+        }
+
+        var book = await GetOpenBookAsync(connection, null, membership.HomeId, year, month);
+        if (book is null)
+        {
+            return (false, "This month's book is not open.");
+        }
+
+        if (!await IsActiveMemberAsync(connection, null, membership.HomeId, request.UserId))
+        {
+            return (false, "That person is not a member of this home.");
+        }
+
+        if (await IsBookMemberAsync(connection, null, book.Id, request.UserId))
+        {
+            return (false, "That member is already in the book.");
+        }
+
+        await connection.ExecuteAsync(
+            """
+            INSERT INTO settlement_members (settlement_run_id, user_id, added_by_user_id)
+            VALUES (@runId, @memberId, @userId)
+            """, new { runId = book.Id, memberId = request.UserId, userId });
+        return (true, "Member added to the book.");
     }
 
     public async Task<(SettlementBillDto? Data, string? Error)> AddBillAsync(
@@ -39,9 +153,9 @@ public sealed class SettlementService
     {
         ValidatePeriod(year, month);
         var description = (request.Description ?? string.Empty).Trim();
-        if (description.Length is < 1 or > 200 || request.Amount <= 0m)
+        if (description.Length is < 1 or > 200 || request.Amount < 0m)
         {
-            return (null, "A bill description and a positive amount are required.");
+            return (null, "A bill description and a non-negative amount are required.");
         }
 
         using var connection = await _db.OpenAsync();
@@ -51,9 +165,9 @@ public sealed class SettlementService
             return (null, "Only a home manager or co-manager can add bills.");
         }
 
-        if (await IsFinalizedAsync(connection, null, membership.HomeId, year, month))
+        if (await GetOpenBookAsync(connection, null, membership.HomeId, year, month) is null)
         {
-            return (null, "This settlement period is finalized.");
+            return (null, "This month's book is not open.");
         }
 
         if (!TryNormalizeDate(request.SpentOn, year, month, out var spentOn))
@@ -80,6 +194,60 @@ public sealed class SettlementService
             """, new { id }), null);
     }
 
+    public async Task<(bool Ok, string Message)> UpdateBillAsync(
+        long userId, int year, int month, long billId, UpdateSettlementBillRequest request)
+    {
+        ValidatePeriod(year, month);
+        if (request.Amount < 0m)
+        {
+            return (false, "A bill amount cannot be negative.");
+        }
+
+        using var connection = await _db.OpenAsync();
+        var membership = await GetManagerMembershipAsync(connection, userId);
+        if (membership is null)
+        {
+            return (false, "Only a home manager or co-manager can change bills.");
+        }
+
+        if (await GetOpenBookAsync(connection, null, membership.HomeId, year, month) is null)
+        {
+            return (false, "This month's book is not open.");
+        }
+
+        var rows = await connection.ExecuteAsync(
+            """
+            UPDATE expenses SET amount = @amount
+            WHERE id = @billId AND house_id = @homeId AND category = @category
+              AND period_year = @year AND period_month = @month
+            """, new { amount = request.Amount, billId, homeId = membership.HomeId, category = EqualSplit, year, month });
+        return rows == 0 ? (false, "Bill not found.") : (true, "Bill updated.");
+    }
+
+    public async Task<(bool Ok, string Message)> DeleteBillAsync(long userId, int year, int month, long billId)
+    {
+        ValidatePeriod(year, month);
+        using var connection = await _db.OpenAsync();
+        var membership = await GetManagerMembershipAsync(connection, userId);
+        if (membership is null)
+        {
+            return (false, "Only a home manager or co-manager can remove bills.");
+        }
+
+        if (await GetOpenBookAsync(connection, null, membership.HomeId, year, month) is null)
+        {
+            return (false, "This month's book is not open.");
+        }
+
+        var rows = await connection.ExecuteAsync(
+            """
+            DELETE FROM expenses
+            WHERE id = @billId AND house_id = @homeId AND category = @category
+              AND period_year = @year AND period_month = @month
+            """, new { billId, homeId = membership.HomeId, category = EqualSplit, year, month });
+        return rows == 0 ? (false, "Bill not found.") : (true, "Bill removed.");
+    }
+
     public async Task<(SettlementPaymentDto? Data, string? Error)> AddPaymentAsync(
         long userId, int year, int month, CreateSettlementPaymentRequest request)
     {
@@ -97,15 +265,15 @@ public sealed class SettlementService
             return (null, "Only a home manager or co-manager can record payments.");
         }
 
-        if (await IsFinalizedAsync(connection, null, membership.HomeId, year, month))
+        var book = await GetOpenBookAsync(connection, null, membership.HomeId, year, month);
+        if (book is null)
         {
-            return (null, "This settlement period is finalized.");
+            return (null, "This month's book is not open.");
         }
 
-        var memberExists = await IsActiveMemberAsync(connection, null, membership.HomeId, request.UserId);
-        if (!memberExists)
+        if (!await IsBookMemberAsync(connection, null, book.Id, request.UserId))
         {
-            return (null, "The payment recipient is not an active member of this home.");
+            return (null, "The payer is not in this month's book.");
         }
 
         if (!TryNormalizeDate(request.PaidOn, year, month, out var paidOn))
@@ -115,13 +283,13 @@ public sealed class SettlementService
         var id = await connection.ExecuteScalarAsync<long>(
             """
             INSERT INTO contributions (house_id, user_id, amount, paid_on, period_year,
-                                       period_month, source, fund_type, recorded_by_user_id)
+                                       period_month, source, fund_type, note, recorded_by_user_id)
             VALUES (@homeId, @memberId, @amount, @paidOn, @year, @month, 2,
-                    @fundType, @recordedBy)
+                    @fundType, @note, @recordedBy)
             RETURNING id
             """,
             new { homeId = membership.HomeId, memberId = request.UserId, amount = request.Amount,
-                paidOn, year, month, fundType = request.FundType, recordedBy = userId });
+                paidOn, year, month, fundType = request.FundType, note, recordedBy = userId });
 
         return (await connection.QuerySingleAsync<SettlementPaymentDto>(
             """
@@ -130,6 +298,29 @@ public sealed class SettlementService
             FROM contributions c JOIN users u ON u.id = c.user_id
             WHERE c.id = @id
             """, new { id }), null);
+    }
+
+    public async Task<(bool Ok, string Message)> DeletePaymentAsync(long userId, int year, int month, long paymentId)
+    {
+        ValidatePeriod(year, month);
+        using var connection = await _db.OpenAsync();
+        var membership = await GetManagerMembershipAsync(connection, userId);
+        if (membership is null)
+        {
+            return (false, "Only a home manager or co-manager can remove payments.");
+        }
+
+        if (await GetOpenBookAsync(connection, null, membership.HomeId, year, month) is null)
+        {
+            return (false, "This month's book is not open.");
+        }
+
+        var rows = await connection.ExecuteAsync(
+            """
+            DELETE FROM contributions
+            WHERE id = @paymentId AND house_id = @homeId AND period_year = @year AND period_month = @month
+            """, new { paymentId, homeId = membership.HomeId, year, month });
+        return rows == 0 ? (false, "Payment not found.") : (true, "Payment removed.");
     }
 
     public async Task<(bool Ok, string Message)> SaveMealsAsync(
@@ -148,15 +339,17 @@ public sealed class SettlementService
             return (false, "You are not in a home.");
         }
 
-        if (await IsFinalizedAsync(connection, null, membership.HomeId, year, month))
+        var book = await GetOpenBookAsync(connection, null, membership.HomeId, year, month);
+        if (book is null)
         {
-            return (false, "This settlement period is finalized.");
+            return (false, "This month's book is not open.");
         }
 
         var canEditOthers = membership.Role is HomeService.RoleManager or HomeService.RoleCoManager;
         foreach (var entry in request.Entries)
         {
-            if (entry.MealCount is < 0m or > 10m || entry.MealDate.Year != year || entry.MealDate.Month != month)
+            if (entry.Breakfast is < 0m or > 10m || entry.Lunch is < 0m or > 10m || entry.Dinner is < 0m or > 10m
+                || entry.MealDate.Year != year || entry.MealDate.Month != month)
             {
                 return (false, "Meal dates and counts must belong to the selected period.");
             }
@@ -166,15 +359,16 @@ public sealed class SettlementService
                 return (false, "Members can edit only their own meals.");
             }
 
-            if (!await IsActiveMemberAsync(connection, null, membership.HomeId, entry.UserId))
+            if (!await IsBookMemberAsync(connection, null, book.Id, entry.UserId))
             {
-                return (false, "Every meal entry must belong to an active home member.");
+                return (false, "Every meal entry must belong to a member of this month's book.");
             }
         }
 
         using var transaction = connection.BeginTransaction();
         foreach (var entry in request.Entries)
         {
+            var mealCount = entry.Breakfast + entry.Lunch + entry.Dinner;
             var previous = await connection.ExecuteScalarAsync<decimal?>(
                 """
                 SELECT meal_count
@@ -187,17 +381,17 @@ public sealed class SettlementService
 
             var id = await connection.ExecuteScalarAsync<long>(
                 """
-                INSERT INTO meal_entries (house_id, user_id, meal_date, meal_count, period_year,
-                                          period_month, supersedes_meal_entry_id, recorded_by_user_id)
-                SELECT @homeId, @memberId, @mealDate, @mealCount, @year, @month,
+                INSERT INTO meal_entries (house_id, user_id, meal_date, breakfast, lunch, dinner, meal_count,
+                                          period_year, period_month, supersedes_meal_entry_id, recorded_by_user_id)
+                SELECT @homeId, @memberId, @mealDate, @breakfast, @lunch, @dinner, @mealCount, @year, @month,
                        (SELECT id FROM meal_entries
                         WHERE house_id = @homeId AND user_id = @memberId AND meal_date = @mealDate
                         ORDER BY recorded_at_utc DESC, id DESC LIMIT 1),
                        @recordedBy
                 RETURNING id
                 """, new { homeId = membership.HomeId, memberId = entry.UserId,
-                    mealDate = entry.MealDate.Date, mealCount = entry.MealCount,
-                    year, month, recordedBy = userId }, transaction);
+                    mealDate = entry.MealDate.Date, breakfast = entry.Breakfast, lunch = entry.Lunch,
+                    dinner = entry.Dinner, mealCount, year, month, recordedBy = userId }, transaction);
 
             await connection.ExecuteAsync(
                 """
@@ -206,7 +400,7 @@ public sealed class SettlementService
                 VALUES (@id, @homeId, @memberId, @recordedBy, @previous, @mealCount,
                         'Settlement page edit')
                 """, new { id, homeId = membership.HomeId, memberId = entry.UserId,
-                    recordedBy = userId, previous, mealCount = entry.MealCount }, transaction);
+                    recordedBy = userId, previous, mealCount }, transaction);
         }
 
         transaction.Commit();
@@ -225,13 +419,14 @@ public sealed class SettlementService
         }
 
         using var transaction = connection.BeginTransaction(IsolationLevel.Serializable);
-        if (await IsFinalizedAsync(connection, transaction, membership.HomeId, year, month))
+        var book = await GetOpenBookAsync(connection, transaction, membership.HomeId, year, month);
+        if (book is null)
         {
             transaction.Rollback();
-            return (null, "This settlement period is already finalized.");
+            return (null, "This month's book is not open.");
         }
 
-        var workspace = await LoadWorkspaceAsync(connection, transaction, membership.HomeId, userId, year, month);
+        var workspace = await LoadWorkspaceAsync(connection, transaction, membership, userId, year, month);
         var result = workspace.Result!;
         if (Math.Round(result.NetTotal, 2, MidpointRounding.AwayFromZero) != 0m)
         {
@@ -239,16 +434,15 @@ public sealed class SettlementService
             return (null, "Payments must equal the month's costs before finalization.");
         }
 
-        var runId = await connection.ExecuteScalarAsync<long>(
+        await connection.ExecuteAsync(
             """
-            INSERT INTO settlement_runs (house_id, period_year, period_month,
-                total_meal_spending, total_meals, per_meal_rate, total_equal_costs,
-                member_count_at_settlement, status, computed_by_user_id)
-            VALUES (@homeId, @year, @month, @mealFund, @totalMeals, @rate, @bills,
-                    @memberCount, 2, @userId)
-            RETURNING id
-            """, new { homeId = membership.HomeId, year, month,
-                mealFund = result.MealFund, totalMeals = result.TotalMeals,
+            UPDATE settlement_runs
+            SET status = 2, total_meal_spending = @mealFund, total_meals = @totalMeals,
+                per_meal_rate = @rate, total_equal_costs = @bills,
+                member_count_at_settlement = @memberCount,
+                computed_by_user_id = @userId, computed_at_utc = now()
+            WHERE id = @runId
+            """, new { runId = book.Id, mealFund = result.MealFund, totalMeals = result.TotalMeals,
                 rate = result.PerMealRate, bills = result.BillsTotal,
                 memberCount = result.Lines.Count, userId }, transaction);
 
@@ -260,7 +454,7 @@ public sealed class SettlementService
                     meal_cost, equal_share, contributions, rounding_adjustment, net_amount)
                 VALUES (@runId, @userId, @meals, @mealCost, @equalShare, @contributions,
                         @adjustment, @net)
-                """, new { runId, userId = line.UserId, meals = line.Meals,
+                """, new { runId = book.Id, userId = line.UserId, meals = line.Meals,
                     mealCost = line.MealCost, equalShare = line.EqualShare,
                     contributions = line.Contributions, adjustment = line.RoundingAdjustment,
                     net = line.NetAmount }, transaction);
@@ -272,26 +466,58 @@ public sealed class SettlementService
                 """
                 INSERT INTO settlement_transfers (settlement_run_id, from_user_id, to_user_id, amount)
                 VALUES (@runId, @fromUserId, @toUserId, @amount)
-                """, new { runId, fromUserId = transfer.FromUserId,
+                """, new { runId = book.Id, fromUserId = transfer.FromUserId,
                     toUserId = transfer.ToUserId, amount = transfer.Amount }, transaction);
         }
 
         transaction.Commit();
-        workspace.IsFinalized = true;
         return (result, null);
     }
 
     private async Task<SettlementWorkspaceDto> LoadWorkspaceAsync(
-        IDbConnection connection, IDbTransaction? transaction, long homeId, long userId, int year, int month)
+        IDbConnection connection, IDbTransaction? transaction, Membership membership, long userId, int year, int month)
     {
-        var members = (await connection.QueryAsync<SettlementMemberDto>(
+        var homeId = membership.HomeId;
+        var canManage = membership.Role is HomeService.RoleManager or HomeService.RoleCoManager;
+        var book = await GetBookAsync(connection, transaction, homeId, year, month);
+
+        var activeMembers = (await connection.QueryAsync<SettlementMemberDto>(
             """
             SELECT hm.user_id AS UserId, u.full_name AS Name, hm.role AS Role,
-                   (hm.user_id = @userId) AS IsMe
+                   (hm.user_id = @userId) AS IsMe, true AS IsActive
             FROM home_members hm JOIN users u ON u.id = hm.user_id
             WHERE hm.home_id = @homeId AND hm.left_at_utc IS NULL
             ORDER BY hm.role, hm.joined_at_utc
             """, new { homeId, userId }, transaction)).ToList();
+
+        if (book is null)
+        {
+            return new SettlementWorkspaceDto
+            {
+                Year = year,
+                Month = month,
+                BookStatus = BookNone,
+                CanManage = canManage,
+                AddableMembers = activeMembers,
+                Result = new SettlementResultDto()
+            };
+        }
+
+        var members = (await connection.QueryAsync<SettlementMemberDto>(
+            """
+            SELECT sm.user_id AS UserId, u.full_name AS Name,
+                   COALESCE(hm.role, 3) AS Role,
+                   (sm.user_id = @userId) AS IsMe,
+                   (hm.id IS NOT NULL) AS IsActive
+            FROM settlement_members sm
+            JOIN users u ON u.id = sm.user_id
+            LEFT JOIN home_members hm ON hm.user_id = sm.user_id AND hm.home_id = @homeId AND hm.left_at_utc IS NULL
+            WHERE sm.settlement_run_id = @runId
+            ORDER BY COALESCE(hm.role, 3), sm.added_at_utc
+            """, new { homeId, userId, runId = book.Id }, transaction)).ToList();
+
+        var bookUserIds = members.Select(m => m.UserId).ToHashSet();
+        var addable = activeMembers.Where(m => !bookUserIds.Contains(m.UserId)).ToList();
 
         var bills = (await connection.QueryAsync<SettlementBillDto>(
             """
@@ -300,7 +526,7 @@ public sealed class SettlementService
             FROM expenses e JOIN users u ON u.id = e.spent_by_user_id
             WHERE e.house_id = @homeId AND e.period_year = @year
               AND e.period_month = @month AND e.category = 1
-            ORDER BY e.spent_on DESC, e.id DESC
+            ORDER BY e.id
             """, new { homeId, year, month }, transaction)).ToList();
 
         var payments = (await connection.QueryAsync<SettlementPaymentDto>(
@@ -315,31 +541,36 @@ public sealed class SettlementService
         var meals = (await connection.QueryAsync<SettlementMealDto>(
             """
             SELECT x.user_id AS UserId, u.full_name AS MemberName, x.meal_date AS MealDate,
+                   x.breakfast AS Breakfast, x.lunch AS Lunch, x.dinner AS Dinner,
                    x.meal_count AS MealCount, x.recorded_at_utc AS RecordedAtUtc
             FROM (
-                SELECT DISTINCT ON (user_id, meal_date) user_id, meal_date, meal_count, recorded_at_utc
+                SELECT DISTINCT ON (user_id, meal_date) user_id, meal_date, breakfast, lunch, dinner, meal_count, recorded_at_utc
                 FROM meal_entries
                 WHERE house_id = @homeId AND period_year = @year AND period_month = @month
                 ORDER BY user_id, meal_date, recorded_at_utc DESC, id DESC
             ) x JOIN users u ON u.id = x.user_id
+            WHERE x.user_id = ANY(@userIds)
             ORDER BY x.meal_date, x.user_id
-            """, new { homeId, year, month }, transaction)).ToList();
+            """, new { homeId, year, month, userIds = bookUserIds.ToArray() }, transaction)).ToList();
 
-        var isFinalized = await IsFinalizedAsync(connection, transaction, homeId, year, month);
+        var sharedFund = payments.Where(p => p.FundType == SharedBills).Sum(p => p.Amount);
         var result = CalculateResult(members, bills, payments, meals);
         return new SettlementWorkspaceDto
         {
             Year = year,
             Month = month,
-            IsFinalized = isFinalized,
+            BookStatus = book.Status,
+            IsFinalized = book.Status == BookFinalized,
+            CanManage = canManage,
             BillsTotal = result.BillsTotal,
             MealFundTotal = result.MealFund,
-            SharedFundTotal = payments.Where(p => p.FundType == SharedBills).Sum(p => p.Amount),
+            SharedFundTotal = sharedFund,
             TotalMeals = result.TotalMeals,
             PerMealRate = result.PerMealRate,
             BillShare = result.BillShare,
-            OutstandingBills = result.BillsTotal - payments.Where(p => p.FundType == SharedBills).Sum(p => p.Amount),
+            OutstandingBills = result.BillsTotal - sharedFund,
             Members = members,
+            AddableMembers = addable,
             Bills = bills,
             Payments = payments,
             Meals = meals,
@@ -434,10 +665,21 @@ public sealed class SettlementService
             "SELECT EXISTS (SELECT 1 FROM home_members WHERE home_id = @homeId AND user_id = @userId AND left_at_utc IS NULL)",
             new { homeId, userId }, transaction);
 
-    private static Task<bool> IsFinalizedAsync(IDbConnection connection, IDbTransaction? transaction, long homeId, int year, int month) =>
+    private static Task<bool> IsBookMemberAsync(IDbConnection connection, IDbTransaction? transaction, long runId, long userId) =>
         connection.ExecuteScalarAsync<bool>(
-            "SELECT EXISTS (SELECT 1 FROM settlement_runs WHERE house_id = @homeId AND period_year = @year AND period_month = @month AND status = 2)",
+            "SELECT EXISTS (SELECT 1 FROM settlement_members WHERE settlement_run_id = @runId AND user_id = @userId)",
+            new { runId, userId }, transaction);
+
+    private static Task<Book?> GetBookAsync(IDbConnection connection, IDbTransaction? transaction, long homeId, int year, int month) =>
+        connection.QuerySingleOrDefaultAsync<Book>(
+            "SELECT id AS Id, status AS Status FROM settlement_runs WHERE house_id = @homeId AND period_year = @year AND period_month = @month",
             new { homeId, year, month }, transaction);
+
+    private static async Task<Book?> GetOpenBookAsync(IDbConnection connection, IDbTransaction? transaction, long homeId, int year, int month)
+    {
+        var book = await GetBookAsync(connection, transaction, homeId, year, month);
+        return book?.Status == BookOpen ? book : null;
+    }
 
     private static bool TryNormalizeDate(DateTime value, int year, int month, out DateTime date)
     {
@@ -457,6 +699,12 @@ public sealed class SettlementService
     {
         public long HomeId { get; set; }
         public short Role { get; set; }
+    }
+
+    private sealed class Book
+    {
+        public long Id { get; set; }
+        public short Status { get; set; }
     }
 
     private sealed class TransferBalance

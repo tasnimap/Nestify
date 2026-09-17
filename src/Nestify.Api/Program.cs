@@ -1,6 +1,7 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Nestify.Api.Admin;
 using Nestify.Api.Auth;
 using Nestify.Api.Data;
 using Nestify.Api.Helpers;
@@ -55,6 +56,7 @@ builder.Services.AddScoped<HomeService>();
 builder.Services.AddScoped<HousingService>();
 builder.Services.AddScoped<SettlementService>();
 builder.Services.AddScoped<MarketplaceService>();
+builder.Services.AddScoped<AdminConsoleService>();
 builder.Services.AddSingleton(cloudinarySettings);
 builder.Services.AddHttpClient<CloudinaryUploader>();
 

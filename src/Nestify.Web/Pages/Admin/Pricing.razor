@@ -1,7 +1,8 @@
 @page "/admin/pricing"
 @layout AdminShell
 @attribute [Authorize(Roles = "Admin")]
-@inject AdminConsoleService Store
+@inject IAdminService Admin
+@inject ToastService Toast
 
 <PageTitle>Fees and plans — Nestify Admin</PageTitle>
 
@@ -12,7 +13,7 @@
         <p>Set what a verification costs and how many posts a package buys. Changes apply to new purchases only.</p>
     </div>
     <div class="adm-head__actions">
-        <button class="adm-btn adm-btn--primary" type="button" @onclick="() => NewPlan(PlanScope.Housing)">
+        <button class="adm-btn adm-btn--primary" type="button" @onclick="() => NewPlan(ModerationScope.Housing)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
             New plan
         </button>
@@ -27,83 +28,101 @@
         </div>
     </div>
 
-    <div class="adm-grid adm-grid--2">
-        @foreach (var fee in Store.Fees)
-        {
-            var current = fee;
-            <div class="adm-row" style="box-shadow:none;">
-                <div class="adm-row__main">
-                    <p class="adm-row__title">@current.Label</p>
-                    <p class="adm-row__meta">@current.Description</p>
-                </div>
-                <div class="adm-row__side">
-                    <div class="adm-field" style="width:120px;">
-                        <input class="adm-input" type="number" min="0" step="10"
-                               value="@_amounts[current.Id]"
-                               @onchange="e => _amounts[current.Id] = ToInt(e.Value, current.Amount)" />
+    @if (_loading)
+    {
+        <EmptyState Title="Loading" Message="Fetching fees and plans." />
+    }
+    else
+    {
+        <div class="adm-grid adm-grid--2">
+            @foreach (var fee in _fees)
+            {
+                var current = fee;
+                <div class="adm-row" style="box-shadow:none;">
+                    <div class="adm-row__main">
+                        <p class="adm-row__title">@current.Label</p>
+                        <p class="adm-row__meta">@current.Description</p>
                     </div>
-                    <button class="adm-btn adm-btn--primary adm-btn--sm" type="button"
-                            disabled="@(_amounts[current.Id] == current.Amount)"
-                            @onclick="() => Store.SaveFee(current.Id, _amounts[current.Id])">
-                        Save
-                    </button>
+                    <div class="adm-row__side">
+                        <div class="adm-field" style="width:120px;">
+                            <input class="adm-input" type="number" min="0" step="10"
+                                   value="@_amounts[current.Code]"
+                                   @onchange="e => _amounts[current.Code] = ToAmount(e.Value, current.Amount)" />
+                        </div>
+                        <button class="adm-btn adm-btn--primary adm-btn--sm" type="button"
+                                disabled="@(_busy || _amounts[current.Code] == current.Amount)"
+                                @onclick="() => SaveFee(current)">
+                            Save
+                        </button>
+                    </div>
                 </div>
-            </div>
-        }
-    </div>
+            }
+        </div>
+    }
 </section>
 
-<div class="adm-grid adm-grid--2">
-    @foreach (var scope in new[] { PlanScope.Housing, PlanScope.Marketplace })
-    {
-        var group = scope;
-        <section class="adm-card adm-rise" style="--d:.12s">
-            <div class="adm-card__head">
-                <div>
-                    <h2>@AdminConsoleService.ScopeLabel(group) plans</h2>
-                    <p>
-                        @(group == PlanScope.Housing
-                            ? "Bought by landlords and people subletting a room."
-                            : "Bought by students selling their own things.")
-                    </p>
+@if (!_loading)
+{
+    <div class="adm-grid adm-grid--2">
+        @foreach (var scope in new[] { ModerationScope.Housing, ModerationScope.Marketplace })
+        {
+            var group = scope;
+            <section class="adm-card adm-rise" style="--d:.12s">
+                <div class="adm-card__head">
+                    <div>
+                        <h2>@AdminConsoleService.ScopeLabel(group) plans</h2>
+                        <p>
+                            @(group == ModerationScope.Housing
+                                ? "Bought by home managers with a seat to fill."
+                                : "Bought by bachelors selling their own things.")
+                        </p>
+                    </div>
+                    <button class="adm-btn adm-btn--ghost adm-btn--sm" type="button" @onclick="() => NewPlan(group)">Add plan</button>
                 </div>
-                <button class="adm-btn adm-btn--ghost adm-btn--sm" type="button" @onclick="() => NewPlan(group)">Add plan</button>
-            </div>
 
-            <div class="adm-rows">
-                @foreach (var plan in Store.Plans.Where(p => p.Scope == group))
+                @if (!_plans.Any(p => p.Scope == group))
                 {
-                    var current = plan;
-                    <article class="adm-row" style="box-shadow:none;">
-                        <span class="adm-thumb @(group == PlanScope.Marketplace ? "adm-thumb--teal" : null)" aria-hidden="true">
-                            @current.Posts
-                        </span>
-                        <div class="adm-row__main">
-                            <p class="adm-row__title">
-                                @current.Name
-                                @if (!current.IsActive)
-                                {
-                                    <span class="adm-badge adm-badge--muted" style="margin-left:.4rem;">off</span>
-                                }
-                            </p>
-                            <p class="adm-row__meta">
-                                @current.Posts posts for @AdminConsoleService.Taka(current.Price)
-                                · valid @current.ValidDays days · @current.Subscribers.ToString("N0") buyers
-                            </p>
-                        </div>
-                        <div class="adm-row__side">
-                            <button class="adm-btn adm-btn--ghost adm-btn--sm" type="button" @onclick="() => EditPlan(current)">Edit</button>
-                            <button class="adm-btn @(current.IsActive ? "adm-btn--danger" : "adm-btn--ok") adm-btn--sm"
-                                    type="button" @onclick="() => Store.TogglePlan(current.Id)">
-                                @(current.IsActive ? "Disable" : "Enable")
-                            </button>
-                        </div>
-                    </article>
+                    <EmptyState Title="No plans yet" Message="Add the first plan for this side of the site." />
                 }
-            </div>
-        </section>
-    }
-</div>
+                else
+                {
+                    <div class="adm-rows">
+                        @foreach (var plan in _plans.Where(p => p.Scope == group))
+                        {
+                            var current = plan;
+                            <article class="adm-row" style="box-shadow:none;">
+                                <span class="adm-thumb @(group == ModerationScope.Marketplace ? "adm-thumb--teal" : null)" aria-hidden="true">
+                                    @current.Posts
+                                </span>
+                                <div class="adm-row__main">
+                                    <p class="adm-row__title">
+                                        @current.Name
+                                        @if (!current.IsActive)
+                                        {
+                                            <span class="adm-badge adm-badge--muted" style="margin-left:.4rem;">off</span>
+                                        }
+                                    </p>
+                                    <p class="adm-row__meta">
+                                        @current.Posts posts for @AdminConsoleService.Taka(current.Price)
+                                        · valid @current.ValidDays days · @current.Subscribers.ToString("N0") buyers
+                                    </p>
+                                </div>
+                                <div class="adm-row__side">
+                                    <button class="adm-btn adm-btn--ghost adm-btn--sm" type="button" @onclick="() => EditPlan(current)">Edit</button>
+                                    <button class="adm-btn @(current.IsActive ? "adm-btn--danger" : "adm-btn--ok") adm-btn--sm"
+                                            type="button" disabled="@_busy" @onclick="() => TogglePlan(current)">
+                                        @(current.IsActive ? "Disable" : "Enable")
+                                    </button>
+                                    <button class="adm-btn adm-btn--ghost adm-btn--sm" type="button" disabled="@_busy" @onclick="() => _deleting = current">Delete</button>
+                                </div>
+                            </article>
+                        }
+                    </div>
+                }
+            </section>
+        }
+    </div>
+}
 
 @if (_draft is not null)
 {
@@ -111,7 +130,7 @@
         <div class="adm-modal__box">
             <div class="adm-modal__head">
                 <div>
-                    <h2>@(_isNew ? "New plan" : "Edit plan")</h2>
+                    <h2>@(_editingId is null ? "New plan" : "Edit plan")</h2>
                     <p>A plan is a bundle of posts someone buys once.</p>
                 </div>
                 <button class="adm-icon-btn" type="button" aria-label="Close" @onclick="() => _draft = null">
@@ -127,8 +146,8 @@
                 <div class="adm-field">
                     <label for="plan-scope">Used for</label>
                     <select id="plan-scope" class="adm-select" @bind="_draft.Scope">
-                        <option value="@PlanScope.Housing">Housing posts</option>
-                        <option value="@PlanScope.Marketplace">Marketplace posts</option>
+                        <option value="@ModerationScope.Housing">Housing posts</option>
+                        <option value="@ModerationScope.Marketplace">Marketplace posts</option>
                     </select>
                 </div>
                 <div class="adm-grid adm-grid--3">
@@ -145,6 +164,12 @@
                         <input id="plan-days" class="adm-input" type="number" min="1" @bind="_draft.ValidDays" />
                     </div>
                 </div>
+
+                @if (_error is not null)
+                {
+                    <p class="adm-badge adm-badge--danger">@_error</p>
+                }
+
                 <p class="adm-note">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 8h.01M11 12h1v4h1" /></svg>
                     Example: 10 posts for ৳20, valid 30 days. People who already bought an older plan keep it until it expires.
@@ -153,37 +178,99 @@
 
             <div class="adm-modal__foot">
                 <button class="adm-btn adm-btn--ghost" type="button" @onclick="() => _draft = null">Cancel</button>
-                <button class="adm-btn adm-btn--primary" type="button" @onclick="SavePlan">Save plan</button>
+                <button class="adm-btn adm-btn--primary" type="button" disabled="@_busy" @onclick="SavePlan">Save plan</button>
+            </div>
+        </div>
+    </div>
+}
+
+@if (_deleting is not null)
+{
+    <div class="adm-modal" role="dialog" aria-modal="true">
+        <div class="adm-modal__box">
+            <div class="adm-modal__head">
+                <div>
+                    <h2>Delete this plan</h2>
+                    <p>@_deleting.Name · @_deleting.Posts posts for @AdminConsoleService.Taka(_deleting.Price)</p>
+                </div>
+                <button class="adm-icon-btn" type="button" aria-label="Close" @onclick="() => _deleting = null">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
+                </button>
+            </div>
+
+            <div class="adm-form">
+                <p class="adm-note">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 8h.01M11 12h1v4h1" /></svg>
+                    The plan disappears from the shop for good. A plan someone has already bought cannot be deleted — disable it instead. The deletion is written to the audit log.
+                </p>
+            </div>
+
+            <div class="adm-modal__foot">
+                <button class="adm-btn adm-btn--ghost" type="button" @onclick="() => _deleting = null">Cancel</button>
+                <button class="adm-btn adm-btn--danger" type="button" disabled="@_busy" @onclick="DeletePlan">Delete plan</button>
             </div>
         </div>
     </div>
 }
 
 @code {
-    private readonly Dictionary<string, int> _amounts = new();
-    private PostPlan? _draft;
-    private bool _isNew;
+    private readonly Dictionary<string, decimal> _amounts = new();
+    private AdminPlanDto? _deleting;
+    private List<AdminFeeDto> _fees = new();
+    private List<AdminPlanDto> _plans = new();
+    private bool _loading = true;
+    private bool _busy;
 
-    protected override void OnInitialized()
+    private SavePlanDto? _draft;
+    private string? _editingId;
+    private string? _error;
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
     {
-        foreach (var fee in Store.Fees)
+        _loading = true;
+        var fees = Admin.GetFeesAsync();
+        var plans = Admin.GetPlansAsync();
+        _fees = await fees;
+        _plans = await plans;
+
+        foreach (var fee in _fees)
         {
-            _amounts[fee.Id] = fee.Amount;
+            _amounts[fee.Code] = fee.Amount;
         }
+
+        _loading = false;
     }
 
-    private void NewPlan(PlanScope scope)
+    private async Task SaveFee(AdminFeeDto fee)
     {
-        _isNew = true;
-        _draft = new PostPlan { Scope = scope, Posts = 10, Price = 20, ValidDays = 30, Name = "" };
-    }
-
-    private void EditPlan(PostPlan plan)
-    {
-        _isNew = false;
-        _draft = new PostPlan
+        _busy = true;
+        var (ok, message) = await Admin.SaveFeeAsync(fee.Code, _amounts[fee.Code]);
+        _busy = false;
+        if (!ok)
         {
-            Id = plan.Id,
+            Toast.ShowError(message);
+            return;
+        }
+
+        Toast.ShowSuccess(message);
+        await LoadAsync();
+    }
+
+    private void NewPlan(ModerationScope scope)
+    {
+        _editingId = null;
+        _error = null;
+        _draft = new SavePlanDto { Scope = scope, Posts = 10, Price = 20, ValidDays = 30, Name = "" };
+    }
+
+    private void EditPlan(AdminPlanDto plan)
+    {
+        _editingId = plan.Id;
+        _error = null;
+        _draft = new SavePlanDto
+        {
             Name = plan.Name,
             Scope = plan.Scope,
             Posts = plan.Posts,
@@ -192,14 +279,65 @@
         };
     }
 
-    private void SavePlan()
+    private async Task SavePlan()
     {
-        if (_draft is null || string.IsNullOrWhiteSpace(_draft.Name)) return;
+        if (_draft is null) return;
+        if (string.IsNullOrWhiteSpace(_draft.Name))
+        {
+            _error = "Give the plan a name.";
+            return;
+        }
 
-        Store.SavePlan(_draft);
+        _busy = true;
+        var (ok, message) = _editingId is null
+            ? await Admin.CreatePlanAsync(_draft)
+            : await Admin.UpdatePlanAsync(_editingId, _draft);
+        _busy = false;
+
+        if (!ok)
+        {
+            _error = message;
+            return;
+        }
+
         _draft = null;
+        await LoadAsync();
     }
 
-    private static int ToInt(object? value, int fallback) =>
-        int.TryParse(value?.ToString(), out var parsed) ? parsed : fallback;
+    private async Task TogglePlan(AdminPlanDto plan)
+    {
+        _busy = true;
+        var ok = await Admin.TogglePlanAsync(plan.Id);
+        _busy = false;
+        if (!ok)
+        {
+            Toast.ShowError("Could not update the plan.");
+            return;
+        }
+
+        await LoadAsync();
+    }
+
+    private async Task DeletePlan()
+    {
+        if (_deleting is null) return;
+
+        _busy = true;
+        var (ok, message) = await Admin.DeletePlanAsync(_deleting.Id);
+        _busy = false;
+        _deleting = null;
+
+        if (!ok)
+        {
+            Toast.ShowError(message);
+            return;
+        }
+
+        Toast.ShowSuccess(message);
+        await LoadAsync();
+    }
+
+    private static decimal ToAmount(object? value, decimal fallback) =>
+        decimal.TryParse(value?.ToString(), System.Globalization.NumberStyles.Number,
+            System.Globalization.CultureInfo.InvariantCulture, out var parsed) ? parsed : fallback;
 }

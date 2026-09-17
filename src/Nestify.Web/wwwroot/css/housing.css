@@ -776,6 +776,21 @@
 .hs-detail__actions { display: grid; gap: .6rem; }
 .hs-detail__actions .nx-btn { width: 100%; }
 
+.hs-actionbox__report {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    margin-bottom: .9rem;
+    padding: .85rem;
+    border: 1px solid var(--nx-border);
+    border-radius: .75rem;
+    background: var(--nx-surface-2, #faf9ff);
+}
+
+.hs-actionbox__report textarea {
+    resize: vertical;
+}
+
 .hs-actionbox__safe {
     font-size: .76rem;
     color: var(--nx-muted);

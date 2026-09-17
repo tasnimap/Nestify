@@ -96,6 +96,18 @@ public sealed class AuthService
             return (null, "Incorrect email or password.");
         }
 
+        // A suspended admin (Admin.sql) keeps the account but cannot sign in.
+        if (user.AccountType == AccountAdmin)
+        {
+            var suspended = await connection.ExecuteScalarAsync<bool>(
+                "SELECT EXISTS (SELECT 1 FROM admin_accounts WHERE user_id = @id AND NOT is_active)",
+                new { id = user.Id });
+            if (suspended)
+            {
+                return (null, "This admin account is suspended.");
+            }
+        }
+
         var role = RoleFor(user.AccountType);
 
         using var transaction = connection.BeginTransaction();

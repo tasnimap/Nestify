@@ -77,6 +77,10 @@ public sealed class HousingController : ControllerBase
 
     // ---- Bookings ----
 
+    [HttpPost("posts/{id:long}/report")]
+    public async Task<IActionResult> Report(long id, ReportHousingPostDto dto) =>
+        Result(await _housing.ReportAsync(RequireUserId(), id, dto));
+
     [HttpPost("posts/{id:long}/bookings")]
     public async Task<IActionResult> RequestBooking(long id, BookingRequestBody body) =>
         Result(await _housing.RequestBookingAsync(RequireUserId(), id, body.Message));

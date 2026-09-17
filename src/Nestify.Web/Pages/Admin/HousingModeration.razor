@@ -1,7 +1,8 @@
 @page "/admin/housing"
 @layout AdminShell
 @attribute [Authorize(Roles = "Admin")]
-@inject AdminConsoleService Store
+@inject IAdminService Admin
+@inject ToastService Toast
 
 <PageTitle>Housing posts — Nestify Admin</PageTitle>
 
@@ -26,20 +27,24 @@
             Live posts<span class="adm-tab__count">@LiveCount</span>
         </button>
         <button class="adm-tab @(_tab == 2 ? "adm-tab--on" : null)" type="button" @onclick="() => SetTab(2)">
-            Taken down<span class="adm-tab__count">@Store.Housing.Count(p => p.State == PostState.Removed)</span>
+            Taken down<span class="adm-tab__count">@_posts.Count(p => p.State == ModeratedPostState.Removed)</span>
         </button>
     </div>
     <label class="adm-search adm-toolbar__grow">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
-        <input type="search" placeholder="Search title, area, district or owner" @bind="Query" @bind:event="oninput" />
+        <input type="search" placeholder="Search title, area or owner" @bind="Query" @bind:event="oninput" />
     </label>
 </div>
 
-@if (_tab == 0)
+@if (_loading)
 {
-    var reports = Store.Reports
-        .Where(r => r.Scope == PlanScope.Housing && Matches(r.PostTitle + r.Reason + r.ReportedBy))
-        .OrderBy(r => r.State).ThenByDescending(r => r.RaisedOn)
+    <EmptyState Title="Loading" Message="Fetching posts and reports." />
+}
+else if (_tab == 0)
+{
+    var reports = _reports
+        .Where(r => Matches(r.PostTitle + r.Reason + r.ReportedBy))
+        .OrderBy(r => r.State).ThenByDescending(r => r.RaisedAtUtc)
         .ToList();
 
     var reportPage = ClampPage(reports.Count);
@@ -53,9 +58,9 @@
         <div class="adm-rows">
             @foreach (var report in reports.Skip((reportPage - 1) * PageSize).Take(PageSize))
             {
-                var post = Store.Housing.FirstOrDefault(p => p.Id == report.PostId);
+                var post = _posts.FirstOrDefault(p => p.Id == report.PostId);
                 <article class="adm-row adm-rise">
-                    @if (post is not null)
+                    @if (post is not null && post.Photos.Count > 0)
                     {
                         <span class="adm-shot-wrap">
                             <img class="adm-shot" src="@post.Cover" alt="" loading="lazy" />
@@ -68,9 +73,12 @@
                     <div class="adm-row__main">
                         <p class="adm-row__title">@report.PostTitle</p>
                         <p class="adm-row__meta">
-                            Reported for <strong>@report.Reason</strong> by @report.ReportedBy · @AdminConsoleService.Ago(report.RaisedOn)
+                            Reported for <strong>@report.Reason</strong> by @report.ReportedBy · @AdminConsoleService.Ago(report.RaisedAtUtc)
                         </p>
-                        <p class="adm-row__note">@report.Details</p>
+                        @if (!string.IsNullOrWhiteSpace(report.Details))
+                        {
+                            <p class="adm-row__note">@report.Details</p>
+                        }
                         @if (post is not null)
                         {
                             <div class="adm-row__facts">
@@ -78,7 +86,7 @@
                                 <span class="adm-fact">@post.ListingType</span>
                                 <span class="adm-fact">@post.FullArea</span>
                                 <span class="adm-fact">@post.Owner</span>
-                                @if (post.State == PostState.Removed)
+                                @if (post.State == ModeratedPostState.Removed)
                                 {
                                     <span class="adm-fact">already taken down</span>
                                 }
@@ -90,17 +98,17 @@
                         {
                             <button class="adm-btn adm-btn--ghost adm-btn--sm" type="button" @onclick="() => _preview = post">View post</button>
                         }
-                        @if (report.State == ReportState.Open)
+                        @if (report.State == ModerationReportState.Open)
                         {
-                            @if (post is not null && post.State == PostState.Live)
+                            @if (post is not null && post.State == ModeratedPostState.Live)
                             {
                                 <button class="adm-btn adm-btn--danger adm-btn--sm" type="button" @onclick="() => AskRemove(post, report)">Strike down</button>
                             }
-                            <button class="adm-btn adm-btn--ghost adm-btn--sm" type="button" @onclick="() => Store.DismissReport(report.Id)">Dismiss</button>
+                            <button class="adm-btn adm-btn--ghost adm-btn--sm" type="button" disabled="@_busy" @onclick="() => Dismiss(report)">Dismiss</button>
                         }
                         else
                         {
-                            <span class="adm-badge @(report.State == ReportState.Resolved ? "adm-badge--ok" : "adm-badge--muted")">@report.State</span>
+                            <span class="adm-badge @(report.State == ModerationReportState.Resolved ? "adm-badge--ok" : "adm-badge--muted")">@report.State</span>
                         }
                     </div>
                 </article>
@@ -112,10 +120,10 @@
 }
 else
 {
-    var wanted = _tab == 1 ? PostState.Live : PostState.Removed;
-    var posts = Store.Housing
-        .Where(p => p.State == wanted && Matches(p.Title + p.Area + p.District + p.Owner))
-        .OrderByDescending(p => p.PostedOn)
+    var wanted = _tab == 1 ? ModeratedPostState.Live : ModeratedPostState.Removed;
+    var posts = _posts
+        .Where(p => p.State == wanted && Matches(p.Title + p.Area + p.Division + p.Owner))
+        .OrderByDescending(p => p.PostedAtUtc)
         .ToList();
 
     var postPage = ClampPage(posts.Count);
@@ -130,13 +138,16 @@ else
             @foreach (var post in posts.Skip((postPage - 1) * PageSize).Take(PageSize))
             {
                 <article class="adm-row adm-rise">
-                    <span class="adm-shot-wrap">
-                        <img class="adm-shot" src="@post.Cover" alt="" loading="lazy" />
-                        @if (post.Photos.Count > 1)
-                        {
-                            <span class="adm-shot-wrap__count">@post.Photos.Count photos</span>
-                        }
-                    </span>
+                    @if (post.Photos.Count > 0)
+                    {
+                        <span class="adm-shot-wrap">
+                            <img class="adm-shot" src="@post.Cover" alt="" loading="lazy" />
+                            @if (post.Photos.Count > 1)
+                            {
+                                <span class="adm-shot-wrap__count">@post.Photos.Count photos</span>
+                            }
+                        </span>
+                    }
                     <div class="adm-row__main">
                         <p class="adm-row__title">@post.Title</p>
                         <p class="adm-row__meta">
@@ -148,7 +159,7 @@ else
                                     verified
                                 </span>
                             }
-                            · posted @AdminConsoleService.Ago(post.PostedOn)
+                            · posted @AdminConsoleService.Ago(post.PostedAtUtc)
                         </p>
                         <p class="adm-desc">@post.Description</p>
                         <div class="adm-row__facts">
@@ -161,20 +172,20 @@ else
                                 <span class="adm-badge adm-badge--pending">@post.ReportCount report@(post.ReportCount == 1 ? "" : "s")</span>
                             }
                         </div>
-                        @if (post.State == PostState.Removed && post.RemovalReason is not null)
+                        @if (post.State == ModeratedPostState.Removed && post.RemovalReason is not null)
                         {
                             <p class="adm-row__note">Taken down — @post.RemovalReason</p>
                         }
                     </div>
                     <div class="adm-row__side">
                         <button class="adm-btn adm-btn--ghost adm-btn--sm" type="button" @onclick="() => _preview = post">View post</button>
-                        @if (post.State == PostState.Live)
+                        @if (post.State == ModeratedPostState.Live)
                         {
                             <button class="adm-btn adm-btn--danger adm-btn--sm" type="button" @onclick="() => AskRemove(post, null)">Strike down</button>
                         }
                         else
                         {
-                            <button class="adm-btn adm-btn--ok adm-btn--sm" type="button" @onclick="() => Store.RestoreHousingPost(post.Id)">Put back</button>
+                            <button class="adm-btn adm-btn--ok adm-btn--sm" type="button" disabled="@_busy" @onclick="() => PutBack(post)">Put back</button>
                         }
                     </div>
                 </article>
@@ -205,23 +216,23 @@ else
             <div class="adm-kv">
                 <div class="adm-kv__row"><span>Rent</span><strong>@AdminConsoleService.Taka(_preview.Rent) / month</strong></div>
                 <div class="adm-kv__row"><span>Listing type</span><strong>@_preview.ListingType · @_preview.Seats seat@(_preview.Seats == 1 ? "" : "s")</strong></div>
-                <div class="adm-kv__row"><span>Area</span><strong>@_preview.Area, @_preview.District, @_preview.Division</strong></div>
+                <div class="adm-kv__row"><span>Area</span><strong>@_preview.FullArea</strong></div>
                 <div class="adm-kv__row"><span>Who can apply</span><strong>@_preview.Eligibility</strong></div>
                 <div class="adm-kv__row"><span>Posted by</span><strong>@_preview.Owner @(_preview.OwnerVerified ? "(verified)" : "(not verified)")</strong></div>
-                <div class="adm-kv__row"><span>Posted</span><strong>@_preview.PostedOn.ToString("d MMM yyyy, h:mm tt")</strong></div>
+                <div class="adm-kv__row"><span>Posted</span><strong>@_preview.PostedAtUtc.ToLocalTime().ToString("d MMM yyyy, h:mm tt")</strong></div>
                 <div class="adm-kv__row"><span>Photos</span><strong>@_preview.Photos.Count</strong></div>
-                <div class="adm-kv__row"><span>Reports</span><strong>@ReportsFor(_preview.Id)</strong></div>
+                <div class="adm-kv__row"><span>Reports</span><strong>@_preview.ReportCount</strong></div>
             </div>
 
             <div class="adm-modal__foot">
                 <button class="adm-btn adm-btn--ghost" type="button" @onclick="() => _preview = null">Close</button>
-                @if (_preview.State == PostState.Live)
+                @if (_preview.State == ModeratedPostState.Live)
                 {
                     <button class="adm-btn adm-btn--danger" type="button" @onclick="() => AskRemove(_preview, null)">Strike down post</button>
                 }
                 else
                 {
-                    <button class="adm-btn adm-btn--ok" type="button" @onclick="() => PutBack(_preview)">Put back</button>
+                    <button class="adm-btn adm-btn--ok" type="button" disabled="@_busy" @onclick="() => PutBack(_preview)">Put back</button>
                 }
             </div>
         </div>
@@ -264,7 +275,7 @@ else
 
             <div class="adm-modal__foot">
                 <button class="adm-btn adm-btn--ghost" type="button" @onclick="Cancel">Cancel</button>
-                <button class="adm-btn adm-btn--danger" type="button" @onclick="ConfirmRemove">Strike down post</button>
+                <button class="adm-btn adm-btn--danger" type="button" disabled="@_busy" @onclick="ConfirmRemove">Strike down post</button>
             </div>
         </div>
     </div>
@@ -284,14 +295,31 @@ else
 
     private const int PageSize = 10;
 
+    private List<AdminHousingPostDto> _posts = new();
+    private List<AdminReportDto> _reports = new();
+    private bool _loading = true;
+    private bool _busy;
+
     private int _tab;
     private int _page = 1;
     private string _query = "";
-    private HousingPost? _target;
-    private HousingPost? _preview;
-    private PostReport? _linkedReport;
+    private AdminHousingPostDto? _target;
+    private AdminHousingPostDto? _preview;
+    private AdminReportDto? _linkedReport;
     private string _reason = Reasons[0];
     private string _note = "";
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        var posts = Admin.GetHousingPostsAsync();
+        var reports = Admin.GetHousingReportsAsync();
+        _posts = await posts;
+        _reports = await reports;
+        _loading = false;
+    }
 
     private string Query
     {
@@ -313,17 +341,15 @@ else
         return _page;
     }
 
-    private int OpenReports => Store.Reports.Count(r => r.Scope == PlanScope.Housing && r.State == ReportState.Open);
+    private int OpenReports => _reports.Count(r => r.State == ModerationReportState.Open);
 
-    private int LiveCount => Store.Housing.Count(p => p.State == PostState.Live);
-
-    private int ReportsFor(string postId) => Store.Reports.Count(r => r.PostId == postId);
+    private int LiveCount => _posts.Count(p => p.State == ModeratedPostState.Live);
 
     private bool Matches(string haystack) =>
         string.IsNullOrWhiteSpace(_query) ||
         haystack.Contains(_query, StringComparison.OrdinalIgnoreCase);
 
-    private void AskRemove(HousingPost? post, PostReport? report)
+    private void AskRemove(AdminHousingPostDto? post, AdminReportDto? report)
     {
         if (post is null) return;
         _preview = null;
@@ -333,10 +359,33 @@ else
         _note = "";
     }
 
-    private void PutBack(HousingPost post)
+    private async Task PutBack(AdminHousingPostDto post)
     {
-        Store.RestoreHousingPost(post.Id);
+        _busy = true;
+        var (ok, message) = await Admin.RestoreHousingPostAsync(post.Id);
+        _busy = false;
+        if (!ok)
+        {
+            Toast.ShowError(message);
+            return;
+        }
+
         _preview = null;
+        await LoadAsync();
+    }
+
+    private async Task Dismiss(AdminReportDto report)
+    {
+        _busy = true;
+        var ok = await Admin.DismissReportAsync(ModerationScope.Housing, report.Id);
+        _busy = false;
+        if (!ok)
+        {
+            Toast.ShowError("Could not dismiss the report.");
+            return;
+        }
+
+        await LoadAsync();
     }
 
     private void Cancel()
@@ -345,18 +394,21 @@ else
         _linkedReport = null;
     }
 
-    private void ConfirmRemove()
+    private async Task ConfirmRemove()
     {
         if (_target is null) return;
 
-        var reason = string.IsNullOrWhiteSpace(_note) ? _reason : $"{_reason} — {_note}";
-        Store.RemoveHousingPost(_target.Id, reason);
-
-        if (_linkedReport is not null)
+        var reason = string.IsNullOrWhiteSpace(_note) ? _reason : $"{_reason} — {_note.Trim()}";
+        _busy = true;
+        var (ok, message) = await Admin.TakeDownHousingPostAsync(_target.Id, reason, _linkedReport?.Id);
+        _busy = false;
+        if (!ok)
         {
-            Store.ResolveReport(_linkedReport.Id, "Post struck down");
+            Toast.ShowError(message);
+            return;
         }
 
         Cancel();
+        await LoadAsync();
     }
 }

@@ -3,6 +3,7 @@
 @using Nestify.Web.Admin
 @inject NavigationManager Navigation
 @inject AdminConsoleService Store
+@inject Nestify.Web.Services.Interfaces.IAdminService Admin
 @inject Nestify.Web.Services.Interfaces.IAuthService AuthService
 
 <div class="adm">
@@ -131,13 +132,23 @@
         }
     }
 
+    protected override async Task OnInitializedAsync() => await RefreshReportsAsync();
+
     private void OnStoreChanged() => InvokeAsync(Refresh);
 
     private void Refresh()
     {
         _pending = Store.PendingApplications;
-        _housingReports = Store.Reports.Count(r => r.Scope == PlanScope.Housing && r.State == ReportState.Open);
-        _marketReports = Store.Reports.Count(r => r.Scope == PlanScope.Marketplace && r.State == ReportState.Open);
+        StateHasChanged();
+    }
+
+    // Report counts come from the API and are re-read on every page change so
+    // a strike or dismissal updates the pills straight away.
+    private async Task RefreshReportsAsync()
+    {
+        var summary = await Admin.GetSummaryAsync();
+        _housingReports = summary.OpenHousingReports;
+        _marketReports = summary.OpenMarketReports;
         StateHasChanged();
     }
 
@@ -157,6 +168,8 @@
             _open = false;
             StateHasChanged();
         }
+
+        _ = InvokeAsync(RefreshReportsAsync);
     }
 
     private static string Initials(string? name)
