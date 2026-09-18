@@ -342,6 +342,9 @@ CREATE TABLE meal_entries (
     house_id                 bigint         NOT NULL REFERENCES houses (id) ON DELETE CASCADE,
     user_id                  bigint         NOT NULL REFERENCES users (id) ON DELETE RESTRICT,
     meal_date                date         NOT NULL,
+    breakfast                numeric(4,1) NOT NULL DEFAULT 0,
+    lunch                   numeric(4,1) NOT NULL DEFAULT 0,
+    dinner                  numeric(4,1) NOT NULL DEFAULT 0,
     meal_count               numeric(4,1) NOT NULL,      -- one decimal allows half meals
     period_year              int          NOT NULL,
     period_month             int          NOT NULL,
@@ -349,7 +352,7 @@ CREATE TABLE meal_entries (
     recorded_by_user_id      bigint         NOT NULL REFERENCES users (id) ON DELETE RESTRICT,
     recorded_at_utc          timestamptz  NOT NULL DEFAULT now(),
 
-    CONSTRAINT ck_meal_count CHECK (meal_count >= 0 AND meal_count <= 10),
+    CONSTRAINT ck_meal_count CHECK (meal_count >= 0 AND meal_count <= 30),
     CONSTRAINT ck_meal_month CHECK (period_month BETWEEN 1 AND 12)
 );
 
@@ -402,13 +405,15 @@ CREATE TABLE settlement_runs (
     house_id                   bigint          NOT NULL REFERENCES houses (id) ON DELETE CASCADE,
     period_year                int           NOT NULL,
     period_month               int           NOT NULL,
-    total_meal_spending        numeric(18,2) NOT NULL,
-    total_meals                numeric(10,1) NOT NULL,
-    per_meal_rate              numeric(18,6) NOT NULL,
-    total_equal_costs          numeric(18,2) NOT NULL,
-    member_count_at_settlement int           NOT NULL,
+    total_meal_spending        numeric(18,2) NOT NULL DEFAULT 0,
+    total_meals                numeric(10,1) NOT NULL DEFAULT 0,
+    per_meal_rate              numeric(18,6) NOT NULL DEFAULT 0,
+    total_equal_costs          numeric(18,2) NOT NULL DEFAULT 0,
+    member_count_at_settlement int           NOT NULL DEFAULT 0,
     status                     smallint      NOT NULL DEFAULT 1,  -- 1 Draft, 2 Finalized
-    computed_by_user_id        bigint          NOT NULL REFERENCES users (id) ON DELETE RESTRICT,
+    opened_by_user_id          bigint          REFERENCES users (id) ON DELETE RESTRICT,
+    opened_at_utc              timestamptz   NOT NULL DEFAULT now(),
+    computed_by_user_id        bigint          REFERENCES users (id) ON DELETE RESTRICT,
     computed_at_utc            timestamptz   NOT NULL DEFAULT now(),
 
     CONSTRAINT ck_settlement_status CHECK (status BETWEEN 1 AND 2),

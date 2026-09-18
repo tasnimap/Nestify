@@ -49,6 +49,14 @@ public sealed class HomeService
         }
 
         using var connection = await _db.OpenAsync();
+        var userExists = await connection.ExecuteScalarAsync<bool>(
+            "SELECT EXISTS (SELECT 1 FROM users WHERE id = @userId)",
+            new { userId });
+        if (!userExists)
+        {
+            return (null, "Your account is no longer available. Please sign out and register again.");
+        }
+
         if (await FindHomeIdAsync(connection, userId) is not null)
         {
             return (null, "You are already in a home.");

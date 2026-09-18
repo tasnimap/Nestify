@@ -15,6 +15,9 @@ public sealed class SettlementService : ISettlementService
     public async Task<IReadOnlyList<SettlementBookDto>?> GetBooksAsync() =>
         await GetOrNullAsync<List<SettlementBookDto>>("api/v1/settlement/mine/books");
 
+    public async Task<IReadOnlyList<MonthlyMemberMealCostDto>?> GetMealCostHistoryAsync() =>
+        await GetOrNullAsync<List<MonthlyMemberMealCostDto>>("api/v1/settlement/mine/meal-cost-history");
+
     public Task<SettlementWorkspaceDto?> GetAsync(int year, int month) =>
         GetOrNullAsync<SettlementWorkspaceDto>(Url("api/v1/settlement/mine", year, month));
 

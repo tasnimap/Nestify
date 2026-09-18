@@ -30,6 +30,17 @@ public sealed class SettlementBookDto
     public short Status { get; set; }
 }
 
+public sealed class MonthlyMemberMealCostDto
+{
+    public long UserId { get; set; }
+    public string MemberName { get; set; } = string.Empty;
+    public int Year { get; set; }
+    public int Month { get; set; }
+    public decimal MealCount { get; set; }
+    public decimal PerMealRate { get; set; }
+    public decimal MealCost { get; set; }
+}
+
 public sealed class SettlementMemberDto
 {
     public long UserId { get; set; }

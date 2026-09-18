@@ -15,6 +15,12 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 var apiBaseUrl = builder.Configuration["ApiBaseUrl"]!;
+if (builder.HostEnvironment.IsDevelopment())
+{
+    apiBaseUrl = builder.HostEnvironment.BaseAddress.StartsWith("https://", StringComparison.OrdinalIgnoreCase)
+        ? "https://localhost:7284/"
+        : "http://localhost:5293/";
+}
 
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddAuthorizationCore();

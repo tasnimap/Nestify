@@ -80,6 +80,19 @@
         {
             <p class="stl__empty">Loading the book…</p>
         }
+        else if (_loadError is not null)
+        {
+            <div class="stl__nobook" style="--delay: 40ms">
+                <svg class="nx-icon stl__nobook-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M12 7v6" />
+                    <path d="M12 17h.01" />
+                </svg>
+                <h2>Could not load settlement</h2>
+                <p>@_loadError</p>
+                <button type="button" class="nx-btn nx-btn--primary" @onclick="RetryLoad">Try again</button>
+            </div>
+        }
         else if (_ws is null)
         {
             <div class="stl__nobook" style="--delay: 40ms">
@@ -395,6 +408,94 @@
                     </tfoot>
                 </table>
             </div>
+
+            @if (_mealCostHistory.Count > 0)
+            {
+                <section class="stl__member-costs" aria-labelledby="member-cost-heading">
+                    <div class="stl__member-costs-head">
+                        <div>
+                            <p class="stl__eyebrow">Monthly view</p>
+                            <h3 id="member-cost-heading">Meal cost by member</h3>
+                            <p>See how each person's meal cost has changed across the house books.</p>
+                        </div>
+                        <span class="stl__tag">@MemberHistory.Count() members</span>
+                    </div>
+                    <div class="stl__member-tabs" role="tablist" aria-label="Member meal cost charts">
+                        @foreach (var member in MemberHistory)
+                        {
+                            <button type="button"
+                                    role="tab"
+                                    aria-selected="@(member.UserId == SelectedHistoryUserId)"
+                                    class="stl__member-tab @(member.UserId == SelectedHistoryUserId ? "is-active" : null)"
+                                    @onclick="() => _selectedHistoryUserId = member.UserId">
+                                <span class="stl__avatar stl__avatar--@(Math.Abs(member.UserId.GetHashCode()) % 4)">@member.MemberName[0]</span>
+                                @member.MemberName
+                            </button>
+                        }
+                    </div>
+                    @if (SelectedMemberHistory.Count() > 0)
+                    {
+                        <div class="stl__member-chart" role="tabpanel">
+                            <div class="stl__member-chart-top">
+                                <strong>@SelectedMemberName</strong>
+                                <span>@SelectedMemberHistory.Sum(item => item.MealCount).ToString("0.#") meals · @SelectedMemberHistory.Sum(item => item.MealCost).ToString("C2", CultureInfo.GetCultureInfo("en-BD")) total cost</span>
+                            </div>
+                            <div class="stl__line-chart" aria-label="Monthly meals and meal cost line chart">
+                                <div class="stl__chart-axis-labels">
+                                    <span>Meals: 0 - @MealsAxisMax.ToString("0.#")</span>
+                                    <span>Cost: ৳0 - ৳@CostAxisMax.ToString("0")</span>
+                                </div>
+                                <svg class="stl__line-svg" viewBox="0 0 760 280" role="img" aria-labelledby="meal-chart-title meal-chart-desc" preserveAspectRatio="none">
+                                    <title id="meal-chart-title">@SelectedMemberName monthly meals and meal cost</title>
+                                    <desc id="meal-chart-desc">Red line shows total meals. Blue line shows total meal cost in taka.</desc>
+                                    @foreach (var grid in new[] { 0, 1, 2, 3, 4 })
+                                    {
+                                        var y = 30 + grid * 48;
+                                        <line class="stl__chart-grid" x1="42" y1="@y" x2="730" y2="@y" />
+                                    }
+                                    <polyline class="stl__line stl__line--meals" points="@MealLinePoints" />
+                                    <polyline class="stl__line stl__line--cost" points="@CostLinePoints" />
+                                    @foreach (var (item, index) in SelectedMemberHistory.Select((item, index) => (item, index)))
+                                    {
+                                        var x = ChartX(index);
+                                        <g class="stl__chart-point">
+                                            <title>@ChartTooltip(item)</title>
+                                            <circle class="stl__point stl__point--meals" cx="@x" cy="@MealsY(item.MealCount)" r="6" />
+                                            <circle class="stl__point stl__point--cost" cx="@x" cy="@CostY(item.MealCost)" r="6" />
+                                            <text class="stl__chart-month" x="@x" y="270" text-anchor="middle">@MonthShort(item.Year, item.Month)</text>
+                                        </g>
+                                    }
+                                </svg>
+                                <div class="stl__chart-y-axis stl__chart-y-axis--left" aria-hidden="true">
+                                    @foreach (var grid in new[] { 0, 1, 2, 3, 4 })
+                                    {
+                                        <span style="top: @ChartTickTop(grid)%">@AxisTick(MealsAxisMax, grid)</span>
+                                    }
+                                </div>
+                                <div class="stl__chart-y-axis stl__chart-y-axis--right" aria-hidden="true">
+                                    @foreach (var grid in new[] { 0, 1, 2, 3, 4 })
+                                    {
+                                        <span style="top: @ChartTickTop(grid)%">৳@CostAxisTick(grid)</span>
+                                    }
+                                </div>
+                                <div class="stl__chart-legend">
+                                    <span><i class="stl__legend-dot stl__legend-dot--meals"></i>Total meals</span>
+                                    <span><i class="stl__legend-dot stl__legend-dot--cost"></i>Total meal cost</span>
+                                </div>
+                            </div>
+                            <div class="stl__chart-footnote">
+                                Hover a point for the exact monthly total. Each metric uses its own scale.
+                            </div>
+                            <div class="stl__chart-data">
+                                @foreach (var item in SelectedMemberHistory)
+                                {
+                                    <span>@MonthShort(item.Year, item.Month): @item.MealCount.ToString("0.#") meals, ৳@item.MealCost.ToString("0.00")</span>
+                                }
+                            </div>
+                        </div>
+                    }
+                </section>
+            }
         </section>
     </div>;
 }
@@ -852,8 +953,11 @@
     private bool _onlyMyColumn;
     private bool _loading = true;
     private bool _busy;
+    private string? _loadError;
 
     private List<SettlementBookDto> _books = [];
+    private List<MonthlyMemberMealCostDto> _mealCostHistory = [];
+    private long _selectedHistoryUserId;
     private int _year = DateTime.Today.Year;
     private int _month = DateTime.Today.Month;
     private SettlementWorkspaceDto? _ws;
@@ -871,6 +975,14 @@
     private bool CanManageOpen => _ws is { CanManage: true } && IsOpen;
 
     private List<SettlementMemberDto> Members => _ws?.Members ?? [];
+    private IEnumerable<MonthlyMemberMealCostDto> MemberHistory =>
+        _mealCostHistory.GroupBy(item => new { item.UserId, item.MemberName }).Select(group => group.First());
+    private long SelectedHistoryUserId => _selectedHistoryUserId != 0
+        ? _selectedHistoryUserId
+        : MemberHistory.FirstOrDefault()?.UserId ?? 0;
+    private IEnumerable<MonthlyMemberMealCostDto> SelectedMemberHistory =>
+        _mealCostHistory.Where(item => item.UserId == SelectedHistoryUserId);
+    private string SelectedMemberName => SelectedMemberHistory.FirstOrDefault()?.MemberName ?? "Member";
     private SettlementResultDto Result => _ws?.Result ?? new SettlementResultDto();
 
     private string PeriodLabel => new DateTime(_year, _month, 1).ToString("MMMM yyyy", CultureInfo.InvariantCulture);
@@ -956,8 +1068,14 @@
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadInitialAsync();
+    }
+
+    private async Task LoadInitialAsync()
+    {
         try
         {
+            _loadError = null;
             var books = await SettlementApi.GetBooksAsync();
             if (books is null)
             {
@@ -966,6 +1084,7 @@
             }
 
             _books = books.ToList();
+            _mealCostHistory = (await SettlementApi.GetMealCostHistoryAsync())?.ToList() ?? [];
             var open = _books.FirstOrDefault(b => b.Status == BookOpen);
             var start = open ?? _books.LastOrDefault();
             (_year, _month) = start is null
@@ -976,12 +1095,20 @@
         }
         catch (Exception ex)
         {
+            _ws = null;
+            _loadError = ex.Message;
             ToastService.ShowError(ex.Message, "Could not load the settlement book");
         }
         finally
         {
             _loading = false;
         }
+    }
+
+    private async Task RetryLoad()
+    {
+        _loading = true;
+        await LoadInitialAsync();
     }
 
     private async Task LoadMonthAsync()
@@ -994,8 +1121,49 @@
     private async Task ReloadAsync()
     {
         _books = (await SettlementApi.GetBooksAsync())?.ToList() ?? [];
+        _mealCostHistory = (await SettlementApi.GetMealCostHistoryAsync())?.ToList() ?? [];
         await LoadMonthAsync();
     }
+
+    private IReadOnlyList<MonthlyMemberMealCostDto> SelectedHistoryItems => SelectedMemberHistory.ToList();
+
+    private string MealLinePoints => string.Join(" ", SelectedHistoryItems.Select((item, index) => $"{ChartX(index)},{MealsY(item.MealCount)}"));
+
+    private string CostLinePoints => string.Join(" ", SelectedHistoryItems.Select((item, index) => $"{ChartX(index)},{CostY(item.MealCost)}"));
+
+    private decimal MealsAxisMax => Math.Max(1m, SelectedHistoryItems.Max(item => item.MealCount));
+    private decimal CostAxisMax => Math.Max(1m, SelectedHistoryItems.Max(item => item.MealCost));
+
+    private decimal ChartX(int index)
+    {
+        var count = Math.Max(1, SelectedHistoryItems.Count - 1);
+        return 42m + index * (688m / count);
+    }
+
+    private decimal MealsY(decimal amount)
+    {
+        return 222m - amount / MealsAxisMax * 192m;
+    }
+
+    private decimal CostY(decimal amount)
+    {
+        return 222m - amount / CostAxisMax * 192m;
+    }
+
+    private static string AxisTick(decimal maximum, int grid) =>
+        (maximum * (4 - grid) / 4m).ToString("0.#", CultureInfo.InvariantCulture);
+
+    private string CostAxisTick(int grid) =>
+        $"{(CostAxisMax * (4 - grid) / 4m):0}";
+
+    private static string ChartTickTop(int grid) =>
+        (grid == 4 ? 100m : grid * 25m).ToString("0.#", CultureInfo.InvariantCulture);
+
+    private static string MonthShort(int year, int month) =>
+        new DateTime(year, month, 1).ToString("MMM yy", CultureInfo.InvariantCulture);
+
+    private static string ChartTooltip(MonthlyMemberMealCostDto item) =>
+        $"{MonthShort(item.Year, item.Month)}: ৳{item.MealCost:0.00} ({item.MealCount:0.#} meals at ৳{item.PerMealRate:0.00})";
 
     private async Task GoToPreviousMonth()
     {

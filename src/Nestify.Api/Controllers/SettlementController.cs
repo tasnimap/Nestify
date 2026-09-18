@@ -26,6 +26,13 @@ public sealed class SettlementController : ControllerBase
         return books is null ? NotFound(new { message = "You are not in a home." }) : Ok(books);
     }
 
+    [HttpGet("mine/meal-cost-history")]
+    public async Task<ActionResult<List<MonthlyMemberMealCostDto>>> GetMealCostHistory()
+    {
+        var history = await _settlements.GetMealCostHistoryAsync(RequireUserId());
+        return history is null ? NotFound(new { message = "You are not in a home." }) : Ok(history);
+    }
+
     [HttpGet("mine")]
     public async Task<ActionResult<SettlementWorkspaceDto>> GetMine([FromQuery] int year, [FromQuery] int month)
     {

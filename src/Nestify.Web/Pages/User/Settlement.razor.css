@@ -52,6 +52,249 @@
     animation-delay: var(--delay, 0ms);
 }
 
+/* ---------- member meal cost history ---------- */
+
+.stl__member-costs {
+    margin-top: 1.5rem;
+    padding: 1.25rem;
+    border: 1px solid var(--nx-line);
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, .76);
+}
+
+.stl__member-costs-head,
+.stl__member-chart-top,
+.stl__chart-legend {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .8rem;
+}
+
+.stl__member-costs-head h3 {
+    margin: .2rem 0 .25rem;
+    color: var(--nx-ink);
+    font-size: 1.15rem;
+}
+
+.stl__member-costs-head p:last-child,
+.stl__chart-legend {
+    margin: 0;
+    color: var(--nx-muted);
+    font-size: .82rem;
+}
+
+.stl__eyebrow {
+    margin: 0;
+    color: var(--nx-primary);
+    font-size: .68rem;
+    font-weight: 800;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.stl__member-tabs {
+    display: flex;
+    gap: .45rem;
+    margin: 1rem 0;
+    overflow-x: auto;
+    padding-bottom: .25rem;
+}
+
+.stl__member-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    flex: 0 0 auto;
+    border: 1px solid var(--nx-line);
+    border-radius: 999px;
+    padding: .4rem .7rem .4rem .45rem;
+    background: #fff;
+    color: var(--nx-muted);
+    cursor: pointer;
+    font: inherit;
+    font-size: .82rem;
+    font-weight: 700;
+}
+
+.stl__member-tab.is-active {
+    border-color: var(--nx-primary);
+    background: var(--nx-primary-softer);
+    color: var(--nx-primary);
+}
+
+.stl__member-tab .stl__avatar {
+    width: 1.7rem;
+    height: 1.7rem;
+    font-size: .72rem;
+}
+
+.stl__member-chart {
+    border-top: 1px solid var(--nx-line);
+    padding-top: 1rem;
+}
+
+.stl__member-chart-top strong {
+    color: var(--nx-ink);
+    font-size: 1rem;
+}
+
+.stl__member-chart-top span {
+    color: var(--nx-muted);
+    font-size: .82rem;
+}
+
+.stl__line-chart {
+    position: relative;
+    margin-top: 1.2rem;
+    border: 1px solid var(--nx-line);
+    border-radius: .75rem;
+    background: linear-gradient(180deg, #fff, var(--nx-primary-softer));
+    padding: 1rem .75rem .65rem;
+}
+
+.stl__chart-axis-labels {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 .35rem .25rem;
+    color: var(--nx-muted);
+    font-size: .68rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.stl__chart-axis-labels span:first-child,
+.stl__chart-y-label--left,
+.stl__legend-dot--meals {
+    color: #ef4444;
+}
+
+.stl__chart-axis-labels span:last-child,
+.stl__chart-y-label--right,
+.stl__legend-dot--cost {
+    color: #1683bd;
+}
+
+.stl__line-svg {
+    display: block;
+    width: 100%;
+    height: 17rem;
+    overflow: visible;
+}
+
+.stl__chart-grid {
+    stroke: var(--nx-line);
+    stroke-width: 1;
+}
+
+.stl__line {
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 4;
+}
+
+.stl__line--meals { stroke: #ef4444; }
+.stl__line--cost { stroke: #1683bd; }
+
+.stl__point {
+    stroke-width: 3;
+    fill: #fff;
+}
+
+.stl__point--meals { stroke: #ef4444; }
+.stl__point--cost { stroke: #1683bd; }
+
+.stl__chart-month {
+    fill: var(--nx-muted);
+    font-size: 11px;
+}
+
+.stl__chart-y-label {
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.stl__chart-y-axis {
+    position: absolute;
+    top: 3.15rem;
+    bottom: 3.1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    pointer-events: none;
+    font-size: .62rem;
+    font-weight: 800;
+}
+
+.stl__chart-y-axis--left {
+    left: .35rem;
+    align-items: flex-end;
+    color: #ef4444;
+}
+
+.stl__chart-y-axis--right {
+    right: .35rem;
+    align-items: flex-start;
+    color: #1683bd;
+}
+
+.stl__chart-legend {
+    justify-content: center;
+    gap: 1.25rem;
+    margin-top: .55rem;
+}
+
+.stl__legend-dot {
+    display: inline-block;
+    width: .65rem;
+    height: .65rem;
+    margin-right: .35rem;
+    border-radius: 50%;
+    vertical-align: -.05rem;
+}
+
+.stl__legend-dot--meals { background: #ef4444; }
+.stl__legend-dot--cost { background: #1683bd; }
+
+.stl__chart-footnote {
+    margin-top: .6rem;
+    color: var(--nx-muted);
+    font-size: .75rem;
+    text-align: center;
+}
+
+.stl__chart-data {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+.stl__chart-legend {
+    margin-top: .7rem;
+}
+
+@media (max-width: 600px) {
+    .stl__member-costs-head,
+    .stl__member-chart-top,
+    .stl__chart-legend {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .stl__line-svg {
+        min-width: 34rem;
+    }
+
+    .stl__line-chart {
+        overflow-x: auto;
+    }
+}
+
 /* ---------- header ---------- */
 
 .stl__header {

@@ -5,6 +5,7 @@ namespace Nestify.Web.Services.Interfaces;
 public interface ISettlementService
 {
     Task<IReadOnlyList<SettlementBookDto>?> GetBooksAsync();
+    Task<IReadOnlyList<MonthlyMemberMealCostDto>?> GetMealCostHistoryAsync();
     Task<SettlementWorkspaceDto?> GetAsync(int year, int month);
     Task<(bool Ok, string Message)> OpenBookAsync(int year, int month);
     Task<(bool Ok, string Message)> AddMemberAsync(int year, int month, long userId);
