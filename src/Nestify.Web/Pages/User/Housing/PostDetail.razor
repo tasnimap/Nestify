@@ -114,9 +114,13 @@
                         <button class="nx-btn nx-btn--primary" disabled="@(!CanBook || _bookingSubmitting)" @onclick="OpenBookingModal">
                             @BookLabel
                         </button>
-                        @if (_post.ViewerHasHome && !_post.IsMine)
+                        @if (BookingUnavailableMessage is not null)
                         {
-                            <p class="field__helper">You already live in a home, so you can't book a seat here.</p>
+                            <p class="field__helper">@BookingUnavailableMessage</p>
+                        }
+                        @if (_requestSent)
+                        {
+                            <a class="nx-btn nx-btn--ghost" href="bookings/mine">View my requests</a>
                         }
                         @if (_post.IsMine)
                         {
@@ -175,12 +179,18 @@
                 </button>
             </header>
             <div class="hs-modal__body">
-                <p>Tell the manager a bit about yourself.</p>
+                <p>Tell the manager a bit about yourself. They can see your note before deciding.</p>
                 <div class="field">
                     <label for="booking-message" class="field__label">Your message (optional)</label>
-                    <textarea id="booking-message" class="field__textarea" @bind="_bookingMessage"
+                    <textarea id="booking-message" class="field__textarea" @bind="_bookingMessage" @bind:event="oninput"
                               placeholder="Tell the manager about yourself..." rows="4"
+                              maxlength="500" aria-describedby="booking-message-help"
                               disabled="@_bookingSubmitting"></textarea>
+                    <p id="booking-message-help" class="field__helper">@_bookingMessage.Length / 500 characters</p>
+                    @if (!string.IsNullOrWhiteSpace(_bookingError))
+                    {
+                        <p class="field__helper" role="alert">@_bookingError</p>
+                    }
                 </div>
             </div>
             <footer class="hs-modal__footer">
@@ -207,27 +217,70 @@
     private bool _showBookingModal = false;
     private string _bookingMessage = string.Empty;
     private bool _bookingSubmitting = false;
+    private string? _bookingError;
+    private bool _requestSent;
+    private string? _loadedPostId;
 
     // Lightbox
     private bool _showLightbox;
     private int _lightboxIndex;
 
-    private bool CanBook => _post is { Status: PostStatus.Active, IsMine: false, ViewerHasHome: false };
+    private bool CanBook => _post is
+    {
+        Status: PostStatus.Active,
+        IsMine: false,
+        ViewerHasHome: false,
+        SeatsAvailable: > 0
+    } && !_requestSent;
 
-    private string BookLabel => _post?.Status switch
+    private string BookLabel => _requestSent ? "Request sent" : _post?.Status switch
     {
         PostStatus.Closed => "Listing closed",
         PostStatus.Filled => "House is full",
+        _ when _post?.IsMine == true => "Your listing",
+        _ when _post?.ViewerHasHome == true => "Already in a home",
+        _ when _post?.SeatsAvailable <= 0 => "No seats available",
         _ => "Book this listing"
+    };
+
+    private string? BookingUnavailableMessage => _post switch
+    {
+        { IsMine: true } => "This is one of your listings.",
+        { ViewerHasHome: true } => "You already live in a home, so you can't book a seat here.",
+        { Status: PostStatus.Active, SeatsAvailable: <= 0 } => "All available seats have been taken.",
+        { Status: PostStatus.Closed } => "This listing is closed to new requests.",
+        { Status: PostStatus.Filled } => "This home is full right now.",
+        _ => null
     };
 
     protected override Task OnParametersSetAsync() => LoadAsync();
 
     private async Task LoadAsync()
     {
+        // A component instance can be reused when the route id changes. Keep a
+        // successful request state for this post, but never carry it to another one.
+        if (!string.Equals(_loadedPostId, Id, StringComparison.Ordinal))
+        {
+            _loadedPostId = Id;
+            _requestSent = false;
+            _showBookingModal = false;
+            _bookingError = null;
+        }
+
         _loading = true;
-        _post = await Housing.GetPostAsync(Id);
-        _loading = false;
+        try
+        {
+            _post = await Housing.GetPostAsync(Id);
+        }
+        catch
+        {
+            _post = null;
+            Toast.ShowError("Could not load this listing. Please try again.", "Housing unavailable");
+        }
+        finally
+        {
+            _loading = false;
+        }
     }
 
     private void OpenLightbox(int index)
@@ -241,6 +294,7 @@
     private void OpenBookingModal()
     {
         _bookingMessage = string.Empty;
+        _bookingError = null;
         _showBookingModal = true;
     }
 
@@ -248,6 +302,7 @@
     {
         _showBookingModal = false;
         _bookingMessage = string.Empty;
+        _bookingError = null;
     }
 
     private async Task SubmitBookingRequest()
@@ -258,20 +313,24 @@
         _bookingSubmitting = true;
         try
         {
-            var success = await Housing.RequestBookingAsync(_post.Id, _bookingMessage);
-            if (success)
+            var result = await Housing.RequestBookingAsync(_post.Id, _bookingMessage);
+            if (result.Ok)
             {
-                Toast.ShowSuccess("Your booking request has been sent!", "Success");
+                _requestSent = true;
+                Toast.ShowSuccess(result.Message, "Request sent");
                 CloseBookingModal();
+                await LoadAsync();
             }
             else
             {
-                Toast.ShowError("Could not send booking request. The listing may have been closed or you've already requested it.", "Failed");
+                _bookingError = result.Message;
+                Toast.ShowWarning(result.Message, "Request not sent");
             }
         }
-        catch (Exception ex)
+        catch
         {
-            Toast.ShowError($"Error sending booking request: {ex.Message}", "Error");
+            _bookingError = "Could not send your request right now. Please try again.";
+            Toast.ShowError(_bookingError, "Request not sent");
         }
         finally
         {
