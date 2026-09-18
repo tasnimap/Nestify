@@ -163,6 +163,18 @@
     text-transform: uppercase;
 }
 
+.stl__chart-axis-labels span:first-child,
+.stl__chart-y-label--left,
+.stl__legend-dot--meals {
+    color: #ef4444;
+}
+
+.stl__chart-axis-labels span:last-child,
+.stl__chart-y-label--right,
+.stl__legend-dot--cost {
+    color: #1683bd;
+}
+
 .stl__line-svg {
     display: block;
     width: 100%;
@@ -182,20 +194,25 @@
     stroke-width: 4;
 }
 
-.stl__line--meals { stroke: #1683bd; }
-.stl__line--cost { stroke: #ef4444; }
+.stl__line--meals { stroke: #ef4444; }
+.stl__line--cost { stroke: #1683bd; }
 
 .stl__point {
     stroke-width: 3;
     fill: #fff;
 }
 
-.stl__point--meals { stroke: #1683bd; }
-.stl__point--cost { stroke: #ef4444; }
+.stl__point--meals { stroke: #ef4444; }
+.stl__point--cost { stroke: #1683bd; }
 
 .stl__chart-month {
     fill: var(--nx-muted);
     font-size: 11px;
+}
+
+.stl__chart-y-label {
+    font-size: 10px;
+    font-weight: 700;
 }
 
 .stl__chart-legend {
@@ -213,8 +230,8 @@
     vertical-align: -.05rem;
 }
 
-.stl__legend-dot--meals { background: #1683bd; }
-.stl__legend-dot--cost { background: #ef4444; }
+.stl__legend-dot--meals { background: #ef4444; }
+.stl__legend-dot--cost { background: #1683bd; }
 
 .stl__chart-footnote {
     margin-top: .6rem;
