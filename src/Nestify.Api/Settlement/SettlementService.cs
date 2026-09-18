@@ -25,6 +25,55 @@ public sealed class SettlementService
         _db = db;
     }
 
+    public async Task EnsureSchemaCompatibilityAsync()
+    {
+        using var connection = await _db.OpenAsync();
+        await connection.ExecuteAsync(
+            """
+            ALTER TABLE settlement_runs
+                ADD COLUMN IF NOT EXISTS opened_by_user_id bigint REFERENCES users (id) ON DELETE RESTRICT;
+            ALTER TABLE settlement_runs
+                ADD COLUMN IF NOT EXISTS opened_at_utc timestamptz NOT NULL DEFAULT now();
+            ALTER TABLE settlement_runs
+                ALTER COLUMN total_meal_spending SET DEFAULT 0,
+                ALTER COLUMN total_meals SET DEFAULT 0,
+                ALTER COLUMN per_meal_rate SET DEFAULT 0,
+                ALTER COLUMN total_equal_costs SET DEFAULT 0,
+                ALTER COLUMN member_count_at_settlement SET DEFAULT 0,
+                ALTER COLUMN computed_by_user_id DROP NOT NULL,
+                ALTER COLUMN computed_at_utc SET DEFAULT now();
+            ALTER TABLE meal_entries
+                ADD COLUMN IF NOT EXISTS breakfast numeric(4,1) NOT NULL DEFAULT 0,
+                ADD COLUMN IF NOT EXISTS lunch numeric(4,1) NOT NULL DEFAULT 0,
+                ADD COLUMN IF NOT EXISTS dinner numeric(4,1) NOT NULL DEFAULT 0;
+            UPDATE meal_entries
+            SET breakfast = meal_count
+            WHERE breakfast = 0 AND lunch = 0 AND dinner = 0 AND meal_count <> 0;
+            ALTER TABLE meal_entries DROP CONSTRAINT IF EXISTS ck_meal_count;
+            ALTER TABLE meal_entries
+                ADD CONSTRAINT ck_meal_count CHECK (meal_count BETWEEN 0 AND 30);
+            INSERT INTO home_members (home_id, user_id, role)
+            SELECT h.id, h.created_by_user_id, 1
+            FROM homes h
+            WHERE NOT EXISTS (
+                    SELECT 1 FROM home_members hm
+                    WHERE hm.home_id = h.id
+                        AND hm.user_id = h.created_by_user_id
+            )
+            AND NOT EXISTS (
+                    SELECT 1 FROM home_members hm
+                    WHERE hm.user_id = h.created_by_user_id
+                        AND hm.left_at_utc IS NULL
+            )
+            AND NOT EXISTS (
+                    SELECT 1 FROM home_members hm
+                    WHERE hm.home_id = h.id
+                        AND hm.role = 1
+                        AND hm.left_at_utc IS NULL
+            );
+            """);
+    }
+
     public async Task<List<SettlementBookDto>?> GetBooksAsync(long userId)
     {
         using var connection = await _db.OpenAsync();
@@ -649,10 +698,60 @@ public sealed class SettlementService
         return transfers;
     }
 
-    private static async Task<Membership?> GetMembershipAsync(IDbConnection connection, IDbTransaction? transaction, long userId) =>
-        await connection.QuerySingleOrDefaultAsync<Membership>(
+    private static async Task<Membership?> GetMembershipAsync(IDbConnection connection, IDbTransaction? transaction, long userId)
+    {
+        var membership = await connection.QuerySingleOrDefaultAsync<Membership>(
             "SELECT home_id AS HomeId, role AS Role FROM home_members WHERE user_id = @userId AND left_at_utc IS NULL",
             new { userId }, transaction);
+
+        if (membership is not null || transaction is not null)
+        {
+            return membership;
+        }
+
+        return await RepairLegacyCreatorMembershipAsync(connection, userId);
+    }
+
+    private static async Task<Membership?> RepairLegacyCreatorMembershipAsync(IDbConnection connection, long userId)
+    {
+        var homeId = await connection.ExecuteScalarAsync<long?>(
+            """
+            SELECT h.id
+            FROM homes h
+            WHERE h.created_by_user_id = @userId
+              AND NOT EXISTS (
+                    SELECT 1 FROM home_members hm
+                    WHERE hm.home_id = h.id AND hm.user_id = @userId
+              )
+              AND NOT EXISTS (
+                    SELECT 1 FROM home_members hm
+                    WHERE hm.user_id = @userId AND hm.left_at_utc IS NULL
+              )
+              AND NOT EXISTS (
+                    SELECT 1 FROM home_members hm
+                    WHERE hm.home_id = h.id AND hm.role = @managerRole AND hm.left_at_utc IS NULL
+              )
+            ORDER BY h.created_at_utc DESC
+            LIMIT 1
+            """, new { userId, managerRole = HomeService.RoleManager });
+
+        if (homeId is null)
+        {
+            return null;
+        }
+
+        await connection.ExecuteAsync(
+            """
+            INSERT INTO home_members (home_id, user_id, role)
+            VALUES (@homeId, @userId, @managerRole)
+            """, new { homeId, userId, managerRole = HomeService.RoleManager });
+
+        return new Membership
+        {
+            HomeId = homeId.Value,
+            Role = HomeService.RoleManager
+        };
+    }
 
     private static async Task<Membership?> GetManagerMembershipAsync(IDbConnection connection, long userId)
     {

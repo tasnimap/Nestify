@@ -80,6 +80,19 @@
         {
             <p class="stl__empty">Loading the book…</p>
         }
+        else if (_loadError is not null)
+        {
+            <div class="stl__nobook" style="--delay: 40ms">
+                <svg class="nx-icon stl__nobook-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M12 7v6" />
+                    <path d="M12 17h.01" />
+                </svg>
+                <h2>Could not load settlement</h2>
+                <p>@_loadError</p>
+                <button type="button" class="nx-btn nx-btn--primary" @onclick="RetryLoad">Try again</button>
+            </div>
+        }
         else if (_ws is null)
         {
             <div class="stl__nobook" style="--delay: 40ms">
@@ -852,6 +865,7 @@
     private bool _onlyMyColumn;
     private bool _loading = true;
     private bool _busy;
+    private string? _loadError;
 
     private List<SettlementBookDto> _books = [];
     private int _year = DateTime.Today.Year;
@@ -956,8 +970,14 @@
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadInitialAsync();
+    }
+
+    private async Task LoadInitialAsync()
+    {
         try
         {
+            _loadError = null;
             var books = await SettlementApi.GetBooksAsync();
             if (books is null)
             {
@@ -976,12 +996,20 @@
         }
         catch (Exception ex)
         {
+            _ws = null;
+            _loadError = ex.Message;
             ToastService.ShowError(ex.Message, "Could not load the settlement book");
         }
         finally
         {
             _loading = false;
         }
+    }
+
+    private async Task RetryLoad()
+    {
+        _loading = true;
+        await LoadInitialAsync();
     }
 
     private async Task LoadMonthAsync()

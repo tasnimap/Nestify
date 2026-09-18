@@ -20,6 +20,7 @@
 @using Nestify.Web.Services.Interfaces
 @inject IHomeService HomeService
 @inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Navigation
 @inject IJSRuntime JS
 @implements IDisposable
 
@@ -584,6 +585,10 @@
             _home = await HomeService.GetMyHomeAsync();
             _myRequest = _home is null ? await HomeService.GetMyJoinRequestAsync() : null;
             _loadError = null;
+        }
+        catch (ApplicationException ex) when (ex.Message == "Your session has ended. Please sign in again.")
+        {
+            Navigation.NavigateTo("/auth", replace: true);
         }
         catch (Exception ex)
         {

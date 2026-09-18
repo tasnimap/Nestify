@@ -58,6 +58,14 @@ CREATE TABLE IF NOT EXISTS meal_entries (
     CONSTRAINT ck_meal_month CHECK (period_month BETWEEN 1 AND 12)
 );
 
+ALTER TABLE meal_entries
+    ADD COLUMN IF NOT EXISTS breakfast numeric(4,1) NOT NULL DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS lunch numeric(4,1) NOT NULL DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS dinner numeric(4,1) NOT NULL DEFAULT 0;
+ALTER TABLE meal_entries DROP CONSTRAINT IF EXISTS ck_meal_count;
+ALTER TABLE meal_entries
+    ADD CONSTRAINT ck_meal_count CHECK (meal_count BETWEEN 0 AND 30);
+
 CREATE TABLE IF NOT EXISTS meal_entry_audits (
     id             bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     meal_entry_id  bigint NOT NULL REFERENCES meal_entries (id) ON DELETE RESTRICT,
@@ -128,6 +136,40 @@ CREATE TABLE IF NOT EXISTS settlement_runs (
     computed_at_utc            timestamptz,
     CONSTRAINT ck_settlement_status CHECK (status BETWEEN 1 AND 2),
     CONSTRAINT ck_settlement_month CHECK (period_month BETWEEN 1 AND 12)
+);
+
+-- Older databases created from nestify-schema.sql used computed_by_user_id as
+-- a required creation field and did not have opened_by_user_id. Keep those
+-- databases compatible with the current open/finalize workflow.
+ALTER TABLE settlement_runs
+    ADD COLUMN IF NOT EXISTS opened_by_user_id bigint REFERENCES users (id) ON DELETE RESTRICT;
+
+ALTER TABLE settlement_runs
+    ADD COLUMN IF NOT EXISTS opened_at_utc timestamptz NOT NULL DEFAULT now();
+
+ALTER TABLE settlement_runs
+    ALTER COLUMN total_meal_spending SET DEFAULT 0,
+    ALTER COLUMN total_meals SET DEFAULT 0,
+    ALTER COLUMN per_meal_rate SET DEFAULT 0,
+    ALTER COLUMN total_equal_costs SET DEFAULT 0,
+    ALTER COLUMN member_count_at_settlement SET DEFAULT 0,
+    ALTER COLUMN computed_by_user_id DROP NOT NULL,
+    ALTER COLUMN computed_at_utc SET DEFAULT now();
+
+-- Repair homes created before the creator membership was persisted.
+INSERT INTO home_members (home_id, user_id, role)
+SELECT h.id, h.created_by_user_id, 1
+FROM homes h
+WHERE NOT EXISTS (
+        SELECT 1 FROM home_members hm
+        WHERE hm.home_id = h.id
+            AND hm.user_id = h.created_by_user_id
+            AND hm.left_at_utc IS NULL
+)
+AND NOT EXISTS (
+        SELECT 1 FROM home_members hm
+        WHERE hm.user_id = h.created_by_user_id
+            AND hm.left_at_utc IS NULL
 );
 
 -- Who is in the book: everyone in the home when it was opened, plus anyone

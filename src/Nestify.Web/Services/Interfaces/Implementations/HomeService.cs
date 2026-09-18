@@ -60,7 +60,16 @@ public sealed class HomeService : IHomeService
     // The name and email come from the token on the API side, so both are ignored here.
     public async Task<HomeView> CreateHomeAsync(HomeDetailsRequest request, string myName, string myEmail)
     {
-        var response = await _httpClient.PostAsJsonAsync("api/v1/homes", ToDetails(request));
+        HttpResponseMessage response;
+        try
+        {
+            response = await _httpClient.PostAsJsonAsync("api/v1/homes", ToDetails(request));
+        }
+        catch (HttpRequestException)
+        {
+            throw new ApplicationException("Could not reach the server.");
+        }
+
         if (!response.IsSuccessStatusCode)
         {
             throw new ApplicationException(await ReadMessageAsync(response) ?? "Could not create the home.");
