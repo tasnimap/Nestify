@@ -28,6 +28,16 @@ public static class HousingHooks
             new { joined = BookingJoined, homeId, userId, pending = BookingPending, accepted = BookingAccepted },
             transaction);
 
+        await SynchronizeHomeCapacityAsync(connection, transaction, homeId);
+    }
+
+    // Called after a member leaves, is removed, or a manager changes capacity.
+    // Filled listings become available again as soon as the home has a free seat.
+    public static Task AfterCapacityChangedAsync(IDbConnection connection, IDbTransaction transaction, long homeId) =>
+        SynchronizeHomeCapacityAsync(connection, transaction, homeId);
+
+    private static async Task SynchronizeHomeCapacityAsync(IDbConnection connection, IDbTransaction transaction, long homeId)
+    {
         var full = await connection.ExecuteScalarAsync<bool>(
             @"SELECT (SELECT count(*) FROM home_members WHERE home_id = @homeId AND left_at_utc IS NULL)
                      >= COALESCE((SELECT max_occupants FROM home_capacity WHERE home_id = @homeId), 4)",
@@ -36,6 +46,12 @@ public static class HousingHooks
 
         if (!full)
         {
+            await connection.ExecuteAsync(
+                @"UPDATE housing_posts
+                  SET status = @active, closed_at_utc = NULL, updated_at_utc = now()
+                  WHERE home_id = @homeId AND status = @filled",
+                new { homeId, active = PostActive, filled = PostFilled },
+                transaction);
             return;
         }
 

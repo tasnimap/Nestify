@@ -79,6 +79,10 @@ public sealed class UserProfileService
             """
             UPDATE user_additional_profile_info
             SET occupation          = COALESCE(@occupation, occupation),
+                gender              = @gender,
+                date_of_birth       = @dateOfBirth,
+                is_smoker           = @isSmoker,
+                is_drinker          = @isDrinker,
                 organization_name   = COALESCE(@organizationName, organization_name),
                 address             = COALESCE(@address, address),
                 whatsapp_number     = COALESCE(@whatsapp, whatsapp_number),
@@ -92,6 +96,10 @@ public sealed class UserProfileService
             {
                 userId,
                 occupation = Clean(dto.Occupation),
+                gender = dto.Gender is { } gender ? (short?)gender : null,
+                dateOfBirth = dto.DateOfBirth,
+                isSmoker = dto.IsSmoker,
+                isDrinker = dto.IsDrinker,
                 organizationName = Clean(dto.OrganizationName),
                 address = Clean(dto.Address),
                 whatsapp = Clean(dto.WhatsappNumber),
@@ -127,6 +135,10 @@ public sealed class UserProfileService
                    u.created_at_utc        AS CreatedAtUtc,
                    p.profile_picture_url   AS ProfilePictureUrl,
                    p.occupation            AS Occupation,
+                   p.gender                AS Gender,
+                   p.date_of_birth         AS DateOfBirth,
+                   p.is_smoker             AS IsSmoker,
+                   p.is_drinker            AS IsDrinker,
                    p.organization_name     AS OrganizationName,
                    p.is_verified           AS IsVerified,
                    p.address               AS Address,
@@ -157,6 +169,10 @@ public sealed class UserProfileService
                 ? UserProfileDto.DefaultPictureUrl
                 : row.ProfilePictureUrl,
             Occupation = row.Occupation,
+            Gender = row.Gender is { } gender ? (ProfileGender)gender : null,
+            DateOfBirth = row.DateOfBirth,
+            IsSmoker = row.IsSmoker,
+            IsDrinker = row.IsDrinker,
             OrganizationName = row.OrganizationName,
             VerificationState = row.IsVerified
                 ? VerificationState.Verified
@@ -196,6 +212,10 @@ public sealed class UserProfileService
         public DateTime CreatedAtUtc { get; set; }
         public string ProfilePictureUrl { get; set; } = string.Empty;
         public string? Occupation { get; set; }
+        public short? Gender { get; set; }
+        public DateOnly? DateOfBirth { get; set; }
+        public bool? IsSmoker { get; set; }
+        public bool? IsDrinker { get; set; }
         public string? OrganizationName { get; set; }
         public bool IsVerified { get; set; }
         public string? Address { get; set; }

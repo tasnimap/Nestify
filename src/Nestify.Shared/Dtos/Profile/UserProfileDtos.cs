@@ -2,6 +2,7 @@
 namespace Nestify.Shared.Dtos.Profile;
 
 public enum VerificationState { NotApplied, Pending, Verified, Rejected }
+public enum ProfileGender { Male, Female }
 
 /// <summary>
 /// The user_additional_profile_info row, plus the few users columns the profile
@@ -20,6 +21,10 @@ public sealed class UserProfileDto
 
     public string ProfilePictureUrl { get; set; } = DefaultPictureUrl;
     public string? Occupation { get; set; }
+    public ProfileGender? Gender { get; set; }
+    public DateOnly? DateOfBirth { get; set; }
+    public bool? IsSmoker { get; set; }
+    public bool? IsDrinker { get; set; }
     public string? OrganizationName { get; set; }
     public VerificationState VerificationState { get; set; }
     public string? Address { get; set; }
@@ -36,6 +41,10 @@ public sealed class UserProfileDto
 public sealed class UpdateUserProfileDto
 {
     public string? Occupation { get; set; }
+    public ProfileGender? Gender { get; set; }
+    public DateOnly? DateOfBirth { get; set; }
+    public bool? IsSmoker { get; set; }
+    public bool? IsDrinker { get; set; }
     public string? OrganizationName { get; set; }
     public string? Address { get; set; }
     public string? WhatsappNumber { get; set; }

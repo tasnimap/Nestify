@@ -72,10 +72,13 @@ public interface IHousingService
     Task<IReadOnlyList<BookingRequesterDto>> GetRequestersAsync(string postId);
 
     /// <summary>Manager accepts — the only transition that unlocks mutual disclosure (§11.4.2).</summary>
-    Task<bool> AcceptBookingAsync(string bookingId);
+    Task<(bool Ok, string Message)> AcceptBookingAsync(string bookingId);
 
     /// <summary>Manager rejects.</summary>
-    Task<bool> RejectBookingAsync(string bookingId, RejectBookingRequestDto request);
+    Task<(bool Ok, string Message)> RejectBookingAsync(string bookingId, RejectBookingRequestDto request);
+
+    /// <summary>Manager releases an Accepted reservation when the move-in falls through.</summary>
+    Task<(bool Ok, string Message)> ReleaseBookingAsync(string bookingId, RejectBookingRequestDto request);
 
     /// <summary>
     /// Returns contact only when the booking is Accepted and the caller is a party to it —

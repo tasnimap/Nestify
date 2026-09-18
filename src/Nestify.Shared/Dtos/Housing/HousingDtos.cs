@@ -221,6 +221,8 @@ public sealed class MyBookingDto
     public BookingStatus Status { get; set; } = BookingStatus.Pending;
     public DateTime RequestedAtUtc { get; set; }
     public string? Message { get; set; }
+    /// <summary>Optional note the manager left when rejecting this request.</summary>
+    public string? ReplyMessage { get; set; }
     public string? ManagerName { get; set; } // Populated only when Status == Accepted
     public string HomeName { get; set; } = string.Empty;
 }

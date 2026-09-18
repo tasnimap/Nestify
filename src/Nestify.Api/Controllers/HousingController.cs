@@ -100,6 +100,10 @@ public sealed class HousingController : ControllerBase
     public async Task<IActionResult> Reject(long id, RejectBookingRequestDto dto) =>
         Result(await _housing.RejectBookingAsync(RequireUserId(), id, dto.Message));
 
+    [HttpPost("bookings/{id:long}/release")]
+    public async Task<IActionResult> Release(long id, RejectBookingRequestDto dto) =>
+        Result(await _housing.ReleaseBookingAsync(RequireUserId(), id, dto.Message));
+
     [HttpPost("bookings/{id:long}/withdraw")]
     public async Task<IActionResult> Withdraw(long id) =>
         Result(await _housing.WithdrawBookingAsync(RequireUserId(), id));
