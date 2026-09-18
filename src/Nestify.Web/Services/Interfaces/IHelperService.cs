@@ -46,4 +46,8 @@ public interface IHelperService
     Task SubmitVerificationAsync(
         string documentType,
         IBrowserFile file);
+
+    Task<HelperVerificationStatusDto?> GetVerificationStatusAsync();
+
+    Task CancelVerificationAsync();
 }

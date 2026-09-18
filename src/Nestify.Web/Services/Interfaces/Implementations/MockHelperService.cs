@@ -506,6 +506,11 @@ public sealed class MockHelperService : IHelperService
         return Task.CompletedTask;
     }
 
+    public Task<HelperVerificationStatusDto?> GetVerificationStatusAsync()
+        => Task.FromResult<HelperVerificationStatusDto?>(new HelperVerificationStatusDto { IsPending = false });
+
+    public Task CancelVerificationAsync() => Task.CompletedTask;
+
     private HelperSummaryDto ToSummary(Helper helper)
     {
         return new HelperSummaryDto

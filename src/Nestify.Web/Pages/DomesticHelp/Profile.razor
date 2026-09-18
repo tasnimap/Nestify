@@ -364,7 +364,7 @@
             </div>
             <footer class="md-modal__foot">
                 <button type="button" class="nx-btn nx-btn--ghost" @onclick="CloseVerification">Cancel</button>
-                <button type="button" class="nx-btn nx-btn--accent" @onclick="SubmitVerification">Submit for review</button>
+                <button type="button" class="nx-btn nx-btn--accent" disabled="@_submittingVerification" @onclick="SubmitVerification">@(_submittingVerification ? "Submitting…" : "Submit for review")</button>
             </footer>
         </div>
     </div>
@@ -430,8 +430,10 @@
 
     private bool _showVerification;
     private string _verificationType = string.Empty;
+    private IBrowserFile? _verificationFile;
     private string? _verificationPreview;
     private string? _verificationError;
+    private bool _submittingVerification;
 
     private bool _showPassword;
     private bool _showCurrent, _showNew, _showConfirm;
@@ -450,6 +452,7 @@
     {
         Workspace.Changed += OnWorkspaceChanged;
         _user = (await AuthProvider.GetAuthenticationStateAsync()).User;
+        await Workspace.LoadVerificationAsync();
         await Load();
     }
 
@@ -538,6 +541,7 @@
     private void OpenVerification()
     {
         _verificationType = string.Empty;
+        _verificationFile = null;
         _verificationPreview = null;
         _verificationError = null;
         _showVerification = true;
@@ -550,6 +554,7 @@
         try
         {
             _verificationPreview = await ToDataUrl(e.File);
+            _verificationFile = e.File;
             _verificationError = null;
         }
         catch
@@ -558,23 +563,42 @@
         }
     }
 
-    private void SubmitVerification()
+    private async Task SubmitVerification()
     {
-        if (string.IsNullOrWhiteSpace(_verificationType) || _verificationPreview is null)
+        if (string.IsNullOrWhiteSpace(_verificationType) || _verificationFile is null)
         {
             _verificationError = "Choose a document type and a photo to continue.";
             return;
         }
 
-        Workspace.SubmitVerification(_verificationType);
-        _showVerification = false;
-        Toast.ShowSuccess("An admin will review your document shortly.", "Submitted");
+        _submittingVerification = true;
+        try
+        {
+            await Workspace.SubmitVerification(_verificationType, _verificationFile);
+            _showVerification = false;
+            Toast.ShowSuccess("An admin will review your document shortly.", "Submitted");
+        }
+        catch (Exception ex)
+        {
+            _verificationError = ex.Message;
+        }
+        finally
+        {
+            _submittingVerification = false;
+        }
     }
 
-    private void CancelVerification()
+    private async Task CancelVerification()
     {
-        Workspace.CancelVerification();
-        Toast.ShowInfo("Your verification application was withdrawn.", "Verification");
+        try
+        {
+            await Workspace.CancelVerification();
+            Toast.ShowInfo("Your verification application was withdrawn.", "Verification");
+        }
+        catch (Exception ex)
+        {
+            Toast.ShowWarning(ex.Message, "Verification");
+        }
     }
 
     // ---------- password ----------

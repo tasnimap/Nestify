@@ -140,3 +140,10 @@ public sealed class EngagementDto
     public bool HelperMarkedComplete { get; set; }
     public bool CanReview { get; set; }
 }
+
+public sealed class HelperVerificationStatusDto
+{
+    public bool IsPending { get; set; }
+    public string? DocumentType { get; set; }
+    public DateTime? SubmittedAtUtc { get; set; }
+}

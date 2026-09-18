@@ -75,7 +75,7 @@ builder.Services.AddScoped<Nestify.Web.Admin.AdminProfileClient>();
 
 // Helper (maid) workspace — sample availability, schedule, requests and reviews
 // kept as a Singleton so edits survive navigating between the helper pages.
-builder.Services.AddSingleton<Nestify.Web.Maid.MaidWorkspaceService>();
+builder.Services.AddScoped<Nestify.Web.Maid.MaidWorkspaceService>();
 
 // The helper profile page reads the signed-in helper's own users row.
 builder.Services.AddScoped<Nestify.Web.Maid.MaidAccountClient>();
