@@ -1,7 +1,9 @@
 using System.Text;
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Nestify.Api.Admin;
+using Nestify.Api.Assistant;
 using Nestify.Api.Auth;
 using Nestify.Api.Data;
 using Nestify.Api.Helpers;
@@ -61,6 +63,28 @@ builder.Services.AddScoped<MarketplaceService>();
 builder.Services.AddScoped<AdminConsoleService>();
 builder.Services.AddSingleton(cloudinarySettings);
 builder.Services.AddHttpClient<CloudinaryUploader>();
+builder.Services.AddHttpClient<GeminiAssistantService>(client =>
+{
+    client.BaseAddress = new Uri("https://generativelanguage.googleapis.com/");
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddPolicy("assistant-chat", context =>
+    {
+        var userId = context.User.FindFirst("sub")?.Value
+                     ?? context.Connection.RemoteIpAddress?.ToString()
+                     ?? "anonymous";
+        return RateLimitPartition.GetFixedWindowLimiter(userId, _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 12,
+            Window = TimeSpan.FromMinutes(1),
+            QueueLimit = 0,
+            AutoReplenishment = true
+        });
+    });
+});
 
 builder.Services.AddCors(options =>
 {
@@ -106,6 +130,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 app.UseAuthentication();
+app.UseRateLimiter();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();

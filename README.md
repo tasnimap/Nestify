@@ -51,6 +51,14 @@ Nestify is an integrated web platform for Bangladeshi university students and ba
 ### AI-Assisted Features
 - **Smart Maid Recommendation** — ranks domestic help by proximity, charge, and availability
 - **Roommate Compatibility Matching** — matches users by budget, location, lifestyle habits, and study schedule
+- **Nestify Assistant** — authenticated Gemini-powered guidance for home management, settlement, housing, marketplace, and privacy questions. Its API key stays on the server; chat requests are rate-limited and only a minimal, non-identifying home summary is supplied as context.
+
+### Configure the Nestify Assistant
+
+1. Create a Gemini API key in [Google AI Studio](https://aistudio.google.com/app/apikey).
+2. Add `GEMINI_API_KEY=...` to the root `.env` file (never the Web project or source control).
+3. Optionally set `GEMINI_MODEL=gemini-3.6-flash`; this is the default when omitted.
+4. Restart the API. The assistant is available to signed-in users at `POST /api/v1/assistant/chat`.
 
 ### Admin Features
 - Report & content moderation (listings, marketplace posts, Maid profiles, reviews)

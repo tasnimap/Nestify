@@ -42,6 +42,7 @@ builder.Services.AddScoped(sp =>
 });
 
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IAssistantService, AssistantService>();
 
 // Extra profile details (picture, occupation, address, socials)
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();

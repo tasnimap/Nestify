@@ -239,11 +239,18 @@
                     </ul>
                 </section>
 
-                <NestifyAssistant Home="_home" />
             </div>
         }
     </div>
 </section>
+
+@* Keep the fixed assistant outside the animated page/grid containers. Fixed
+   overlays inside those containers can be positioned against the container
+   instead of the viewport in some browser layouts. *@
+@if (_home is not null)
+{
+    <NestifyAssistant Home="_home" />
+}
 
 @if (_openMenuId is not null)
 {
