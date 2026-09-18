@@ -17,6 +17,7 @@
 @page "/home"
 @attribute [Authorize(Roles = "User")]
 @using System.Security.Claims
+@using Nestify.Web.Components.Home
 @using Nestify.Web.Services.Interfaces
 @inject IHomeService HomeService
 @inject AuthenticationStateProvider AuthStateProvider
@@ -237,6 +238,8 @@
                         }
                     </ul>
                 </section>
+
+                <NestifyAssistant Home="_home" />
             </div>
         }
     </div>
