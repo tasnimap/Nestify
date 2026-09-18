@@ -452,8 +452,6 @@
                                     {
                                         var y = 30 + grid * 48;
                                         <line class="stl__chart-grid" x1="42" y1="@y" x2="730" y2="@y" />
-                                        <text class="stl__chart-y-label stl__chart-y-label--left" x="36" y="@(y + 4)" text-anchor="end">@AxisTick(MealsAxisMax, grid)</text>
-                                        <text class="stl__chart-y-label stl__chart-y-label--right" x="736" y="@(y + 4)">@CostAxisTick(grid)</text>
                                     }
                                     <polyline class="stl__line stl__line--meals" points="@MealLinePoints" />
                                     <polyline class="stl__line stl__line--cost" points="@CostLinePoints" />
@@ -468,6 +466,18 @@
                                         </g>
                                     }
                                 </svg>
+                                <div class="stl__chart-y-axis stl__chart-y-axis--left" aria-hidden="true">
+                                    @foreach (var grid in new[] { 0, 1, 2, 3, 4 })
+                                    {
+                                        <span style="top: @ChartTickTop(grid)%">@AxisTick(MealsAxisMax, grid)</span>
+                                    }
+                                </div>
+                                <div class="stl__chart-y-axis stl__chart-y-axis--right" aria-hidden="true">
+                                    @foreach (var grid in new[] { 0, 1, 2, 3, 4 })
+                                    {
+                                        <span style="top: @ChartTickTop(grid)%">৳@CostAxisTick(grid)</span>
+                                    }
+                                </div>
                                 <div class="stl__chart-legend">
                                     <span><i class="stl__legend-dot stl__legend-dot--meals"></i>Total meals</span>
                                     <span><i class="stl__legend-dot stl__legend-dot--cost"></i>Total meal cost</span>
@@ -1144,7 +1154,10 @@
         (maximum * (4 - grid) / 4m).ToString("0.#", CultureInfo.InvariantCulture);
 
     private string CostAxisTick(int grid) =>
-        $"৳{(CostAxisMax * (4 - grid) / 4m):0}";
+        $"{(CostAxisMax * (4 - grid) / 4m):0}";
+
+    private static string ChartTickTop(int grid) =>
+        (grid == 4 ? 100m : grid * 25m).ToString("0.#", CultureInfo.InvariantCulture);
 
     private static string MonthShort(int year, int month) =>
         new DateTime(year, month, 1).ToString("MMM yy", CultureInfo.InvariantCulture);

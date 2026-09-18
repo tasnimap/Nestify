@@ -215,6 +215,30 @@
     font-weight: 700;
 }
 
+.stl__chart-y-axis {
+    position: absolute;
+    top: 3.15rem;
+    bottom: 3.1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    pointer-events: none;
+    font-size: .62rem;
+    font-weight: 800;
+}
+
+.stl__chart-y-axis--left {
+    left: .35rem;
+    align-items: flex-end;
+    color: #ef4444;
+}
+
+.stl__chart-y-axis--right {
+    right: .35rem;
+    align-items: flex-start;
+    color: #1683bd;
+}
+
 .stl__chart-legend {
     justify-content: center;
     gap: 1.25rem;
