@@ -50,4 +50,12 @@ public interface IHelperService
     Task<HelperVerificationStatusDto?> GetVerificationStatusAsync();
 
     Task CancelVerificationAsync();
+
+    Task<HelperWorkspaceDashboardDto?> GetWorkspaceDashboardAsync();
+    Task<HelperAvailabilityDto?> GetAvailabilityAsync(DateTime weekStart);
+    Task SaveAvailabilityAsync(HelperAvailabilityDto availability);
+    Task<HelperWorkspaceScheduleDto?> GetWorkspaceScheduleAsync(DateTime weekStart);
+    Task<HelperWorkspaceEngagementsDto?> GetWorkspaceEngagementsAsync();
+    Task AcceptWorkspaceEngagementAsync(string id);
+    Task DeclineWorkspaceEngagementAsync(string id, string? reason);
 }

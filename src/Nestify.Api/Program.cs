@@ -50,6 +50,7 @@ builder.Services.AddSingleton(new DbConnectionFactory(connectionString));
 builder.Services.AddSingleton<JwtTokenService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<HelperService>();
+builder.Services.AddScoped<HelperWorkspaceService>();
 builder.Services.AddScoped<UserProfileService>();
 builder.Services.AddScoped<VerificationService>();
 builder.Services.AddScoped<HomeService>();

@@ -511,6 +511,14 @@ public sealed class MockHelperService : IHelperService
 
     public Task CancelVerificationAsync() => Task.CompletedTask;
 
+    public Task<HelperWorkspaceDashboardDto?> GetWorkspaceDashboardAsync() => Task.FromResult<HelperWorkspaceDashboardDto?>(null);
+    public Task<HelperAvailabilityDto?> GetAvailabilityAsync(DateTime weekStart) => Task.FromResult<HelperAvailabilityDto?>(null);
+    public Task SaveAvailabilityAsync(HelperAvailabilityDto availability) => Task.CompletedTask;
+    public Task<HelperWorkspaceScheduleDto?> GetWorkspaceScheduleAsync(DateTime weekStart) => Task.FromResult<HelperWorkspaceScheduleDto?>(null);
+    public Task<HelperWorkspaceEngagementsDto?> GetWorkspaceEngagementsAsync() => Task.FromResult<HelperWorkspaceEngagementsDto?>(null);
+    public Task AcceptWorkspaceEngagementAsync(string id) => Task.CompletedTask;
+    public Task DeclineWorkspaceEngagementAsync(string id, string? reason) => Task.CompletedTask;
+
     private HelperSummaryDto ToSummary(Helper helper)
     {
         return new HelperSummaryDto
