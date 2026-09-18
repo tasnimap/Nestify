@@ -1,4 +1,5 @@
 @using Nestify.Web.Services.Interfaces
+@inject IAssistantService AssistantService
 
 @if (_isOpen)
 {
@@ -24,14 +25,20 @@
             <div class="hm-assistant__suggestions" aria-label="Suggested questions">
                 @foreach (var suggestion in Suggestions)
                 {
-                    <button type="button" class="hm-assistant__suggestion" @onclick="() => Ask(suggestion)">@suggestion</button>
+                    <button type="button" class="hm-assistant__suggestion" disabled="@_isSending" @onclick="() => AskAsync(suggestion)">@suggestion</button>
                 }
             </div>
             <div class="hm-assistant__conversation" aria-live="polite">
                 @foreach (var message in Messages)
                 {
                     <div class="hm-assistant__message hm-assistant__message--@message.Kind">
-                        @message.Text
+                        @((MarkupString)RenderMessage(message.Text))
+                    </div>
+                }
+                @if (_isSending)
+                {
+                    <div class="hm-assistant__message hm-assistant__message--assistant hm-assistant__typing" aria-label="Nestify Assistant is thinking">
+                        <span></span><span></span><span></span>
                     </div>
                 }
             </div>
@@ -40,8 +47,8 @@
         <footer class="hm-assistant__composer">
             <label class="hm-assistant__sr-only" for="assistant-question">Ask Nestify Assistant</label>
             <input id="assistant-question" @bind="Question" @bind:event="oninput"
-                   @onkeydown="HandleKeyDown" placeholder="Ask Nestify..." />
-            <button type="button" class="hm-assistant__send" title="Send message" aria-label="Send message" disabled="@string.IsNullOrWhiteSpace(Question)" @onclick="Submit">
+                   @onkeydown="HandleKeyDownAsync" placeholder="Ask Nestify..." disabled="@_isSending" />
+            <button type="button" class="hm-assistant__send" title="Send message" aria-label="Send message" disabled="@(string.IsNullOrWhiteSpace(Question) || _isSending)" @onclick="SubmitAsync">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 3-7.2 18-3.8-8L2 9Z" /><path d="M21 3 10 13" /></svg>
             </button>
         </footer>
@@ -56,6 +63,7 @@
     [Parameter, EditorRequired] public HomeView Home { get; set; } = new();
 
     private bool _isOpen;
+    private bool _isSending;
     private string Question { get; set; } = string.Empty;
     private List<AssistantMessage> Messages { get; } =
     [
@@ -74,68 +82,61 @@
 
     private void Close() => _isOpen = false;
 
-    private void HandleKeyDown(KeyboardEventArgs args)
+    private async Task HandleKeyDownAsync(KeyboardEventArgs args)
     {
-        if (args.Key == "Enter")
+        if (args.Key == "Enter" && !_isSending)
         {
-            Submit();
+            await SubmitAsync();
         }
     }
 
-    private void Ask(string question)
+    private async Task AskAsync(string question)
     {
         Question = question;
-        Submit();
+        await SubmitAsync();
     }
 
-    private void Submit()
+    private async Task SubmitAsync()
     {
         var question = Question.Trim();
-        if (question.Length == 0)
+        if (question.Length == 0 || _isSending)
         {
             return;
         }
 
         Messages.Add(new AssistantMessage("user", question));
-        Messages.Add(new AssistantMessage("assistant", Respond(question)));
         Question = string.Empty;
+        _isSending = true;
+        try
+        {
+            var history = Messages
+                .Take(Messages.Count - 1)
+                .TakeLast(8)
+                .Select(message => new AssistantChatMessage(message.Kind, message.Text))
+                .ToArray();
+            var reply = await AssistantService.AskAsync(question, history);
+            Messages.Add(new AssistantMessage("assistant", reply));
+        }
+        finally
+        {
+            _isSending = false;
+        }
     }
 
-    private string Respond(string question)
+    // The model returns plain text. Encode it before interpreting the small,
+    // presentation-only Markdown subset below, so a model response can never
+    // inject HTML into the page.
+    private static string RenderMessage(string text)
     {
-        var text = question.ToLowerInvariant();
-
-        if (text.Contains("meal") || text.Contains("settlement") || text.Contains("expense") || text.Contains("cost"))
-        {
-            return "Settlement uses: per-meal rate = total grocery spend / total consumed meals. Each member's net balance = out-of-pocket payments - (their meal cost + equal fixed share). Open Settlement to review the monthly member breakdown.";
-        }
-
-        if (text.Contains("seat") || text.Contains("occup") || text.Contains("free"))
-        {
-            return $"{Home.Name} has {Home.FreeSeats} free seat{(Home.FreeSeats == 1 ? "" : "s")} out of {Home.MaxOccupants}. Housing posts and searches must use the correct UpazilaId for the location.";
-        }
-
-        if (text.Contains("manager") || text.Contains("role") || text.Contains("permission"))
-        {
-            return HomeRules.RoleLabel(Home.MyRole) switch
-            {
-                "Manager" => "As manager, you can edit details, add or remove members, review join requests, promote members, and transfer management. Transfer the role before leaving.",
-                "Co-manager" => "As co-manager, you can edit details, add members, review requests, promote members, remove plain members, and leave freely.",
-                _ => "As a member, you can view the home and leave. Managers and co-managers handle changes and join requests."
-            };
-        }
-
-        if (text.Contains("housing") || text.Contains("post") || text.Contains("rent") || text.Contains("eligib"))
-        {
-            return "For housing, select the correct Division, District, and Upazila / Metropolitan Thana. Eligibility must match gender, occupation, age, and verification requirements before a post is suggested. Keep contact details hidden until a booking is accepted.";
-        }
-
-        if (text.Contains("contact") || text.Contains("phone") || text.Contains("whatsapp") || text.Contains("facebook"))
-        {
-            return "Nestify keeps phone numbers, WhatsApp, and Facebook handles private. Contact information is shown only after an accepted booking, active service engagement, or accepted buy offer.";
-        }
-
-        return "I can help with meal settlement, home roles, available seats, housing eligibility, location selection, and privacy rules. Try one of the suggested questions above.";
+        var encoded = System.Net.WebUtility.HtmlEncode(text);
+        encoded = System.Text.RegularExpressions.Regex.Replace(
+            encoded, @"\*\*(.+?)\*\*", "<strong>$1</strong>",
+            System.Text.RegularExpressions.RegexOptions.Singleline);
+        encoded = System.Text.RegularExpressions.Regex.Replace(
+            encoded, @"(?<!\*)\*([^*\r\n]+)\*(?!\*)", "<em>$1</em>");
+        encoded = System.Text.RegularExpressions.Regex.Replace(
+            encoded, @"(?m)^\s*[-*]\s+", "<span class=\"hm-assistant__bullet\">•</span> ");
+        return encoded.Replace("\r\n", "\n").Replace("\n", "<br />");
     }
 
     private sealed record AssistantMessage(string Kind, string Text);
