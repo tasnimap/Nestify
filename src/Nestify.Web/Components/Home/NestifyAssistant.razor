@@ -1,0 +1,121 @@
+@using Nestify.Web.Services.Interfaces
+
+<section class="hm-assistant hm-card" aria-labelledby="assistant-title">
+    <div class="hm-assistant__head">
+        <div>
+            <p class="hm-kicker">Nestify AI Assistant</p>
+            <h2 id="assistant-title">How can I help with your home?</h2>
+            <p class="hm-note">Ask about settlement, housing, members, or safe contact sharing.</p>
+        </div>
+        <span class="hm-assistant__status" aria-label="Assistant online"><i></i> Online</span>
+    </div>
+
+    <div class="hm-assistant__suggestions" aria-label="Suggested questions">
+        @foreach (var suggestion in Suggestions)
+        {
+            <button type="button" class="hm-assistant__suggestion" @onclick="() => Ask(suggestion)">@suggestion</button>
+        }
+    </div>
+
+    <div class="hm-assistant__conversation" aria-live="polite">
+        @foreach (var message in Messages)
+        {
+            <div class="hm-assistant__message hm-assistant__message--@message.Kind">
+                @message.Text
+            </div>
+        }
+    </div>
+
+    <div class="hm-assistant__composer">
+        <label class="hm-assistant__sr-only" for="assistant-question">Ask Nestify Assistant</label>
+        <input id="assistant-question" @bind="Question" @bind:event="oninput"
+               @onkeydown="HandleKeyDown" placeholder="Try: How is meal settlement calculated?" />
+        <button type="button" class="hm-btn hm-btn--solid" disabled="@string.IsNullOrWhiteSpace(Question)" @onclick="Submit">
+            Ask
+        </button>
+    </div>
+</section>
+
+@code {
+    [Parameter, EditorRequired] public HomeView Home { get; set; } = new();
+
+    private string Question { get; set; } = string.Empty;
+    private List<AssistantMessage> Messages { get; } =
+    [
+        new("assistant", "I can help you manage this home and understand Nestify's housing and settlement rules.")
+    ];
+
+    private static readonly string[] Suggestions =
+    [
+        "How is meal settlement calculated?",
+        "How many seats are free?",
+        "What can a manager do?",
+        "How do I post housing safely?"
+    ];
+
+    private void HandleKeyDown(KeyboardEventArgs args)
+    {
+        if (args.Key == "Enter")
+        {
+            Submit();
+        }
+    }
+
+    private void Ask(string question)
+    {
+        Question = question;
+        Submit();
+    }
+
+    private void Submit()
+    {
+        var question = Question.Trim();
+        if (question.Length == 0)
+        {
+            return;
+        }
+
+        Messages.Add(new AssistantMessage("user", question));
+        Messages.Add(new AssistantMessage("assistant", Respond(question)));
+        Question = string.Empty;
+    }
+
+    private string Respond(string question)
+    {
+        var text = question.ToLowerInvariant();
+
+        if (text.Contains("meal") || text.Contains("settlement") || text.Contains("expense") || text.Contains("cost"))
+        {
+            return "Settlement uses: per-meal rate = total grocery spend / total consumed meals. Each member's net balance = out-of-pocket payments - (their meal cost + equal fixed share). Open Settlement to review the monthly member breakdown.";
+        }
+
+        if (text.Contains("seat") || text.Contains("occup") || text.Contains("free"))
+        {
+            return $"{Home.Name} has {Home.FreeSeats} free seat{(Home.FreeSeats == 1 ? "" : "s")} out of {Home.MaxOccupants}. Housing posts and searches must use the correct UpazilaId for the location.";
+        }
+
+        if (text.Contains("manager") || text.Contains("role") || text.Contains("permission"))
+        {
+            return HomeRules.RoleLabel(Home.MyRole) switch
+            {
+                "Manager" => "As manager, you can edit details, add or remove members, review join requests, promote members, and transfer management. Transfer the role before leaving.",
+                "Co-manager" => "As co-manager, you can edit details, add members, review requests, promote members, remove plain members, and leave freely.",
+                _ => "As a member, you can view the home and leave. Managers and co-managers handle changes and join requests."
+            };
+        }
+
+        if (text.Contains("housing") || text.Contains("post") || text.Contains("rent") || text.Contains("eligib"))
+        {
+            return "For housing, select the correct Division, District, and Upazila / Metropolitan Thana. Eligibility must match gender, occupation, age, and verification requirements before a post is suggested. Keep contact details hidden until a booking is accepted.";
+        }
+
+        if (text.Contains("contact") || text.Contains("phone") || text.Contains("whatsapp") || text.Contains("facebook"))
+        {
+            return "Nestify keeps phone numbers, WhatsApp, and Facebook handles private. Contact information is shown only after an accepted booking, active service engagement, or accepted buy offer.";
+        }
+
+        return "I can help with meal settlement, home roles, available seats, housing eligibility, location selection, and privacy rules. Try one of the suggested questions above.";
+    }
+
+    private sealed record AssistantMessage(string Kind, string Text);
+}
