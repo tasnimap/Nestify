@@ -144,44 +144,92 @@
     font-size: .82rem;
 }
 
-.stl__bars {
-    display: flex;
-    align-items: flex-end;
-    gap: .65rem;
-    min-height: 11rem;
+.stl__line-chart {
+    position: relative;
     margin-top: 1.2rem;
-    overflow-x: auto;
-    padding: 1.4rem .4rem .2rem;
-    border-bottom: 1px solid var(--nx-line);
+    border: 1px solid var(--nx-line);
+    border-radius: .75rem;
+    background: linear-gradient(180deg, #fff, var(--nx-primary-softer));
+    padding: 1rem .75rem .65rem;
 }
 
-.stl__bar-group {
+.stl__chart-axis-labels {
     display: flex;
-    align-items: center;
-    flex: 1 0 3.3rem;
-    flex-direction: column;
-    justify-content: flex-end;
-    min-height: 9rem;
+    justify-content: space-between;
+    padding: 0 .35rem .25rem;
     color: var(--nx-muted);
-    font-size: .7rem;
-}
-
-.stl__bar-value {
-    min-height: 1rem;
-    color: var(--nx-ink);
-    font-size: .7rem;
+    font-size: .68rem;
     font-weight: 800;
+    text-transform: uppercase;
 }
 
-.stl__bar {
-    width: min(2rem, 75%);
-    min-height: .5rem;
-    margin: .2rem 0 .45rem;
-    border-radius: .45rem .45rem .15rem .15rem;
-    background: linear-gradient(180deg, var(--nx-primary), #a855f7);
+.stl__line-svg {
+    display: block;
+    width: 100%;
+    height: 17rem;
+    overflow: visible;
 }
 
-.stl__bar-label {
+.stl__chart-grid {
+    stroke: var(--nx-line);
+    stroke-width: 1;
+}
+
+.stl__line {
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 4;
+}
+
+.stl__line--meals { stroke: #1683bd; }
+.stl__line--cost { stroke: #ef4444; }
+
+.stl__point {
+    stroke-width: 3;
+    fill: #fff;
+}
+
+.stl__point--meals { stroke: #1683bd; }
+.stl__point--cost { stroke: #ef4444; }
+
+.stl__chart-month {
+    fill: var(--nx-muted);
+    font-size: 11px;
+}
+
+.stl__chart-legend {
+    justify-content: center;
+    gap: 1.25rem;
+    margin-top: .55rem;
+}
+
+.stl__legend-dot {
+    display: inline-block;
+    width: .65rem;
+    height: .65rem;
+    margin-right: .35rem;
+    border-radius: 50%;
+    vertical-align: -.05rem;
+}
+
+.stl__legend-dot--meals { background: #1683bd; }
+.stl__legend-dot--cost { background: #ef4444; }
+
+.stl__chart-footnote {
+    margin-top: .6rem;
+    color: var(--nx-muted);
+    font-size: .75rem;
+    text-align: center;
+}
+
+.stl__chart-data {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
     white-space: nowrap;
 }
 
@@ -195,6 +243,14 @@
     .stl__chart-legend {
         align-items: flex-start;
         flex-direction: column;
+    }
+
+    .stl__line-svg {
+        min-width: 34rem;
+    }
+
+    .stl__line-chart {
+        overflow-x: auto;
     }
 }
 

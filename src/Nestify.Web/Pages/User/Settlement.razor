@@ -418,7 +418,7 @@
                             <h3 id="member-cost-heading">Meal cost by member</h3>
                             <p>See how each person's meal cost has changed across the house books.</p>
                         </div>
-                        <span class="stl__tag">@MemberHistory.Count members</span>
+                        <span class="stl__tag">@MemberHistory.Count() members</span>
                     </div>
                     <div class="stl__member-tabs" role="tablist" aria-label="Member meal cost charts">
                         @foreach (var member in MemberHistory)
@@ -427,32 +427,60 @@
                                     role="tab"
                                     aria-selected="@(member.UserId == SelectedHistoryUserId)"
                                     class="stl__member-tab @(member.UserId == SelectedHistoryUserId ? "is-active" : null)"
-                                    @onclick="() => SelectedHistoryUserId = member.UserId">
+                                    @onclick="() => _selectedHistoryUserId = member.UserId">
                                 <span class="stl__avatar stl__avatar--@(Math.Abs(member.UserId.GetHashCode()) % 4)">@member.MemberName[0]</span>
                                 @member.MemberName
                             </button>
                         }
                     </div>
-                    @if (SelectedMemberHistory.Count > 0)
+                    @if (SelectedMemberHistory.Count() > 0)
                     {
                         <div class="stl__member-chart" role="tabpanel">
                             <div class="stl__member-chart-top">
                                 <strong>@SelectedMemberName</strong>
-                                <span>@SelectedMemberHistory.Sum(item => item.MealCost).ToString("C2", CultureInfo.GetCultureInfo("en-BD")) total meal cost</span>
+                                <span>@SelectedMemberHistory.Sum(item => item.MealCount).ToString("0.#") meals · @SelectedMemberHistory.Sum(item => item.MealCost).ToString("C2", CultureInfo.GetCultureInfo("en-BD")) total cost</span>
                             </div>
-                            <div class="stl__bars" aria-label="Monthly meal cost chart">
+                            <div class="stl__line-chart" aria-label="Monthly meals and meal cost line chart">
+                                <div class="stl__chart-axis-labels">
+                                    <span>Meals: 0 - @MealsAxisMax.ToString("0.#")</span>
+                                    <span>Cost: ৳0 - ৳@CostAxisMax.ToString("0")</span>
+                                </div>
+                                <svg class="stl__line-svg" viewBox="0 0 760 280" role="img" aria-labelledby="meal-chart-title meal-chart-desc" preserveAspectRatio="none">
+                                    <title id="meal-chart-title">@SelectedMemberName monthly meals and meal cost</title>
+                                    <desc id="meal-chart-desc">Red line shows total meals. Blue line shows total meal cost in taka.</desc>
+                                    @foreach (var grid in new[] { 0, 1, 2, 3, 4 })
+                                    {
+                                        var y = 30 + grid * 48;
+                                        <line class="stl__chart-grid" x1="42" y1="@y" x2="730" y2="@y" />
+                                        <text class="stl__chart-y-label stl__chart-y-label--left" x="36" y="@(y + 4)" text-anchor="end">@AxisTick(MealsAxisMax, grid)</text>
+                                        <text class="stl__chart-y-label stl__chart-y-label--right" x="736" y="@(y + 4)">@CostAxisTick(grid)</text>
+                                    }
+                                    <polyline class="stl__line stl__line--meals" points="@MealLinePoints" />
+                                    <polyline class="stl__line stl__line--cost" points="@CostLinePoints" />
+                                    @foreach (var (item, index) in SelectedMemberHistory.Select((item, index) => (item, index)))
+                                    {
+                                        var x = ChartX(index);
+                                        <g class="stl__chart-point">
+                                            <title>@ChartTooltip(item)</title>
+                                            <circle class="stl__point stl__point--meals" cx="@x" cy="@MealsY(item.MealCount)" r="6" />
+                                            <circle class="stl__point stl__point--cost" cx="@x" cy="@CostY(item.MealCost)" r="6" />
+                                            <text class="stl__chart-month" x="@x" y="270" text-anchor="middle">@MonthShort(item.Year, item.Month)</text>
+                                        </g>
+                                    }
+                                </svg>
+                                <div class="stl__chart-legend">
+                                    <span><i class="stl__legend-dot stl__legend-dot--meals"></i>Total meals</span>
+                                    <span><i class="stl__legend-dot stl__legend-dot--cost"></i>Total meal cost</span>
+                                </div>
+                            </div>
+                            <div class="stl__chart-footnote">
+                                Hover a point for the exact monthly total. Each metric uses its own scale.
+                            </div>
+                            <div class="stl__chart-data">
                                 @foreach (var item in SelectedMemberHistory)
                                 {
-                                    <div class="stl__bar-group" title="@ChartTooltip(item)">
-                                        <div class="stl__bar-value">@item.MealCost.ToString("0")</div>
-                                        <div class="stl__bar" style="height: @HistoryBarHeight(item.MealCost)%"></div>
-                                        <span class="stl__bar-label">@MonthShort(item.Year, item.Month)</span>
-                                    </div>
+                                    <span>@MonthShort(item.Year, item.Month): @item.MealCount.ToString("0.#") meals, ৳@item.MealCost.ToString("0.00")</span>
                                 }
-                            </div>
-                            <div class="stl__chart-legend">
-                                <span>Amounts in ৳</span>
-                                <span>@SelectedMemberHistory.Sum(item => item.MealCount).ToString("0.#") meals across @SelectedMemberHistory.Count months</span>
                             </div>
                         </div>
                     }
@@ -1087,11 +1115,36 @@
         await LoadMonthAsync();
     }
 
-    private decimal HistoryBarHeight(decimal amount)
+    private IReadOnlyList<MonthlyMemberMealCostDto> SelectedHistoryItems => SelectedMemberHistory.ToList();
+
+    private string MealLinePoints => string.Join(" ", SelectedHistoryItems.Select((item, index) => $"{ChartX(index)},{MealsY(item.MealCount)}"));
+
+    private string CostLinePoints => string.Join(" ", SelectedHistoryItems.Select((item, index) => $"{ChartX(index)},{CostY(item.MealCost)}"));
+
+    private decimal MealsAxisMax => Math.Max(1m, SelectedHistoryItems.Max(item => item.MealCount));
+    private decimal CostAxisMax => Math.Max(1m, SelectedHistoryItems.Max(item => item.MealCost));
+
+    private decimal ChartX(int index)
     {
-        var maximum = Math.Max(1m, SelectedMemberHistory.Max(item => item.MealCost));
-        return Math.Max(8m, amount / maximum * 100m);
+        var count = Math.Max(1, SelectedHistoryItems.Count - 1);
+        return 42m + index * (688m / count);
     }
+
+    private decimal MealsY(decimal amount)
+    {
+        return 222m - amount / MealsAxisMax * 192m;
+    }
+
+    private decimal CostY(decimal amount)
+    {
+        return 222m - amount / CostAxisMax * 192m;
+    }
+
+    private static string AxisTick(decimal maximum, int grid) =>
+        (maximum * (4 - grid) / 4m).ToString("0.#", CultureInfo.InvariantCulture);
+
+    private string CostAxisTick(int grid) =>
+        $"৳{(CostAxisMax * (4 - grid) / 4m):0}";
 
     private static string MonthShort(int year, int month) =>
         new DateTime(year, month, 1).ToString("MMM yy", CultureInfo.InvariantCulture);
