@@ -31,7 +31,11 @@ public sealed class HousingService
                p.monthly_rent_bdt AS MonthlyRent, p.status AS Status, p.created_at_utc AS CreatedAtUtc,
                h.area_name AS AreaName, h.division AS Division,
                GREATEST(0, COALESCE(c.max_occupants, 4) -
-                   (SELECT count(*) FROM home_members m WHERE m.home_id = h.id AND m.left_at_utc IS NULL)) AS SeatsAvailable,
+                   (SELECT count(*) FROM home_members m WHERE m.home_id = h.id AND m.left_at_utc IS NULL) -
+                   (SELECT count(*)
+                      FROM housing_bookings b
+                      JOIN housing_posts reserved_post ON reserved_post.id = b.post_id
+                     WHERE reserved_post.home_id = h.id AND b.status = 2)) AS SeatsAvailable,
                r.gender AS Gender, r.occupation AS Occupation, r.min_age AS MinAge, r.max_age AS MaxAge,
                COALESCE(r.verified_only, false) AS VerifiedOnly,
                COALESCE(r.non_smoker_only, false) AS NonSmokerOnly,
@@ -83,10 +87,15 @@ public sealed class HousingService
             "p.status = @active",
             "NOT EXISTS (SELECT 1 FROM post_takedowns t WHERE t.scope = 1 AND t.post_id = p.id AND t.restored_at_utc IS NULL)",
             "p.home_id <> COALESCE((SELECT home_id FROM home_members WHERE user_id = @userId AND left_at_utc IS NULL), 0)",
-            "(COALESCE(r.verified_only, false) = false OR COALESCE((SELECT is_verified FROM user_additional_profile_info WHERE user_id = @userId), false))"
+            "(COALESCE(r.verified_only, false) = false OR COALESCE((SELECT is_verified FROM user_additional_profile_info WHERE user_id = @userId), false))",
+            @"GREATEST(0, COALESCE(c.max_occupants, 4)
+                 - (SELECT count(*) FROM home_members m WHERE m.home_id = h.id AND m.left_at_utc IS NULL)
+                 - (SELECT count(*) FROM housing_bookings b JOIN housing_posts reserved_post ON reserved_post.id = b.post_id WHERE reserved_post.home_id = h.id AND b.status = @accepted)) > 0",
+            PersonalRequirementsMatchSql
         };
         var args = new DynamicParameters();
         args.Add("active", PostActive);
+        args.Add("accepted", BookingAccepted);
         args.Add("userId", userId);
 
         if (filter.ListingType is { } type)
@@ -129,6 +138,7 @@ public sealed class HousingService
             $@"SELECT count(*)
                FROM housing_posts p
                JOIN homes h ON h.id = p.home_id
+               LEFT JOIN home_capacity c ON c.home_id = h.id
                LEFT JOIN housing_post_requirements r ON r.post_id = p.id
                WHERE {whereSql}",
             args);
@@ -161,14 +171,20 @@ public sealed class HousingService
         var isMine = await IsOwnerAsync(connection, userId, row.HomeId);
         if (!isMine)
         {
+            var hasBooking = await HasBookingAsync(connection, userId, postId);
             // Somebody who asked for a seat can still open the post after it
             // closed or filled, so their booking row has something to link to.
-            if (row.Status != PostActive && !await HasBookingAsync(connection, userId, postId))
+            if (row.Status != PostActive && !hasBooking)
             {
                 return null;
             }
 
             if (row.VerifiedOnly && !await IsVerifiedAsync(connection, userId))
+            {
+                return null;
+            }
+
+            if (!hasBooking && !await MatchesPersonalRequirementsAsync(connection, userId, postId))
             {
                 return null;
             }
@@ -438,6 +454,11 @@ public sealed class HousingService
             return (false, "This post is for verified accounts only.");
         }
 
+        if (!await MatchesPersonalRequirementsAsync(connection, userId, postId))
+        {
+            return (false, "Your profile does not meet this listing's requirements.");
+        }
+
         var open = await connection.ExecuteScalarAsync<bool>(
             @"SELECT EXISTS (SELECT 1 FROM housing_bookings
                              WHERE post_id = @postId AND requester_user_id = @userId AND status IN (@pending, @accepted))",
@@ -484,11 +505,48 @@ public sealed class HousingService
             return (false, "That request is no longer waiting.");
         }
 
-        await connection.ExecuteAsync(
+        // Lock the home while deciding. An accepted request reserves one of its
+        // currently free seats until the requester actually joins, so two managers
+        // cannot promise the same last seat at once.
+        using var transaction = connection.BeginTransaction(IsolationLevel.Serializable);
+        await connection.ExecuteAsync("SELECT id FROM homes WHERE id = @homeId FOR UPDATE", new { booking.HomeId }, transaction);
+        var alreadyReservedForRequester = await connection.ExecuteScalarAsync<bool>(
+            @"SELECT EXISTS (
+                SELECT 1
+                  FROM housing_bookings b
+                  JOIN housing_posts p ON p.id = b.post_id
+                 WHERE p.home_id = @homeId AND b.requester_user_id = @requesterUserId
+                   AND b.status = @accepted AND b.id <> @bookingId)",
+            new { booking.HomeId, booking.RequesterUserId, accepted = BookingAccepted, bookingId }, transaction);
+        if (alreadyReservedForRequester)
+        {
+            return (false, "This applicant already has an accepted reservation for this home.");
+        }
+        var unreservedSeats = await connection.ExecuteScalarAsync<int>(
+            @"SELECT GREATEST(0,
+                    COALESCE((SELECT max_occupants FROM home_capacity WHERE home_id = @homeId), 4)
+                    - (SELECT count(*) FROM home_members WHERE home_id = @homeId AND left_at_utc IS NULL)
+                    - (SELECT count(*)
+                       FROM housing_bookings b
+                       JOIN housing_posts p ON p.id = b.post_id
+                      WHERE p.home_id = @homeId AND b.status = @accepted))",
+            new { booking.HomeId, accepted = BookingAccepted }, transaction);
+        if (unreservedSeats <= 0)
+        {
+            return (false, "There are no unreserved seats left in this home.");
+        }
+
+        var changed = await connection.ExecuteAsync(
             @"UPDATE housing_bookings
               SET status = @status, decided_at_utc = now(), decided_by_user_id = @userId
-              WHERE id = @bookingId",
-            new { status = BookingAccepted, userId, bookingId });
+              WHERE id = @bookingId AND status = @pending",
+            new { status = BookingAccepted, userId, bookingId, pending = BookingPending }, transaction);
+        if (changed != 1)
+        {
+            return (false, "That request is no longer waiting.");
+        }
+
+        transaction.Commit();
 
         return (true, "Request accepted. You can now see each other's contact details.");
     }
@@ -509,6 +567,30 @@ public sealed class HousingService
             new { status = BookingRejected, reply = Trimmed(reply), userId, bookingId });
 
         return (true, "Request rejected.");
+    }
+
+    // An acceptance holds a real seat. A manager can release it if the move-in
+    // falls through, returning the booking to a final declined state and making
+    // the seat available for a different applicant.
+    public async Task<(bool Ok, string Message)> ReleaseBookingAsync(long userId, long bookingId, string? reply)
+    {
+        using var connection = await _db.OpenAsync();
+        var booking = await LoadBookingForOwnerAsync(connection, userId, bookingId);
+        if (booking is null || booking.Status != BookingAccepted)
+        {
+            return (false, "That reservation is no longer active.");
+        }
+
+        var note = Trimmed(reply) ?? "The manager released this reservation. Please continue your search.";
+        var changed = await connection.ExecuteAsync(
+            @"UPDATE housing_bookings
+              SET status = @status, reply_message = @reply, decided_at_utc = now(), decided_by_user_id = @userId
+              WHERE id = @bookingId AND status = @accepted",
+            new { status = BookingRejected, reply = note, userId, bookingId, accepted = BookingAccepted });
+
+        return changed == 1
+            ? (true, "Reservation released. The seat is available again.")
+            : (false, "That reservation is no longer active.");
     }
 
     public async Task<(bool Ok, string Message)> WithdrawBookingAsync(long userId, long bookingId)
@@ -568,7 +650,7 @@ public sealed class HousingService
         using var connection = await _db.OpenAsync();
         var bookings = (await connection.QueryAsync<MyBookingRow>(
             @"SELECT b.id AS Id, b.post_id AS PostId, b.status AS Status, b.requested_at_utc AS RequestedAtUtc,
-                     b.message AS Message, h.name AS HomeName,
+                     b.message AS Message, b.reply_message AS ReplyMessage, h.name AS HomeName,
                      COALESCE(d.full_name, u.full_name) AS ManagerName
               FROM housing_bookings b
               JOIN housing_posts p ON p.id = b.post_id
@@ -596,6 +678,7 @@ public sealed class HousingService
             Status = (BookingStatus)(b.Status - 1),
             RequestedAtUtc = b.RequestedAtUtc,
             Message = b.Message,
+            ReplyMessage = b.ReplyMessage,
             ManagerName = b.Status == BookingAccepted ? b.ManagerName : null,
             HomeName = b.HomeName
         }).ToList();
@@ -685,11 +768,43 @@ public sealed class HousingService
         connection.ExecuteScalarAsync<bool>(
             "SELECT COALESCE((SELECT is_verified FROM user_additional_profile_info WHERE user_id = @userId), false)", new { userId });
 
+    // Older profiles can still see an unconstrained listing. Once a listing has
+    // a personal requirement, an explicit matching profile value is required.
+    private const string PersonalRequirementsMatchSql = @"
+        ((r.gender IS NULL AND r.occupation IS NULL AND r.min_age IS NULL AND r.max_age IS NULL
+          AND COALESCE(r.non_smoker_only, false) = false AND COALESCE(r.non_drinker_only, false) = false)
+         OR EXISTS (
+            SELECT 1 FROM user_additional_profile_info profile
+             WHERE profile.user_id = @userId
+               AND (r.gender IS NULL OR profile.gender = r.gender)
+               AND (r.occupation IS NULL
+                    OR r.occupation = 2
+                    OR (r.occupation = 0 AND profile.occupation ILIKE 'Student%')
+                    OR (r.occupation = 1 AND profile.occupation = 'Job holder'))
+               AND (r.min_age IS NULL OR (profile.date_of_birth IS NOT NULL
+                    AND EXTRACT(YEAR FROM age(current_date, profile.date_of_birth)) >= r.min_age))
+               AND (r.max_age IS NULL OR (profile.date_of_birth IS NOT NULL
+                    AND EXTRACT(YEAR FROM age(current_date, profile.date_of_birth)) <= r.max_age))
+               AND (COALESCE(r.non_smoker_only, false) = false OR profile.is_smoker = false)
+               AND (COALESCE(r.non_drinker_only, false) = false OR profile.is_drinker = false)))";
+
+    private static Task<bool> MatchesPersonalRequirementsAsync(IDbConnection connection, long userId, long postId) =>
+        connection.ExecuteScalarAsync<bool>(
+            $@"SELECT {PersonalRequirementsMatchSql}
+                FROM housing_posts p
+                LEFT JOIN housing_post_requirements r ON r.post_id = p.id
+               WHERE p.id = @postId",
+            new { userId, postId });
+
     private static Task<int> FreeSeatsAsync(IDbConnection connection, long homeId) =>
         connection.ExecuteScalarAsync<int>(
             @"SELECT GREATEST(0, COALESCE((SELECT max_occupants FROM home_capacity WHERE home_id = @homeId), 4) -
-                     (SELECT count(*) FROM home_members WHERE home_id = @homeId AND left_at_utc IS NULL))",
-            new { homeId });
+                     (SELECT count(*) FROM home_members WHERE home_id = @homeId AND left_at_utc IS NULL) -
+                     (SELECT count(*)
+                        FROM housing_bookings b
+                        JOIN housing_posts p ON p.id = b.post_id
+                       WHERE p.home_id = @homeId AND b.status = @accepted))",
+            new { homeId, accepted = BookingAccepted });
 
     private static Task SaveRequirementsAsync(IDbConnection connection, IDbTransaction transaction, long postId, EligibilityDto e) =>
         connection.ExecuteAsync(
@@ -894,6 +1009,7 @@ public sealed class HousingService
         public short Status { get; set; }
         public DateTime RequestedAtUtc { get; set; }
         public string? Message { get; set; }
+        public string? ReplyMessage { get; set; }
         public string ManagerName { get; set; } = string.Empty;
         public string HomeName { get; set; } = string.Empty;
     }

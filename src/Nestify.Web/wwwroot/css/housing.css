@@ -936,6 +936,22 @@
 .hs-row:hover .hs-row__photo img { transform: scale(1.06); }
 .hs-row--muted { opacity: .72; }
 
+/* Booking rows surface the decision without making the list feel heavy. */
+.hs-row--booking { position: relative; overflow: hidden; }
+.hs-row--booking::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    background: var(--nx-primary);
+    opacity: 0;
+    transition: opacity var(--hs-mid) ease;
+}
+.hs-row--booking:hover::before { opacity: 1; }
+.hs-row--accepted::before { background: #0b5c2a; }
+.hs-row--rejected::before { background: var(--nx-danger); }
+.hs-row--pending::before { background: var(--nx-primary); }
+
 .hs-row__top { display: flex; gap: 1rem; align-items: flex-start; }
 .hs-row__grow { flex: 1; min-width: 0; display: grid; gap: .4rem; }
 
@@ -1092,6 +1108,29 @@
     margin-bottom: .3rem;
 }
 
+.hs-booking-decision {
+    margin: 0;
+    padding: .85rem .95rem;
+    border: 1px solid var(--nx-border);
+    border-left: 3px solid var(--nx-primary);
+    border-radius: 0 12px 12px 0;
+    background: var(--nx-primary-softer);
+    color: var(--nx-body);
+    font-size: .88rem;
+    line-height: 1.55;
+}
+.hs-booking-decision__label {
+    display: block;
+    margin-bottom: .28rem;
+    color: var(--nx-ink);
+    font-size: .76rem;
+    font-weight: 750;
+    letter-spacing: .04em;
+}
+.hs-booking-decision--accepted { border-left-color: #0b5c2a; background: #eef9f1; }
+.hs-booking-decision--rejected { border-left-color: var(--nx-danger); background: var(--nx-danger-soft); }
+.hs-booking-decision--pending { border-left-color: var(--nx-primary); }
+
 /* ---------- nested requesters panel (my listings) ---------- */
 
 .hs-requesters {
@@ -1158,6 +1197,8 @@
 .hs-requesters-list > *:nth-child(n+4) { animation-delay: .15s; }
 
 .hs-requester-card {
+    position: relative;
+    overflow: hidden;
     display: grid;
     gap: .9rem;
     padding: 1.15rem;
@@ -1170,6 +1211,16 @@
         box-shadow var(--hs-mid) var(--hs-ease),
         border-color var(--hs-mid) ease;
 }
+.hs-requester-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    background: var(--nx-primary);
+    opacity: .82;
+}
+.hs-requester-card--accepted::before { background: #0b5c2a; }
+.hs-requester-card--rejected::before { background: var(--nx-danger); }
 .hs-requester-card:hover {
     transform: translateY(-3px);
     border-color: var(--nx-border-strong);
@@ -1206,6 +1257,15 @@
     overflow-wrap: anywhere;
 }
 .hs-requester-card__message p { margin: 0; }
+.hs-requester-card__message-label {
+    display: block;
+    margin-bottom: .28rem;
+    color: var(--nx-muted);
+    font-size: .68rem;
+    font-weight: 750;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
 
 .hs-requester-card__actions {
     display: flex;
@@ -1216,9 +1276,58 @@
 }
 .hs-requester-card__actions .nx-btn { min-height: 40px; padding: .5rem 1.15rem; font-size: .88rem; }
 
+/* ---------- booking request controls ---------- */
+
+.hs-booking-head { display: grid; gap: .35rem; }
+.hs-booking-head__lead { max-width: 60ch; }
+
+.hs-booking-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin-top: .8rem;
+}
+.hs-booking-filter {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    min-height: 38px;
+    padding: .42rem .7rem .42rem .85rem;
+    border: 1px solid var(--nx-border);
+    border-radius: 999px;
+    background: var(--nx-card);
+    color: var(--nx-body);
+    font: inherit;
+    font-size: .82rem;
+    font-weight: 650;
+    cursor: pointer;
+    transition: transform var(--hs-fast) var(--hs-ease), border-color var(--hs-fast) ease, background var(--hs-fast) ease, color var(--hs-fast) ease, box-shadow var(--hs-fast) ease;
+}
+.hs-booking-filter b {
+    display: grid;
+    min-width: 1.35rem;
+    min-height: 1.35rem;
+    padding: 0 .28rem;
+    place-items: center;
+    border-radius: 999px;
+    background: var(--nx-bg-alt);
+    color: var(--nx-muted);
+    font-size: .7rem;
+}
+.hs-booking-filter:hover { transform: translateY(-1px); border-color: var(--nx-primary); background: var(--nx-primary-softer); }
+.hs-booking-filter:focus-visible { outline: 2px solid var(--nx-ring); outline-offset: 2px; }
+.hs-booking-filter.is-active { border-color: var(--nx-primary); background: var(--nx-primary); color: #fff; box-shadow: 0 6px 14px rgba(101, 41, 216, .2); }
+.hs-booking-filter.is-active b { background: rgba(255, 255, 255, .2); color: #fff; }
+
+.hs-modal--booking { max-width: 520px; }
+.hs-booking-modal__intro { margin: 0; color: var(--nx-muted); line-height: 1.55; }
+
 @media (max-width: 560px) {
     .hs-requester-card { padding: .95rem; border-radius: var(--hs-radius-sm); }
     .hs-requester-card__actions .nx-btn { flex: 1 1 8rem; }
+    .hs-booking-filters { flex-wrap: nowrap; overflow-x: auto; padding-bottom: .2rem; scrollbar-width: none; }
+    .hs-booking-filters::-webkit-scrollbar { display: none; }
+    .hs-booking-filter { flex: none; }
 }
 
 /* ---------- disclosed contact card ---------- */

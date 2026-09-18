@@ -144,10 +144,9 @@
                                                                 @onclick="() => AcceptBooking(requester.BookingId)">
                                                             Accept
                                                         </button>
-                                                        <button type="button" class="nx-btn nx-btn--ghost nx-btn--sm"
-                                                                @onclick="() => RejectBooking(requester.BookingId)">
-                                                            Reject
-                                                        </button>
+                                                        <a class="nx-btn nx-btn--ghost nx-btn--sm" href="housing/@postDto.Post.Id/bookings">
+                                                            Review &amp; reject
+                                                        </a>
                                                     </div>
                                                 }
                                                 else if (requester.Status == BookingStatus.Accepted)
@@ -296,42 +295,21 @@
     {
         try
         {
-            var ok = await Housing.AcceptBookingAsync(bookingId);
-            if (ok)
+            var result = await Housing.AcceptBookingAsync(bookingId);
+            if (result.Ok)
             {
-                Toast.ShowSuccess("Request accepted. Contact details are now shared both ways.", "Success");
+                Toast.ShowSuccess(result.Message, "Request accepted");
                 if (_expandedPostId != null)
                 {
+                    // Accepted bookings reserve a seat immediately, so reload the
+                    // listing card as well as the expanded requester panel.
+                    await LoadPosts();
                     await RefreshRequesters(_expandedPostId);
                 }
             }
             else
             {
-                Toast.ShowError("Could not accept this booking request.", "Failed");
-            }
-        }
-        catch
-        {
-            Toast.ShowError($"An error occurred.", "Failed");
-        }
-    }
-
-    private async Task RejectBooking(string bookingId)
-    {
-        try
-        {
-            var ok = await Housing.RejectBookingAsync(bookingId, new RejectBookingRequestDto { Message = null });
-            if (ok)
-            {
-                Toast.ShowSuccess("Booking request rejected.", "Success");
-                if (_expandedPostId != null)
-                {
-                    await RefreshRequesters(_expandedPostId);
-                }
-            }
-            else
-            {
-                Toast.ShowError("Could not reject this booking request.", "Failed");
+                Toast.ShowError(result.Message, "Request not accepted");
             }
         }
         catch

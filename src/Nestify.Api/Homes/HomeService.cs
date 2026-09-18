@@ -182,7 +182,9 @@ public sealed class HomeService
             return (false, $"{request.FullName} already belongs to a home.");
         }
 
-        if (await IsFullAsync(connection, me!.HomeId))
+        // The applicant's accepted booking already reserves their seat. Do not
+        // count that same reservation a second time when they complete joining.
+        if (await IsFullAsync(connection, me!.HomeId, request.UserId))
         {
             return (false, "The house is full. Raise max occupants first.");
         }
@@ -238,12 +240,13 @@ public sealed class HomeService
             return (false, "Only the manager or a co-manager can edit house details.");
         }
 
-        // The cap can never drop below the people already living there.
-        var living = await CountActiveMembersAsync(connection, me.HomeId);
+        // Accepted bookings reserve seats just like current members do. A manager
+        // must release those reservations before reducing capacity below them.
+        var occupiedOrReserved = await CountOccupiedOrReservedAsync(connection, me.HomeId);
         var max = MaxOccupantsOrDefault(dto);
-        if (max < living)
+        if (max < occupiedOrReserved)
         {
-            return (false, $"Max occupants cannot be lower than the {living} people already living here.");
+            return (false, $"Max occupants cannot be lower than the {occupiedOrReserved} occupied or reserved seats.");
         }
 
         using var transaction = connection.BeginTransaction();
@@ -268,6 +271,7 @@ public sealed class HomeService
               ON CONFLICT (home_id) DO UPDATE SET max_occupants = EXCLUDED.max_occupants, updated_at_utc = now()",
             new { homeId = me.HomeId, max },
             transaction);
+        await HousingHooks.AfterCapacityChangedAsync(connection, transaction, me.HomeId);
         transaction.Commit();
 
         return (true, "House details updated.");
@@ -312,7 +316,9 @@ public sealed class HomeService
                 : "That person already belongs to another home.");
         }
 
-        if (await IsFullAsync(connection, me.HomeId))
+        // Adding someone who holds an accepted reservation consumes that held
+        // seat; adding anyone else must still respect every reservation.
+        if (await IsFullAsync(connection, me.HomeId, target.Id))
         {
             return (false, "The house is full. Raise max occupants first.");
         }
@@ -400,9 +406,12 @@ public sealed class HomeService
             return (false, "You cannot remove this member.");
         }
 
+        using var transaction = connection.BeginTransaction();
         await connection.ExecuteAsync(
             "UPDATE home_members SET left_at_utc = now() WHERE id = @memberId",
-            new { memberId });
+            new { memberId }, transaction);
+        await HousingHooks.AfterCapacityChangedAsync(connection, transaction, me.HomeId);
+        transaction.Commit();
 
         return (true, $"{target!.FullName} was removed.");
     }
@@ -452,9 +461,12 @@ public sealed class HomeService
             return (false, "Transfer the manager role before leaving.");
         }
 
+        using var transaction = connection.BeginTransaction();
         await connection.ExecuteAsync(
             "UPDATE home_members SET left_at_utc = now() WHERE id = @id",
-            new { id = me.Id });
+            new { id = me.Id }, transaction);
+        await HousingHooks.AfterCapacityChangedAsync(connection, transaction, me.HomeId);
+        transaction.Commit();
 
         return (true, "You left the home.");
     }
@@ -466,13 +478,23 @@ public sealed class HomeService
             "SELECT count(*) FROM home_members WHERE home_id = @homeId AND left_at_utc IS NULL",
             new { homeId });
 
-    private static async Task<bool> IsFullAsync(IDbConnection connection, long homeId)
+    private static async Task<bool> IsFullAsync(IDbConnection connection, long homeId, long? joiningUserId = null)
     {
         var max = await connection.ExecuteScalarAsync<int?>(
             "SELECT max_occupants FROM home_capacity WHERE home_id = @homeId",
             new { homeId }) ?? 4;
-        return await CountActiveMembersAsync(connection, homeId) >= max;
+        return await CountOccupiedOrReservedAsync(connection, homeId, joiningUserId) >= max;
     }
+
+    private static Task<int> CountOccupiedOrReservedAsync(IDbConnection connection, long homeId, long? excludeReservationForUserId = null) =>
+        connection.ExecuteScalarAsync<int>(
+            @"SELECT (SELECT count(*) FROM home_members WHERE home_id = @homeId AND left_at_utc IS NULL)
+                    + (SELECT count(*)
+                         FROM housing_bookings b
+                         JOIN housing_posts p ON p.id = b.post_id
+                        WHERE p.home_id = @homeId AND b.status = 2
+                          AND (@excludeReservationForUserId IS NULL OR b.requester_user_id <> @excludeReservationForUserId))",
+            new { homeId, excludeReservationForUserId });
 
     private static async Task<long?> FindHomeIdAsync(IDbConnection connection, long userId) =>
         await connection.ExecuteScalarAsync<long?>(

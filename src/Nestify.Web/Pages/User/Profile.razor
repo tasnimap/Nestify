@@ -92,9 +92,13 @@ else
                         <div><dt>Email</dt><dd>@_profile.Email</dd></div>
                         <div><dt>Phone</dt><dd>@_profile.PhoneNumber</dd></div>
                         <div><dt>WhatsApp</dt><dd>@Or(_profile.WhatsappNumber, "Not added")</dd></div>
+                        <div><dt>Gender</dt><dd>@DisplayGender</dd></div>
+                        <div><dt>Date of birth</dt><dd>@DisplayDateOfBirth</dd></div>
                         <div><dt>Occupation</dt><dd>@PersonalOccupation</dd></div>
                         @if (!string.IsNullOrWhiteSpace(_profile.OrganizationName))
                         { <div><dt>@(_profile.Occupation == "Job holder" ? "Workplace" : "School / university")</dt><dd>@_profile.OrganizationName</dd></div> }
+                        <div><dt>Smoking</dt><dd>@DisplaySmoker</dd></div>
+                        <div><dt>Drinking</dt><dd>@DisplayDrinker</dd></div>
                         <div class="up-details__wide"><dt>Address</dt><dd>@DisplayAddress</dd></div>
                     </dl>
                 </section>
@@ -167,6 +171,18 @@ else
                             <option value="Job holder">Job holder</option>
                         </select>
                     </div>
+                    <div class="up-field">
+                        <label for="ed-gender">Gender</label>
+                        <select id="ed-gender" @bind="GenderSelection">
+                            <option value="">Prefer not to say</option>
+                            <option value="@ProfileGender.Male">Male</option>
+                            <option value="@ProfileGender.Female">Female</option>
+                        </select>
+                    </div>
+                    <div class="up-field">
+                        <label for="ed-dob">Date of birth</label>
+                        <input id="ed-dob" type="date" @bind="_draft.DateOfBirth" max="@DateOnly.FromDateTime(DateTime.Today).ToString("yyyy-MM-dd")" />
+                    </div>
                     @if (NeedsOrganization)
                     {
                         <div class="up-field">
@@ -181,6 +197,22 @@ else
                     <div class="up-field up-field--wide">
                         <label for="ed-address">Address</label>
                         <input id="ed-address" @bind="_draft.Address" />
+                    </div>
+                    <div class="up-field">
+                        <label for="ed-smoker">Smoking</label>
+                        <select id="ed-smoker" @bind="SmokerSelection">
+                            <option value="">Prefer not to say</option>
+                            <option value="false">Non-smoker</option>
+                            <option value="true">Smoker</option>
+                        </select>
+                    </div>
+                    <div class="up-field">
+                        <label for="ed-drinker">Drinking</label>
+                        <select id="ed-drinker" @bind="DrinkerSelection">
+                            <option value="">Prefer not to say</option>
+                            <option value="false">Non-drinker</option>
+                            <option value="true">Drinker</option>
+                        </select>
                     </div>
                     <div class="up-field">
                         <label for="ed-fb">Facebook profile link</label>
@@ -391,6 +423,87 @@ else
 
     private string DisplayAddress => Or(_profile?.Address, "Address not set");
 
+    private string DisplayGender => _profile?.Gender switch
+    {
+        ProfileGender.Male => "Male",
+        ProfileGender.Female => "Female",
+        _ => "Not specified"
+    };
+
+    private string DisplayDateOfBirth => _profile?.DateOfBirth is { } dob
+        ? $"{dob:dd MMM yyyy} ({CalculateAge(dob)} yrs)"
+        : "Not set";
+
+    private static int CalculateAge(DateOnly dob)
+    {
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        var age = today.Year - dob.Year;
+        if (dob > today.AddYears(-age)) age--;
+        return age;
+    }
+
+    private string DisplaySmoker => _profile?.IsSmoker switch
+    {
+        true => "Smoker",
+        false => "Non-smoker",
+        _ => "Not specified"
+    };
+
+    private string DisplayDrinker => _profile?.IsDrinker switch
+    {
+        true => "Drinker",
+        false => "Non-drinker",
+        _ => "Not specified"
+    };
+
+    private string GenderSelection
+    {
+        get => _draft.Gender switch
+        {
+            ProfileGender.Male => "Male",
+            ProfileGender.Female => "Female",
+            _ => ""
+        };
+        set => _draft.Gender = value switch
+        {
+            "Male" => ProfileGender.Male,
+            "Female" => ProfileGender.Female,
+            _ => null
+        };
+    }
+
+    private string SmokerSelection
+    {
+        get => _draft.IsSmoker switch
+        {
+            true => "true",
+            false => "false",
+            _ => ""
+        };
+        set => _draft.IsSmoker = value switch
+        {
+            "true" => true,
+            "false" => false,
+            _ => null
+        };
+    }
+
+    private string DrinkerSelection
+    {
+        get => _draft.IsDrinker switch
+        {
+            true => "true",
+            false => "false",
+            _ => ""
+        };
+        set => _draft.IsDrinker = value switch
+        {
+            "true" => true,
+            "false" => false,
+            _ => null
+        };
+    }
+
     private record Stat(string Value, string Label, string Trend);
     private record Social(string Key, string Name, string Handle, string Href, string Icon);
     private record Bar(string Label, string Display, int Percent);
@@ -579,6 +692,10 @@ else
         _draft = new UpdateUserProfileDto
         {
             Occupation = _profile?.Occupation,
+            Gender = _profile?.Gender,
+            DateOfBirth = _profile?.DateOfBirth,
+            IsSmoker = _profile?.IsSmoker,
+            IsDrinker = _profile?.IsDrinker,
             OrganizationName = _profile?.OrganizationName,
             Address = _profile?.Address,
             WhatsappNumber = _profile?.WhatsappNumber,

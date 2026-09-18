@@ -124,21 +124,14 @@ public sealed class HousingService : IHousingService, IHouseLookupService
         await GetOrNullAsync<List<BookingRequesterDto>>($"api/v1/housing/posts/{postId}/bookings")
         ?? new List<BookingRequesterDto>();
 
-    public Task<bool> AcceptBookingAsync(string bookingId) =>
-        SendAsync(HttpMethod.Post, $"api/v1/housing/bookings/{bookingId}/accept");
+    public Task<(bool Ok, string Message)> AcceptBookingAsync(string bookingId) =>
+        SendWithMessageAsync(HttpMethod.Post, $"api/v1/housing/bookings/{bookingId}/accept");
 
-    public async Task<bool> RejectBookingAsync(string bookingId, RejectBookingRequestDto request)
-    {
-        try
-        {
-            var response = await _httpClient.PostAsJsonAsync($"api/v1/housing/bookings/{bookingId}/reject", request);
-            return response.IsSuccessStatusCode;
-        }
-        catch (HttpRequestException)
-        {
-            return false;
-        }
-    }
+    public Task<(bool Ok, string Message)> RejectBookingAsync(string bookingId, RejectBookingRequestDto request) =>
+        SendWithMessageAsync(HttpMethod.Post, $"api/v1/housing/bookings/{bookingId}/reject", request);
+
+    public Task<(bool Ok, string Message)> ReleaseBookingAsync(string bookingId, RejectBookingRequestDto request) =>
+        SendWithMessageAsync(HttpMethod.Post, $"api/v1/housing/bookings/{bookingId}/release", request);
 
     public Task<ContactDisclosureDto?> GetBookingContactAsync(string bookingId) =>
         GetOrNullAsync<ContactDisclosureDto>($"api/v1/housing/bookings/{bookingId}/contact");
@@ -175,6 +168,26 @@ public sealed class HousingService : IHousingService, IHouseLookupService
         catch (HttpRequestException)
         {
             return false;
+        }
+    }
+
+    private async Task<(bool Ok, string Message)> SendWithMessageAsync(HttpMethod method, string url, object? body = null)
+    {
+        try
+        {
+            using var request = new HttpRequestMessage(method, url);
+            if (body is not null)
+            {
+                request.Content = JsonContent.Create(body, body.GetType());
+            }
+
+            var response = await _httpClient.SendAsync(request);
+            var message = await ReadMessageAsync(response);
+            return (response.IsSuccessStatusCode, message ?? (response.IsSuccessStatusCode ? "Done." : "Could not complete that booking action."));
+        }
+        catch (HttpRequestException)
+        {
+            return (false, "Could not reach the server. Check your connection and try again.");
         }
     }
 

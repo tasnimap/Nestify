@@ -43,6 +43,7 @@ var jwtSettings = new JwtSettings
 
 // snake_case columns map onto PascalCase row properties without an alias on every column.
 Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
+Dapper.SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
 
 // ---- Services ----
 builder.Services.AddSingleton(jwtSettings);

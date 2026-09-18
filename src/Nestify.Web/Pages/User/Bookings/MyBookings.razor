@@ -55,7 +55,7 @@
             <div class="hs-rows">
                 @foreach (var booking in _bookings)
                 {
-                    <article class="hs-row">
+                    <article class="hs-row hs-row--booking hs-row--@HousingView.StatusModifier(booking.Status)">
                         <div class="hs-row__top">
                             <div class="hs-row__grow">
                                 <h2 class="hs-row__title">
@@ -92,11 +92,29 @@
 
                         @if (booking.Status == BookingStatus.Accepted)
                         {
-                            <p class="hs-row__message">
-                                <span class="hs-row__message-label">Accepted by @booking.ManagerName</span>
+                            <p class="hs-booking-decision hs-booking-decision--accepted">
+                                <span class="hs-booking-decision__label">Accepted by @booking.ManagerName</span>
                                 Reach out to sort out moving in - they can give you the join code or add you by email.
                             </p>
                             <ContactDisclosureCard Contact="_contacts.GetValueOrDefault(booking.BookingId)" />
+                        }
+
+                        @if (booking.Status == BookingStatus.Rejected)
+                        {
+                            <p class="hs-booking-decision hs-booking-decision--rejected">
+                                <span class="hs-booking-decision__label">Manager response</span>
+                                @(string.IsNullOrWhiteSpace(booking.ReplyMessage)
+                                    ? "The manager did not leave a note with this decision."
+                                    : booking.ReplyMessage)
+                            </p>
+                        }
+
+                        @if (booking.Status == BookingStatus.Pending)
+                        {
+                            <p class="hs-booking-decision hs-booking-decision--pending">
+                                <span class="hs-booking-decision__label">Waiting for review</span>
+                                The listing manager will see your request and let you know when they have made a decision.
+                            </p>
                         }
 
                         <div class="hs-row__actions">
@@ -107,6 +125,14 @@
                                 <button type="button" class="nx-btn nx-btn--ghost hs-danger-btn"
                                         @onclick="() => WithdrawBooking(booking.BookingId)">
                                     Withdraw request
+                                </button>
+                            }
+                            else if (booking.Status == BookingStatus.Accepted)
+                            {
+                                <span class="hs-row__actions-spacer"></span>
+                                <button type="button" class="nx-btn nx-btn--ghost hs-danger-btn"
+                                        @onclick="() => WithdrawBooking(booking.BookingId)">
+                                    Cancel reservation
                                 </button>
                             }
                         </div>
@@ -165,7 +191,7 @@
         {
             booking.Status = BookingStatus.Withdrawn;
         }
-        Toast.ShowSuccess("Request withdrawn.", "Done");
+        Toast.ShowSuccess("Booking withdrawn.", "Done");
     }
 
     private string GetStatusClass(BookingStatus status) => status switch

@@ -23,9 +23,26 @@
         }
         else
         {
-            <header class="hs-page__header">
+            <header class="hs-page__header hs-booking-head">
                 <h1>Booking requests</h1>
-                <p>Manage booking requests for <strong>@(_post?.Title ?? "this listing")</strong></p>
+                <p class="hs-booking-head__lead">Manage requests for <strong>@(_post?.Title ?? "this listing")</strong> and keep applicants informed.</p>
+                @if (_requesters.Count > 0)
+                {
+                    <div class="hs-booking-filters" role="group" aria-label="Filter booking requests">
+                        <button type="button" class="hs-booking-filter @(_statusFilter is null ? "is-active" : null)" aria-pressed="@(_statusFilter is null)" @onclick="() => _statusFilter = null">
+                            <span>All</span><b>@_requesters.Count</b>
+                        </button>
+                        <button type="button" class="hs-booking-filter @(_statusFilter == BookingStatus.Pending ? "is-active" : null)" aria-pressed="@(_statusFilter == BookingStatus.Pending)" @onclick="() => _statusFilter = BookingStatus.Pending">
+                            <span>Pending</span><b>@_requesters.Count(r => r.Status == BookingStatus.Pending)</b>
+                        </button>
+                        <button type="button" class="hs-booking-filter @(_statusFilter == BookingStatus.Accepted ? "is-active" : null)" aria-pressed="@(_statusFilter == BookingStatus.Accepted)" @onclick="() => _statusFilter = BookingStatus.Accepted">
+                            <span>Accepted</span><b>@_requesters.Count(r => r.Status == BookingStatus.Accepted)</b>
+                        </button>
+                        <button type="button" class="hs-booking-filter @(_statusFilter == BookingStatus.Rejected ? "is-active" : null)" aria-pressed="@(_statusFilter == BookingStatus.Rejected)" @onclick="() => _statusFilter = BookingStatus.Rejected">
+                            <span>Rejected</span><b>@_requesters.Count(r => r.Status == BookingStatus.Rejected)</b>
+                        </button>
+                    </div>
+                }
             </header>
 
             @if (_requesters.Count == 0)
@@ -38,10 +55,16 @@
             }
             else
             {
+                @if (!VisibleRequesters.Any())
+                {
+                    <div class="hs-empty hs-empty--section"><p>No requests match this filter.</p></div>
+                }
+                else
+                {
                 <div class="hs-requesters-list">
-                    @foreach (var requester in _requesters)
+                    @foreach (var requester in VisibleRequesters)
                     {
-                        <article class="hs-requester-card">
+                        <article class="hs-requester-card hs-requester-card--@HousingView.StatusModifier(requester.Status)">
                             <header class="hs-requester-card__header">
                                 <div class="hs-requester-card__title-section">
                                     <h3>@requester.RequesterName</h3>
@@ -57,6 +80,7 @@
                             @if (!string.IsNullOrEmpty(requester.Message))
                             {
                                 <div class="hs-requester-card__message">
+                                    <span class="hs-requester-card__message-label">Applicant message</span>
                                     <p>@requester.Message</p>
                                 </div>
                             }
@@ -64,6 +88,11 @@
                             @if (requester.Status == BookingStatus.Accepted)
                             {
                                 <ContactDisclosureCard Contact="_contacts.GetValueOrDefault(requester.BookingId)" />
+                                <div class="hs-requester-card__actions">
+                                    <button class="nx-btn nx-btn--ghost hs-danger-btn" @onclick="() => OpenReleaseModal(requester.BookingId)" disabled="@_processingId == requester.BookingId">
+                                        Release reservation
+                                    </button>
+                                </div>
                             }
 
                             @if (requester.Status == BookingStatus.Pending)
@@ -80,6 +109,7 @@
                         </article>
                     }
                 </div>
+                }
             }
         }
     </div>
@@ -88,9 +118,9 @@
 @if (_showRejectModal)
 {
     <div class="hs-modal-overlay" @onclick="CloseRejectModal">
-        <div class="hs-modal" @onclick:stopPropagation="true">
+        <div class="hs-modal hs-modal--booking" @onclick:stopPropagation="true" role="dialog" aria-modal="true" aria-labelledby="reject-booking-title">
             <header class="hs-modal__header">
-                <h2>Reject booking request</h2>
+                <h2 id="reject-booking-title">@(_releaseReservation ? "Release reservation" : "Reject booking request")</h2>
                 <button type="button" class="hs-modal__close" @onclick="CloseRejectModal" aria-label="Close">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" 
                          stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -100,14 +130,17 @@
             </header>
 
             <div class="hs-modal__body">
-                <p>You can optionally send a message to the requester explaining why you rejected their request.</p>
+                <p class="hs-booking-modal__intro">@(_releaseReservation
+                    ? "This releases the seat for another applicant. A short, respectful note gives the applicant useful closure."
+                    : "A short, respectful note gives the applicant useful closure. This message is optional.")</p>
                 <div class="field">
                     <label for="reject-message" class="field__label">Message (optional)</label>
                     <textarea id="reject-message" class="field__textarea" 
-                              @bind="_rejectMessage" 
+                              @bind="_rejectMessage" @bind:event="oninput"
                               placeholder="Thank you for your interest, but..."
-                              rows="4"
+                              rows="4" maxlength="500" aria-describedby="reject-message-help"
                               disabled="@_processingId == _rejectingBookingId"></textarea>
+                    <p id="reject-message-help" class="field__helper">@_rejectMessage.Length / 500 characters</p>
                 </div>
             </div>
 
@@ -116,7 +149,7 @@
                     Cancel
                 </button>
                 <button type="button" class="nx-btn nx-btn--danger" @onclick="SubmitReject" disabled="@(_processingId == _rejectingBookingId)">
-                    @(_processingId == _rejectingBookingId ? "Rejecting..." : "Reject")
+                    @(_processingId == _rejectingBookingId ? (_releaseReservation ? "Releasing..." : "Rejecting...") : (_releaseReservation ? "Release reservation" : "Reject"))
                 </button>
             </footer>
         </div>
@@ -135,9 +168,14 @@
     private bool _showRejectModal = false;
     private string _rejectingBookingId = string.Empty;
     private string _rejectMessage = string.Empty;
+    private bool _releaseReservation;
     
     // Processing state
     private string? _processingId = null;
+    private BookingStatus? _statusFilter;
+    private IEnumerable<BookingRequesterDto> VisibleRequesters => _statusFilter is null
+        ? _requesters
+        : _requesters.Where(r => r.Status == _statusFilter);
 
     protected override async Task OnInitializedAsync()
     {
@@ -175,6 +213,15 @@
     {
         _rejectingBookingId = bookingId;
         _rejectMessage = string.Empty;
+        _releaseReservation = false;
+        _showRejectModal = true;
+    }
+
+    private void OpenReleaseModal(string bookingId)
+    {
+        _rejectingBookingId = bookingId;
+        _rejectMessage = string.Empty;
+        _releaseReservation = true;
         _showRejectModal = true;
     }
 
@@ -183,6 +230,7 @@
         _showRejectModal = false;
         _rejectingBookingId = string.Empty;
         _rejectMessage = string.Empty;
+        _releaseReservation = false;
     }
 
     private async Task AcceptRequest(string bookingId)
@@ -190,11 +238,11 @@
         _processingId = bookingId;
         try
         {
-            var success = await Housing.AcceptBookingAsync(bookingId);
+            var result = await Housing.AcceptBookingAsync(bookingId);
             
-            if (success)
+            if (result.Ok)
             {
-                Toast.ShowSuccess("Booking request accepted!", "Success");
+                Toast.ShowSuccess(result.Message, "Request accepted");
                 
                 // Update the requester status
                 var requester = _requesters.FirstOrDefault(r => r.BookingId == bookingId);
@@ -208,7 +256,7 @@
             }
             else
             {
-                Toast.ShowError("Could not accept this booking request.", "Failed");
+                Toast.ShowError(result.Message, "Request not accepted");
             }
         }
         catch (Exception ex)
@@ -227,11 +275,13 @@
         try
         {
             var request = new RejectBookingRequestDto { Message = _rejectMessage };
-            var success = await Housing.RejectBookingAsync(_rejectingBookingId, request);
+            var result = _releaseReservation
+                ? await Housing.ReleaseBookingAsync(_rejectingBookingId, request)
+                : await Housing.RejectBookingAsync(_rejectingBookingId, request);
             
-            if (success)
+            if (result.Ok)
             {
-                Toast.ShowSuccess("Booking request rejected.", "Success");
+                Toast.ShowSuccess(result.Message, _releaseReservation ? "Reservation released" : "Request rejected");
                 
                 // Update the requester status
                 var requester = _requesters.FirstOrDefault(r => r.BookingId == _rejectingBookingId);
@@ -243,15 +293,16 @@
                 _showRejectModal = false;
                 _rejectingBookingId = string.Empty;
                 _rejectMessage = string.Empty;
+                _releaseReservation = false;
             }
             else
             {
-                Toast.ShowError("Could not reject this booking request.", "Failed");
+                Toast.ShowError(result.Message, _releaseReservation ? "Reservation not released" : "Request not rejected");
             }
         }
-        catch (Exception ex)
+        catch
         {
-            Toast.ShowError($"Error rejecting booking: {ex.Message}", "Error");
+            Toast.ShowError(_releaseReservation ? "Could not release the reservation." : "Could not reject the booking.", "Error");
         }
         finally
         {
