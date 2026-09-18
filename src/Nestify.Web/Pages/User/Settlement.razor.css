@@ -52,6 +52,152 @@
     animation-delay: var(--delay, 0ms);
 }
 
+/* ---------- member meal cost history ---------- */
+
+.stl__member-costs {
+    margin-top: 1.5rem;
+    padding: 1.25rem;
+    border: 1px solid var(--nx-line);
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, .76);
+}
+
+.stl__member-costs-head,
+.stl__member-chart-top,
+.stl__chart-legend {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .8rem;
+}
+
+.stl__member-costs-head h3 {
+    margin: .2rem 0 .25rem;
+    color: var(--nx-ink);
+    font-size: 1.15rem;
+}
+
+.stl__member-costs-head p:last-child,
+.stl__chart-legend {
+    margin: 0;
+    color: var(--nx-muted);
+    font-size: .82rem;
+}
+
+.stl__eyebrow {
+    margin: 0;
+    color: var(--nx-primary);
+    font-size: .68rem;
+    font-weight: 800;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.stl__member-tabs {
+    display: flex;
+    gap: .45rem;
+    margin: 1rem 0;
+    overflow-x: auto;
+    padding-bottom: .25rem;
+}
+
+.stl__member-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    flex: 0 0 auto;
+    border: 1px solid var(--nx-line);
+    border-radius: 999px;
+    padding: .4rem .7rem .4rem .45rem;
+    background: #fff;
+    color: var(--nx-muted);
+    cursor: pointer;
+    font: inherit;
+    font-size: .82rem;
+    font-weight: 700;
+}
+
+.stl__member-tab.is-active {
+    border-color: var(--nx-primary);
+    background: var(--nx-primary-softer);
+    color: var(--nx-primary);
+}
+
+.stl__member-tab .stl__avatar {
+    width: 1.7rem;
+    height: 1.7rem;
+    font-size: .72rem;
+}
+
+.stl__member-chart {
+    border-top: 1px solid var(--nx-line);
+    padding-top: 1rem;
+}
+
+.stl__member-chart-top strong {
+    color: var(--nx-ink);
+    font-size: 1rem;
+}
+
+.stl__member-chart-top span {
+    color: var(--nx-muted);
+    font-size: .82rem;
+}
+
+.stl__bars {
+    display: flex;
+    align-items: flex-end;
+    gap: .65rem;
+    min-height: 11rem;
+    margin-top: 1.2rem;
+    overflow-x: auto;
+    padding: 1.4rem .4rem .2rem;
+    border-bottom: 1px solid var(--nx-line);
+}
+
+.stl__bar-group {
+    display: flex;
+    align-items: center;
+    flex: 1 0 3.3rem;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-height: 9rem;
+    color: var(--nx-muted);
+    font-size: .7rem;
+}
+
+.stl__bar-value {
+    min-height: 1rem;
+    color: var(--nx-ink);
+    font-size: .7rem;
+    font-weight: 800;
+}
+
+.stl__bar {
+    width: min(2rem, 75%);
+    min-height: .5rem;
+    margin: .2rem 0 .45rem;
+    border-radius: .45rem .45rem .15rem .15rem;
+    background: linear-gradient(180deg, var(--nx-primary), #a855f7);
+}
+
+.stl__bar-label {
+    white-space: nowrap;
+}
+
+.stl__chart-legend {
+    margin-top: .7rem;
+}
+
+@media (max-width: 600px) {
+    .stl__member-costs-head,
+    .stl__member-chart-top,
+    .stl__chart-legend {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
 /* ---------- header ---------- */
 
 .stl__header {

@@ -408,6 +408,56 @@
                     </tfoot>
                 </table>
             </div>
+
+            @if (_mealCostHistory.Count > 0)
+            {
+                <section class="stl__member-costs" aria-labelledby="member-cost-heading">
+                    <div class="stl__member-costs-head">
+                        <div>
+                            <p class="stl__eyebrow">Monthly view</p>
+                            <h3 id="member-cost-heading">Meal cost by member</h3>
+                            <p>See how each person's meal cost has changed across the house books.</p>
+                        </div>
+                        <span class="stl__tag">@MemberHistory.Count members</span>
+                    </div>
+                    <div class="stl__member-tabs" role="tablist" aria-label="Member meal cost charts">
+                        @foreach (var member in MemberHistory)
+                        {
+                            <button type="button"
+                                    role="tab"
+                                    aria-selected="@(member.UserId == SelectedHistoryUserId)"
+                                    class="stl__member-tab @(member.UserId == SelectedHistoryUserId ? "is-active" : null)"
+                                    @onclick="() => SelectedHistoryUserId = member.UserId">
+                                <span class="stl__avatar stl__avatar--@(Math.Abs(member.UserId.GetHashCode()) % 4)">@member.MemberName[0]</span>
+                                @member.MemberName
+                            </button>
+                        }
+                    </div>
+                    @if (SelectedMemberHistory.Count > 0)
+                    {
+                        <div class="stl__member-chart" role="tabpanel">
+                            <div class="stl__member-chart-top">
+                                <strong>@SelectedMemberName</strong>
+                                <span>@SelectedMemberHistory.Sum(item => item.MealCost).ToString("C2", CultureInfo.GetCultureInfo("en-BD")) total meal cost</span>
+                            </div>
+                            <div class="stl__bars" aria-label="Monthly meal cost chart">
+                                @foreach (var item in SelectedMemberHistory)
+                                {
+                                    <div class="stl__bar-group" title="@ChartTooltip(item)">
+                                        <div class="stl__bar-value">@item.MealCost.ToString("0")</div>
+                                        <div class="stl__bar" style="height: @HistoryBarHeight(item.MealCost)%"></div>
+                                        <span class="stl__bar-label">@MonthShort(item.Year, item.Month)</span>
+                                    </div>
+                                }
+                            </div>
+                            <div class="stl__chart-legend">
+                                <span>Amounts in ৳</span>
+                                <span>@SelectedMemberHistory.Sum(item => item.MealCount).ToString("0.#") meals across @SelectedMemberHistory.Count months</span>
+                            </div>
+                        </div>
+                    }
+                </section>
+            }
         </section>
     </div>;
 }
@@ -868,6 +918,8 @@
     private string? _loadError;
 
     private List<SettlementBookDto> _books = [];
+    private List<MonthlyMemberMealCostDto> _mealCostHistory = [];
+    private long _selectedHistoryUserId;
     private int _year = DateTime.Today.Year;
     private int _month = DateTime.Today.Month;
     private SettlementWorkspaceDto? _ws;
@@ -885,6 +937,14 @@
     private bool CanManageOpen => _ws is { CanManage: true } && IsOpen;
 
     private List<SettlementMemberDto> Members => _ws?.Members ?? [];
+    private IEnumerable<MonthlyMemberMealCostDto> MemberHistory =>
+        _mealCostHistory.GroupBy(item => new { item.UserId, item.MemberName }).Select(group => group.First());
+    private long SelectedHistoryUserId => _selectedHistoryUserId != 0
+        ? _selectedHistoryUserId
+        : MemberHistory.FirstOrDefault()?.UserId ?? 0;
+    private IEnumerable<MonthlyMemberMealCostDto> SelectedMemberHistory =>
+        _mealCostHistory.Where(item => item.UserId == SelectedHistoryUserId);
+    private string SelectedMemberName => SelectedMemberHistory.FirstOrDefault()?.MemberName ?? "Member";
     private SettlementResultDto Result => _ws?.Result ?? new SettlementResultDto();
 
     private string PeriodLabel => new DateTime(_year, _month, 1).ToString("MMMM yyyy", CultureInfo.InvariantCulture);
@@ -986,6 +1046,7 @@
             }
 
             _books = books.ToList();
+            _mealCostHistory = (await SettlementApi.GetMealCostHistoryAsync())?.ToList() ?? [];
             var open = _books.FirstOrDefault(b => b.Status == BookOpen);
             var start = open ?? _books.LastOrDefault();
             (_year, _month) = start is null
@@ -1022,8 +1083,21 @@
     private async Task ReloadAsync()
     {
         _books = (await SettlementApi.GetBooksAsync())?.ToList() ?? [];
+        _mealCostHistory = (await SettlementApi.GetMealCostHistoryAsync())?.ToList() ?? [];
         await LoadMonthAsync();
     }
+
+    private decimal HistoryBarHeight(decimal amount)
+    {
+        var maximum = Math.Max(1m, SelectedMemberHistory.Max(item => item.MealCost));
+        return Math.Max(8m, amount / maximum * 100m);
+    }
+
+    private static string MonthShort(int year, int month) =>
+        new DateTime(year, month, 1).ToString("MMM yy", CultureInfo.InvariantCulture);
+
+    private static string ChartTooltip(MonthlyMemberMealCostDto item) =>
+        $"{MonthShort(item.Year, item.Month)}: ৳{item.MealCost:0.00} ({item.MealCount:0.#} meals at ৳{item.PerMealRate:0.00})";
 
     private async Task GoToPreviousMonth()
     {

@@ -92,6 +92,57 @@ public sealed class SettlementService
             """, new { homeId = membership.HomeId })).ToList();
     }
 
+    public async Task<List<MonthlyMemberMealCostDto>?> GetMealCostHistoryAsync(long userId)
+    {
+        using var connection = await _db.OpenAsync();
+        var membership = await GetMembershipAsync(connection, null, userId);
+        if (membership is null)
+        {
+            return null;
+        }
+
+        return (await connection.QueryAsync<MonthlyMemberMealCostDto>(
+            """
+            WITH current_meals AS (
+                SELECT DISTINCT ON (house_id, user_id, meal_date)
+                       house_id, user_id, meal_date, meal_count
+                FROM meal_entries
+                WHERE house_id = @homeId
+                ORDER BY house_id, user_id, meal_date, recorded_at_utc DESC, id DESC
+            ), meal_totals AS (
+                SELECT house_id, user_id,
+                       EXTRACT(YEAR FROM meal_date)::int AS year,
+                       EXTRACT(MONTH FROM meal_date)::int AS month,
+                       SUM(meal_count) AS meal_count
+                FROM current_meals
+                GROUP BY house_id, user_id, year, month
+            ), rates AS (
+                SELECT r.id, r.period_year AS year, r.period_month AS month,
+                       COALESCE(NULLIF(r.per_meal_rate, 0),
+                           COALESCE((SELECT SUM(c.amount) FROM contributions c
+                                     WHERE c.house_id = r.house_id AND c.period_year = r.period_year
+                                       AND c.period_month = r.period_month AND c.fund_type = 1), 0)
+                           / NULLIF((SELECT SUM(mt.meal_count) FROM meal_totals mt
+                                     WHERE mt.house_id = r.house_id AND mt.year = r.period_year
+                                       AND mt.month = r.period_month), 0), 0) AS per_meal_rate,
+                       r.house_id
+                FROM settlement_runs r
+                WHERE r.house_id = @homeId
+            )
+            SELECT sm.user_id AS UserId, u.full_name AS MemberName,
+                   rates.year AS Year, rates.month AS Month,
+                   COALESCE(mt.meal_count, 0) AS MealCount,
+                   rates.per_meal_rate AS PerMealRate,
+                   ROUND(COALESCE(mt.meal_count, 0) * rates.per_meal_rate, 2) AS MealCost
+            FROM rates
+            JOIN settlement_members sm ON sm.settlement_run_id = rates.id
+            JOIN users u ON u.id = sm.user_id
+            LEFT JOIN meal_totals mt ON mt.house_id = rates.house_id AND mt.user_id = sm.user_id
+                AND mt.year = rates.year AND mt.month = rates.month
+            ORDER BY rates.year, rates.month, u.full_name
+            """, new { homeId = membership.HomeId })).ToList();
+    }
+
     public async Task<SettlementWorkspaceDto?> GetAsync(long userId, int year, int month)
     {
         ValidatePeriod(year, month);
