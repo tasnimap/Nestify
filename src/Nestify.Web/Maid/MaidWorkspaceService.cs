@@ -1,4 +1,6 @@
 using Nestify.Shared.Dtos.Helpers;
+using Microsoft.AspNetCore.Components.Forms;
+using Nestify.Web.Services.Interfaces;
 
 namespace Nestify.Web.Maid;
 
@@ -20,9 +22,11 @@ public sealed class MaidWorkspaceService
     private readonly List<MaidReview> _reviews = new();
 
     private int _counter = 500;
+    private readonly IHelperService _helpers;
 
-    public MaidWorkspaceService()
+    public MaidWorkspaceService(IHelperService helpers)
     {
+        _helpers = helpers;
         var today = DateTime.Today;
         SeedEngagements(today);
         SeedVisits(today);
@@ -67,15 +71,25 @@ public sealed class MaidWorkspaceService
         Changed?.Invoke();
     }
 
-    public void SubmitVerification(string documentType)
+    public async Task LoadVerificationAsync()
     {
+        var status = await _helpers.GetVerificationStatusAsync();
+        Profile.VerificationDocument = status is { IsPending: true } ? status.DocumentType : null;
+        Profile.VerificationPending = status?.IsPending == true;
+        Changed?.Invoke();
+    }
+
+    public async Task SubmitVerification(string documentType, IBrowserFile file)
+    {
+        await _helpers.SubmitVerificationAsync(documentType, file);
         Profile.VerificationDocument = documentType;
         Profile.VerificationPending = true;
         Changed?.Invoke();
     }
 
-    public void CancelVerification()
+    public async Task CancelVerification()
     {
+        await _helpers.CancelVerificationAsync();
         Profile.VerificationDocument = null;
         Profile.VerificationPending = false;
         Changed?.Invoke();

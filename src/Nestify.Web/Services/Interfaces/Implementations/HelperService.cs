@@ -1,5 +1,6 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Json;
 using Microsoft.AspNetCore.Components.Forms;
 using Nestify.Shared.Dtos.Helpers;
 using Nestify.Web.Services.Interfaces;
@@ -177,12 +178,53 @@ public sealed class HelperService : IHelperService
         if (response.IsSuccessStatusCode)
             return;
 
-        var message = await response.Content.ReadAsStringAsync();
+        throw new InvalidOperationException(await ReadErrorMessageAsync(
+            response, "Verification submission failed."));
+    }
 
-        throw new InvalidOperationException(
-            string.IsNullOrWhiteSpace(message)
-                ? "Verification submission failed."
-                : message);
+    public async Task<HelperVerificationStatusDto?> GetVerificationStatusAsync()
+    {
+        var response = await _http.GetAsync("api/v1/helpers/me/verification");
+        if (!response.IsSuccessStatusCode)
+        {
+            return null;
+        }
+
+        return await response.Content.ReadFromJsonAsync<HelperVerificationStatusDto>();
+    }
+
+    public async Task CancelVerificationAsync()
+    {
+        var response = await _http.DeleteAsync("api/v1/helpers/me/verification");
+        if (response.IsSuccessStatusCode)
+        {
+            return;
+        }
+
+        throw new InvalidOperationException(await ReadErrorMessageAsync(
+            response, "Verification cancellation failed."));
+    }
+
+    private static async Task<string> ReadErrorMessageAsync(HttpResponseMessage response, string fallback)
+    {
+        var body = await response.Content.ReadAsStringAsync();
+        if (string.IsNullOrWhiteSpace(body))
+        {
+            return fallback;
+        }
+
+        try
+        {
+            using var json = JsonDocument.Parse(body);
+            return json.RootElement.TryGetProperty("message", out var message)
+                   && !string.IsNullOrWhiteSpace(message.GetString())
+                ? message.GetString()!
+                : fallback;
+        }
+        catch (JsonException)
+        {
+            return body;
+        }
     }
 
     private static string BuildQuery(HelperFilterDto filter)

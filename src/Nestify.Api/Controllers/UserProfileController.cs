@@ -77,10 +77,8 @@ public sealed class UserProfileController : ControllerBase
         if (file is null || file.Length == 0) return BadRequest(new { message = "Choose a document photo first." });
         if (file.Length > MaxPictureBytes) return BadRequest(new { message = "The document photo must be 5 MB or smaller." });
         if (file.ContentType is null || !file.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase)) return BadRequest(new { message = "Upload a clear image of your document." });
-        using var stream = file.OpenReadStream();
-        var (url, uploadError) = await _uploader.UploadAsync(stream, file.FileName, file.ContentType);
-        if (url is null) return BadRequest(new { message = uploadError });
-        var error = await _verifications.SubmitAsync(RequireUserId(), documentType, url, file.FileName);
+        await using var stream = file.OpenReadStream();
+        var error = await _verifications.SubmitUserAsync(RequireUserId(), documentType, stream, file.FileName, file.ContentType, file.Length);
         if (error is not null) return BadRequest(new { message = error });
         return Ok(await _profiles.GetAsync(RequireUserId()));
     }
