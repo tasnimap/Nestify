@@ -421,6 +421,13 @@ public sealed class HousingService
             return (false, "This post is no longer open.");
         }
 
+        // The detail page also disables its button at zero seats, but this check is
+        // authoritative: another person may have joined after the seeker opened it.
+        if (row.SeatsAvailable <= 0)
+        {
+            return (false, "This home no longer has a seat available.");
+        }
+
         if (await HasHomeAsync(connection, userId))
         {
             return (false, "You already live in a home. Leave it before booking a seat somewhere else.");

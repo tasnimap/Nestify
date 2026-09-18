@@ -78,17 +78,22 @@ public sealed class HousingService : IHousingService, IHouseLookupService
 
     // ---- Bookings ----
 
-    public async Task<bool> RequestBookingAsync(string postId, string? message)
+    public async Task<(bool Ok, string Message)> RequestBookingAsync(string postId, string? message)
     {
         try
         {
             var response = await _httpClient.PostAsJsonAsync(
                 $"api/v1/housing/posts/{postId}/bookings", new { message });
-            return response.IsSuccessStatusCode;
+            var responseMessage = await ReadMessageAsync(response);
+            return (
+                response.IsSuccessStatusCode,
+                responseMessage ?? (response.IsSuccessStatusCode
+                    ? "Your booking request has been sent."
+                    : "Could not send your booking request."));
         }
         catch (HttpRequestException)
         {
-            return false;
+            return (false, "Could not reach the server. Check your connection and try again.");
         }
     }
 

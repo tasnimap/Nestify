@@ -55,7 +55,12 @@ public interface IHousingService
     /// post, or a Pending/Accepted request already exists from this caller (§3.7, 409 on the
     /// DB's partial unique index).
     /// </summary>
-    Task<bool> RequestBookingAsync(string postId, string? message);
+    /// <summary>
+    /// Sends a request and preserves the API's human-readable refusal message so the
+    /// page can tell the seeker what changed (for example, a full home or a duplicate
+    /// request) instead of showing a generic error.
+    /// </summary>
+    Task<(bool Ok, string Message)> RequestBookingAsync(string postId, string? message);
 
     /// <summary>Report a post to the admins. The message explains a refusal.</summary>
     Task<(bool Ok, string Message)> ReportPostAsync(string postId, string reason, string? details);
