@@ -1,5 +1,6 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Globalization;
 using System.Text.Json;
 using Microsoft.AspNetCore.Components.Forms;
 using Nestify.Shared.Dtos.Helpers;
@@ -203,6 +204,38 @@ public sealed class HelperService : IHelperService
 
         throw new InvalidOperationException(await ReadErrorMessageAsync(
             response, "Verification cancellation failed."));
+    }
+
+    public Task<HelperWorkspaceDashboardDto?> GetWorkspaceDashboardAsync() =>
+        _http.GetFromJsonAsync<HelperWorkspaceDashboardDto>("api/v1/helpers/me/workspace/dashboard");
+
+    public Task<HelperAvailabilityDto?> GetAvailabilityAsync(DateTime weekStart) =>
+        _http.GetFromJsonAsync<HelperAvailabilityDto>(
+            $"api/v1/helpers/me/workspace/availability?weekStart={weekStart.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)}");
+
+    public async Task SaveAvailabilityAsync(HelperAvailabilityDto availability)
+    {
+        var response = await _http.PutAsJsonAsync("api/v1/helpers/me/workspace/availability", availability);
+        response.EnsureSuccessStatusCode();
+    }
+
+    public Task<HelperWorkspaceScheduleDto?> GetWorkspaceScheduleAsync(DateTime weekStart) =>
+        _http.GetFromJsonAsync<HelperWorkspaceScheduleDto>(
+            $"api/v1/helpers/me/workspace/schedule?weekStart={Uri.EscapeDataString(weekStart.ToString("O"))}");
+
+    public Task<HelperWorkspaceEngagementsDto?> GetWorkspaceEngagementsAsync() =>
+        _http.GetFromJsonAsync<HelperWorkspaceEngagementsDto>("api/v1/helpers/me/workspace/engagements");
+
+    public async Task AcceptWorkspaceEngagementAsync(string id)
+    {
+        var response = await _http.PostAsync($"api/v1/helpers/me/workspace/engagements/{id}/accept", null);
+        response.EnsureSuccessStatusCode();
+    }
+
+    public async Task DeclineWorkspaceEngagementAsync(string id, string? reason)
+    {
+        var response = await _http.PostAsJsonAsync($"api/v1/helpers/me/workspace/engagements/{id}/decline", new { reason });
+        response.EnsureSuccessStatusCode();
     }
 
     private static async Task<string> ReadErrorMessageAsync(HttpResponseMessage response, string fallback)
