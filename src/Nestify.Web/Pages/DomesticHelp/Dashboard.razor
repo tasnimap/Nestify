@@ -1,9 +1,9 @@
 @page "/helpers/dashboard"
 @layout HelperLayout
 @attribute [Authorize(Roles = "DomesticHelper,DomesticHelp,Maid,Helper")]
-@implements IDisposable
 @using Nestify.Web.Components
-@inject MaidWorkspaceService Workspace
+@using Nestify.Shared.Dtos.Helpers
+@inject IHelperService Helpers
 @inject Nestify.Web.Services.ToastService Toast
 @inject Nestify.Web.Services.MoneyFormatterService Money
 
@@ -19,11 +19,11 @@
             </div>
             <div class="md-switch-card">
                 <div class="md-switch-card__text">
-                    <strong>@(Workspace.IsAvailable ? "Accepting bookings" : "Paused")</strong>
-                    <span>@(Workspace.IsAvailable ? "Bachelors can find and book you." : "Hidden from search for now.")</span>
+                    <strong>@(_availability?.IsAvailable == true ? "Accepting bookings" : "Paused")</strong>
+                    <span>@(_availability?.IsAvailable == true ? "Bachelors can find and book you." : "Hidden from search for now.")</span>
                 </div>
-                <button type="button" class="md-switch @(Workspace.IsAvailable ? "md-switch--on" : null)"
-                        role="switch" aria-checked="@Workspace.IsAvailable.ToString().ToLowerInvariant()"
+                <button type="button" class="md-switch @(_availability?.IsAvailable == true ? "md-switch--on" : null)"
+                        role="switch" aria-checked="@(_availability?.IsAvailable.ToString().ToLowerInvariant() ?? "false")"
                         aria-label="Available for new bookings" @onclick="ToggleAvailable">
                     <span class="md-switch__knob"></span>
                 </button>
@@ -33,23 +33,23 @@
         <div class="dh-stats">
             <a class="dh-stat dh-stat--warn dh-rise" style="--d:60ms" href="helpers/engagements">
                 <p class="dh-stat__label">Requests</p>
-                <p class="dh-stat__value">@Workspace.PendingRequestCount</p>
+                <p class="dh-stat__value">@Model.PendingRequestCount</p>
                 <p class="dh-stat__hint">Waiting for your answer</p>
             </a>
             <a class="dh-stat dh-stat--accent dh-rise" style="--d:120ms" href="helpers/engagements">
                 <p class="dh-stat__label">Active jobs</p>
-                <p class="dh-stat__value">@Workspace.ActiveEngagementCount</p>
-                <p class="dh-stat__hint">@Money.Format(MonthlyIncome) per month</p>
+                <p class="dh-stat__value">@Model.ActiveJobCount</p>
+                <p class="dh-stat__hint">@Money.Format(Model.MonthlyEarnings) per month</p>
             </a>
             <a class="dh-stat dh-stat--ok dh-rise" style="--d:180ms" href="helpers/schedule">
                 <p class="dh-stat__label">This week</p>
                 <p class="dh-stat__value">@WeekHours<small class="md-unit">h</small></p>
-                <p class="dh-stat__hint">@WeekVisits.Count visits booked</p>
+                <p class="dh-stat__hint">@Model.VisitsThisWeek visits booked</p>
             </a>
             <a class="dh-stat dh-stat--star dh-rise" style="--d:240ms" href="helpers/reviews">
                 <p class="dh-stat__label">Rating</p>
-                <p class="dh-stat__value">@Workspace.RatingAverage.ToString("0.0")</p>
-                <p class="dh-stat__hint">@Workspace.RatingCount reviews</p>
+                <p class="dh-stat__value">@Model.RatingAverage.ToString("0.0")</p>
+                <p class="dh-stat__hint">@Model.ReviewCount reviews</p>
             </a>
         </div>
 
@@ -71,7 +71,7 @@
                             var over = v.EndHour <= DateTime.Now.Hour;
                             <li class="dh-item @(over ? "md-item--dim" : null)">
                                 <span class="md-time">
-                                    <strong>@MaidWorkspaceService.HourLabel(v.StartHour)</strong>
+                                    <strong>@HourLabel(v.StartHour)</strong>
                                     <span>@(v.EndHour - v.StartHour)h</span>
                                 </span>
                                 <div class="dh-item__main">
@@ -88,9 +88,9 @@
             <section class="dh-panel dh-rise" style="--d:360ms">
                 <div class="dh-panel__head">
                     <h2>New requests</h2>
-                    @if (Workspace.PendingRequestCount > 0)
+                    @if (Model.PendingRequestCount > 0)
                     {
-                        <span class="dh-count">@Workspace.PendingRequestCount</span>
+                        <span class="dh-count">@Model.PendingRequestCount</span>
                     }
                 </div>
                 @if (Pending.Count == 0)
@@ -124,20 +124,20 @@
                     <a class="md-link" href="helpers/availability">Edit</a>
                 </div>
                 <div class="md-mini-week">
-                    @foreach (var day in MaidWorkspaceService.Week)
+                    @foreach (var day in Week)
                     {
                         var open = 0; var booked = 0;
-                        for (var h = MaidWorkspaceService.StartHour; h < MaidWorkspaceService.EndHour; h++)
+                        for (var h = StartHour; h < EndHour; h++)
                         {
-                            var s = Workspace.GetSlot(day, h);
-                            if (s == MaidSlotState.Open) open++;
-                            else if (s == MaidSlotState.Booked) booked++;
+                            var s = Slot(day, h);
+                            if (s.IsOpen) open++;
+                            if (s.IsBooked) booked++;
                         }
                         var total = open + booked;
                         <div class="md-mini-week__day">
                             <div class="md-mini-week__bar" aria-hidden="true">
-                                <span class="md-mini-week__booked" style="--h:@(booked * 100 / MaidWorkspaceService.HoursPerDay)%"></span>
-                                <span class="md-mini-week__open" style="--h:@(open * 100 / MaidWorkspaceService.HoursPerDay)%"></span>
+                                <span class="md-mini-week__booked" style="--h:@(booked * 100 / HoursPerDay)%"></span>
+                                <span class="md-mini-week__open" style="--h:@(open * 100 / HoursPerDay)%"></span>
                             </div>
                             <span class="md-mini-week__label @(day == DateTime.Today.DayOfWeek ? "md-mini-week__label--today" : null)">@day.ToString()[..3]</span>
                             <span class="md-mini-week__num">@(total == 0 ? "—" : $"{total}h")</span>
@@ -150,30 +150,7 @@
                 </ul>
             </section>
 
-            <section class="dh-panel dh-rise" style="--d:480ms">
-                <div class="dh-panel__head">
-                    <h2>Latest review</h2>
-                    <a class="md-link" href="helpers/reviews">All reviews</a>
-                </div>
-                @if (Latest is { } latest)
-                {
-                    <div class="md-review md-review--compact">
-                        <div class="md-review__head">
-                            <span class="dh-item__avatar" aria-hidden="true">@Initials(latest.ReviewerName)</span>
-                            <div class="md-review__who">
-                                <strong>@latest.ReviewerName</strong>
-                                <span>@latest.Service · @latest.Area</span>
-                            </div>
-                            <RatingStars Value="latest.Rating" ShowCount="false" />
-                        </div>
-                        <p class="md-review__text">@latest.Comment</p>
-                    </div>
-                }
-                else
-                {
-                    <p class="dh-muted">No reviews yet.</p>
-                }
-            </section>
+            <section class="dh-panel dh-rise" style="--d:480ms"><div class="dh-panel__head"><h2>Reviews</h2><a class="md-link" href="helpers/reviews">All reviews</a></div><p class="dh-muted">@Model.ReviewCount review(s) · @Model.RatingAverage.ToString("0.0") average rating.</p></section>
         </div>
     </div>
 </div>
@@ -192,28 +169,22 @@
         _ => "Good evening"
     };
 
-    private List<MaidVisit> TodayVisits => Workspace.Visits
-        .Where(v => v.Date == DateTime.Today && v.Status != MaidVisitStatus.Cancelled)
-        .OrderBy(v => v.StartHour).ToList();
+    private HelperWorkspaceDashboardDto Model { get; set; } = new();
+    private HelperAvailabilityDto? _availability;
+    private const int StartHour = 6, EndHour = 24, HoursPerDay = 18;
+    private static readonly DayOfWeek[] Week = [DayOfWeek.Saturday, DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday];
+    private List<HelperWorkspaceVisitDto> TodayVisits => Model.TodayVisits.OrderBy(v => v.StartHour).ToList();
 
-    private List<MaidVisit> WeekVisits => Workspace.Visits
-        .Where(v => v.Date >= DateTime.Today && v.Date < DateTime.Today.AddDays(7) && v.Status != MaidVisitStatus.Cancelled)
-        .ToList();
+    private int WeekHours => Model.HoursThisWeek;
 
-    private int WeekHours => WeekVisits.Sum(v => v.EndHour - v.StartHour);
-
-    private List<MaidRequest> Pending => Workspace.Requests.Where(r => r.Status == MaidRequestStatus.Pending).OrderByDescending(r => r.RequestedAtUtc).ToList();
-
-    private decimal MonthlyIncome => Workspace.Engagements.Where(e => e.Status == MaidEngagementStatus.Active).Sum(e => e.MonthlyRate);
-
-    private MaidReview? Latest => Workspace.Reviews.OrderByDescending(r => r.CreatedAtUtc).FirstOrDefault();
+    private List<HelperWorkspaceRequestDto> Pending => Model.NewRequests.OrderByDescending(r => r.RequestedAtUtc).ToList();
 
     private string Summary
     {
         get
         {
             var today = TodayVisits.Count;
-            var pending = Workspace.PendingRequestCount;
+            var pending = Model.PendingRequestCount;
             var parts = new List<string>();
             parts.Add(today == 0 ? "no visits today" : $"{today} visit{(today == 1 ? "" : "s")} today");
             if (pending > 0) parts.Add($"{pending} request{(pending == 1 ? "" : "s")} waiting");
@@ -223,7 +194,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Workspace.Changed += OnWorkspaceChanged;
+        Model = await Helpers.GetWorkspaceDashboardAsync() ?? new();
+        _availability = await Helpers.GetAvailabilityAsync(DateTime.Today);
         if (AuthState is not null)
         {
             var state = await AuthState;
@@ -231,16 +203,18 @@
         }
     }
 
-    private void ToggleAvailable()
+    private async Task ToggleAvailable()
     {
-        Workspace.SetAvailable(!Workspace.IsAvailable);
-        Toast.ShowInfo(Workspace.IsAvailable ? "You are visible to bachelors again." : "You are hidden from new bookings.",
-            Workspace.IsAvailable ? "Accepting bookings" : "Paused");
+        if (_availability is null) return;
+        _availability.IsAvailable = !_availability.IsAvailable;
+        await Helpers.SaveAvailabilityAsync(_availability);
+        Toast.ShowInfo(_availability.IsAvailable ? "You are visible to bachelors again." : "You are hidden from new bookings.", _availability.IsAvailable ? "Accepting bookings" : "Paused");
     }
 
-    private void Accept(MaidRequest r)
+    private async Task Accept(HelperWorkspaceRequestDto r)
     {
-        Workspace.AcceptRequest(r.Id);
+        await Helpers.AcceptWorkspaceEngagementAsync(r.Id);
+        Model = await Helpers.GetWorkspaceDashboardAsync() ?? new();
         Toast.ShowSuccess($"{r.ClientName} is now a current engagement.", "Accepted");
     }
 
@@ -252,7 +226,6 @@
             : (parts[0][..1] + parts[^1][..1]).ToUpperInvariant();
     }
 
-    private void OnWorkspaceChanged() => InvokeAsync(StateHasChanged);
-
-    public void Dispose() => Workspace.Changed -= OnWorkspaceChanged;
+    private HelperAvailabilitySlotDto Slot(DayOfWeek day, int hour) => _availability?.Slots.FirstOrDefault(s => s.DayOfWeek == (int)day && s.Hour == hour) ?? new();
+    private static string HourLabel(int hour) => DateTime.Today.AddHours(hour).ToString("h tt");
 }

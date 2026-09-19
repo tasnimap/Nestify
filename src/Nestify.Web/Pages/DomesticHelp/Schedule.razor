@@ -1,8 +1,8 @@
 @page "/helpers/schedule"
 @layout HelperLayout
 @attribute [Authorize(Roles = "DomesticHelper,DomesticHelp,Maid,Helper")]
-@implements IDisposable
-@inject MaidWorkspaceService Workspace
+@using Nestify.Shared.Dtos.Helpers
+@inject IHelperService Helpers
 
 <PageTitle>My schedule — Nestify</PageTitle>
 
@@ -19,7 +19,7 @@
                 <div class="md-next">
                     <span class="md-next__label">Next up</span>
                     <strong class="md-next__title">@next.ClientName</strong>
-                    <span class="md-next__meta">@RelativeDay(next.Date) · @MaidWorkspaceService.RangeLabel(next.StartHour, next.EndHour)</span>
+                    <span class="md-next__meta">@RelativeDay(next.Date) · @RangeLabel(next.StartHour, next.EndHour)</span>
                     <span class="md-next__meta">@next.Service · @next.Area</span>
                 </div>
             }
@@ -39,7 +39,7 @@
                 <span class="md-stat__label">homes</span>
             </div>
             <div class="md-stat md-stat--soft">
-                <span class="md-stat__value">@WeekVisits.Count(v => v.Status == MaidVisitStatus.Done)</span>
+                <span class="md-stat__value">@WeekVisits.Count(v => v.IsDone)</span>
                 <span class="md-stat__label">done</span>
             </div>
         </div>
@@ -65,7 +65,7 @@
                 @for (var d = 0; d < 7; d++)
                 {
                     var date = _weekStart.AddDays(d);
-                    var count = Workspace.Visits.Count(v => v.Date == date && v.Status != MaidVisitStatus.Cancelled);
+                    var count = WeekVisits.Count(v => v.Date == date);
                     var selected = date == _selected;
                     <button type="button" role="tab" aria-selected="@selected.ToString().ToLowerInvariant()"
                             class="md-day @(selected ? "md-day--on" : null) @(date == DateTime.Today ? "md-day--today" : null)"
@@ -106,9 +106,9 @@
                         @foreach (var v in DayVisits)
                         {
                             var i = DayVisits.IndexOf(v);
-                            <li class="md-visit md-visit--@v.Status.ToString().ToLowerInvariant() dh-rise" style="--d:@(i * 60)ms">
+                            <li class="md-visit md-visit--@(v.IsDone ? "done" : "upcoming") dh-rise" style="--d:@(i * 60)ms">
                                 <div class="md-visit__time">
-                                    <strong>@MaidWorkspaceService.HourLabel(v.StartHour)</strong>
+                                    <strong>@HourLabel(v.StartHour)</strong>
                                     <span>@(v.EndHour - v.StartHour) h</span>
                                 </div>
                                 <div class="md-visit__rail" aria-hidden="true"><i></i></div>
@@ -119,17 +119,13 @@
                                             <strong>@v.ClientName</strong>
                                             <span>@v.Service · @v.Area</span>
                                         </div>
-                                        <span class="md-status md-status--@v.Status.ToString().ToLowerInvariant()">@StatusLabel(v.Status)</span>
+                                        <span class="md-status md-status--@(v.IsDone ? "done" : "upcoming")">@(v.IsDone ? "Done" : "Upcoming")</span>
                                     </div>
                                     <div class="md-visit__foot">
                                         <span>
                                             <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
-                                            @MaidWorkspaceService.RangeLabel(v.StartHour, v.EndHour)
+                                            @RangeLabel(v.StartHour, v.EndHour)
                                         </span>
-                                        @if (v.Note is not null)
-                                        {
-                                            <span class="md-visit__note">@v.Note</span>
-                                        }
                                         <a class="md-visit__link" href="helpers/engagements">View engagement</a>
                                     </div>
                                 </div>
@@ -149,7 +145,7 @@
                 @for (var d = 0; d < 7; d++)
                 {
                     var date = _weekStart.AddDays(d);
-                    var visits = Workspace.Visits.Where(v => v.Date == date && v.Status != MaidVisitStatus.Cancelled).OrderBy(v => v.StartHour).ToList();
+                    var visits = WeekVisits.Where(v => v.Date == date).OrderBy(v => v.StartHour).ToList();
                     <div class="md-week__row @(date == DateTime.Today ? "md-week__row--today" : null)">
                         <button type="button" class="md-week__day" @onclick="() => _selected = date">
                             <strong>@date.ToString("ddd")</strong>
@@ -158,11 +154,11 @@
                         <div class="md-week__bar" aria-hidden="true">
                             @foreach (var v in visits)
                             {
-                                var left = (v.StartHour - MaidWorkspaceService.StartHour) * 100.0 / MaidWorkspaceService.HoursPerDay;
-                                var width = (v.EndHour - v.StartHour) * 100.0 / MaidWorkspaceService.HoursPerDay;
-                                <span class="md-week__block md-week__block--@v.Status.ToString().ToLowerInvariant()"
+                                var left = (v.StartHour - 6) * 100.0 / 18;
+                                var width = (v.EndHour - v.StartHour) * 100.0 / 18;
+                                <span class="md-week__block md-week__block--@(v.IsDone ? "done" : "upcoming")"
                                       style="left:@left.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)%;width:@width.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)%"
-                                      title="@v.ClientName · @MaidWorkspaceService.RangeLabel(v.StartHour, v.EndHour)"></span>
+                                      title="@v.ClientName · @RangeLabel(v.StartHour, v.EndHour)"></span>
                             }
                         </div>
                         <span class="md-week__sum">@(visits.Count == 0 ? "—" : $"{visits.Sum(v => v.EndHour - v.StartHour)} h")</span>
@@ -195,28 +191,23 @@
         }
     }
 
-    private List<MaidVisit> WeekVisits => Workspace.Visits
-        .Where(v => v.Date >= _weekStart && v.Date < _weekStart.AddDays(7) && v.Status != MaidVisitStatus.Cancelled)
-        .ToList();
+    private List<HelperWorkspaceVisitDto> WeekVisits { get; set; } = new();
 
     private int WeekHours => WeekVisits.Sum(v => v.EndHour - v.StartHour);
 
-    private List<MaidVisit> DayVisits => Workspace.Visits
+    private List<HelperWorkspaceVisitDto> DayVisits => WeekVisits
         .Where(v => v.Date == _selected)
         .OrderBy(v => v.StartHour)
         .ToList();
 
-    private int DayHours => DayVisits.Where(v => v.Status != MaidVisitStatus.Cancelled).Sum(v => v.EndHour - v.StartHour);
+    private int DayHours => DayVisits.Sum(v => v.EndHour - v.StartHour);
 
-    private MaidVisit? NextVisit => Workspace.Visits
-        .Where(v => v.Status == MaidVisitStatus.Upcoming && (v.Date > DateTime.Today || (v.Date == DateTime.Today && v.EndHour > DateTime.Now.Hour)))
-        .OrderBy(v => v.Date).ThenBy(v => v.StartHour)
-        .FirstOrDefault();
+    private HelperWorkspaceVisitDto? NextVisit { get; set; }
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         _weekStart = StartOfWeek(DateTime.Today);
-        Workspace.Changed += OnWorkspaceChanged;
+        await LoadWeek();
     }
 
     // Weeks start on Saturday, the way they are read here.
@@ -226,16 +217,18 @@
         return date.Date.AddDays(-back);
     }
 
-    private void MoveWeek(int delta)
+    private async Task MoveWeek(int delta)
     {
         _weekStart = _weekStart.AddDays(7 * delta);
         _selected = _weekStart;
+        await LoadWeek();
     }
 
-    private void GoToday()
+    private async Task GoToday()
     {
         _weekStart = StartOfWeek(DateTime.Today);
         _selected = DateTime.Today;
+        await LoadWeek();
     }
 
     private static string RelativeDay(DateTime date)
@@ -250,13 +243,6 @@
         };
     }
 
-    private static string StatusLabel(MaidVisitStatus status) => status switch
-    {
-        MaidVisitStatus.Done => "Done",
-        MaidVisitStatus.Cancelled => "Cancelled",
-        _ => "Upcoming"
-    };
-
     private static string Initials(string name)
     {
         var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
@@ -265,7 +251,13 @@
             : (parts[0][..1] + parts[^1][..1]).ToUpperInvariant();
     }
 
-    private void OnWorkspaceChanged() => InvokeAsync(StateHasChanged);
+    private async Task LoadWeek()
+    {
+        var schedule = await Helpers.GetWorkspaceScheduleAsync(_weekStart) ?? new HelperWorkspaceScheduleDto();
+        WeekVisits = schedule.Visits;
+        NextVisit = schedule.NextVisit;
+    }
 
-    public void Dispose() => Workspace.Changed -= OnWorkspaceChanged;
+    private static string HourLabel(int hour) => DateTime.Today.AddHours(hour).ToString("h tt");
+    private static string RangeLabel(int start, int end) => $"{HourLabel(start)}–{HourLabel(end)}";
 }

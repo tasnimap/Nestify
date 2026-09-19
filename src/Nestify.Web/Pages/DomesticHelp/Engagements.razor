@@ -1,9 +1,9 @@
 @page "/helpers/engagements"
 @layout HelperLayout
 @attribute [Authorize(Roles = "DomesticHelper,DomesticHelp,Maid,Helper")]
-@implements IDisposable
 @using Nestify.Web.Components.Helper
-@inject MaidWorkspaceService Workspace
+@using Nestify.Shared.Dtos.Helpers
+@inject IHelperService Helpers
 @inject Nestify.Web.Services.ToastService Toast
 @inject Nestify.Web.Services.MoneyFormatterService Money
 
@@ -110,8 +110,8 @@
                                                 <span class="md-slots__day">@g.Key.ToString("ddd d MMM")</span>
                                                 @foreach (var s in g.OrderBy(s => s.Hour))
                                                 {
-                                                    var clash = Workspace.GetSlot(s.Date, s.Hour) == MaidSlotState.Booked;
-                                                    <span class="md-slots__chip @(clash ? "md-slots__chip--clash" : null)" title="@(clash ? "Already booked by another home" : "")">@MaidWorkspaceService.HourLabel(s.Hour)</span>
+                                                    var clash = IsBooked(s.Date, s.Hour);
+                                                    <span class="md-slots__chip @(clash ? "md-slots__chip--clash" : null)" title="@(clash ? "Already booked by another home" : "")">@HourLabel(s.Hour)</span>
                                                 }
                                             </li>
                                         }
@@ -145,30 +145,6 @@
                         </article>
                     }
                     <MaidPager Page="_page" PageSize="PageSize" Total="Pending.Count" PageChanged="GoPage" />
-                }
-
-                @if (Answered.Count > 0)
-                {
-                    <section class="dh-panel dh-rise" style="--d:300ms">
-                        <div class="dh-panel__head"><h2>Answered recently</h2></div>
-                        <ul class="dh-list">
-                            @foreach (var r in Answered)
-                            {
-                                <li class="dh-item">
-                                    <span class="dh-item__avatar" aria-hidden="true">@Initials(r.ClientName)</span>
-                                    <div class="dh-item__main">
-                                        <p class="dh-item__title">@r.ClientName</p>
-                                        <p class="dh-item__meta">@string.Join(", ", r.Services) · @r.Area</p>
-                                        @if (r.DeclineReason is not null)
-                                        {
-                                            <p class="dh-item__meta md-reason">"@r.DeclineReason"</p>
-                                        }
-                                    </div>
-                                    <span class="md-status md-status--@r.Status.ToString().ToLowerInvariant()">@r.Status</span>
-                                </li>
-                            }
-                        </ul>
-                    </section>
                 }
             </div>
         }
@@ -224,9 +200,6 @@
 
                             <div class="md-request__actions">
                                 <a class="nx-btn nx-btn--ghost" href="helpers/schedule">See visits</a>
-                                <button type="button" class="nx-btn nx-btn--ghost" @onclick="() => Workspace.TogglePause(e.Id)">
-                                    @(e.Status == MaidEngagementStatus.Paused ? "Resume" : "Pause")
-                                </button>
                                 @if (e.HelperMarkedComplete)
                                 {
                                     <span class="dh-pill">Waiting for the client to confirm</span>
@@ -284,18 +257,23 @@
     private string? _declining;
     private string _declineNote = string.Empty;
 
-    private List<MaidRequest> Pending => Workspace.Requests.Where(r => r.Status == MaidRequestStatus.Pending).OrderByDescending(r => r.RequestedAtUtc).ToList();
-    private List<MaidRequest> Answered => Workspace.Requests.Where(r => r.Status != MaidRequestStatus.Pending).OrderByDescending(r => r.RequestedAtUtc).Take(4).ToList();
-    private List<MaidEngagement> Current => Workspace.Engagements.Where(e => e.Status != MaidEngagementStatus.Completed).ToList();
-    private List<MaidEngagement> Past => Workspace.Engagements.Where(e => e.Status == MaidEngagementStatus.Completed).OrderByDescending(e => e.StartedOn).ToList();
+    private HelperWorkspaceEngagementsDto _workspace = new();
+    private HelperAvailabilityDto? _availability;
+    private List<HelperWorkspaceRequestDto> Pending => _workspace.Requests.OrderByDescending(r => r.RequestedAtUtc).ToList();
+    private List<HelperWorkspaceEngagementDto> Current => _workspace.Current;
+    private List<HelperWorkspaceEngagementDto> Past => _workspace.Past.OrderByDescending(e => e.StartedOn).ToList();
 
-    private List<MaidRequest> PendingPage => Pending.Skip((_page - 1) * PageSize).Take(PageSize).ToList();
-    private List<MaidEngagement> CurrentPage => Current.Skip((_page - 1) * PageSize).Take(PageSize).ToList();
-    private List<MaidEngagement> PastPage => Past.Skip((_page - 1) * PageSize).Take(PageSize).ToList();
+    private List<HelperWorkspaceRequestDto> PendingPage => Pending.Skip((_page - 1) * PageSize).Take(PageSize).ToList();
+    private List<HelperWorkspaceEngagementDto> CurrentPage => Current.Skip((_page - 1) * PageSize).Take(PageSize).ToList();
+    private List<HelperWorkspaceEngagementDto> PastPage => Past.Skip((_page - 1) * PageSize).Take(PageSize).ToList();
 
-    private decimal MonthlyIncome => Workspace.Engagements.Where(e => e.Status == MaidEngagementStatus.Active).Sum(e => e.MonthlyRate);
+    private decimal MonthlyIncome => Current.Sum(e => e.MonthlyRate);
 
-    protected override void OnInitialized() => Workspace.Changed += OnWorkspaceChanged;
+    protected override async Task OnInitializedAsync()
+    {
+        _workspace = await Helpers.GetWorkspaceEngagementsAsync() ?? new();
+        _availability = await Helpers.GetAvailabilityAsync(DateTime.Today);
+    }
 
     private void SwitchTab(string tab)
     {
@@ -317,16 +295,18 @@
         if (_page > pages) _page = pages;
     }
 
-    private bool HasClash(MaidRequest r) => r.Slots.Any(s => Workspace.GetSlot(s.Date, s.Hour) == MaidSlotState.Booked);
+    private bool HasClash(HelperWorkspaceRequestDto r) => r.Slots.Any(s => IsBooked(s.Date, s.Hour));
 
-    private void Accept(MaidRequest r)
+    private async Task Accept(HelperWorkspaceRequestDto r)
     {
-        Workspace.AcceptRequest(r.Id);
+        await Helpers.AcceptWorkspaceEngagementAsync(r.Id);
+        _workspace = await Helpers.GetWorkspaceEngagementsAsync() ?? new();
+        _availability = await Helpers.GetAvailabilityAsync(DateTime.Today);
         ClampPage(Pending.Count);
         Toast.ShowSuccess($"{r.ClientName} is now a current engagement. {r.Slots.Count} hour(s) added to your schedule.", "Accepted");
     }
 
-    private void StartDecline(MaidRequest r)
+    private void StartDecline(HelperWorkspaceRequestDto r)
     {
         _declining = r.Id;
         _declineNote = string.Empty;
@@ -338,9 +318,10 @@
         _declineNote = string.Empty;
     }
 
-    private void Decline(MaidRequest r)
+    private async Task Decline(HelperWorkspaceRequestDto r)
     {
-        Workspace.DeclineRequest(r.Id, _declineNote);
+        await Helpers.DeclineWorkspaceEngagementAsync(r.Id, _declineNote);
+        _workspace = await Helpers.GetWorkspaceEngagementsAsync() ?? new();
         ClampPage(Pending.Count);
         Toast.ShowInfo(string.IsNullOrWhiteSpace(_declineNote)
             ? $"{r.ClientName} will be told you are not available."
@@ -351,9 +332,10 @@
     private static string FirstName(string name) =>
         name.Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? "them";
 
-    private void Complete(MaidEngagement e)
+    private async Task Complete(HelperWorkspaceEngagementDto e)
     {
-        Workspace.MarkComplete(e.Id);
+        await Helpers.MarkCompleteAsync(e.Id);
+        _workspace = await Helpers.GetWorkspaceEngagementsAsync() ?? new();
         Toast.ShowInfo($"We've asked {e.ClientName} to confirm. You can be reviewed once they do.", "Marked complete");
     }
 
@@ -373,7 +355,6 @@
             : (parts[0][..1] + parts[^1][..1]).ToUpperInvariant();
     }
 
-    private void OnWorkspaceChanged() => InvokeAsync(StateHasChanged);
-
-    public void Dispose() => Workspace.Changed -= OnWorkspaceChanged;
+    private bool IsBooked(DateTime date, int hour) => _availability?.Slots.Any(s => s.DayOfWeek == (int)date.DayOfWeek && s.Hour == hour && s.IsBooked) == true;
+    private static string HourLabel(int hour) => DateTime.Today.AddHours(hour).ToString("h tt");
 }
