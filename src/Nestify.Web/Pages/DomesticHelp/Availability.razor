@@ -1,8 +1,8 @@
 @page "/helpers/availability"
 @layout HelperLayout
 @attribute [Authorize(Roles = "DomesticHelper,DomesticHelp,Maid,Helper")]
-@implements IDisposable
-@inject MaidWorkspaceService Workspace
+@using Nestify.Shared.Dtos.Helpers
+@inject IHelperService Helpers
 @inject Nestify.Web.Services.ToastService Toast
 
 <PageTitle>Availability — Nestify</PageTitle>
@@ -75,9 +75,9 @@
             </div>
 
             <div class="md-grid-wrap" @onpointerup="StopPaint" @onpointerleave="StopPaint">
-                <div class="md-grid" role="grid" aria-label="Weekly availability" style="--cols:@MaidWorkspaceService.Days">
+                <div class="md-grid" role="grid" aria-label="Weekly availability" style="--cols:@Week.Length">
                     <div class="md-grid__corner" role="columnheader"></div>
-                    @foreach (var day in MaidWorkspaceService.Week)
+                    @foreach (var day in Week)
                     {
                         var d = day;
                         var isToday = d == DateTime.Today.DayOfWeek;
@@ -92,23 +92,23 @@
                         </button>
                     }
 
-                    @for (var hour = MaidWorkspaceService.StartHour; hour < MaidWorkspaceService.EndHour; hour++)
+                    @for (var hour = StartHour; hour < EndHour; hour++)
                     {
                         var h = hour;
-                        <div class="md-grid__hour" role="rowheader">@MaidWorkspaceService.HourLabel(h)</div>
-                        @foreach (var day in MaidWorkspaceService.Week)
+                        <div class="md-grid__hour" role="rowheader">@HourLabel(h)</div>
+                        @foreach (var day in Week)
                         {
                             var key = (day, h);
-                            var state = _week[key];
-                            var booked = state == MaidSlotState.Booked;
-                            var changed = _saved[key] != state;
-                            var label = $"{day}, {MaidWorkspaceService.RangeLabel(h, h + 1)} — {StateLabel(state)}";
+                            var state = _week.GetValueOrDefault(key);
+                            var booked = state == SlotState.Booked;
+                            var changed = _saved.GetValueOrDefault(key) != state;
+                            var label = $"{day}, {RangeLabel(h, h + 1)} — {StateLabel(state)}";
 
                             <button type="button" role="gridcell"
                                     class="md-cell md-cell--@state.ToString().ToLowerInvariant() @(changed ? "md-cell--changed" : null)"
                                     title="@label"
                                     aria-label="@label"
-                                    aria-pressed="@((state == MaidSlotState.Open).ToString().ToLowerInvariant())"
+                                    aria-pressed="@((state == SlotState.Open).ToString().ToLowerInvariant())"
                                     disabled="@booked"
                                     @onpointerdown="() => StartPaint(key)"
                                     @onpointerenter="() => Paint(key)"
@@ -139,8 +139,8 @@
 </div>
 
 @code {
-    private Dictionary<(DayOfWeek Day, int Hour), MaidSlotState> _week = new();
-    private Dictionary<(DayOfWeek Day, int Hour), MaidSlotState> _saved = new();
+    private Dictionary<(DayOfWeek Day, int Hour), SlotState> _week = new();
+    private Dictionary<(DayOfWeek Day, int Hour), SlotState> _saved = new();
     private bool _available;
 
     private int _openCount;
@@ -150,44 +150,47 @@
 
     private bool _painting;
     private bool _paintHandled;
-    private MaidSlotState _paintTo;
+    private SlotState _paintTo;
+    private const int StartHour = 6, EndHour = 24;
+    private static readonly DayOfWeek[] Week = [DayOfWeek.Saturday, DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday];
+    private enum SlotState { Off, Open, Booked }
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        _available = Workspace.IsAvailable;
-        Workspace.Changed += OnWorkspaceChanged;
-        LoadWeek();
-    }
-
-    private void LoadWeek()
-    {
-        _saved = Workspace.SnapshotWeek();
-        _week = new Dictionary<(DayOfWeek, int), MaidSlotState>(_saved);
+        var availability = await Helpers.GetAvailabilityAsync(DateTime.Today) ?? new HelperAvailabilityDto();
+        _available = availability.IsAvailable;
+        foreach (var day in Week)
+        for (var hour = StartHour; hour < EndHour; hour++)
+        {
+            var slot = availability.Slots.FirstOrDefault(s => s.DayOfWeek == (int)day && s.Hour == hour);
+            _week[(day, hour)] = slot?.IsBooked == true ? SlotState.Booked : slot?.IsOpen == true ? SlotState.Open : SlotState.Off;
+        }
+        _saved = new(_week);
         Recount();
     }
 
     private void Recount()
     {
-        _openCount = _week.Values.Count(s => s == MaidSlotState.Open);
-        _bookedCount = _week.Values.Count(s => s == MaidSlotState.Booked);
-        _daysWorking = _week.Where(kv => kv.Value != MaidSlotState.Off).Select(kv => kv.Key.Day).Distinct().Count();
+        _openCount = _week.Values.Count(s => s == SlotState.Open);
+        _bookedCount = _week.Values.Count(s => s == SlotState.Booked);
+        _daysWorking = _week.Where(kv => kv.Value != SlotState.Off).Select(kv => kv.Key.Day).Distinct().Count();
         _dirtyCount = _week.Count(kv => _saved[kv.Key] != kv.Value);
     }
 
     private int OpenCountForDay(DayOfWeek day) =>
-        _week.Count(kv => kv.Key.Day == day && kv.Value != MaidSlotState.Off);
+        _week.Count(kv => kv.Key.Day == day && kv.Value != SlotState.Off);
 
     private static string DayShort(DayOfWeek day) => day.ToString()[..3];
     private static string DayLetter(DayOfWeek day) => day.ToString()[..1];
 
-    private static string StateLabel(MaidSlotState state) => state switch
+    private static string StateLabel(SlotState state) => state switch
     {
-        MaidSlotState.Open => "Open",
-        MaidSlotState.Booked => "Booked",
+        SlotState.Open => "Open",
+        SlotState.Booked => "Booked",
         _ => "Off"
     };
 
-    private bool Editable((DayOfWeek Day, int Hour) key) => _week[key] != MaidSlotState.Booked;
+    private bool Editable((DayOfWeek Day, int Hour) key) => _week[key] != SlotState.Booked;
 
     // A tap flips one hour. Pointer painting handles press-and-drag on a mouse;
     // the click handler is skipped when a paint already applied the change.
@@ -195,7 +198,7 @@
     {
         if (_paintHandled) { _paintHandled = false; return; }
         if (!Editable(key)) return;
-        _week[key] = _week[key] == MaidSlotState.Open ? MaidSlotState.Off : MaidSlotState.Open;
+        _week[key] = _week[key] == SlotState.Open ? SlotState.Off : SlotState.Open;
         Recount();
     }
 
@@ -203,7 +206,7 @@
     {
         if (!Editable(key)) return;
         _painting = true;
-        _paintTo = _week[key] == MaidSlotState.Open ? MaidSlotState.Off : MaidSlotState.Open;
+        _paintTo = _week[key] == SlotState.Open ? SlotState.Off : SlotState.Open;
         _week[key] = _paintTo;
         _paintHandled = true;
         Recount();
@@ -222,10 +225,10 @@
     private void ToggleDay(DayOfWeek day)
     {
         var keys = _week.Keys.Where(k => k.Day == day && Editable(k)).ToList();
-        var anyOpen = keys.Any(k => _week[k] == MaidSlotState.Open);
+        var anyOpen = keys.Any(k => _week[k] == SlotState.Open);
         foreach (var k in keys)
         {
-            _week[k] = anyOpen ? MaidSlotState.Off : MaidSlotState.Open;
+            _week[k] = anyOpen ? SlotState.Off : SlotState.Open;
         }
         Recount();
     }
@@ -235,7 +238,7 @@
         foreach (var k in _week.Keys.ToList())
         {
             if (!Editable(k)) continue;
-            _week[k] = k.Hour >= from && k.Hour < to ? MaidSlotState.Open : MaidSlotState.Off;
+            _week[k] = k.Hour >= from && k.Hour < to ? SlotState.Open : SlotState.Off;
         }
         Recount();
     }
@@ -244,34 +247,35 @@
     {
         foreach (var k in _week.Keys.ToList())
         {
-            if (Editable(k)) _week[k] = MaidSlotState.Off;
+            if (Editable(k)) _week[k] = SlotState.Off;
         }
         Recount();
     }
 
-    private void Save()
+    private async Task Save()
     {
-        Workspace.SaveWeek(_week);
-        _saved = Workspace.SnapshotWeek();
+        var availability = new HelperAvailabilityDto { IsAvailable = _available,
+            Slots = _week.Select(kv => new HelperAvailabilitySlotDto { DayOfWeek = (int)kv.Key.Day, Hour = kv.Key.Hour, IsOpen = kv.Value == SlotState.Open, IsBooked = kv.Value == SlotState.Booked }).ToList() };
+        await Helpers.SaveAvailabilityAsync(availability);
+        _saved = new(_week);
         Recount();
         Toast.ShowSuccess($"{_openCount} open hours a week published.", "Hours saved");
     }
 
     private void Discard()
     {
-        _week = new Dictionary<(DayOfWeek, int), MaidSlotState>(_saved);
+        _week = new Dictionary<(DayOfWeek, int), SlotState>(_saved);
         Recount();
     }
 
-    private void ToggleAvailable()
+    private async Task ToggleAvailable()
     {
         _available = !_available;
-        Workspace.SetAvailable(_available);
+        await Save();
         Toast.ShowInfo(_available ? "You are visible to bachelors again." : "You are hidden from new bookings.",
             _available ? "Accepting bookings" : "Paused");
     }
 
-    private void OnWorkspaceChanged() => InvokeAsync(StateHasChanged);
-
-    public void Dispose() => Workspace.Changed -= OnWorkspaceChanged;
+    private static string HourLabel(int hour) => DateTime.Today.AddHours(hour).ToString("h tt");
+    private static string RangeLabel(int start, int end) => $"{HourLabel(start)}–{HourLabel(end)}";
 }
