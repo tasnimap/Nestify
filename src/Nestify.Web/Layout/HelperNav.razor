@@ -1,5 +1,6 @@
 @implements IDisposable
 @inject NavigationManager Navigation
+@using Nestify.Web.Components.Helper
 @inject Nestify.Web.Services.Interfaces.IAuthService AuthService
 @inject MaidWorkspaceService Workspace
 
@@ -77,6 +78,7 @@
                 }
             </li>
         </ul>
+        <NotificationBell />
     </div>
 </header>
 

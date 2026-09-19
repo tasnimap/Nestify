@@ -1,4 +1,4 @@
-﻿// Program.cs
+// Program.cs
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -43,6 +43,7 @@ builder.Services.AddScoped(sp =>
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAssistantService, AssistantService>();
+builder.Services.AddScoped<INotificationService, MockNotificationService>();
 
 // Extra profile details (picture, occupation, address, socials)
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();

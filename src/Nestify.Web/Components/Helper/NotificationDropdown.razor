@@ -1,0 +1,45 @@
+@using Nestify.Web.Models
+@using Nestify.Web.Services.Interfaces
+@inject INotificationService NotificationService
+
+<div class="notification-dropdown @(Show ? "show" : "hide")" @onclick:stopPropagation="true">
+    <ul class="notification-list">
+        @if (Notifications != null && Notifications.Any())
+        {
+            foreach (var n in Notifications)
+            {
+                <NotificationItem Notification="n" OnMarkRead="MarkAsRead" />
+            }
+        }
+        else
+        {
+            <li class="empty">No notifications</li>
+        }
+    </ul>
+    <button class="btn btn-link btn-sm mt-2" @onclick="MarkAllAsRead">Mark all as read</button>
+</div>
+
+@code {
+    [Parameter] public IReadOnlyList<Notification> Notifications { get; set; } = new List<Notification>();
+    [Parameter] public bool Show { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback OnRefresh { get; set; }
+
+    private async Task MarkAsRead(Guid id)
+    {
+        await NotificationService.MarkAsReadAsync(id);
+        if (OnRefresh.HasDelegate)
+        {
+            await OnRefresh.InvokeAsync();
+        }
+    }
+
+    private async Task MarkAllAsRead()
+    {
+        await NotificationService.MarkAllAsReadAsync();
+        if (OnRefresh.HasDelegate)
+        {
+            await OnRefresh.InvokeAsync();
+        }
+    }
+}
