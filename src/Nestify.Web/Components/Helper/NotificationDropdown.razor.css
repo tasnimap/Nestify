@@ -1,0 +1,42 @@
+.notification-dropdown {
+    position: absolute;
+    right: 0;
+    background: #ffffff; /* white background */
+    border: 1px solid #6b3fa0; /* purple border */
+    border-radius: 8px;
+    width: 300px;
+    max-height: 400px;
+    overflow-y: auto;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 1000;
+    padding: 0.5rem 0;
+}
+
+.notification-dropdown.hide {
+    display: none;
+}
+
+.notification-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.notification-list li.empty {
+    text-align: center;
+    color: #6b3fa0;
+    padding: 0.5rem;
+}
+
+.notification-item.unread {
+    background-color: #f5f0ff; /* light purple */
+}
+
+.notification-item.read {
+    background-color: #ffffff;
+}
+
+.notification-bell .badge {
+    background-color: #d63384; /* pink/purple accent */
+    color: white;
+}

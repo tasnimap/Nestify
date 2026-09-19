@@ -1,0 +1,44 @@
+@using Nestify.Web.Models
+@using Nestify.Web.Services.Interfaces
+@inject INotificationService NotificationService
+
+<div class="notification-bell" style="position: relative; display: inline-block;">
+    <button class="btn btn-link" @onclick="ToggleDropdown" style="font-size: 1.5rem;">
+        <i class="oi oi-bell"></i>
+        @if (UnreadCount > 0)
+        {
+            <span class="hnav__dot" style="position: absolute; top: 0; right: 0;">@UnreadCount</span>
+        }
+    </button>
+    <NotificationDropdown Notifications="notifications" Show="showDropdown" OnClose="CloseDropdown" OnRefresh="RefreshNotificationsAsync" />
+</div>
+
+@code {
+    private List<Notification> notifications = new();
+    private bool showDropdown = false;
+    // Dynamically compute unread count based on current notifications list
+    private int UnreadCount => notifications.Count(n => !n.IsRead);
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RefreshNotificationsAsync();
+        // Ensure component re-renders after initial load
+        StateHasChanged();
+    }
+
+    private async Task RefreshNotificationsAsync()
+    {
+        notifications = (await NotificationService.GetNotificationsAsync()).ToList();
+        StateHasChanged();
+    }
+
+    private void ToggleDropdown()
+    {
+        showDropdown = !showDropdown;
+    }
+
+    private void CloseDropdown()
+    {
+        showDropdown = false;
+    }
+}
