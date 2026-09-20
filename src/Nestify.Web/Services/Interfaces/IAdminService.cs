@@ -33,4 +33,7 @@ public interface IAdminService
     Task<(bool Ok, string Message)> ToggleAdminAsync(string id);
 
     Task<List<AdminAuditEntryDto>> GetAuditAsync(int take = 200);
+
+    Task<List<VerificationRequestDto>> GetVerificationsAsync();
+    Task<(bool Ok, string Message)> DecideVerificationAsync(string id, bool approve, string? reason);
 }

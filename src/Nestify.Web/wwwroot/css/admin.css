@@ -588,6 +588,21 @@
 
 .adm-thumb--teal { background: linear-gradient(140deg, #34d0c0, var(--ad-teal)); }
 .adm-thumb--amber { background: linear-gradient(140deg, #f6b25c, var(--ad-amber)); }
+.adm-thumb--photo { object-fit: cover; background: var(--ad-canvas); border: 1px solid var(--ad-line); }
+.adm-row--click { cursor: pointer; }
+
+/* ---------- verification modal ---------- */
+
+.adm-applicant { display: flex; align-items: center; gap: .85rem; min-width: 0; }
+.adm-applicant__photo { width: 60px; height: 60px; flex: none; border-radius: 16px; object-fit: cover; border: 1px solid var(--ad-line); background: var(--ad-canvas); }
+
+.adm-docs { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: .85rem; margin-top: 1.15rem; }
+.adm-doc { margin: 0; border: 1px solid var(--ad-line); border-radius: 14px; overflow: hidden; background: var(--ad-canvas); }
+.adm-doc a { display: block; }
+.adm-doc img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+.adm-doc figcaption { display: grid; gap: .1rem; padding: .55rem .75rem; }
+.adm-doc figcaption strong { font-size: .86rem; color: var(--ad-ink); }
+.adm-doc figcaption small { font-size: .76rem; color: var(--ad-muted); overflow-wrap: anywhere; }
 
 /* ---------- badges ---------- */
 

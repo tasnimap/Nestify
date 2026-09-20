@@ -116,6 +116,14 @@ public sealed class AdminService : IAdminService
     public async Task<List<AdminAuditEntryDto>> GetAuditAsync(int take = 200) =>
         await GetAsync<List<AdminAuditEntryDto>>($"api/v1/admin/audit?take={take}") ?? new();
 
+    // ---- Verification ----
+
+    public async Task<List<VerificationRequestDto>> GetVerificationsAsync() =>
+        await GetAsync<List<VerificationRequestDto>>("api/v1/admin/verifications") ?? new();
+
+    public Task<(bool Ok, string Message)> DecideVerificationAsync(string id, bool approve, string? reason) =>
+        PostAsync($"api/v1/admin/verifications/{id}/decision", new VerificationDecisionDto { Approve = approve, Reason = reason });
+
     // ---- helpers ----
 
     private async Task<T?> GetAsync<T>(string url) where T : class

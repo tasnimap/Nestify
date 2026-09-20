@@ -118,8 +118,6 @@
     protected override void OnInitialized()
     {
         Navigation.LocationChanged += OnLocationChanged;
-        Store.Changed += OnStoreChanged;
-        Refresh();
     }
 
     protected override async Task OnParametersSetAsync()
@@ -134,19 +132,12 @@
 
     protected override async Task OnInitializedAsync() => await RefreshReportsAsync();
 
-    private void OnStoreChanged() => InvokeAsync(Refresh);
-
-    private void Refresh()
-    {
-        _pending = Store.PendingApplications;
-        StateHasChanged();
-    }
-
-    // Report counts come from the API and are re-read on every page change so
-    // a strike or dismissal updates the pills straight away.
+    // Report and verification counts come from the API and are re-read on every
+    // page change so a strike, dismissal or decision updates the pills straight away.
     private async Task RefreshReportsAsync()
     {
         var summary = await Admin.GetSummaryAsync();
+        _pending = summary.PendingVerifications;
         _housingReports = summary.OpenHousingReports;
         _marketReports = summary.OpenMarketReports;
         StateHasChanged();
@@ -184,6 +175,5 @@
     public void Dispose()
     {
         Navigation.LocationChanged -= OnLocationChanged;
-        Store.Changed -= OnStoreChanged;
     }
 }
