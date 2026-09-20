@@ -64,13 +64,36 @@ public sealed class UserProfileService : IUserProfileService
         return Remember(await response.Content.ReadFromJsonAsync<UserProfileDto>());
     }
 
-    public async Task<UserProfileDto?> SubmitVerificationAsync(string documentType, Stream content, string fileName, string contentType)
+    public async Task<decimal> GetVerificationFeeAsync()
+    {
+        var fee = await _httpClient.GetFromJsonAsync<VerificationFeeDto>("api/v1/profile/me/verification/fee");
+        return fee?.AmountBdt ?? 0;
+    }
+
+    public async Task<VerificationPaymentDto> PayVerificationFeeAsync(string bkashNumber, string pin)
+    {
+        var response = await _httpClient.PostAsJsonAsync("api/v1/profile/me/verification/payment",
+            new BkashPaymentDto { BkashNumber = bkashNumber, Pin = pin });
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new ApplicationException(await ReadMessageAsync(response) ?? "The bKash payment did not go through.");
+        }
+
+        return await response.Content.ReadFromJsonAsync<VerificationPaymentDto>()
+               ?? throw new ApplicationException("The bKash payment did not go through.");
+    }
+
+    public async Task<UserProfileDto?> SubmitVerificationAsync(string identityDocumentType, VerificationUpload identity,
+        VerificationUpload? occupation, string paymentId)
     {
         using var form = new MultipartFormDataContent();
-        form.Add(new StringContent(documentType), "documentType");
-        var filePart = new StreamContent(content);
-        filePart.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(contentType);
-        form.Add(filePart, "file", fileName);
+        form.Add(new StringContent(identityDocumentType), "identityDocumentType");
+        form.Add(new StringContent(paymentId), "paymentId");
+        form.Add(FilePart(identity), "identityFile", identity.FileName);
+        if (occupation is not null)
+        {
+            form.Add(FilePart(occupation), "occupationFile", occupation.FileName);
+        }
 
         var response = await _httpClient.PostAsync("api/v1/profile/me/verification", form);
         if (!response.IsSuccessStatusCode)
@@ -79,6 +102,13 @@ public sealed class UserProfileService : IUserProfileService
         }
 
         return Remember(await response.Content.ReadFromJsonAsync<UserProfileDto>());
+    }
+
+    private static StreamContent FilePart(VerificationUpload upload)
+    {
+        var part = new StreamContent(upload.Content);
+        part.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(upload.ContentType);
+        return part;
     }
 
     public async Task<UserProfileDto?> CancelVerificationAsync()
