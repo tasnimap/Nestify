@@ -1,4 +1,4 @@
-@page "/helpers/{Id}"
+@page "/helpers/{Id:long}"
 @attribute [Authorize(Roles = "User")]
 @using Nestify.Shared.Dtos.Helpers
 @using Nestify.Web.Components
@@ -42,50 +42,73 @@
             <article class="dh-detail dh-detail--split">
                 <header class="dh-profile dh-rise">
                     <div class="dh-profile__glow" aria-hidden="true"></div>
-                    <img class="dh-portrait" src="@HelperView.PhotoUrl(_helper.Name)" alt="Photo of @_helper.Name" />
+                    <img class="dh-portrait" src="@_helper.PhotoUrl" alt="Photo of @_helper.Name" />
                     <div class="dh-profile__body">
-                        <h1>@_helper.Name</h1>
+                        <h1>
+                            @_helper.Name
+                            @if (_helper.IsVerified)
+                            {
+                                <span class="dh-verified" title="Verified by Nestify">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 12 2 2 4-4" /><circle cx="12" cy="12" r="9" /></svg>
+                                    Verified
+                                </span>
+                            }
+                        </h1>
+                        @if (!string.IsNullOrWhiteSpace(_helper.Headline))
+                        {
+                            <p class="dh-profile__headline">@_helper.Headline</p>
+                        }
                         <div class="dh-profile__meta">
                             <RatingStars Value="_helper.RatingAverage" Count="_helper.RatingCount" />
                             <span class="dh-profile__dot" aria-hidden="true"></span>
                             <span class="dh-profile__where">
                                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>
-                                @_helper.AreaName@(_helper.Distance is not null ? $" · {DistanceLabel(_helper.Distance.Value)}" : "")
+                                @_helper.AreaName@(string.IsNullOrWhiteSpace(_helper.DistrictName) ? "" : $", {_helper.DistrictName}")
                             </span>
                         </div>
                         <div class="dh-tags">
                             @foreach (var s in _helper.Services)
                             {
-                                <span class="dh-tag">@s</span>
+                                <span class="dh-tag">@ServiceTypes.Label(s)</span>
                             }
                         </div>
                     </div>
                 </header>
 
                 <div class="dh-detail__main">
+                    <section class="dh-panel dh-rise" style="--d:120ms">
+                        <div class="dh-panel__head"><h2>About @FirstName</h2></div>
+                        <p class="dh-bio">@(string.IsNullOrWhiteSpace(_helper.Bio) ? $"{FirstName} has not written a bio yet." : _helper.Bio)</p>
+                        <div class="dh-facts">
+                            <div class="dh-fact"><span>Experience</span><strong>@_helper.ExperienceYears year(s)</strong></div>
+                            <div class="dh-fact"><span>Languages</span><strong>@_helper.Languages</strong></div>
+                            <div class="dh-fact"><span>On Nestify since</span><strong>@_helper.MemberSinceUtc.ToLocalTime().ToString("MMM yyyy")</strong></div>
+                        </div>
+                    </section>
+
                     <section class="dh-panel dh-rise" style="--d:160ms">
                         <div class="dh-panel__head">
-                            <h2>Availability this week</h2>
+                            <h2>Weekly hours</h2>
                             @if (_slots.Count > 0)
                             {
                                 <span class="dh-count">@_slots.Count picked</span>
                             }
                         </div>
-                        <AvailabilityGrid HelperId="_helper.Id" AvailabilityWindow="_helper.AvailabilityWindow"
+                        <AvailabilityGrid Slots="_helper.Availability" Selectable="@(!_helper.IsMine && _helper.IsAcceptingBookings)"
                                           Selection="_slots" SelectionChanged="OnSlotsChanged" />
                     </section>
 
                     <section class="dh-panel dh-rise" style="--d:220ms">
                         <div class="dh-panel__head">
                             <h2>Reviews</h2>
-                            @if (_reviews is not null && _reviews.Items.Count > 0)
+                            @if (_reviews is not null && _reviews.TotalCount > 0)
                             {
-                                <span class="dh-count">@_reviews.Items.Count</span>
+                                <span class="dh-count">@_reviews.TotalCount</span>
                             }
                         </div>
                         @if (_reviews is null || _reviews.Items.Count == 0)
                         {
-                            <p class="dh-muted">No reviews yet.</p>
+                            <p class="dh-muted">No reviews yet. Only bachelors who took @FirstName's service can leave one.</p>
                         }
                         else
                         {
@@ -97,10 +120,19 @@
                                             <strong>@r.ReviewerName</strong>
                                             <RatingStars Value="r.Rating" ShowCount="false" />
                                         </div>
+                                        <p class="dh-muted">@string.Join(", ", r.Services) · @r.CreatedAtUtc.ToLocalTime().ToString("d MMM yyyy")</p>
                                         <p>@r.Comment</p>
+                                        @if (!string.IsNullOrWhiteSpace(r.Reply))
+                                        {
+                                            <p class="dh-review__reply"><strong>@FirstName replied:</strong> @r.Reply</p>
+                                        }
                                     </div>
                                 }
                             </div>
+                            @if (_reviews.HasNext)
+                            {
+                                <button class="nx-btn nx-btn--ghost" @onclick="MoreReviews">Show more reviews</button>
+                            }
                         }
                     </section>
                 </div>
@@ -114,9 +146,9 @@
                         <div>
                             <dt>
                                 <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
-                                Works
+                                Open hours
                             </dt>
-                            <dd>@_helper.AvailabilityWindow</dd>
+                            <dd>@_helper.Availability.Count(s => s.IsOpen && !s.IsBooked) free a week</dd>
                         </div>
                         <div>
                             <dt>
@@ -135,49 +167,107 @@
                     </dl>
 
                     <div class="dh-book__picks">
-                        @if (_slots.Count == 0)
+                        @if (!_helper.IsAcceptingBookings)
                         {
-                            <p class="dh-book__hint">Pick the hours you need on the board — up to 3 a day. Sending without any is fine too.</p>
+                            <p class="dh-book__hint">@FirstName is not taking new bookings right now.</p>
+                        }
+                        else if (_slots.Count == 0)
+                        {
+                            <p class="dh-book__hint">Pick the hours you need each week on the board — up to 3 a day.</p>
                         }
                         else
                         {
                             <p class="dh-book__hint dh-book__hint--on">
-                                <strong>@_slots.Count</strong> @(_slots.Count == 1 ? "hour" : "hours") across
-                                @_slots.Select(s => s.Date).Distinct().Count() day(s)
+                                <strong>@_slots.Count</strong> @(_slots.Count == 1 ? "hour" : "hours") a week across
+                                @_slots.Select(s => s.DayOfWeek).Distinct().Count() day(s)
                             </p>
                         }
                     </div>
 
-                    <button class="nx-btn nx-btn--accent nx-btn--block" disabled="@(_helper.IsMine || _requesting)" @onclick="HandleRequest">
-                        @(_requesting
-                            ? "Sending..."
-                            : _slots.Count == 0
-                                ? "Request engagement"
-                                : $"Request {_slots.Count} {(_slots.Count == 1 ? "hour" : "hours")}")
+                    <button class="nx-btn nx-btn--accent nx-btn--block" disabled="@(_helper.IsMine || !_helper.IsAcceptingBookings || _slots.Count == 0)" @onclick="OpenRequest">
+                        @(_slots.Count == 0 ? "Request engagement" : $"Request {_slots.Count} {(_slots.Count == 1 ? "hour" : "hours")} a week")
                     </button>
 
-                    <button class="nx-btn nx-btn--ghost nx-btn--block" @onclick="HandleReport">
-                        <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="M12 9v4M12 17h.01M10.3 3.9 2.6 17a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" />
-                        </svg>
-                        Report
-                    </button>
-
-                    <p class="dh-book__note">Contact details are shared only after @FirstName confirms.</p>
+                    <p class="dh-book__note">@FirstName's phone number is shared only after she accepts.</p>
                 </aside>
             </article>
         }
     </div>
 </div>
 
+@if (_showRequest && _helper is not null)
+{
+    <div class="md-overlay" @onclick="CloseRequest">
+        <div class="md-modal md-modal--sm" role="dialog" aria-modal="true" @onclick:stopPropagation="true">
+            <header class="md-modal__head">
+                <h2>Request @FirstName</h2>
+                <button type="button" class="md-modal__close" @onclick="CloseRequest" aria-label="Close">&times;</button>
+            </header>
+            <div class="md-modal__body md-modal__body--stack">
+                <p class="dh-muted">@_slots.Count hour(s) a week at @Money.Format(_helper.MonthlyRate)/month. She sees your name, your home's area and this note.</p>
+
+                <div class="md-field">
+                    <span class="md-field__label">What do you need?</span>
+                    <div class="dh-chips">
+                        @foreach (var s in _helper.Services)
+                        {
+                            var t = s;
+                            var on = _request.Services.Contains(t);
+                            <button type="button" class="dh-chip @(on ? "dh-chip--on" : null)" aria-pressed="@on.ToString().ToLowerInvariant()" @onclick="() => ToggleService(t)">
+                                @ServiceTypes.Label(t)
+                            </button>
+                        }
+                    </div>
+                </div>
+
+                <div class="md-field">
+                    <label for="req-message">A note for @FirstName</label>
+                    <textarea id="req-message" rows="4" maxlength="1000" @bind="_request.Message" placeholder="How many of you live there, what you eat, anything she should know."></textarea>
+                </div>
+
+                <div class="md-slots">
+                    <span class="md-slots__label">Weekly hours · @_slots.Count</span>
+                    <ul class="md-slots__list">
+                        @foreach (var day in AvailabilityGrid.Week)
+                        {
+                            var picks = _slots.Where(s => s.DayOfWeek == (int)day).OrderBy(s => s.Hour).ToList();
+                            if (picks.Count == 0) continue;
+                            <li>
+                                <span class="md-slots__day">@day</span>
+                                @foreach (var s in picks)
+                                {
+                                    <span class="md-slots__chip">@AvailabilityGrid.HourLabel(s.Hour)</span>
+                                }
+                            </li>
+                        }
+                    </ul>
+                </div>
+
+                @if (_requestError is not null)
+                {
+                    <p class="md-msg md-msg--bad">@_requestError</p>
+                }
+            </div>
+            <footer class="md-modal__foot">
+                <button type="button" class="nx-btn nx-btn--ghost" @onclick="CloseRequest" disabled="@_requesting">Cancel</button>
+                <button type="button" class="nx-btn nx-btn--accent" @onclick="SendRequest" disabled="@_requesting">@(_requesting ? "Sending…" : "Send request")</button>
+            </footer>
+        </div>
+    </div>
+}
+
 @code {
-    [Parameter] public string Id { get; set; } = string.Empty;
+    [Parameter] public long Id { get; set; }
 
     private HelperDetailDto? _helper;
     private HelperPageDto<ReviewDto>? _reviews;
     private List<EngagementSlotDto> _slots = new();
     private bool _loading = true;
+
+    private bool _showRequest;
     private bool _requesting;
+    private string? _requestError;
+    private EngagementRequestDto _request = new();
 
     private string FirstName =>
         _helper?.Name.Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? "the helper";
@@ -188,51 +278,68 @@
     {
         _loading = true;
         _slots = new List<EngagementSlotDto>();
-        _helper = await Helpers.GetHelperAsync(Id);
+        _helper = await Helpers.GetHelperAsync(Id.ToString());
         if (_helper is not null)
         {
-            _reviews = await Helpers.GetReviewsAsync(Id);
+            _reviews = await Helpers.GetReviewsAsync(Id.ToString());
         }
         _loading = false;
     }
 
+    private async Task MoreReviews()
+    {
+        if (_reviews is null) return;
+        var next = await Helpers.GetReviewsAsync(Id.ToString(), _reviews.Page + 1);
+        next.Items = _reviews.Items.Concat(next.Items).ToList();
+        _reviews = next;
+    }
+
     private void OnSlotsChanged(List<EngagementSlotDto> slots) => _slots = slots;
 
-    private async Task HandleRequest()
+    private void OpenRequest()
     {
+        if (_helper is null) return;
+        _request = new EngagementRequestDto { Services = _helper.Services.Take(1).ToList() };
+        _requestError = null;
+        _showRequest = true;
+    }
+
+    private void CloseRequest()
+    {
+        if (_requesting) return;
+        _showRequest = false;
+    }
+
+    private void ToggleService(ServiceType type)
+    {
+        if (!_request.Services.Remove(type)) _request.Services.Add(type);
+    }
+
+    private async Task SendRequest()
+    {
+        if (_request.Services.Count == 0)
+        {
+            _requestError = "Pick at least one service.";
+            return;
+        }
+
+        _request.Slots = _slots.ToList();
+        _requestError = null;
         _requesting = true;
         try
         {
-            await Helpers.RequestEngagementAsync(Id, _slots);
-
-            Toast.ShowInfo(
-                _slots.Count == 0
-                    ? "Engagement request sent."
-                    : $"Engagement request sent for {_slots.Count} hour(s).",
-                "Requested");
-
-            _slots = new List<EngagementSlotDto>();
+            await Helpers.RequestEngagementAsync(Id.ToString(), _request);
+            _showRequest = false;
+            Toast.ShowSuccess($"Your request was sent to {FirstName}. You will see her answer under My engagements.", "Requested");
+            await LoadAsync();
         }
-        catch
+        catch (Exception ex)
         {
-            Toast.ShowInfo("Could not send the request. Try again in a moment.", "Something went wrong");
+            _requestError = ex.Message;
         }
         finally
         {
             _requesting = false;
         }
     }
-
-    private void HandleReport()
-    {
-        Toast.ShowInfo("Reporting will be wired up once the shared ReportDialog lands.", "Coming soon");
-    }
-
-    private static string DistanceLabel(DistanceBand band) => band switch
-    {
-        DistanceBand.Within1Km => "within 1 km",
-        DistanceBand.Within2Km => "within 2 km",
-        DistanceBand.Within5Km => "within 5 km",
-        _ => "over 5 km"
-    };
 }

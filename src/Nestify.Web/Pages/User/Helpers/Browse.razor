@@ -14,8 +14,8 @@
                 <p class="dh-kicker">M2 · Domestic Help</p>
                 <h1>Trusted khala &amp; bua, <span class="nx-display-accent">near where you already live.</span></h1>
                 <p class="dh-banner__lead">
-                    Browse helpers registered on Nestify, rated by real engagements. Exact location is shown
-                    only after a helper confirms your request.
+                    Browse helpers registered on Nestify, rated only by the bachelors they actually worked for.
+                    Pick the weekly hours you need and she answers from her own dashboard.
                 </p>
             </div>
             <div class="dh-banner__actions">
@@ -41,7 +41,7 @@
                             @foreach (var s in _serviceTypes)
                             {
                                 <button type="button" class="dh-chip @(_filter.ServiceType == s ? "dh-chip--on" : null)"
-                                        @onclick="() => SetServiceType(s)">@s</button>
+                                        @onclick="() => SetServiceType(s)">@ServiceTypes.Label(s)</button>
                             }
                         </div>
                     </div>
@@ -58,8 +58,15 @@
                             <option value="@HelperSortOption.RatingDesc">Rating</option>
                             <option value="@HelperSortOption.RateAsc">Rate: Low to High</option>
                             <option value="@HelperSortOption.RateDesc">Rate: High to Low</option>
-                            <option value="@HelperSortOption.DistanceAsc">Nearest</option>
+                            <option value="@HelperSortOption.ExperienceDesc">Most experienced</option>
                         </select>
+                    </div>
+
+                    <div class="dh-lens__row">
+                        <label class="dh-check">
+                            <input type="checkbox" checked="@_filter.VerifiedOnly" @onchange="OnVerifiedOnly" />
+                            <span>Verified helpers only</span>
+                        </label>
                     </div>
 
                     @if (HasActiveFilters)
@@ -157,7 +164,7 @@
     private bool _error;
 
     private bool HasActiveFilters =>
-        _filter.ServiceType is not null || _filter.MaxMonthlyRate is not null ||
+        _filter.ServiceType is not null || _filter.MaxMonthlyRate is not null || _filter.VerifiedOnly ||
         _filter.DivisionId is not null || _filter.DistrictId is not null || _filter.UpazilaId is not null;
 
     protected override Task OnInitializedAsync() => LoadAsync();
@@ -203,6 +210,12 @@
     private Task OnMaxRate(ChangeEventArgs e)
     {
         _filter.MaxMonthlyRate = decimal.TryParse(e.Value?.ToString(), out var v) && v > 0 ? v : null;
+        return ApplyAsync();
+    }
+
+    private Task OnVerifiedOnly(ChangeEventArgs e)
+    {
+        _filter.VerifiedOnly = e.Value is true;
         return ApplyAsync();
     }
 

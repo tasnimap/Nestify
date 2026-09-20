@@ -2,21 +2,26 @@
 @using Nestify.Web.Components
 <a class="dh-card" href="helpers/@Helper.Id" style="--d:@(Delay)ms">
     <div class="dh-card__photo">
-        <img src="@HelperView.PhotoUrl(Helper.Name)" alt="Photo of @Helper.Name" loading="lazy" />
+        <img src="@Helper.PhotoUrl" alt="Photo of @Helper.Name" loading="lazy" />
         <span class="dh-card__rate">৳@Helper.MonthlyRate.ToString("N0") /mo</span>
+        @if (Helper.IsVerified)
+        {
+            <span class="dh-card__verified" title="Verified by Nestify">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 12 2 2 4-4" /><circle cx="12" cy="12" r="9" /></svg>
+                Verified
+            </span>
+        }
     </div>
     <h3 class="dh-card__title">@Helper.Name</h3>
-    <p class="dh-card__services">@string.Join(", ", Helper.Services)</p>
+    @if (!string.IsNullOrWhiteSpace(Helper.Headline))
+    {
+        <p class="dh-card__headline">@Helper.Headline</p>
+    }
+    <p class="dh-card__services">@string.Join(", ", Helper.Services.Select(ServiceTypes.Label))</p>
     <RatingStars Value="Helper.RatingAverage" Count="Helper.RatingCount" />
     <p class="dh-card__area">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>
-        <span>
-            @Helper.AreaName
-            @if (Helper.Distance is not null)
-            {
-                <span> · @DistanceLabel(Helper.Distance.Value)</span>
-            }
-        </span>
+        <span>@(string.IsNullOrWhiteSpace(Helper.AreaName) ? "Area not set" : Helper.AreaName) · @Helper.ExperienceYears yrs experience</span>
     </p>
 </a>
 
@@ -25,12 +30,4 @@
 
     /// <summary>Stagger for the entrance animation when cards are rendered in a grid.</summary>
     [Parameter] public int Delay { get; set; }
-
-    private static string DistanceLabel(DistanceBand band) => band switch
-    {
-        DistanceBand.Within1Km => "within 1 km",
-        DistanceBand.Within2Km => "within 2 km",
-        DistanceBand.Within5Km => "within 5 km",
-        _ => "over 5 km"
-    };
 }
