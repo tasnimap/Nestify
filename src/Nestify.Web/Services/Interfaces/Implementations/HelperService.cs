@@ -62,7 +62,8 @@ public sealed class HelperService : IHelperService
     public async Task<HelperProfileDto?> GetMyProfileAsync()
     {
         var response = await _http.GetAsync("api/v1/helpers/me");
-        return response.IsSuccessStatusCode ? await response.Content.ReadFromJsonAsync<HelperProfileDto>() : null;
+        await ThrowIfFailedAsync(response, $"The API answered {(int)response.StatusCode} {response.ReasonPhrase}.");
+        return await response.Content.ReadFromJsonAsync<HelperProfileDto>();
     }
 
     public async Task<HelperNavDto?> GetNavAsync()
@@ -75,13 +76,6 @@ public sealed class HelperService : IHelperService
         {
             return null;
         }
-    }
-
-    public async Task<HelperProfileDto> RegisterAsync(HelperProfileFormDto form)
-    {
-        var response = await _http.PostAsJsonAsync("api/v1/helpers/me", form);
-        await ThrowIfFailedAsync(response, "Could not create your profile.");
-        return (await response.Content.ReadFromJsonAsync<HelperProfileDto>())!;
     }
 
     public async Task<HelperProfileDto> UpdateProfileAsync(HelperProfileFormDto form)

@@ -37,13 +37,6 @@ public sealed class HelperWorkspaceController : ControllerBase
     [HttpGet("nav")]
     public async Task<ActionResult<HelperNavDto>> GetNav() => Ok(await _workspace.GetNavAsync(RequireUserId()));
 
-    [HttpPost]
-    public async Task<ActionResult<HelperProfileDto>> Register(HelperProfileFormDto form)
-    {
-        var (data, error) = await _workspace.RegisterAsync(RequireUserId(), form);
-        return data is null ? BadRequest(new { message = error }) : Ok(data);
-    }
-
     [HttpPut]
     public async Task<ActionResult<HelperProfileDto>> Update(HelperProfileFormDto form)
     {

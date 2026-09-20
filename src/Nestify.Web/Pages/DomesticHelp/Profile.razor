@@ -10,6 +10,9 @@
 @inject Nestify.Web.Services.MoneyFormatterService Money
 @inject Nestify.Web.Services.ToastService Toast
 @inject NavigationManager Navigation
+@inject IJSRuntime JS
+@using Nestify.Shared.Dtos.Area
+@implements IAsyncDisposable
 
 <PageTitle>My profile — Nestify</PageTitle>
 
@@ -26,14 +29,35 @@
         {
             <div class="dh-panel dh-rise">
                 <div class="dh-empty">
-                    <h2>Your profile is not set up yet</h2>
-                    <p>Bachelors can only find you once you have a profile.</p>
-                    <a class="nx-btn nx-btn--accent" href="helpers/register">Set up my profile</a>
+                    <h2>Your profile could not be loaded</h2>
+                    <p>@(_loadError ?? "Try again in a moment.")</p>
+                    <button class="nx-btn nx-btn--accent" type="button" @onclick="Load">Try again</button>
                 </div>
             </div>
         }
         else
         {
+            @if (!P.IsComplete)
+            {
+                <div class="md-callout dh-rise">
+                    <div>
+                        <strong>Finish your profile so bachelors can find you</strong>
+                        <span>Sign-up only asked for your name, phone and email. Still missing: @string.Join(", ", Missing). Use the Edit links on each card.</span>
+                    </div>
+                    <button class="nx-btn nx-btn--accent" type="button" @onclick="() => OpenEdit(FirstMissing)">Fill in @FirstMissingLabel</button>
+                </div>
+            }
+            else if (!P.IsAcceptingBookings)
+            {
+                <div class="md-callout md-callout--ok dh-rise">
+                    <div>
+                        <strong>Your profile is complete</strong>
+                        <span>You are still hidden from bachelors. Turn on accepting bookings whenever you are ready for requests.</span>
+                    </div>
+                    <button class="nx-btn nx-btn--accent" type="button" disabled="@_goingLive" @onclick="GoLive">@(_goingLive ? "Turning on…" : "Accept bookings")</button>
+                </div>
+            }
+
             <header class="md-profile dh-rise">
                 <div class="md-profile__glow" aria-hidden="true"></div>
 
@@ -82,17 +106,21 @@
                                 <span>Verification pending</span>
                                 break;
                             default:
-                                <button type="button" class="dh-chip dh-chip--on" @onclick="OpenVerification">Apply for verification</button>
+                                if (P.IsComplete)
+                                {
+                                    <button type="button" class="dh-chip dh-chip--on" @onclick="OpenVerification">Apply for verification</button>
+                                }
                                 break;
                         }
                     </div>
                 </div>
 
                 <div class="md-profile__actions">
-                    <button class="nx-btn nx-btn--light" type="button" @onclick="OpenEdit">
+                    <button class="nx-btn nx-btn--light" type="button" @onclick="() => OpenEdit(EditSection.Account)">
                         <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" /></svg>
                         Edit profile
                     </button>
+                    <button class="nx-btn nx-btn--ghost" type="button" @onclick="OpenPassword">Change password</button>
                     <button class="nx-btn nx-btn--ghost" type="button" @onclick="SignOut">Log out</button>
                 </div>
             </header>
@@ -120,7 +148,7 @@
                 <section class="dh-panel dh-rise" style="--d:120ms">
                     <div class="dh-panel__head">
                         <h2>Account</h2>
-                        <button type="button" class="md-link" @onclick="OpenEdit">Edit</button>
+                        <button type="button" class="md-link" @onclick="() => OpenEdit(EditSection.Account)">Edit</button>
                     </div>
                     <div class="dh-facts">
                         <div class="dh-fact"><span>Full name</span><strong>@P.FullName</strong></div>
@@ -133,7 +161,7 @@
                 <section class="dh-panel dh-rise" style="--d:180ms">
                     <div class="dh-panel__head">
                         <h2>About me</h2>
-                        <button type="button" class="md-link" @onclick="OpenEdit">Edit</button>
+                        <button type="button" class="md-link" @onclick="() => OpenEdit(EditSection.About)">Edit</button>
                     </div>
                     <p class="md-bio">@(string.IsNullOrWhiteSpace(P.Bio) ? "Nothing written yet. A few lines about your work help bachelors pick you." : P.Bio)</p>
                     <div class="dh-facts">
@@ -145,15 +173,19 @@
                 <section class="dh-panel dh-rise" style="--d:240ms">
                     <div class="dh-panel__head">
                         <h2>Services and rate</h2>
-                        <button type="button" class="md-link" @onclick="OpenEdit">Edit</button>
+                        <button type="button" class="md-link" @onclick="() => OpenEdit(EditSection.Services)">Edit</button>
                     </div>
                     <div class="dh-tags">
                         @foreach (var s in P.Services)
                         {
                             <span class="dh-tag">@ServiceTypes.Label(s)</span>
                         }
+                        @if (P.Services.Count == 0)
+                        {
+                            <span class="dh-muted">No services picked yet.</span>
+                        }
                     </div>
-                    <p class="md-rate">@Money.Format(P.MonthlyRate)<span>/month</span></p>
+                    <p class="md-rate">@(P.MonthlyRate > 0 ? Money.Format(P.MonthlyRate) : "Rate not set")<span>@(P.MonthlyRate > 0 ? "/month" : "")</span></p>
                     <div class="dh-facts">
                         <div class="dh-fact"><span>Open hours per week</span><strong>@P.OpenHoursPerWeek h</strong></div>
                     </div>
@@ -163,15 +195,18 @@
                 <section class="dh-panel dh-rise" style="--d:300ms">
                     <div class="dh-panel__head">
                         <h2>Where I live</h2>
-                        <button type="button" class="md-link" @onclick="OpenEdit">Edit</button>
+                        <button type="button" class="md-link" @onclick="() => OpenEdit(EditSection.Address)">Edit</button>
                     </div>
                     <div class="dh-facts">
-                        <div class="dh-fact"><span>Area</span><strong>@P.AreaName</strong></div>
-                        <div class="dh-fact"><span>Address</span><strong>@P.AddressLine</strong></div>
+                        <div class="dh-fact"><span>Area</span><strong>@(string.IsNullOrWhiteSpace(P.AreaName) ? "Not set" : P.AreaName)</strong></div>
+                        <div class="dh-fact"><span>Address</span><strong>@(string.IsNullOrWhiteSpace(P.AddressLine) ? "Not set" : P.AddressLine)</strong></div>
                         <div class="dh-fact"><span>Pin</span><strong>@P.Latitude.ToString("0.0000"), @P.Longitude.ToString("0.0000")</strong></div>
                     </div>
-                    <a class="md-link" target="_blank" rel="noopener"
-                       href="@($"https://www.openstreetmap.org/?mlat={P.Latitude}&mlon={P.Longitude}#map=17/{P.Latitude}/{P.Longitude}")">Open on map →</a>
+                    @if (!string.IsNullOrWhiteSpace(P.AddressLine))
+                    {
+                        <a class="md-link" target="_blank" rel="noopener"
+                           href="@($"https://www.openstreetmap.org/?mlat={P.Latitude}&mlon={P.Longitude}#map=17/{P.Latitude}/{P.Longitude}")">Open on map →</a>
+                    }
                     <p class="dh-muted">Only the area is shown to bachelors. The address and pin stay private.</p>
                 </section>
 
@@ -211,7 +246,15 @@
                     }
                     else if (P.Verification.State != HelperVerificationState.Verified)
                     {
-                        <button class="nx-btn nx-btn--accent" type="button" @onclick="OpenVerification">@(P.Verification.State == HelperVerificationState.Rejected ? "Apply again" : "Apply for verification")</button>
+                        if (P.IsComplete)
+                        {
+                            <button class="nx-btn nx-btn--accent" type="button" @onclick="OpenVerification">@(P.Verification.State == HelperVerificationState.Rejected ? "Apply again" : "Apply for verification")</button>
+                        }
+                        else
+                        {
+                            <p class="dh-muted">Complete your profile first — services, rate and address — then you can apply.</p>
+                            <button class="nx-btn nx-btn--ghost" type="button" @onclick="() => OpenEdit(FirstMissing)">Fill in @FirstMissingLabel</button>
+                        }
                     }
                 </section>
             </div>
@@ -231,18 +274,154 @@
     </div>
 }
 
-@* ---------- edit profile ---------- *@
-@if (_showEdit && _draft is not null)
+@* ---------- edit: one small dialog per card ---------- *@
+@if (_edit != EditSection.None && _draft is not null)
 {
     <div class="md-overlay" @onclick="CloseEdit">
-        <div class="md-modal" role="dialog" aria-modal="true" aria-labelledby="edit-title" @onclick:stopPropagation="true">
+        <div class="md-modal @(_edit == EditSection.Address ? null : "md-modal--sm")" role="dialog" aria-modal="true" aria-labelledby="edit-title" @onclick:stopPropagation="true">
             <header class="md-modal__head">
-                <h2 id="edit-title">Edit profile</h2>
+                <h2 id="edit-title">@EditTitle</h2>
                 <button type="button" class="md-modal__close" @onclick="CloseEdit" aria-label="Close">&times;</button>
             </header>
-            <div class="md-modal__body">
-                <HelperForm Model="_draft" SubmitLabel="Save changes" Error="@_editError" OnSubmit="SaveEdit" OnCancel="CloseEdit" MapId="edit-map" />
+
+            <div class="md-modal__body md-modal__body--stack">
+                @switch (_edit)
+                {
+                    case EditSection.Account:
+                        <div class="md-form">
+                            <div class="md-field md-field--wide">
+                                <label for="ed-name">Full name</label>
+                                <input id="ed-name" maxlength="120" @bind="_draft.FullName" />
+                            </div>
+                            <div class="md-field md-field--wide">
+                                <label for="ed-phone">Phone</label>
+                                <input id="ed-phone" type="tel" maxlength="20" @bind="_draft.PhoneNumber" />
+                            </div>
+                            <div class="md-field md-field--wide">
+                                <label for="ed-email">Email</label>
+                                <input id="ed-email" value="@P?.Email" disabled />
+                                <small>Email can't be changed here.</small>
+                            </div>
+                        </div>
+                        break;
+
+                    case EditSection.About:
+                        <div class="md-form">
+                            <div class="md-field md-field--wide">
+                                <label for="ed-headline">Headline</label>
+                                <input id="ed-headline" maxlength="120" @bind="_draft.Headline" placeholder="One line about what you do best, e.g. Cooking and cleaning for bachelor flats" />
+                            </div>
+                            <div class="md-field md-field--wide">
+                                <label for="ed-bio">About me</label>
+                                <textarea id="ed-bio" rows="5" maxlength="1000" @bind="_draft.Bio" placeholder="Where you have worked, what you cook, how you like to work."></textarea>
+                            </div>
+                            <div class="md-field">
+                                <label for="ed-lang">Languages</label>
+                                <input id="ed-lang" maxlength="120" @bind="_draft.Languages" placeholder="Bangla, basic English" />
+                            </div>
+                            <div class="md-field">
+                                <label for="ed-exp">Years of experience</label>
+                                <input id="ed-exp" type="number" min="0" max="60" @bind="_draft.ExperienceYears" />
+                            </div>
+                        </div>
+                        break;
+
+                    case EditSection.Services:
+                        <div class="md-field">
+                            <span class="md-field__label">Services you offer</span>
+                            <div class="dh-chips">
+                                @foreach (var type in Enum.GetValues<ServiceType>())
+                                {
+                                    var t = type;
+                                    var on = _draft.Services.Contains(t);
+                                    <button type="button" class="dh-chip @(on ? "dh-chip--on" : null)" aria-pressed="@on.ToString().ToLowerInvariant()" @onclick="() => ToggleService(t)">
+                                        @ServiceTypes.Label(t)
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                        <div class="md-form">
+                            <div class="md-field md-field--wide">
+                                <label for="ed-rate">Monthly rate (৳)</label>
+                                <input id="ed-rate" type="number" min="0" step="100" @bind="_draft.MonthlyRate" />
+                                <small>What you charge one home for a month of the hours they book.</small>
+                            </div>
+                        </div>
+                        break;
+
+                    case EditSection.Address:
+                        <div class="md-form">
+                            <div class="md-field md-field--wide">
+                                <span class="md-field__label">Area</span>
+                                <AreaCascade Selection="_area" SelectionChanged="OnAreaChanged" />
+                            </div>
+                            <div class="md-field md-field--wide">
+                                <label for="ed-address">Address</label>
+                                <input id="ed-address" maxlength="300" @bind="_draft.AddressLine" placeholder="House, road, block — the way you would tell a rickshaw puller" />
+                            </div>
+                            <div class="md-field md-field--wide">
+                                <span class="md-field__label">Your home on the map</span>
+                                <div id="edit-map" class="md-map"></div>
+                                <small>Click the map or drag the pin to where you live. (@_draft.Latitude.ToString("0.0000"), @_draft.Longitude.ToString("0.0000"))</small>
+                            </div>
+                        </div>
+                        break;
+                }
+
+                @if (_editError is not null)
+                {
+                    <p class="md-msg md-msg--bad">@_editError</p>
+                }
             </div>
+
+            <footer class="md-modal__foot">
+                <button type="button" class="nx-btn nx-btn--ghost" @onclick="CloseEdit" disabled="@_saving">Cancel</button>
+                <button type="button" class="nx-btn nx-btn--accent" @onclick="SaveEdit" disabled="@_saving">@(_saving ? "Saving…" : "Save changes")</button>
+            </footer>
+        </div>
+    </div>
+}
+
+@* ---------- change password ---------- *@
+@if (_showPassword)
+{
+    <div class="md-overlay" @onclick="ClosePassword">
+        <div class="md-modal md-modal--sm" role="dialog" aria-modal="true" @onclick:stopPropagation="true">
+            <header class="md-modal__head">
+                <h2>Change password</h2>
+                <button type="button" class="md-modal__close" @onclick="ClosePassword" aria-label="Close">&times;</button>
+            </header>
+            <div class="md-modal__body md-modal__body--stack">
+                <div class="md-field">
+                    <label for="pw-current">Current password</label>
+                    <div class="md-pw">
+                        <input id="pw-current" type="@(_showCurrent ? "text" : "password")" @bind="_currentPassword" />
+                        <button type="button" class="md-pw__toggle" @onclick="() => _showCurrent = !_showCurrent">@(_showCurrent ? "Hide" : "Show")</button>
+                    </div>
+                </div>
+                <div class="md-field">
+                    <label for="pw-new">New password</label>
+                    <div class="md-pw">
+                        <input id="pw-new" type="@(_showNew ? "text" : "password")" @bind="_newPassword" />
+                        <button type="button" class="md-pw__toggle" @onclick="() => _showNew = !_showNew">@(_showNew ? "Hide" : "Show")</button>
+                    </div>
+                </div>
+                <div class="md-field">
+                    <label for="pw-confirm">Confirm new password</label>
+                    <div class="md-pw">
+                        <input id="pw-confirm" type="@(_showConfirm ? "text" : "password")" @bind="_confirmPassword" />
+                        <button type="button" class="md-pw__toggle" @onclick="() => _showConfirm = !_showConfirm">@(_showConfirm ? "Hide" : "Show")</button>
+                    </div>
+                </div>
+                @if (_passwordError is not null)
+                {
+                    <p class="md-msg md-msg--bad">@_passwordError</p>
+                }
+            </div>
+            <footer class="md-modal__foot">
+                <button type="button" class="nx-btn nx-btn--ghost" @onclick="ClosePassword" disabled="@_savingPassword">Cancel</button>
+                <button type="button" class="nx-btn nx-btn--accent" @onclick="SavePassword" disabled="@_savingPassword">@(_savingPassword ? "Updating…" : "Update password")</button>
+            </footer>
         </div>
     </div>
 }
@@ -383,13 +562,65 @@
 
     private HelperProfileDto? P;
     private bool _loading = true;
+    private string? _loadError;
 
     private bool _showPhoto;
     private bool _uploading;
 
-    private bool _showEdit;
+    private enum EditSection { None, Account, About, Services, Address }
+
+    private EditSection _edit = EditSection.None;
     private HelperProfileFormDto? _draft;
+    private AreaSelectionDto _area = new();
     private string? _editError;
+    private bool _saving;
+    private bool _goingLive;
+    private bool _mapPending;
+    private bool _mapShown;
+    private DotNetObjectReference<Profile>? _selfRef;
+
+    private bool _showPassword;
+    private bool _showCurrent, _showNew, _showConfirm;
+    private string _currentPassword = string.Empty;
+    private string _newPassword = string.Empty;
+    private string _confirmPassword = string.Empty;
+    private string? _passwordError;
+    private bool _savingPassword;
+
+    // What is still empty, in the order the cards appear.
+    private List<EditSection> MissingSections
+    {
+        get
+        {
+            var list = new List<EditSection>();
+            if (P is null) return list;
+            if (P.Services.Count == 0 || P.MonthlyRate <= 0) list.Add(EditSection.Services);
+            if (string.IsNullOrWhiteSpace(P.AddressLine)) list.Add(EditSection.Address);
+            return list;
+        }
+    }
+
+    private IEnumerable<string> Missing => MissingSections.Select(SectionLabel);
+    private EditSection FirstMissing => MissingSections.FirstOrDefault(EditSection.Services);
+    private string FirstMissingLabel => SectionLabel(FirstMissing).ToLowerInvariant();
+
+    private static string SectionLabel(EditSection section) => section switch
+    {
+        EditSection.Account => "Account",
+        EditSection.About => "About me",
+        EditSection.Services => "Services and rate",
+        EditSection.Address => "Where you live",
+        _ => "Profile"
+    };
+
+    private string EditTitle => _edit switch
+    {
+        EditSection.Account => "Edit account",
+        EditSection.About => "Edit about me",
+        EditSection.Services => "Edit services and rate",
+        EditSection.Address => "Edit where you live",
+        _ => "Edit"
+    };
 
     private enum VerificationStep { Documents, Payment, Done }
 
@@ -414,7 +645,16 @@
     private async Task Load()
     {
         _loading = true;
-        P = await Helpers.GetMyProfileAsync();
+        _loadError = null;
+        try
+        {
+            P = await Helpers.GetMyProfileAsync();
+        }
+        catch (Exception ex)
+        {
+            P = null;
+            _loadError = ex.Message;
+        }
         _loading = false;
     }
 
@@ -449,7 +689,9 @@
 
     // ---------- edit ----------
 
-    private void OpenEdit()
+    // Each card opens its own small dialog, but they all edit one draft that
+    // is sent whole, so the other cards keep their values.
+    private void OpenEdit(EditSection section)
     {
         if (P is null) return;
         _draft = new HelperProfileFormDto
@@ -469,25 +711,152 @@
             Latitude = P.Latitude,
             Longitude = P.Longitude
         };
+        _area = new AreaSelectionDto { DivisionId = P.DivisionId, DistrictId = P.DistrictId, UpazilaId = P.UpazilaId };
         _editError = null;
-        _showEdit = true;
+        _edit = section;
+        _mapPending = section == EditSection.Address;
     }
 
-    private void CloseEdit() => _showEdit = false;
+    // The map lives inside the address dialog, so it is drawn after that
+    // dialog renders and removed when it closes.
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!_mapPending || _draft is null) return;
+        _mapPending = false;
+        _mapShown = true;
+        _selfRef ??= DotNetObjectReference.Create(this);
+        await JS.InvokeVoidAsync("nestifyMapPicker.init", "edit-map", _draft.Latitude, _draft.Longitude, _selfRef);
+    }
+
+    [JSInvokable]
+    public void OnMapPicked(double latitude, double longitude)
+    {
+        if (_draft is null) return;
+        _draft.Latitude = Math.Round(latitude, 6);
+        _draft.Longitude = Math.Round(longitude, 6);
+        StateHasChanged();
+    }
+
+    private async Task CloseEdit()
+    {
+        if (_saving) return;
+        if (_mapShown)
+        {
+            _mapShown = false;
+            try { await JS.InvokeVoidAsync("nestifyMapPicker.destroy", "edit-map"); } catch { }
+        }
+        _edit = EditSection.None;
+    }
+
+    private void ToggleService(ServiceType type)
+    {
+        if (_draft is null) return;
+        if (!_draft.Services.Remove(type)) _draft.Services.Add(type);
+    }
+
+    private void OnAreaChanged(AreaSelectionDto selection)
+    {
+        if (_draft is null) return;
+        _area = selection;
+        _draft.DivisionId = selection.DivisionId;
+        _draft.DistrictId = selection.DistrictId;
+        _draft.UpazilaId = selection.UpazilaId;
+    }
 
     private async Task SaveEdit()
     {
         if (_draft is null) return;
-        _editError = null;
+
+        _editError = _edit switch
+        {
+            EditSection.Services when _draft.Services.Count == 0 => "Pick at least one service.",
+            EditSection.Services when _draft.MonthlyRate <= 0 => "Set a monthly rate.",
+            EditSection.Address when _draft.UpazilaId is null => "Pick the area where you live.",
+            EditSection.Address when string.IsNullOrWhiteSpace(_draft.AddressLine) => "Write your address.",
+            _ => null
+        };
+        if (_editError is not null) return;
+
+        var section = _edit;
+        _saving = true;
         try
         {
             P = await Helpers.UpdateProfileAsync(_draft);
-            _showEdit = false;
-            Toast.ShowSuccess("Your profile has been updated.", "Saved");
+            _saving = false;
+            await CloseEdit();
+            Toast.ShowSuccess($"{SectionLabel(section)} saved.", "Profile");
         }
         catch (Exception ex)
         {
             _editError = ex.Message;
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+
+    // Switches the "accepting bookings" flag on without touching the board.
+    private async Task GoLive()
+    {
+        var availability = await Helpers.GetAvailabilityAsync();
+        if (availability is null) return;
+        _goingLive = true;
+        try
+        {
+            availability.IsAvailable = true;
+            await Helpers.SaveAvailabilityAsync(availability);
+            P = await Helpers.GetMyProfileAsync();
+            Toast.ShowSuccess("Bachelors can now find and book you.", "Accepting bookings");
+        }
+        catch (Exception ex)
+        {
+            Toast.ShowWarning(ex.Message, "Accepting bookings");
+        }
+        finally
+        {
+            _goingLive = false;
+        }
+    }
+
+    // ---------- password ----------
+
+    private void OpenPassword()
+    {
+        _currentPassword = _newPassword = _confirmPassword = string.Empty;
+        _showCurrent = _showNew = _showConfirm = false;
+        _passwordError = null;
+        _showPassword = true;
+    }
+
+    private void ClosePassword()
+    {
+        if (_savingPassword) return;
+        _showPassword = false;
+    }
+
+    private async Task SavePassword()
+    {
+        if (string.IsNullOrWhiteSpace(_currentPassword)) { _passwordError = "Enter your current password."; return; }
+        if (_newPassword.Length < 8) { _passwordError = "The new password needs at least 8 characters."; return; }
+        if (_newPassword != _confirmPassword) { _passwordError = "The two new passwords don't match."; return; }
+        if (_newPassword == _currentPassword) { _passwordError = "The new password must be different from the current one."; return; }
+
+        _passwordError = null;
+        _savingPassword = true;
+        try
+        {
+            await AuthService.ChangePasswordAsync(_currentPassword, _newPassword);
+            _showPassword = false;
+            Toast.ShowSuccess("Password updated.", "Security");
+        }
+        catch (Exception ex)
+        {
+            _passwordError = ex.Message;
+        }
+        finally
+        {
+            _savingPassword = false;
         }
     }
 
@@ -660,5 +1029,14 @@
     {
         await AuthService.LogoutAsync();
         Navigation.NavigateTo("/", forceLoad: false);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_mapShown)
+        {
+            try { await JS.InvokeVoidAsync("nestifyMapPicker.destroy", "edit-map"); } catch { }
+        }
+        _selfRef?.Dispose();
     }
 }

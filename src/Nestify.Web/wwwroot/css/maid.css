@@ -1653,3 +1653,23 @@
     font-weight: 800;
 }
 .md-bkash__done-title { margin: 0; font-weight: 800; color: var(--nx-ink); }
+
+.md-callout {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+    padding: .9rem 1.1rem;
+    border-radius: 14px;
+    border: 1px solid #f6dfa0;
+    background: #fff8e6;
+}
+.md-callout > div { display: grid; gap: .15rem; flex: 1; min-width: 220px; }
+.md-callout strong { color: #92400e; }
+.md-callout span { font-size: .88rem; color: #78350f; }
+
+.md-callout--ok { border-color: #bbf7d0; background: #f0fdf4; }
+.md-callout--ok strong { color: #166534; }
+.md-callout--ok span { color: #14532d; }

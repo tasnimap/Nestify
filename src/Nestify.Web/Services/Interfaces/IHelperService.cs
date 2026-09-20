@@ -21,7 +21,6 @@ public interface IHelperService
     // ---- the helper's own profile ----
     Task<HelperProfileDto?> GetMyProfileAsync();
     Task<HelperNavDto?> GetNavAsync();
-    Task<HelperProfileDto> RegisterAsync(HelperProfileFormDto form);
     Task<HelperProfileDto> UpdateProfileAsync(HelperProfileFormDto form);
     Task<HelperProfileDto> UploadPhotoAsync(IBrowserFile file);
 

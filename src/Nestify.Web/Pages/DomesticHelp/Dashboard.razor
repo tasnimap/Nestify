@@ -6,7 +6,6 @@
 @inject IHelperService Helpers
 @inject Nestify.Web.Services.ToastService Toast
 @inject Nestify.Web.Services.MoneyFormatterService Money
-@inject NavigationManager Nav
 
 <PageTitle>Helper dashboard — Nestify</PageTitle>
 
@@ -30,6 +29,17 @@
                 </button>
             </div>
         </header>
+
+        @if (!Model.IsProfileComplete)
+        {
+            <div class="md-callout dh-rise">
+                <div>
+                    <strong>Finish your profile so bachelors can find you</strong>
+                    <span>Sign-up only asked for your name and phone. Add your services, monthly rate and where you live from your profile — then you can accept bookings and apply for verification.</span>
+                </div>
+                <a class="nx-btn nx-btn--accent" href="helpers/profile">Go to my profile</a>
+            </div>
+        }
 
         <div class="dh-stats">
             <a class="dh-stat dh-stat--warn dh-rise" style="--d:60ms" href="helpers/engagements">
@@ -202,14 +212,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var model = await Helpers.GetWorkspaceDashboardAsync();
-        if (model is null)
-        {
-            // No profile yet: the workspace has nothing to show until she registers.
-            Nav.NavigateTo("helpers/register", replace: true);
-            return;
-        }
-        Model = model;
+        Model = await Helpers.GetWorkspaceDashboardAsync() ?? new();
         _availability = await Helpers.GetAvailabilityAsync();
         if (AuthState is not null)
         {
@@ -222,8 +225,16 @@
     {
         if (_availability is null) return;
         _availability.IsAvailable = !_availability.IsAvailable;
-        await Helpers.SaveAvailabilityAsync(_availability);
-        Toast.ShowInfo(_availability.IsAvailable ? "You are visible to bachelors again." : "You are hidden from new bookings.", _availability.IsAvailable ? "Accepting bookings" : "Paused");
+        try
+        {
+            await Helpers.SaveAvailabilityAsync(_availability);
+            Toast.ShowInfo(_availability.IsAvailable ? "You are visible to bachelors again." : "You are hidden from new bookings.", _availability.IsAvailable ? "Accepting bookings" : "Paused");
+        }
+        catch (Exception ex)
+        {
+            _availability.IsAvailable = !_availability.IsAvailable;
+            Toast.ShowWarning(ex.Message, "Profile");
+        }
     }
 
     private async Task Accept(HelperWorkspaceRequestDto r)

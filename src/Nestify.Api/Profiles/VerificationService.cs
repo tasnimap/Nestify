@@ -311,11 +311,11 @@ public sealed class VerificationService
 
         using var connection = await _db.OpenAsync();
 
-        var hasProfile = await connection.ExecuteScalarAsync<bool>(
-            "SELECT EXISTS (SELECT 1 FROM domestic_helper_profiles WHERE user_id = @userId)", new { userId });
-        if (!hasProfile)
+        var helperId = await connection.ExecuteScalarAsync<long?>(
+            "SELECT id FROM domestic_helper_profiles WHERE user_id = @userId", new { userId });
+        if (helperId is null || !await Nestify.Api.Helpers.HelperWorkspaceService.IsCompleteAsync(connection, helperId.Value))
         {
-            return "Create your helper profile before applying for verification.";
+            return "Fill in your services, rate and address on your profile before applying for verification.";
         }
 
         var pending = await connection.ExecuteScalarAsync<bool>(

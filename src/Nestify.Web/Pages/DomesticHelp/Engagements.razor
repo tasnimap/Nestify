@@ -6,7 +6,6 @@
 @inject IHelperService Helpers
 @inject Nestify.Web.Services.ToastService Toast
 @inject Nestify.Web.Services.MoneyFormatterService Money
-@inject NavigationManager Nav
 
 <PageTitle>Engagements — Nestify</PageTitle>
 
@@ -304,13 +303,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var workspace = await Helpers.GetWorkspaceEngagementsAsync();
-        if (workspace is null)
-        {
-            Nav.NavigateTo("helpers/register", replace: true);
-            return;
-        }
-        _workspace = workspace;
+        _workspace = await Helpers.GetWorkspaceEngagementsAsync() ?? new();
         _availability = await Helpers.GetAvailabilityAsync();
     }
 
