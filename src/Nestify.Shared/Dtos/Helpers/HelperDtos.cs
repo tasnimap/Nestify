@@ -1,30 +1,34 @@
 namespace Nestify.Shared.Dtos.Helpers;
 
+// Numbered the same way as helper_services.service_type in Domestic_Help.sql.
 public enum ServiceType
 {
-    Cooking,
-    Cleaning,
-    Babysitting,
-    ElderCare,
-    Laundry,
-    General
+    Cooking = 1,
+    Cleaning = 2,
+    Laundry = 3,
+    Dishwashing = 4,
+    GroceryRuns = 5,
+    General = 6
 }
 
-public enum DistanceBand
+public static class ServiceTypes
 {
-    Within1Km,
-    Within2Km,
-    Within5Km,
-    Over5Km
+    public static string Label(ServiceType type) => type switch
+    {
+        ServiceType.GroceryRuns => "Grocery runs",
+        ServiceType.General => "General help",
+        _ => type.ToString()
+    };
 }
 
+// Mirrors service_engagements.status.
 public enum EngagementStatus
 {
-    Requested,
-    Declined,
-    HelperConfirmed,
-    Active,
-    Completed
+    Requested = 1,
+    Active = 2,
+    Completed = 3,
+    Declined = 4,
+    Cancelled = 5
 }
 
 public enum EngagementRole
@@ -38,52 +42,136 @@ public enum HelperSortOption
     RatingDesc,
     RateAsc,
     RateDesc,
-    DistanceAsc
+    ExperienceDesc
+}
+
+public enum HelperVerificationState
+{
+    NotApplied,
+    Pending,
+    Verified,
+    Rejected
 }
 
 public sealed class HelperSummaryDto
 {
     public string Id { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
+    public string PhotoUrl { get; set; } = string.Empty;
+    public string Headline { get; set; } = string.Empty;
     public List<ServiceType> Services { get; set; } = new();
     public decimal MonthlyRate { get; set; }
+    public int ExperienceYears { get; set; }
     public double RatingAverage { get; set; }
     public int RatingCount { get; set; }
     public string AreaName { get; set; } = string.Empty;
-    public DistanceBand? Distance { get; set; }
     public bool IsVerified { get; set; }
 }
 
+/// <summary>The public profile a bachelor sees before booking.</summary>
 public sealed class HelperDetailDto
 {
     public string Id { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
+    public string PhotoUrl { get; set; } = string.Empty;
+    public string Headline { get; set; } = string.Empty;
+    public string Bio { get; set; } = string.Empty;
+    public string Languages { get; set; } = string.Empty;
     public List<ServiceType> Services { get; set; } = new();
     public decimal MonthlyRate { get; set; }
-    public string AvailabilityWindow { get; set; } = string.Empty;
+    public int ExperienceYears { get; set; }
     public double RatingAverage { get; set; }
     public int RatingCount { get; set; }
     public string AreaName { get; set; } = string.Empty;
-    public DistanceBand? Distance { get; set; }
-    public bool IsMine { get; set; }
+    public string DistrictName { get; set; } = string.Empty;
     public bool IsVerified { get; set; }
+    public bool IsAcceptingBookings { get; set; }
+    public DateTime MemberSinceUtc { get; set; }
+    public List<HelperAvailabilitySlotDto> Availability { get; set; } = new();
+    public bool IsMine { get; set; }
 }
 
-public sealed class HelperRegistrationDto
+/// <summary>One hour on the weekly board. DayOfWeek is 0 Sunday .. 6 Saturday.</summary>
+public sealed class HelperAvailabilitySlotDto
 {
+    public int DayOfWeek { get; set; }
+    public int Hour { get; set; }
+    public bool IsOpen { get; set; }
+    public bool IsBooked { get; set; }
+}
+
+public sealed class HelperAvailabilityDto
+{
+    public bool IsAvailable { get; set; }
+    public List<HelperAvailabilitySlotDto> Slots { get; set; } = new();
+}
+
+/// <summary>The helper's own profile: her users row plus everything in Domestic_Help.sql.</summary>
+public sealed class HelperProfileDto
+{
+    public string Id { get; set; } = string.Empty;
+    public string FullName { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string PhoneNumber { get; set; } = string.Empty;
+    public DateTime JoinedAtUtc { get; set; }
+    public string PhotoUrl { get; set; } = string.Empty;
+    public string Headline { get; set; } = string.Empty;
+    public string Bio { get; set; } = string.Empty;
+    public string Languages { get; set; } = string.Empty;
     public List<ServiceType> Services { get; set; } = new();
-    public string AvailabilityWindow { get; set; } = string.Empty;
     public decimal MonthlyRate { get; set; }
+    public int ExperienceYears { get; set; }
+    public double RatingAverage { get; set; }
+    public int RatingCount { get; set; }
+    public bool IsVerified { get; set; }
+    public bool IsAcceptingBookings { get; set; }
     public int? DivisionId { get; set; }
     public int? DistrictId { get; set; }
     public int? UpazilaId { get; set; }
+    public string AreaName { get; set; } = string.Empty;
+    public string AddressLine { get; set; } = string.Empty;
+    public double Latitude { get; set; }
+    public double Longitude { get; set; }
+    public int CompletedCount { get; set; }
+    public int ActiveCount { get; set; }
+    public int OpenHoursPerWeek { get; set; }
+    public HelperVerificationStatusDto Verification { get; set; } = new();
 }
 
-public sealed class HelperVerificationDto
+/// <summary>What a helper fills in when registering or editing her profile.</summary>
+public sealed class HelperProfileFormDto
 {
-    public string DocumentType { get; set; } = string.Empty;
-    public string DocumentUrl { get; set; } = string.Empty;
-    public string FileName { get; set; } = string.Empty;
+    public string FullName { get; set; } = string.Empty;
+    public string PhoneNumber { get; set; } = string.Empty;
+    public string Headline { get; set; } = string.Empty;
+    public string Bio { get; set; } = string.Empty;
+    public string Languages { get; set; } = "Bangla";
+    public List<ServiceType> Services { get; set; } = new();
+    public decimal MonthlyRate { get; set; }
+    public int ExperienceYears { get; set; }
+    public int? DivisionId { get; set; }
+    public int? DistrictId { get; set; }
+    public int? UpazilaId { get; set; }
+    public string AddressLine { get; set; } = string.Empty;
+    // Dhaka by default so the map has somewhere to open.
+    public double Latitude { get; set; } = 23.7806;
+    public double Longitude { get; set; } = 90.4074;
+}
+
+public sealed class HelperVerificationStatusDto
+{
+    public HelperVerificationState State { get; set; }
+    public DateTime? SubmittedAtUtc { get; set; }
+    public string? RejectionReason { get; set; }
+}
+
+/// <summary>What the helper nav needs: her name, photo and the request badge.</summary>
+public sealed class HelperNavDto
+{
+    public bool HasProfile { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string PhotoUrl { get; set; } = string.Empty;
+    public int PendingRequestCount { get; set; }
 }
 
 public sealed class HelperFilterDto
@@ -94,6 +182,7 @@ public sealed class HelperFilterDto
     public ServiceType? ServiceType { get; set; }
     public decimal? MaxMonthlyRate { get; set; }
     public double? MinRating { get; set; }
+    public bool VerifiedOnly { get; set; }
     public HelperSortOption Sort { get; set; } = HelperSortOption.RatingDesc;
     public int Page { get; set; } = 1;
     public int PageSize { get; set; } = 9;
@@ -112,41 +201,80 @@ public sealed class HelperPageDto<T>
 
 public sealed class ReviewDto
 {
+    public string Id { get; set; } = string.Empty;
     public string ReviewerName { get; set; } = string.Empty;
+    public string ReviewerPhotoUrl { get; set; } = string.Empty;
+    public List<string> Services { get; set; } = new();
     public int Rating { get; set; }
     public string Comment { get; set; } = string.Empty;
     public DateTime CreatedAtUtc { get; set; }
+    public string? Reply { get; set; }
+    public DateTime? RepliedAtUtc { get; set; }
 }
 
-/// <summary>One hour a client picked off the helper's availability board.</summary>
+/// <summary>Everything on the helper's reviews page.</summary>
+public sealed class HelperReviewsDto
+{
+    public double RatingAverage { get; set; }
+    public int RatingCount { get; set; }
+    public List<ReviewDto> Reviews { get; set; } = new();
+}
+
+/// <summary>One weekly hour a client picked off the helper's board.</summary>
 public sealed class EngagementSlotDto
 {
-    public DateTime Date { get; set; }
-
-    /// <summary>Start of the hour, 6 to 23.</summary>
+    public int DayOfWeek { get; set; }
     public int Hour { get; set; }
 }
 
+/// <summary>What a bachelor sends when asking a helper for an engagement.</summary>
+public sealed class EngagementRequestDto
+{
+    public List<ServiceType> Services { get; set; } = new();
+    public string Message { get; set; } = string.Empty;
+    public List<EngagementSlotDto> Slots { get; set; } = new();
+}
+
+/// <summary>An engagement as the client sees it.</summary>
 public sealed class EngagementDto
 {
     public string Id { get; set; } = string.Empty;
     public string HelperId { get; set; } = string.Empty;
     public string HelperName { get; set; } = string.Empty;
-    public string ClientName { get; set; } = string.Empty;
-    public EngagementRole MyRole { get; set; }
+    public string HelperPhotoUrl { get; set; } = string.Empty;
+    public string? HelperPhone { get; set; }          // shared once the helper accepts
+    public string HelperArea { get; set; } = string.Empty;
+    public List<ServiceType> Services { get; set; } = new();
+    public decimal MonthlyRate { get; set; }
+    public string Message { get; set; } = string.Empty;
+    public List<EngagementSlotDto> Slots { get; set; } = new();
     public EngagementStatus Status { get; set; }
-    public DateTime CreatedAtUtc { get; set; }
+    public DateTime RequestedAtUtc { get; set; }
+    public DateTime? StartDate { get; set; }
+    public string? DeclineReason { get; set; }
     public bool ClientMarkedComplete { get; set; }
     public bool HelperMarkedComplete { get; set; }
-    public bool CanReview { get; set; }
+    public bool HasReview { get; set; }
+    public bool CanReview => Status == EngagementStatus.Completed && !HasReview;
 }
 
-public sealed class HelperVerificationStatusDto
+public sealed class SubmitReviewDto
 {
-    public bool IsPending { get; set; }
-    public string? DocumentType { get; set; }
-    public DateTime? SubmittedAtUtc { get; set; }
+    public int Rating { get; set; }
+    public string Comment { get; set; } = string.Empty;
 }
+
+public sealed class ReviewReplyDto
+{
+    public string Reply { get; set; } = string.Empty;
+}
+
+public sealed class DeclineEngagementDto
+{
+    public string? Reason { get; set; }
+}
+
+// ------------------------------------------------------------ helper workspace
 
 public sealed class HelperWorkspaceDashboardDto
 {
@@ -157,30 +285,9 @@ public sealed class HelperWorkspaceDashboardDto
     public int VisitsThisWeek { get; set; }
     public double RatingAverage { get; set; }
     public int ReviewCount { get; set; }
+    public bool IsVerified { get; set; }
     public List<HelperWorkspaceVisitDto> TodayVisits { get; set; } = new();
     public List<HelperWorkspaceRequestDto> NewRequests { get; set; } = new();
-    public List<HelperAvailabilityDayDto> OpenHours { get; set; } = new();
-}
-
-public sealed class HelperAvailabilityDto
-{
-    public bool IsAvailable { get; set; }
-    public List<HelperAvailabilitySlotDto> Slots { get; set; } = new();
-}
-
-public sealed class HelperAvailabilitySlotDto
-{
-    public int DayOfWeek { get; set; }
-    public int Hour { get; set; }
-    public bool IsOpen { get; set; }
-    public bool IsBooked { get; set; }
-}
-
-public sealed class HelperAvailabilityDayDto
-{
-    public int DayOfWeek { get; set; }
-    public int OpenHours { get; set; }
-    public int BookedHours { get; set; }
 }
 
 public sealed class HelperWorkspaceScheduleDto
@@ -190,6 +297,7 @@ public sealed class HelperWorkspaceScheduleDto
     public HelperWorkspaceVisitDto? NextVisit { get; set; }
 }
 
+/// <summary>One hour of one engagement on one date, worked out from the weekly slots.</summary>
 public sealed class HelperWorkspaceVisitDto
 {
     public string Id { get; set; } = string.Empty;
@@ -214,31 +322,34 @@ public sealed class HelperWorkspaceRequestDto
 {
     public string Id { get; set; } = string.Empty;
     public string ClientName { get; set; } = string.Empty;
+    public string ClientPhotoUrl { get; set; } = string.Empty;
     public bool ClientVerified { get; set; }
+    public string HomeName { get; set; } = string.Empty;
     public string Area { get; set; } = string.Empty;
-    public string HomeType { get; set; } = string.Empty;
     public List<string> Services { get; set; } = new();
     public decimal OfferedRate { get; set; }
     public string Message { get; set; } = string.Empty;
     public DateTime RequestedAtUtc { get; set; }
     public List<EngagementSlotDto> Slots { get; set; } = new();
-    public string? DeclineReason { get; set; }
 }
 
 public sealed class HelperWorkspaceEngagementDto
 {
     public string Id { get; set; } = string.Empty;
     public string ClientName { get; set; } = string.Empty;
+    public string ClientPhotoUrl { get; set; } = string.Empty;
+    public string HomeName { get; set; } = string.Empty;
     public string Area { get; set; } = string.Empty;
     public string Address { get; set; } = string.Empty;
     public string Phone { get; set; } = string.Empty;
     public List<string> Services { get; set; } = new();
     public decimal MonthlyRate { get; set; }
     public DateTime StartedOn { get; set; }
-    public int Status { get; set; }
+    public EngagementStatus Status { get; set; }
     public int WeeklyHours { get; set; }
     public int VisitsDone { get; set; }
     public int VisitsPlanned { get; set; }
     public bool HelperMarkedComplete { get; set; }
     public bool ClientMarkedComplete { get; set; }
+    public List<EngagementSlotDto> Slots { get; set; } = new();
 }
