@@ -6,6 +6,7 @@
 @inject IHelperService Helpers
 @inject Nestify.Web.Services.ToastService Toast
 @inject Nestify.Web.Services.MoneyFormatterService Money
+@inject NavigationManager Nav
 
 <PageTitle>Engagements — Nestify</PageTitle>
 
@@ -74,7 +75,14 @@
                         var i = PendingPage.IndexOf(r);
                         <article class="dh-panel md-request dh-rise" style="--d:@(80 + i * 70)ms" @key="r.Id">
                             <div class="md-request__head">
-                                <span class="dh-item__avatar md-avatar--lg" aria-hidden="true">@Initials(r.ClientName)</span>
+                                @if (!string.IsNullOrWhiteSpace(r.ClientPhotoUrl))
+                                {
+                                    <img class="dh-item__avatar dh-item__avatar--img md-avatar--lg" src="@r.ClientPhotoUrl" alt="" />
+                                }
+                                else
+                                {
+                                    <span class="dh-item__avatar md-avatar--lg" aria-hidden="true">@Initials(r.ClientName)</span>
+                                }
                                 <div class="md-request__who">
                                     <strong>
                                         @r.ClientName
@@ -85,7 +93,7 @@
                                             </span>
                                         }
                                     </strong>
-                                    <span>@r.HomeType · @r.Area · @Ago(r.RequestedAtUtc)</span>
+                                    <span>@HomeLine(r.HomeName, r.Area) · @Ago(r.RequestedAtUtc)</span>
                                 </div>
                                 <span class="md-request__rate">@Money.Format(r.OfferedRate)<small>/month</small></span>
                             </div>
@@ -97,20 +105,23 @@
                                 }
                             </div>
 
-                            <blockquote class="md-quote">@r.Message</blockquote>
+                            @if (!string.IsNullOrWhiteSpace(r.Message))
+                            {
+                                <blockquote class="md-quote">@r.Message</blockquote>
+                            }
 
                             @if (r.Slots.Count > 0)
                             {
                                 <div class="md-slots">
-                                    <span class="md-slots__label">Requested hours · @r.Slots.Count</span>
+                                    <span class="md-slots__label">Weekly hours · @r.Slots.Count</span>
                                     <ul class="md-slots__list">
-                                        @foreach (var g in r.Slots.GroupBy(s => s.Date).OrderBy(g => g.Key))
+                                        @foreach (var g in r.Slots.GroupBy(s => s.DayOfWeek).OrderBy(g => WeekOrder(g.Key)))
                                         {
                                             <li>
-                                                <span class="md-slots__day">@g.Key.ToString("ddd d MMM")</span>
+                                                <span class="md-slots__day">@((DayOfWeek)g.Key)</span>
                                                 @foreach (var s in g.OrderBy(s => s.Hour))
                                                 {
-                                                    var clash = IsBooked(s.Date, s.Hour);
+                                                    var clash = IsBooked(s.DayOfWeek, s.Hour);
                                                     <span class="md-slots__chip @(clash ? "md-slots__chip--clash" : null)" title="@(clash ? "Already booked by another home" : "")">@HourLabel(s.Hour)</span>
                                                 }
                                             </li>
@@ -168,10 +179,17 @@
                         var pct = e.VisitsPlanned == 0 ? 0 : Math.Min(100, e.VisitsDone * 100 / e.VisitsPlanned);
                         <article class="dh-panel md-eng md-eng--@e.Status.ToString().ToLowerInvariant() dh-rise" style="--d:@(80 + i * 70)ms" @key="e.Id">
                             <div class="md-request__head">
-                                <span class="dh-item__avatar md-avatar--lg" aria-hidden="true">@Initials(e.ClientName)</span>
+                                @if (!string.IsNullOrWhiteSpace(e.ClientPhotoUrl))
+                                {
+                                    <img class="dh-item__avatar dh-item__avatar--img md-avatar--lg" src="@e.ClientPhotoUrl" alt="" />
+                                }
+                                else
+                                {
+                                    <span class="dh-item__avatar md-avatar--lg" aria-hidden="true">@Initials(e.ClientName)</span>
+                                }
                                 <div class="md-request__who">
                                     <strong>@e.ClientName</strong>
-                                    <span>@e.Address</span>
+                                    <span>@(string.IsNullOrWhiteSpace(e.Address) ? HomeLine(e.HomeName, e.Area) : e.Address)</span>
                                 </div>
                                 <span class="md-status md-status--@e.Status.ToString().ToLowerInvariant()">@e.Status</span>
                             </div>
@@ -189,6 +207,21 @@
                                 <div><dt>Since</dt><dd>@e.StartedOn.ToString("d MMM")</dd></div>
                                 <div><dt>Phone</dt><dd><a href="tel:@e.Phone">@e.Phone</a></dd></div>
                             </dl>
+
+                            <div class="md-slots">
+                                <ul class="md-slots__list">
+                                    @foreach (var g in e.Slots.GroupBy(s => s.DayOfWeek).OrderBy(g => WeekOrder(g.Key)))
+                                    {
+                                        <li>
+                                            <span class="md-slots__day">@((DayOfWeek)g.Key)</span>
+                                            @foreach (var s in g.OrderBy(s => s.Hour))
+                                            {
+                                                <span class="md-slots__chip">@HourLabel(s.Hour)</span>
+                                            }
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
 
                             <div class="md-progress">
                                 <div class="md-progress__head">
@@ -271,9 +304,32 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _workspace = await Helpers.GetWorkspaceEngagementsAsync() ?? new();
-        _availability = await Helpers.GetAvailabilityAsync(DateTime.Today);
+        var workspace = await Helpers.GetWorkspaceEngagementsAsync();
+        if (workspace is null)
+        {
+            Nav.NavigateTo("helpers/register", replace: true);
+            return;
+        }
+        _workspace = workspace;
+        _availability = await Helpers.GetAvailabilityAsync();
     }
+
+    private async Task Reload()
+    {
+        _workspace = await Helpers.GetWorkspaceEngagementsAsync() ?? new();
+        _availability = await Helpers.GetAvailabilityAsync();
+    }
+
+    private static string HomeLine(string home, string area)
+    {
+        if (string.IsNullOrWhiteSpace(home) && string.IsNullOrWhiteSpace(area)) return "No home on file";
+        if (string.IsNullOrWhiteSpace(area)) return home;
+        if (string.IsNullOrWhiteSpace(home)) return area;
+        return $"{home} · {area}";
+    }
+
+    // Saturday first, the way the week is read here.
+    private static int WeekOrder(int dayOfWeek) => (dayOfWeek - (int)DayOfWeek.Saturday + 7) % 7;
 
     private void SwitchTab(string tab)
     {
@@ -295,15 +351,21 @@
         if (_page > pages) _page = pages;
     }
 
-    private bool HasClash(HelperWorkspaceRequestDto r) => r.Slots.Any(s => IsBooked(s.Date, s.Hour));
+    private bool HasClash(HelperWorkspaceRequestDto r) => r.Slots.Any(s => IsBooked(s.DayOfWeek, s.Hour));
 
     private async Task Accept(HelperWorkspaceRequestDto r)
     {
-        await Helpers.AcceptWorkspaceEngagementAsync(r.Id);
-        _workspace = await Helpers.GetWorkspaceEngagementsAsync() ?? new();
-        _availability = await Helpers.GetAvailabilityAsync(DateTime.Today);
-        ClampPage(Pending.Count);
-        Toast.ShowSuccess($"{r.ClientName} is now a current engagement. {r.Slots.Count} hour(s) added to your schedule.", "Accepted");
+        try
+        {
+            await Helpers.AcceptWorkspaceEngagementAsync(r.Id);
+            await Reload();
+            ClampPage(Pending.Count);
+            Toast.ShowSuccess($"{r.ClientName} is now a current engagement. {r.Slots.Count} hour(s) a week added to your schedule.", "Accepted");
+        }
+        catch (Exception ex)
+        {
+            Toast.ShowWarning(ex.Message, "Accept");
+        }
     }
 
     private void StartDecline(HelperWorkspaceRequestDto r)
@@ -320,13 +382,20 @@
 
     private async Task Decline(HelperWorkspaceRequestDto r)
     {
-        await Helpers.DeclineWorkspaceEngagementAsync(r.Id, _declineNote);
-        _workspace = await Helpers.GetWorkspaceEngagementsAsync() ?? new();
-        ClampPage(Pending.Count);
-        Toast.ShowInfo(string.IsNullOrWhiteSpace(_declineNote)
-            ? $"{r.ClientName} will be told you are not available."
-            : $"{r.ClientName} will see your note.", "Declined");
-        CancelDecline();
+        try
+        {
+            await Helpers.DeclineWorkspaceEngagementAsync(r.Id, _declineNote);
+            await Reload();
+            ClampPage(Pending.Count);
+            Toast.ShowInfo(string.IsNullOrWhiteSpace(_declineNote)
+                ? $"{r.ClientName} will be told you are not available."
+                : $"{r.ClientName} will see your note.", "Declined");
+            CancelDecline();
+        }
+        catch (Exception ex)
+        {
+            Toast.ShowWarning(ex.Message, "Decline");
+        }
     }
 
     private static string FirstName(string name) =>
@@ -334,9 +403,16 @@
 
     private async Task Complete(HelperWorkspaceEngagementDto e)
     {
-        await Helpers.MarkCompleteAsync(e.Id);
-        _workspace = await Helpers.GetWorkspaceEngagementsAsync() ?? new();
-        Toast.ShowInfo($"We've asked {e.ClientName} to confirm. You can be reviewed once they do.", "Marked complete");
+        try
+        {
+            await Helpers.MarkCompleteAsync(e.Id);
+            await Reload();
+            Toast.ShowInfo($"We've asked {e.ClientName} to confirm. You can be reviewed once they do.", "Marked complete");
+        }
+        catch (Exception ex)
+        {
+            Toast.ShowWarning(ex.Message, "Complete");
+        }
     }
 
     private static string Ago(DateTime utc)
@@ -355,6 +431,6 @@
             : (parts[0][..1] + parts[^1][..1]).ToUpperInvariant();
     }
 
-    private bool IsBooked(DateTime date, int hour) => _availability?.Slots.Any(s => s.DayOfWeek == (int)date.DayOfWeek && s.Hour == hour && s.IsBooked) == true;
+    private bool IsBooked(int dayOfWeek, int hour) => _availability?.Slots.Any(s => s.DayOfWeek == dayOfWeek && s.Hour == hour && s.IsBooked) == true;
     private static string HourLabel(int hour) => DateTime.Today.AddHours(hour).ToString("h tt");
 }

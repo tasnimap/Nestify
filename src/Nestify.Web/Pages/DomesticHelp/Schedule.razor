@@ -3,6 +3,7 @@
 @attribute [Authorize(Roles = "DomesticHelper,DomesticHelp,Maid,Helper")]
 @using Nestify.Shared.Dtos.Helpers
 @inject IHelperService Helpers
+@inject NavigationManager Nav
 
 <PageTitle>My schedule — Nestify</PageTitle>
 
@@ -253,7 +254,12 @@
 
     private async Task LoadWeek()
     {
-        var schedule = await Helpers.GetWorkspaceScheduleAsync(_weekStart) ?? new HelperWorkspaceScheduleDto();
+        var schedule = await Helpers.GetWorkspaceScheduleAsync(_weekStart);
+        if (schedule is null)
+        {
+            Nav.NavigateTo("helpers/register", replace: true);
+            return;
+        }
         WeekVisits = schedule.Visits;
         NextVisit = schedule.NextVisit;
     }

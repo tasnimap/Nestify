@@ -6,6 +6,7 @@
 @inject IHelperService Helpers
 @inject Nestify.Web.Services.ToastService Toast
 @inject Nestify.Web.Services.MoneyFormatterService Money
+@inject NavigationManager Nav
 
 <PageTitle>Helper dashboard — Nestify</PageTitle>
 
@@ -103,10 +104,17 @@
                         @foreach (var r in Pending.Take(3))
                         {
                             <li class="dh-item">
-                                <span class="dh-item__avatar" aria-hidden="true">@Initials(r.ClientName)</span>
+                                @if (!string.IsNullOrWhiteSpace(r.ClientPhotoUrl))
+                                {
+                                    <img class="dh-item__avatar dh-item__avatar--img" src="@r.ClientPhotoUrl" alt="" />
+                                }
+                                else
+                                {
+                                    <span class="dh-item__avatar" aria-hidden="true">@Initials(r.ClientName)</span>
+                                }
                                 <div class="dh-item__main">
                                     <p class="dh-item__title">@r.ClientName</p>
-                                    <p class="dh-item__meta">@string.Join(", ", r.Services) · @Money.Format(r.OfferedRate)/mo</p>
+                                    <p class="dh-item__meta">@string.Join(", ", r.Services) · @r.Slots.Count h/week · @Money.Format(r.OfferedRate)/mo</p>
                                 </div>
                                 <div class="dh-item__actions">
                                     <button class="nx-btn nx-btn--accent" @onclick="() => Accept(r)">Accept</button>
@@ -194,8 +202,15 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Model = await Helpers.GetWorkspaceDashboardAsync() ?? new();
-        _availability = await Helpers.GetAvailabilityAsync(DateTime.Today);
+        var model = await Helpers.GetWorkspaceDashboardAsync();
+        if (model is null)
+        {
+            // No profile yet: the workspace has nothing to show until she registers.
+            Nav.NavigateTo("helpers/register", replace: true);
+            return;
+        }
+        Model = model;
+        _availability = await Helpers.GetAvailabilityAsync();
         if (AuthState is not null)
         {
             var state = await AuthState;
@@ -213,9 +228,17 @@
 
     private async Task Accept(HelperWorkspaceRequestDto r)
     {
-        await Helpers.AcceptWorkspaceEngagementAsync(r.Id);
-        Model = await Helpers.GetWorkspaceDashboardAsync() ?? new();
-        Toast.ShowSuccess($"{r.ClientName} is now a current engagement.", "Accepted");
+        try
+        {
+            await Helpers.AcceptWorkspaceEngagementAsync(r.Id);
+            Model = await Helpers.GetWorkspaceDashboardAsync() ?? new();
+            _availability = await Helpers.GetAvailabilityAsync();
+            Toast.ShowSuccess($"{r.ClientName} is now a current engagement.", "Accepted");
+        }
+        catch (Exception ex)
+        {
+            Toast.ShowWarning(ex.Message, "Accept");
+        }
     }
 
     private static string Initials(string name)

@@ -2,7 +2,7 @@
 @inject NavigationManager Navigation
 @using Nestify.Web.Components.Helper
 @inject Nestify.Web.Services.Interfaces.IAuthService AuthService
-@inject MaidWorkspaceService Workspace
+@inject Nestify.Web.Services.Interfaces.IHelperService Helpers
 
 <header class="hnav">
     <div class="nx-container hnav__inner">
@@ -41,9 +41,9 @@
                 <NavLink class="hnav__link" href="helpers/engagements" @onclick="Close">
                     <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2Z" /><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" /></svg>
                     Engagements
-                    @if (Workspace.PendingRequestCount > 0)
+                    @if (_nav.PendingRequestCount > 0)
                     {
-                        <span class="hnav__dot">@Workspace.PendingRequestCount</span>
+                        <span class="hnav__dot">@_nav.PendingRequestCount</span>
                     }
                 </NavLink>
             </li>
@@ -58,7 +58,14 @@
                 <button class="hnav__menu-trigger" type="button"
                         aria-haspopup="true" aria-expanded="@_menuOpen.ToString().ToLowerInvariant()"
                         @onclick="ToggleMenu">
-                    <img class="hnav__avatar hnav__avatar--img" src="@Workspace.Profile.PhotoUrl" alt="" aria-hidden="true" />
+                    @if (!string.IsNullOrWhiteSpace(_nav.PhotoUrl))
+                    {
+                        <img class="hnav__avatar hnav__avatar--img" src="@_nav.PhotoUrl" alt="" aria-hidden="true" />
+                    }
+                    else
+                    {
+                        <span class="hnav__avatar" aria-hidden="true">@Initials(_name)</span>
+                    }
                     <span>@(_name ?? "Account")</span>
                     <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
                 </button>
@@ -99,9 +106,9 @@
     <NavLink class="mtab__item" href="helpers/engagements">
         <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2Z" /><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" /></svg>
         <span>Jobs</span>
-        @if (Workspace.PendingRequestCount > 0)
+        @if (_nav.PendingRequestCount > 0)
         {
-            <span class="mtab__dot">@Workspace.PendingRequestCount</span>
+            <span class="mtab__dot">@_nav.PendingRequestCount</span>
         }
     </NavLink>
     <NavLink class="mtab__item" href="helpers/reviews">
@@ -116,11 +123,11 @@
     private bool _open;
     private bool _menuOpen;
     private string? _name;
+    private Nestify.Shared.Dtos.Helpers.HelperNavDto _nav = new();
 
     protected override void OnInitialized()
     {
         Navigation.LocationChanged += OnLocationChanged;
-        Workspace.Changed += OnWorkspaceChanged;
     }
 
     protected override async Task OnParametersSetAsync()
@@ -130,6 +137,17 @@
             var state = await AuthState;
             _name = state.User.Identity?.Name;
         }
+        await RefreshNav();
+    }
+
+    // The badge and photo come from the API; re-read on every page change so
+    // an accepted request drops off the count straight away.
+    private async Task RefreshNav()
+    {
+        var nav = await Helpers.GetNavAsync();
+        if (nav is null) return;
+        _nav = nav;
+        if (!string.IsNullOrWhiteSpace(nav.Name)) _name = nav.Name;
     }
 
     private void Toggle() => _open = !_open;
@@ -155,14 +173,16 @@
 
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
     {
-        if (_open || _menuOpen) { CloseAll(); StateHasChanged(); }
+        if (_open || _menuOpen) CloseAll();
+        _ = InvokeAsync(async () =>
+        {
+            await RefreshNav();
+            StateHasChanged();
+        });
     }
-
-    private void OnWorkspaceChanged() => InvokeAsync(StateHasChanged);
 
     public void Dispose()
     {
         Navigation.LocationChanged -= OnLocationChanged;
-        Workspace.Changed -= OnWorkspaceChanged;
     }
 }

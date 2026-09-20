@@ -38,7 +38,7 @@
                         </AuthorizeView>
                         <AuthorizeView Roles="DomesticHelper,DomesticHelp,Maid,Helper" Context="helperCtx">
                             <li><NavLink class="nav__link" href="helpers/dashboard" @onclick="Close">My Dashboard</NavLink></li>
-                            <li><NavLink class="nav__link" href="helpers/me" @onclick="Close">My Listing</NavLink></li>
+                            <li><NavLink class="nav__link" href="helpers/profile" @onclick="Close">My Profile</NavLink></li>
                         </AuthorizeView>
                         <AuthorizeView Roles="Admin" Context="adminCtx">
                             <li><NavLink class="nav__link" href="admin" @onclick="Close">Admin Console</NavLink></li>

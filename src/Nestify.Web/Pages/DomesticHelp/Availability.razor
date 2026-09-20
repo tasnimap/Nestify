@@ -4,6 +4,7 @@
 @using Nestify.Shared.Dtos.Helpers
 @inject IHelperService Helpers
 @inject Nestify.Web.Services.ToastService Toast
+@inject NavigationManager Nav
 
 <PageTitle>Availability — Nestify</PageTitle>
 
@@ -157,7 +158,12 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var availability = await Helpers.GetAvailabilityAsync(DateTime.Today) ?? new HelperAvailabilityDto();
+        var availability = await Helpers.GetAvailabilityAsync();
+        if (availability is null)
+        {
+            Nav.NavigateTo("helpers/register", replace: true);
+            return;
+        }
         _available = availability.IsAvailable;
         foreach (var day in Week)
         for (var hour = StartHour; hour < EndHour; hour++)

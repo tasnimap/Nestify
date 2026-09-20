@@ -1,105 +1,143 @@
+@* The helper profile form: used once on /helpers/register and again inside
+   the edit dialog on /helpers/profile. The map pin marks where she lives. *@
 @using Nestify.Shared.Dtos.Area
 @using Nestify.Shared.Dtos.Helpers
+@implements IAsyncDisposable
+@inject IJSRuntime JS
 
-<EditForm Model="Model" OnValidSubmit="HandleSubmit" class="dh-form">
-    <div class="dh-field">
-        <span class="dh-field__label">Services</span>
-
-        <div class="dh-chips">
-            @foreach (var service in _serviceTypes)
-            {
-                var selected = Model.Services.Contains(service);
-
-                <button type="button"
-                        class="dh-chip @(selected ? "dh-chip--on" : null)"
-                        aria-pressed="@selected.ToString().ToLowerInvariant()"
-                        @onclick="() => ToggleService(service)">
-                    @service
-                </button>
-            }
+<div class="md-form-stack">
+    <p class="md-modal__section">About you</p>
+    <div class="md-form">
+        <div class="md-field">
+            <label for="@(MapId)-name">Full name</label>
+            <input id="@(MapId)-name" @bind="Model.FullName" maxlength="120" />
+        </div>
+        <div class="md-field">
+            <label for="@(MapId)-phone">Phone</label>
+            <input id="@(MapId)-phone" type="tel" @bind="Model.PhoneNumber" maxlength="20" />
+        </div>
+        <div class="md-field md-field--wide">
+            <label for="@(MapId)-headline">Headline</label>
+            <input id="@(MapId)-headline" maxlength="120" @bind="Model.Headline" placeholder="One line about what you do best, e.g. Cooking and cleaning for bachelor flats, 6 years" />
+        </div>
+        <div class="md-field md-field--wide">
+            <label for="@(MapId)-bio">About me</label>
+            <textarea id="@(MapId)-bio" rows="4" maxlength="1000" @bind="Model.Bio" placeholder="Where you have worked, what you cook, how you like to work."></textarea>
+        </div>
+        <div class="md-field">
+            <label for="@(MapId)-lang">Languages</label>
+            <input id="@(MapId)-lang" maxlength="120" @bind="Model.Languages" placeholder="Bangla, basic English" />
+        </div>
+        <div class="md-field">
+            <label for="@(MapId)-exp">Years of experience</label>
+            <input id="@(MapId)-exp" type="number" min="0" max="60" @bind="Model.ExperienceYears" />
         </div>
     </div>
 
-    <div class="dh-field">
-        <label class="dh-field__label" for="hf-availability">
-            Availability window
-        </label>
-
-        <input id="hf-availability"
-               type="text"
-               placeholder="e.g. Sat-Thu, 8am-2pm"
-               @bind="Model.AvailabilityWindow" />
+    <p class="md-modal__section">Services and rate</p>
+    <div class="dh-chips">
+        @foreach (var type in Enum.GetValues<ServiceType>())
+        {
+            var t = type;
+            var on = Model.Services.Contains(t);
+            <button type="button" class="dh-chip @(on ? "dh-chip--on" : null)" aria-pressed="@on.ToString().ToLowerInvariant()" @onclick="() => ToggleService(t)">
+                @ServiceTypes.Label(t)
+            </button>
+        }
+    </div>
+    <div class="md-form">
+        <div class="md-field">
+            <label for="@(MapId)-rate">Monthly rate (৳)</label>
+            <input id="@(MapId)-rate" type="number" min="0" step="100" @bind="Model.MonthlyRate" />
+            <small>What you charge one home for a month of the hours they book.</small>
+        </div>
     </div>
 
-    <div class="dh-field">
-        <label class="dh-field__label" for="hf-rate">
-            Monthly rate (৳)
-        </label>
-
-        <input id="hf-rate"
-               type="number"
-               min="0"
-               step="500"
-               @bind="Model.MonthlyRate" />
+    <p class="md-modal__section">Where you live</p>
+    <div class="md-form">
+        <div class="md-field md-field--wide">
+            <span class="md-field__label">Area</span>
+            <AreaCascade Selection="_area" SelectionChanged="OnAreaChanged" />
+        </div>
+        <div class="md-field md-field--wide">
+            <label for="@(MapId)-address">Address</label>
+            <input id="@(MapId)-address" maxlength="300" @bind="Model.AddressLine" placeholder="House, road, block — the way you would tell a rickshaw puller" />
+        </div>
+        <div class="md-field md-field--wide">
+            <span class="md-field__label">Your home on the map</span>
+            <div id="@MapId" class="md-map"></div>
+            <small>Click the map or drag the pin to where you live. Bachelors near you will find you first later on. (@Model.Latitude.ToString("0.0000"), @Model.Longitude.ToString("0.0000"))</small>
+        </div>
     </div>
 
-    @if (ShowArea)
+    @if (Error is not null)
     {
-        <div class="dh-field">
-            <span class="dh-field__label">Area</span>
-
-            <AreaCascade Selection="_areaSelection"
-                         SelectionChanged="OnAreaChanged" />
-        </div>
+        <p class="md-msg md-msg--bad">@Error</p>
     }
 
-    <div class="dh-form__actions">
-        <button type="submit"
-                class="nx-btn nx-btn--accent"
-                disabled="@_submitting">
-            @(_submitting ? "Saving..." : SubmitLabel)
+    <div class="md-form__actions">
+        @if (OnCancel.HasDelegate)
+        {
+            <button type="button" class="nx-btn nx-btn--ghost" @onclick="OnCancel" disabled="@_submitting">Cancel</button>
+        }
+        <button type="button" class="nx-btn nx-btn--accent" @onclick="Submit" disabled="@_submitting">
+            @(_submitting ? "Saving…" : SubmitLabel)
         </button>
     </div>
-</EditForm>
+</div>
 
 @code {
-    [Parameter, EditorRequired]
-    public HelperRegistrationDto Model { get; set; } = default!;
+    [Parameter, EditorRequired] public HelperProfileFormDto Model { get; set; } = default!;
+    [Parameter] public string SubmitLabel { get; set; } = "Save";
+    [Parameter] public string? Error { get; set; }
+    [Parameter] public EventCallback OnSubmit { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
 
-    [Parameter]
-    public string SubmitLabel { get; set; } = "Save";
+    /// <summary>Two forms on one page need two map containers, so the id is a parameter.</summary>
+    [Parameter] public string MapId { get; set; } = "helper-map";
 
-    [Parameter]
-    public EventCallback OnSubmit { get; set; }
-
-    [Parameter]
-    public bool ShowArea { get; set; } = true;
-
-    private readonly ServiceType[] _serviceTypes =
-        Enum.GetValues<ServiceType>();
-
-    private AreaSelectionDto _areaSelection = new();
+    private AreaSelectionDto _area = new();
+    private DotNetObjectReference<HelperForm>? _selfRef;
     private bool _submitting;
+    private bool _mapReady;
 
-    private void ToggleService(ServiceType service)
+    protected override void OnParametersSet()
     {
-        if (!Model.Services.Remove(service))
-        {
-            Model.Services.Add(service);
-        }
+        _area = new AreaSelectionDto { DivisionId = Model.DivisionId, DistrictId = Model.DistrictId, UpazilaId = Model.UpazilaId };
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_mapReady) return;
+        _mapReady = true;
+        _selfRef = DotNetObjectReference.Create(this);
+        await JS.InvokeVoidAsync("nestifyMapPicker.init", MapId, Model.Latitude, Model.Longitude, _selfRef);
+    }
+
+    [JSInvokable]
+    public void OnMapPicked(double latitude, double longitude)
+    {
+        Model.Latitude = Math.Round(latitude, 6);
+        Model.Longitude = Math.Round(longitude, 6);
+        StateHasChanged();
+    }
+
+    private void ToggleService(ServiceType type)
+    {
+        if (!Model.Services.Remove(type)) Model.Services.Add(type);
     }
 
     private void OnAreaChanged(AreaSelectionDto selection)
     {
+        _area = selection;
         Model.DivisionId = selection.DivisionId;
         Model.DistrictId = selection.DistrictId;
         Model.UpazilaId = selection.UpazilaId;
     }
 
-    private async Task HandleSubmit()
+    private async Task Submit()
     {
         _submitting = true;
-
         try
         {
             await OnSubmit.InvokeAsync();
@@ -108,5 +146,14 @@
         {
             _submitting = false;
         }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_mapReady)
+        {
+            try { await JS.InvokeVoidAsync("nestifyMapPicker.destroy", MapId); } catch { }
+        }
+        _selfRef?.Dispose();
     }
 }

@@ -1597,3 +1597,59 @@
     .md-agenda, .md-cards, .md-reply, .md-overlay, .md-modal, .md-lightbox { animation: none; }
     .md-switch__knob, .md-savebar, .md-cell, .md-day, .md-stat { transition: none; }
 }
+
+/* ---------- profile form, map and bKash portal ---------- */
+
+.md-form-stack { display: grid; gap: .9rem; }
+.md-form__actions { display: flex; justify-content: flex-end; gap: .5rem; margin-top: .4rem; }
+.md-field__label { font-size: .82rem; font-weight: 700; color: var(--nx-ink); }
+.md-map {
+    width: 100%;
+    height: 260px;
+    border-radius: 12px;
+    border: 1px solid var(--nx-border);
+    overflow: hidden;
+    z-index: 0;
+}
+.md-msg--good { background: var(--nx-accent-soft); color: #5b21b6; }
+.md-verify__icon--ok { background: #dcfce7; color: #15803d; }
+
+.md-bkash__head { background: #e2136e; color: #fff; border-bottom: 0; }
+.md-bkash__brand { display: flex; align-items: baseline; gap: 8px; font-size: .9rem; font-weight: 600; }
+.md-bkash__logo { font-size: 1.35rem; font-weight: 900; letter-spacing: -.02em; }
+.md-bkash__head .md-modal__close { background: rgba(255, 255, 255, .18); color: #fff; }
+.md-bkash__summary {
+    display: grid;
+    gap: 8px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: #fff0f6;
+    border: 1px solid #f7c3da;
+    font-size: .9rem;
+}
+.md-bkash__summary > div { display: flex; justify-content: space-between; gap: 12px; }
+.md-bkash__summary span { color: var(--nx-muted); }
+.md-bkash__amount { color: #e2136e; font-size: 1.1rem; }
+.md-btn--bkash { background: #e2136e; border-color: #e2136e; color: #fff; }
+.md-btn--bkash:hover:not(:disabled) { background: #c50f5f; border-color: #c50f5f; color: #fff; }
+.md-bkash__done {
+    display: grid;
+    justify-items: center;
+    gap: 8px;
+    padding: 18px 12px;
+    text-align: center;
+    border-radius: 12px;
+    background: var(--nx-accent-soft);
+}
+.md-bkash__tick {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--nx-accent);
+    color: #fff;
+    font-size: 1.6rem;
+    font-weight: 800;
+}
+.md-bkash__done-title { margin: 0; font-weight: 800; color: var(--nx-ink); }
