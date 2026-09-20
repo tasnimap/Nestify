@@ -11,7 +11,7 @@
     <div>
         <p class="adm-eyebrow">Trust</p>
         <h1>Verification requests</h1>
-        <p>Users pay the fee through bKash and send their documents. Open a request, check the documents against the profile, then approve or reject it.</p>
+        <p>Users and domestic helpers pay the fee through bKash and send their documents. Open a request, check the documents against the profile, then approve or reject it.</p>
     </div>
     <div class="adm-head__actions">
         <a class="adm-btn adm-btn--ghost" href="admin/pricing">Change the fees</a>
@@ -77,7 +77,7 @@ else
                 <div class="adm-row__main">
                     <p class="adm-row__title">@request.ApplicantName</p>
                     <p class="adm-row__meta">
-                        @request.SubjectType · @OccupationLine(request) · @DocumentsLine(request)
+                        @request.SubjectType · @(request.HelperProfile is { } hp ? HelperLine(hp) : OccupationLine(request)) · @DocumentsLine(request)
                         @if (request.Payment is not null)
                         {
                             <text> · paid @AdminConsoleService.Taka(request.Payment.AmountBdt)</text>
@@ -124,11 +124,37 @@ else
             <div class="adm-kv">
                 <div class="adm-kv__row"><span>Email</span><strong>@_selected.Email</strong></div>
                 <div class="adm-kv__row"><span>Phone</span><strong>@_selected.Phone</strong></div>
-                <div class="adm-kv__row"><span>Date of birth</span><strong>@DateOfBirth(_selected)</strong></div>
-                <div class="adm-kv__row"><span>Occupation</span><strong>@(string.IsNullOrWhiteSpace(_selected.Occupation) ? "Not set" : _selected.Occupation)</strong></div>
-                <div class="adm-kv__row"><span>@OrganizationLabel(_selected)</span><strong>@(string.IsNullOrWhiteSpace(_selected.OrganizationName) ? "Not set" : _selected.OrganizationName)</strong></div>
-                <div class="adm-kv__row"><span>Smoking</span><strong>@(_selected.IsSmoker ? "Smoker" : "Non-smoker")</strong></div>
-                <div class="adm-kv__row"><span>Drinking</span><strong>@(_selected.IsDrinker ? "Drinker" : "Non-drinker")</strong></div>
+                @if (_selected.HelperProfile is { } helper)
+                {
+                    <div class="adm-kv__row"><span>Headline</span><strong>@(string.IsNullOrWhiteSpace(helper.Headline) ? "Not set" : helper.Headline)</strong></div>
+                    <div class="adm-kv__row"><span>Services</span><strong>@(helper.Services.Count == 0 ? "None picked" : string.Join(", ", helper.Services))</strong></div>
+                    <div class="adm-kv__row"><span>Monthly rate</span><strong>@AdminConsoleService.Taka(helper.MonthlyRate)</strong></div>
+                    <div class="adm-kv__row"><span>Experience</span><strong>@helper.ExperienceYears year(s)</strong></div>
+                    <div class="adm-kv__row"><span>Languages</span><strong>@helper.Languages</strong></div>
+                    <div class="adm-kv__row"><span>Area</span><strong>@(string.IsNullOrWhiteSpace(helper.AreaName) ? "Not set" : helper.AreaName)</strong></div>
+                    <div class="adm-kv__row"><span>Address</span><strong>@(string.IsNullOrWhiteSpace(helper.AddressLine) ? "Not set" : helper.AddressLine)</strong></div>
+                    <div class="adm-kv__row">
+                        <span>Home pin</span>
+                        <strong>
+                            <a href="@($"https://www.openstreetmap.org/?mlat={helper.Latitude}&mlon={helper.Longitude}#map=17/{helper.Latitude}/{helper.Longitude}")" target="_blank" rel="noopener">
+                                @helper.Latitude.ToString("0.0000"), @helper.Longitude.ToString("0.0000") — open on map
+                            </a>
+                        </strong>
+                    </div>
+                    <div class="adm-kv__row"><span>Rating</span><strong>@helper.RatingAverage.ToString("0.0") from @helper.RatingCount review(s)</strong></div>
+                    @if (!string.IsNullOrWhiteSpace(helper.Bio))
+                    {
+                        <div class="adm-kv__row adm-kv__row--block"><span>About her</span><strong>@helper.Bio</strong></div>
+                    }
+                }
+                else
+                {
+                    <div class="adm-kv__row"><span>Date of birth</span><strong>@DateOfBirth(_selected)</strong></div>
+                    <div class="adm-kv__row"><span>Occupation</span><strong>@(string.IsNullOrWhiteSpace(_selected.Occupation) ? "Not set" : _selected.Occupation)</strong></div>
+                    <div class="adm-kv__row"><span>@OrganizationLabel(_selected)</span><strong>@(string.IsNullOrWhiteSpace(_selected.OrganizationName) ? "Not set" : _selected.OrganizationName)</strong></div>
+                    <div class="adm-kv__row"><span>Smoking</span><strong>@(_selected.IsSmoker ? "Smoker" : "Non-smoker")</strong></div>
+                    <div class="adm-kv__row"><span>Drinking</span><strong>@(_selected.IsDrinker ? "Drinker" : "Non-drinker")</strong></div>
+                }
                 @if (_selected.Payment is not null)
                 {
                     <div class="adm-kv__row"><span>Fee paid</span><strong>@AdminConsoleService.Taka(_selected.Payment.AmountBdt) from @_selected.Payment.BkashNumber (trx @_selected.Payment.TransactionId)</strong></div>
@@ -272,6 +298,11 @@ else
         string.IsNullOrWhiteSpace(request.Occupation)
             ? "Occupation not set"
             : string.IsNullOrWhiteSpace(request.OrganizationName) ? request.Occupation : $"{request.Occupation}, {request.OrganizationName}";
+
+    private static string HelperLine(VerificationHelperProfileDto helper) =>
+        string.IsNullOrWhiteSpace(helper.AreaName)
+            ? string.Join(", ", helper.Services)
+            : $"{string.Join(", ", helper.Services)} · {helper.AreaName}";
 
     private static string DocumentsLine(VerificationRequestDto request) =>
         request.Documents.Count == 0 ? "No documents" : string.Join(" + ", request.Documents.Select(d => d.DocumentType));

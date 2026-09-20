@@ -32,9 +32,13 @@ public sealed class VerificationService
     private const short StudentId = 3;
     private const short EmployeeId = 4;
     private const short Passport = 5;
+    private const short HelperPhoto = 6;
 
     private const string UserFeeCode = "user_verification";
+    private const string HelperFeeCode = "helper_verification";
+    private const string HelperReverifyFeeCode = "helper_reverify";
     private const decimal DefaultUserFee = 100;
+    private const decimal DefaultHelperFee = 150;
 
     // 01XXXXXXXXX, optionally with +88 / 88 in front. The second digit is 3-9.
     private static readonly Regex BangladeshiPhone = new(@"^(\+?88)?01[3-9]\d{8}$", RegexOptions.Compiled);
@@ -51,19 +55,41 @@ public sealed class VerificationService
     public async Task<decimal> GetUserFeeAsync()
     {
         using var connection = await _db.OpenAsync();
-        return await ReadUserFeeAsync(connection);
+        return await ReadFeeAsync(connection, UserFeeCode, DefaultUserFee);
     }
 
-    private static async Task<decimal> ReadUserFeeAsync(IDbConnection connection)
+    // A helper who was rejected before pays the smaller re-verification fee.
+    public async Task<decimal> GetHelperFeeAsync(long userId)
+    {
+        using var connection = await _db.OpenAsync();
+        var code = await HelperFeeCodeAsync(connection, userId);
+        return await ReadFeeAsync(connection, code, DefaultHelperFee);
+    }
+
+    private static async Task<string> HelperFeeCodeAsync(IDbConnection connection, long userId)
+    {
+        var rejectedBefore = await connection.ExecuteScalarAsync<bool>(
+            "SELECT EXISTS (SELECT 1 FROM verification_requests WHERE user_id = @userId AND subject_type = @subjectType AND status = @rejected)",
+            new { userId, subjectType = DomesticHelper, rejected = Rejected });
+        return rejectedBefore ? HelperReverifyFeeCode : HelperFeeCode;
+    }
+
+    private static async Task<decimal> ReadFeeAsync(IDbConnection connection, string code, decimal fallback)
     {
         var amount = await connection.ExecuteScalarAsync<decimal?>(
-            "SELECT amount_bdt FROM fee_settings WHERE code = @code", new { code = UserFeeCode });
-        return amount ?? DefaultUserFee;
+            "SELECT amount_bdt FROM fee_settings WHERE code = @code", new { code });
+        return amount ?? fallback;
     }
+
+    public Task<(VerificationPaymentDto? Data, string? Error)> PayUserFeeAsync(long userId, BkashPaymentDto dto)
+        => PayFeeAsync(userId, User, dto);
+
+    public Task<(VerificationPaymentDto? Data, string? Error)> PayHelperFeeAsync(long userId, BkashPaymentDto dto)
+        => PayFeeAsync(userId, DomesticHelper, dto);
 
     // The fake bKash portal. Any Bangladeshi number with any 4-5 digit PIN goes
     // through; the PIN is validated and dropped, only the number is kept.
-    public async Task<(VerificationPaymentDto? Data, string? Error)> PayUserFeeAsync(long userId, BkashPaymentDto dto)
+    private async Task<(VerificationPaymentDto? Data, string? Error)> PayFeeAsync(long userId, short subjectType, BkashPaymentDto dto)
     {
         var number = new string((dto.BkashNumber ?? string.Empty).Where(c => !char.IsWhiteSpace(c) && c != '-').ToArray());
         if (!BangladeshiPhone.IsMatch(number))
@@ -83,13 +109,14 @@ public sealed class VerificationService
 
         var pendingRequest = await connection.ExecuteScalarAsync<bool>(
             "SELECT EXISTS (SELECT 1 FROM verification_requests WHERE user_id = @userId AND subject_type = @subjectType AND status = @pending)",
-            new { userId, subjectType = User, pending = Pending });
+            new { userId, subjectType, pending = Pending });
         if (pendingRequest)
         {
             return (null, "You already have a verification request under review.");
         }
 
-        var amount = await ReadUserFeeAsync(connection);
+        var feeCode = subjectType == DomesticHelper ? await HelperFeeCodeAsync(connection, userId) : UserFeeCode;
+        var amount = await ReadFeeAsync(connection, feeCode, subjectType == DomesticHelper ? DefaultHelperFee : DefaultUserFee);
         var transactionId = NewTransactionId();
 
         var row = await connection.QuerySingleAsync<PaymentRow>("""
@@ -97,7 +124,7 @@ public sealed class VerificationService
             VALUES (@userId, @feeCode, @amount, @number, @transactionId)
             RETURNING id AS Id, transaction_id AS TransactionId, amount_bdt AS AmountBdt,
                       bkash_number AS BkashNumber, paid_at_utc AS PaidAtUtc
-            """, new { userId, feeCode = UserFeeCode, amount, number, transactionId });
+            """, new { userId, feeCode, amount, number, transactionId });
 
         return (new VerificationPaymentDto
         {
@@ -263,51 +290,34 @@ public sealed class VerificationService
 
     // ------------------------------------------------------------ helper submission
 
-    public async Task<(HelperVerificationStatusDto? Data, string? Error)> GetHelperPendingAsync(long userId)
+    public async Task<HelperVerificationStatusDto> GetHelperStatusAsync(long userId)
     {
         using var connection = await _db.OpenAsync();
-        var row = await connection.QuerySingleOrDefaultAsync<HelperVerificationStatusRow>("""
-            SELECT d.document_type AS DocumentType, r.submitted_at_utc AS SubmittedAtUtc
-            FROM verification_requests r
-            JOIN verification_documents d ON d.verification_request_id = r.id
-            WHERE r.user_id = @userId AND r.subject_type = @subjectType AND r.status = @pending
-            ORDER BY d.uploaded_at_utc DESC
-            LIMIT 1
-            """, new { userId, subjectType = DomesticHelper, pending = Pending });
-
-        return row is null
-            ? (new HelperVerificationStatusDto { IsPending = false }, null)
-            : (new HelperVerificationStatusDto
-            {
-                IsPending = true,
-                DocumentType = DocumentLabel(row.DocumentType),
-                SubmittedAtUtc = row.SubmittedAtUtc
-            }, null);
+        var isVerified = await connection.ExecuteScalarAsync<bool>(
+            "SELECT coalesce((SELECT is_verified FROM domestic_helper_profiles WHERE user_id = @userId), false)", new { userId });
+        return await Nestify.Api.Helpers.HelperWorkspaceService.ReadVerificationAsync(connection, userId, isVerified);
     }
 
-    // Helpers send one identity document and pay nothing here.
-    public async Task<string?> SubmitHelperAsync(long userId, string documentType, Stream file, string fileName, string? contentType)
+    // A helper sends a photo of herself and her NID, after paying the fee
+    // through the bKash portal. The admin sees both next to her profile.
+    public async Task<string?> SubmitHelperAsync(long userId, UploadedFile photoFile, UploadedFile nidFile, long paymentId)
     {
-        var typeId = documentType.Trim() switch
+        var photoName = Path.GetFileName(photoFile.FileName);
+        var nidName = Path.GetFileName(nidFile.FileName);
+        if (string.IsNullOrWhiteSpace(photoName) || string.IsNullOrWhiteSpace(nidName))
         {
-            "National ID (NID)" => NationalId,
-            "Birth certificate" => BirthCertificate,
-            "Birth Certificate" => BirthCertificate,
-            "Passport" => Passport,
-            _ => (short)0
-        };
-        if (typeId == 0)
-        {
-            return "Choose a valid verification document.";
-        }
-
-        var safeFileName = Path.GetFileName(fileName);
-        if (string.IsNullOrWhiteSpace(safeFileName))
-        {
-            return "The selected document needs a file name.";
+            return "Both photos need a file name.";
         }
 
         using var connection = await _db.OpenAsync();
+
+        var hasProfile = await connection.ExecuteScalarAsync<bool>(
+            "SELECT EXISTS (SELECT 1 FROM domestic_helper_profiles WHERE user_id = @userId)", new { userId });
+        if (!hasProfile)
+        {
+            return "Create your helper profile before applying for verification.";
+        }
+
         var pending = await connection.ExecuteScalarAsync<bool>(
             "SELECT EXISTS (SELECT 1 FROM verification_requests WHERE user_id = @userId AND subject_type = @subjectType AND status = @pending)",
             new { userId, subjectType = DomesticHelper, pending = Pending });
@@ -316,10 +326,24 @@ public sealed class VerificationService
             return "You already have a verification request under review.";
         }
 
-        var (url, uploadError) = await _uploader.UploadAsync(file, safeFileName, contentType);
-        if (url is null)
+        var paymentOk = await connection.ExecuteScalarAsync<bool>(
+            "SELECT EXISTS (SELECT 1 FROM verification_payments WHERE id = @paymentId AND user_id = @userId AND verification_request_id IS NULL)",
+            new { paymentId, userId });
+        if (!paymentOk)
         {
-            return uploadError ?? "Could not store the verification document.";
+            return "Pay the verification fee through bKash before sending the application.";
+        }
+
+        var (photoUrl, photoError) = await _uploader.UploadAsync(photoFile.Content, photoName, photoFile.ContentType);
+        if (photoUrl is null)
+        {
+            return photoError ?? "Could not store your photo.";
+        }
+
+        var (nidUrl, nidError) = await _uploader.UploadAsync(nidFile.Content, nidName, nidFile.ContentType);
+        if (nidUrl is null)
+        {
+            return nidError ?? "Could not store the NID photo.";
         }
 
         using var transaction = connection.BeginTransaction();
@@ -328,7 +352,19 @@ public sealed class VerificationService
             var requestId = await connection.ExecuteScalarAsync<long>(
                 "INSERT INTO verification_requests (user_id, subject_type) VALUES (@userId, @subjectType) RETURNING id",
                 new { userId, subjectType = DomesticHelper }, transaction);
-            await InsertDocumentAsync(connection, transaction, requestId, typeId, url, safeFileName);
+
+            await InsertDocumentAsync(connection, transaction, requestId, HelperPhoto, photoUrl, photoName);
+            await InsertDocumentAsync(connection, transaction, requestId, NationalId, nidUrl, nidName);
+
+            var linked = await connection.ExecuteAsync(
+                "UPDATE verification_payments SET verification_request_id = @requestId WHERE id = @paymentId AND user_id = @userId AND verification_request_id IS NULL",
+                new { requestId, paymentId, userId }, transaction);
+            if (linked == 0)
+            {
+                transaction.Rollback();
+                return "This payment was already used for another application.";
+            }
+
             transaction.Commit();
             return null;
         }
@@ -361,11 +397,11 @@ public sealed class VerificationService
         using var connection = await _db.OpenAsync();
 
         var requests = (await connection.QueryAsync<QueueRow>("""
-            SELECT v.id AS Id, v.subject_type AS SubjectType, v.status AS Status,
+            SELECT v.id AS Id, v.user_id AS UserId, v.subject_type AS SubjectType, v.status AS Status,
                    v.rejection_reason AS RejectionReason,
                    v.submitted_at_utc AS SubmittedUtc, v.decided_at_utc AS DecidedUtc,
                    u.full_name AS ApplicantName, u.email AS Email, u.phone_number AS Phone,
-                   coalesce(p.profile_picture_url, '') AS ProfilePictureUrl,
+                   coalesce(hp.photo_url, p.profile_picture_url, '') AS ProfilePictureUrl,
                    p.occupation AS Occupation, p.organization_name AS OrganizationName,
                    p.date_of_birth AS DateOfBirth,
                    coalesce(p.is_smoker, false) AS IsSmoker, coalesce(p.is_drinker, false) AS IsDrinker,
@@ -374,10 +410,11 @@ public sealed class VerificationService
             FROM verification_requests v
             JOIN users u ON u.id = v.user_id
             LEFT JOIN user_additional_profile_info p ON p.user_id = v.user_id
+            LEFT JOIN domestic_helper_profiles hp ON hp.user_id = v.user_id AND v.subject_type = @helper
             LEFT JOIN verification_payments pay ON pay.verification_request_id = v.id
             WHERE v.status <> @cancelled
             ORDER BY v.status, v.submitted_at_utc
-            """, new { cancelled = Cancelled })).ToList();
+            """, new { cancelled = Cancelled, helper = DomesticHelper })).ToList();
 
         var documents = (await connection.QueryAsync<DocumentRow>("""
             SELECT d.verification_request_id AS RequestId, d.document_type AS DocumentType,
@@ -385,8 +422,24 @@ public sealed class VerificationService
             FROM verification_documents d
             JOIN verification_requests v ON v.id = d.verification_request_id
             WHERE v.status <> @cancelled
-            ORDER BY d.document_type
+            ORDER BY d.document_type DESC
             """, new { cancelled = Cancelled })).ToLookup(d => d.RequestId);
+
+        // Helper requests carry her profile (Domestic_Help.sql) so the admin
+        // can check the photo and NID against what she wrote about herself.
+        var helperProfiles = (await connection.QueryAsync<HelperProfileRow>("""
+            SELECT hp.user_id AS UserId, hp.headline AS Headline, coalesce(hp.bio, '') AS Bio,
+                   hp.languages AS Languages, hp.monthly_rate AS MonthlyRate, hp.years_experience AS ExperienceYears,
+                   coalesce(hp.average_rating, 0) AS RatingAverage, hp.review_count AS RatingCount,
+                   coalesce(up.name || ', ' || di.name, '') AS AreaName, coalesce(a.address_line, '') AS AddressLine,
+                   coalesce(a.latitude, 0) AS Latitude, coalesce(a.longitude, 0) AS Longitude,
+                   (SELECT string_agg(hs.service_type::text, ',' ORDER BY hs.service_type) FROM helper_services hs WHERE hs.helper_profile_id = hp.id) AS ServiceTypes
+            FROM domestic_helper_profiles hp
+            LEFT JOIN helper_addresses a ON a.helper_profile_id = hp.id
+            LEFT JOIN upazilas up ON up.id = a.upazila_id
+            LEFT JOIN districts di ON di.id = up.district_id
+            WHERE hp.user_id IN (SELECT user_id FROM verification_requests WHERE subject_type = @helper AND status <> @cancelled)
+            """, new { helper = DomesticHelper, cancelled = Cancelled })).ToDictionary(h => h.UserId);
 
         return requests.Select(r => new VerificationRequestDto
         {
@@ -414,6 +467,26 @@ public sealed class VerificationService
                 TransactionId = r.PaymentTransactionId,
                 PaidAtUtc = r.PaymentPaidAtUtc ?? r.SubmittedUtc
             },
+            HelperProfile = r.SubjectType == DomesticHelper && helperProfiles.TryGetValue(r.UserId, out var helper)
+                ? new VerificationHelperProfileDto
+                {
+                    Headline = helper.Headline,
+                    Bio = helper.Bio,
+                    Languages = helper.Languages,
+                    Services = (helper.ServiceTypes ?? string.Empty)
+                        .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(t => Nestify.Shared.Dtos.Helpers.ServiceTypes.Label((ServiceType)int.Parse(t)))
+                        .ToList(),
+                    MonthlyRate = helper.MonthlyRate,
+                    ExperienceYears = helper.ExperienceYears,
+                    AreaName = helper.AreaName,
+                    AddressLine = helper.AddressLine,
+                    Latitude = (double)helper.Latitude,
+                    Longitude = (double)helper.Longitude,
+                    RatingAverage = (double)helper.RatingAverage,
+                    RatingCount = helper.RatingCount
+                }
+                : null,
             SubmittedUtc = r.SubmittedUtc,
             DecidedUtc = r.DecidedUtc,
             Status = (VerificationStatus)(r.Status - 1),
@@ -488,6 +561,7 @@ public sealed class VerificationService
         StudentId => "Student ID",
         EmployeeId => "Employee ID",
         Passport => "Passport",
+        HelperPhoto => "Helper photo",
         _ => "Document"
     };
 
@@ -500,12 +574,6 @@ public sealed class VerificationService
         public DateTime PaidAtUtc { get; init; }
     }
 
-    private sealed class HelperVerificationStatusRow
-    {
-        public short DocumentType { get; init; }
-        public DateTime SubmittedAtUtc { get; init; }
-    }
-
     private sealed class DecisionRow
     {
         public long UserId { get; init; }
@@ -516,6 +584,7 @@ public sealed class VerificationService
     private sealed class QueueRow
     {
         public long Id { get; init; }
+        public long UserId { get; init; }
         public short SubjectType { get; init; }
         public short Status { get; init; }
         public string? RejectionReason { get; init; }
@@ -534,6 +603,23 @@ public sealed class VerificationService
         public string? PaymentNumber { get; init; }
         public string? PaymentTransactionId { get; init; }
         public DateTime? PaymentPaidAtUtc { get; init; }
+    }
+
+    private sealed class HelperProfileRow
+    {
+        public long UserId { get; init; }
+        public string Headline { get; init; } = string.Empty;
+        public string Bio { get; init; } = string.Empty;
+        public string Languages { get; init; } = string.Empty;
+        public decimal MonthlyRate { get; init; }
+        public int ExperienceYears { get; init; }
+        public decimal RatingAverage { get; init; }
+        public int RatingCount { get; init; }
+        public string AreaName { get; init; } = string.Empty;
+        public string AddressLine { get; init; } = string.Empty;
+        public decimal Latitude { get; init; }
+        public decimal Longitude { get; init; }
+        public string? ServiceTypes { get; init; }
     }
 
     private sealed class DocumentRow

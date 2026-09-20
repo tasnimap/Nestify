@@ -1164,3 +1164,6 @@
     .adm__side { transition: none; }
     .adm-chart__line { stroke-dashoffset: 0; }
 }
+
+.adm-kv__row--block { flex-direction: column; gap: .25rem; }
+.adm-kv__row--block strong { text-align: left; font-weight: 500; white-space: pre-line; }

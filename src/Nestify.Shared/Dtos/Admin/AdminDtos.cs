@@ -22,10 +22,29 @@ public sealed class VerificationRequestDto
     public bool IsDrinker { get; set; }
     public List<VerificationDocumentDto> Documents { get; set; } = new();
     public VerificationPaymentSummaryDto? Payment { get; set; }
+    public VerificationHelperProfileDto? HelperProfile { get; set; }   // only on a helper's request
     public DateTime SubmittedUtc { get; set; }
     public DateTime? DecidedUtc { get; set; }
     public VerificationStatus Status { get; set; }
     public string? RejectionReason { get; set; }
+}
+
+// The helper profile (Domestic_Help.sql) shown in the admin modal next to
+// her photo and NID.
+public sealed class VerificationHelperProfileDto
+{
+    public string Headline { get; set; } = string.Empty;
+    public string Bio { get; set; } = string.Empty;
+    public string Languages { get; set; } = string.Empty;
+    public List<string> Services { get; set; } = new();
+    public decimal MonthlyRate { get; set; }
+    public int ExperienceYears { get; set; }
+    public string AreaName { get; set; } = string.Empty;
+    public string AddressLine { get; set; } = string.Empty;
+    public double Latitude { get; set; }
+    public double Longitude { get; set; }
+    public double RatingAverage { get; set; }
+    public int RatingCount { get; set; }
 }
 
 public sealed class VerificationDocumentDto
