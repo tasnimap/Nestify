@@ -108,7 +108,7 @@
                         </div>
                         @if (_reviews is null || _reviews.Items.Count == 0)
                         {
-                            <p class="dh-muted">No reviews yet. Only bachelors who took @FirstName's service can leave one.</p>
+                            <p class="dh-muted">No reviews yet. Only bachelors who lived in a home while @FirstName worked there can leave one.</p>
                         }
                         else
                         {
@@ -120,7 +120,7 @@
                                             <strong>@r.ReviewerName</strong>
                                             <RatingStars Value="r.Rating" ShowCount="false" />
                                         </div>
-                                        <p class="dh-muted">@string.Join(", ", r.Services) · @r.CreatedAtUtc.ToLocalTime().ToString("d MMM yyyy")</p>
+                                        <p class="dh-muted">@string.Join(", ", r.Services) · @r.HomeName · @r.CreatedAtUtc.ToLocalTime().ToString("d MMM yyyy")</p>
                                         <p>@r.Comment</p>
                                         @if (!string.IsNullOrWhiteSpace(r.Reply))
                                         {
@@ -204,7 +204,7 @@
                 <button type="button" class="md-modal__close" @onclick="CloseRequest" aria-label="Close">&times;</button>
             </header>
             <div class="md-modal__body md-modal__body--stack">
-                <p class="dh-muted">@_slots.Count hour(s) a week at @Money.Format(_helper.MonthlyRate)/month. She sees your name, your home's area and this note.</p>
+                <p class="dh-muted">@_slots.Count hour(s) a week at @Money.Format(_helper.MonthlyRate)/month, booked for your home. Only a home's manager or co-manager can send this; she sees your name, the home's area and this note.</p>
 
                 <div class="md-field">
                     <span class="md-field__label">What do you need?</span>

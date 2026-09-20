@@ -14,7 +14,7 @@
         <header class="dh-head dh-rise">
             <p class="dh-kicker">Domestic Help</p>
             <h1>My engagements</h1>
-            <p>Every helper you have asked for, what she answered, and the ones working for you now.</p>
+            <p>Helpers your home has asked for, and every helper who worked at a home while you lived there. Anyone who took her service can review her.</p>
         </header>
 
         @if (_loading)
@@ -49,6 +49,7 @@
                             <div class="dh-engagement__who">
                                 <strong><a href="helpers/@e.HelperId">@e.HelperName</a></strong>
                                 <span>@string.Join(", ", e.Services.Select(ServiceTypes.Label)) · @Money.Format(e.MonthlyRate)/mo · @e.Slots.Count h/week</span>
+                                <span>@e.HomeName · asked by @(e.IsRequester ? "you" : e.RequesterName)@StintLine(e)</span>
                             </div>
                             <span class="dh-status dh-status--@e.Status.ToString().ToLowerInvariant()">@StatusLabel(e)</span>
                         </div>
@@ -83,10 +84,13 @@
                             @if (e.Status == EngagementStatus.Requested)
                             {
                                 <span class="dh-muted">Sent @e.RequestedAtUtc.ToLocalTime().ToString("d MMM"), waiting for her answer.</span>
-                                <button class="nx-btn nx-btn--ghost" @onclick="() => Cancel(e)">Withdraw request</button>
+                                @if (e.IsRequester)
+                                {
+                                    <button class="nx-btn nx-btn--ghost" @onclick="() => Cancel(e)">Withdraw request</button>
+                                }
                             }
 
-                            @if (e.Status == EngagementStatus.Active)
+                            @if (e.Status == EngagementStatus.Active && e.CanManage)
                             {
                                 if (e.ClientMarkedComplete)
                                 {
@@ -122,7 +126,7 @@
         {
             <section class="dh-panel dh-review-box dh-rise">
                 <div class="dh-panel__head"><h2>Review @_reviewTarget.HelperName</h2></div>
-                <p class="dh-muted">Only you, as the person who took her service, can write this. It goes on her public profile.</p>
+                <p class="dh-muted">You lived at @_reviewTarget.HomeName while she worked there, so you can rate her service. It goes on her public profile.</p>
                 <RatingStars Value="_reviewRating" ReadOnly="false" ShowCount="false" ValueChanged="v => _reviewRating = v" />
                 <textarea @bind="_reviewComment" maxlength="1000" placeholder="How was your experience?"></textarea>
                 @if (_reviewError is not null)
@@ -156,6 +160,11 @@
         _engagements = await Helpers.GetMyEngagementsAsync();
         _loading = false;
     }
+
+    private static string StintLine(EngagementDto e) =>
+        e.JoinedOn is not { } joined ? string.Empty
+        : e.LeftOn is { } left ? $" · worked there {joined:d MMM yyyy} – {left:d MMM yyyy}"
+        : $" · with the home since {joined:d MMM yyyy}";
 
     private static string StatusLabel(EngagementDto e) => e.Status switch
     {

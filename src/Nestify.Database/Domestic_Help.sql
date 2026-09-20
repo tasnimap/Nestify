@@ -16,6 +16,7 @@
 -- below, one table per concern.
 
 DROP TABLE IF EXISTS helper_reviews              CASCADE;
+DROP TABLE IF EXISTS helper_home_placements      CASCADE;
 DROP TABLE IF EXISTS service_engagement_slots    CASCADE;
 DROP TABLE IF EXISTS service_engagement_services CASCADE;
 DROP TABLE IF EXISTS service_engagement_details  CASCADE;   -- old workspace migration
@@ -111,9 +112,9 @@ CREATE TABLE helper_weekly_availability (
 
 
 -- ========================= Service engagements =========================
--- A bachelor asks a helper for a monthly engagement; the helper accepts or
--- declines. home_id is the client's home at the time of the request so the
--- helper knows where she would be going.
+-- A home's manager or co-manager asks a helper for a monthly engagement on
+-- behalf of the home; the helper accepts or declines. client_user_id is who
+-- asked, home_id is the home she would work at.
 -- status: 1 Requested, 2 Active (helper accepted), 3 Completed,
 --         4 Declined, 5 Cancelled (withdrawn by the client).
 -- monthly_rate is copied from the helper's profile at request time.
@@ -122,7 +123,7 @@ CREATE TABLE service_engagements (
     id                      bigint        GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     helper_profile_id       bigint        NOT NULL REFERENCES domestic_helper_profiles (id) ON DELETE RESTRICT,
     client_user_id          bigint        NOT NULL REFERENCES users (id) ON DELETE RESTRICT,
-    home_id                 bigint        REFERENCES homes (id) ON DELETE SET NULL,
+    home_id                 bigint        NOT NULL REFERENCES homes (id) ON DELETE CASCADE,
     status                  smallint      NOT NULL DEFAULT 1,
     monthly_rate            numeric(18,2) NOT NULL,
     message                 varchar(1000) NOT NULL DEFAULT '',
@@ -141,7 +142,8 @@ CREATE TABLE service_engagements (
 
 CREATE INDEX        ix_engagement_helper ON service_engagements (helper_profile_id, status);
 CREATE INDEX        ix_engagement_client ON service_engagements (client_user_id, status);
-CREATE UNIQUE INDEX ux_engagement_open   ON service_engagements (helper_profile_id, client_user_id) WHERE status IN (1, 2);
+CREATE INDEX        ix_engagement_home   ON service_engagements (home_id, status);
+CREATE UNIQUE INDEX ux_engagement_open   ON service_engagements (helper_profile_id, home_id) WHERE status IN (1, 2);
 
 
 -- ========================= Engagement services =========================
@@ -172,13 +174,36 @@ CREATE TABLE service_engagement_slots (
 );
 
 
+-- ========================= Home placements =========================
+-- One row per stretch a helper worked at a home: written the moment she
+-- accepts the request (joined_on) and closed when the engagement ends
+-- (left_on). Every member who lived in the home during that stretch took
+-- her service, so every one of them may review her once.
+
+CREATE TABLE helper_home_placements (
+    id                bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    engagement_id     bigint NOT NULL REFERENCES service_engagements (id) ON DELETE CASCADE,
+    helper_profile_id bigint NOT NULL REFERENCES domestic_helper_profiles (id) ON DELETE CASCADE,
+    home_id           bigint NOT NULL REFERENCES homes (id) ON DELETE CASCADE,
+    joined_on         date   NOT NULL DEFAULT CURRENT_DATE,
+    left_on           date,
+
+    CONSTRAINT ck_placement_dates CHECK (left_on IS NULL OR left_on >= joined_on)
+);
+
+CREATE UNIQUE INDEX ux_placement_engagement ON helper_home_placements (engagement_id);
+CREATE INDEX        ix_placement_home       ON helper_home_placements (home_id, joined_on DESC);
+CREATE INDEX        ix_placement_helper     ON helper_home_placements (helper_profile_id, joined_on DESC);
+
+
 -- ========================= Helper reviews =========================
--- Only the client of a completed engagement can review it, once. The helper
--- may write one reply under the review.
+-- A review hangs off a placement: only someone who lived in that home while
+-- the helper worked there can write one, and each of them only once. The
+-- helper may write one reply under the review.
 
 CREATE TABLE helper_reviews (
     id                bigint        GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    engagement_id     bigint        NOT NULL REFERENCES service_engagements (id) ON DELETE RESTRICT,
+    placement_id      bigint        NOT NULL REFERENCES helper_home_placements (id) ON DELETE CASCADE,
     helper_profile_id bigint        NOT NULL REFERENCES domestic_helper_profiles (id) ON DELETE CASCADE,
     reviewer_user_id  bigint        NOT NULL REFERENCES users (id) ON DELETE RESTRICT,
     rating            smallint      NOT NULL,
@@ -191,5 +216,5 @@ CREATE TABLE helper_reviews (
     CONSTRAINT ck_review_rating CHECK (rating BETWEEN 1 AND 5)
 );
 
-CREATE UNIQUE INDEX ux_review_engagement ON helper_reviews (engagement_id);
-CREATE INDEX        ix_review_helper     ON helper_reviews (helper_profile_id, created_at_utc DESC) WHERE NOT is_hidden;
+CREATE UNIQUE INDEX ux_review_placement_reviewer ON helper_reviews (placement_id, reviewer_user_id);
+CREATE INDEX        ix_review_helper             ON helper_reviews (helper_profile_id, created_at_utc DESC) WHERE NOT is_hidden;

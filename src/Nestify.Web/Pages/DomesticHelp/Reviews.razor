@@ -6,7 +6,6 @@
 @using Nestify.Web.Components.Helper
 @inject IHelperService Helpers
 @inject Nestify.Web.Services.ToastService Toast
-@inject NavigationManager Nav
 
 <PageTitle>My reviews — Nestify</PageTitle>
 
@@ -16,7 +15,7 @@
             <div>
                 <p class="dh-kicker">Helper workspace</p>
                 <h1>What your clients say</h1>
-                <p>Only bachelors who actually took your service can leave a review, so every word here is from someone you worked for.</p>
+                <p>Only bachelors who lived in a home while you worked there can leave a review, so every word here is from someone you worked for.</p>
             </div>
             <div class="md-score">
                 <span class="md-score__num">@_data.RatingAverage.ToString("0.0")</span>
@@ -106,7 +105,7 @@
                                         }
                                         <div class="md-review__who">
                                             <strong>@r.ReviewerName</strong>
-                                            <span>@string.Join(", ", r.Services) · @Ago(r.CreatedAtUtc)</span>
+                                            <span>@r.HomeName · @string.Join(", ", r.Services) · @Ago(r.CreatedAtUtc)</span>
                                         </div>
                                         <RatingStars Value="r.Rating" ShowCount="false" />
                                     </div>
@@ -183,13 +182,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var data = await Helpers.GetMyReviewsAsync();
-        if (data is null)
-        {
-            Nav.NavigateTo("helpers/register", replace: true);
-            return;
-        }
-        _data = data;
+        _data = await Helpers.GetMyReviewsAsync() ?? new();
         _loading = false;
     }
 

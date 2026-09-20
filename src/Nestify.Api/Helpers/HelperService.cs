@@ -24,7 +24,14 @@ public sealed class HelperService
     {
         using var connection = await _db.OpenAsync();
 
-        var where = new List<string> { "hp.is_active = true" };
+        // Paused helpers and profiles still missing services, rate or address stay out.
+        var where = new List<string>
+        {
+            "hp.is_active = true",
+            "hp.monthly_rate > 0",
+            "EXISTS (SELECT 1 FROM helper_services hs WHERE hs.helper_profile_id = hp.id)",
+            "a.helper_profile_id IS NOT NULL"
+        };
         var args = new DynamicParameters();
 
         if (filter.UpazilaId is not null)
@@ -194,13 +201,7 @@ public sealed class HelperService
         page = Math.Max(page, 1);
         pageSize = pageSize <= 0 ? 5 : pageSize;
 
-        var rows = (await connection.QueryAsync<ReviewRow>("""
-            SELECT r.id, r.engagement_id AS EngagementId, u.full_name AS ReviewerName,
-                   coalesce(p.profile_picture_url, '') AS ReviewerPhotoUrl,
-                   r.rating, r.comment, r.created_at_utc AS CreatedAtUtc, r.reply, r.replied_at_utc AS RepliedAtUtc
-            FROM helper_reviews r
-            JOIN users u ON u.id = r.reviewer_user_id
-            LEFT JOIN user_additional_profile_info p ON p.user_id = u.id
+        var rows = (await connection.QueryAsync<ReviewRow>(ReviewSql + """
             WHERE r.helper_profile_id = @id AND NOT r.is_hidden
             ORDER BY r.created_at_utc DESC
             LIMIT @pageSize OFFSET @offset
@@ -283,9 +284,14 @@ public sealed class HelperService
             }
         }
 
+        // The request is made for a home, so only its manager or a co-manager can send it.
         var homeId = await connection.ExecuteScalarAsync<long?>(
-            "SELECT home_id FROM home_members WHERE user_id = @clientUserId AND left_at_utc IS NULL ORDER BY joined_at_utc DESC LIMIT 1",
+            "SELECT home_id FROM home_members WHERE user_id = @clientUserId AND left_at_utc IS NULL AND role IN (1, 2) LIMIT 1",
             new { clientUserId });
+        if (homeId is null)
+        {
+            return (null, "Only a home's manager or co-manager can book a helper for it. Create a home or ask your manager.");
+        }
 
         using var transaction = connection.BeginTransaction();
         long engagementId;
@@ -300,7 +306,7 @@ public sealed class HelperService
         catch (PostgresException ex) when (ex.SqlState == "23505")
         {
             transaction.Rollback();
-            return (null, "You already have an open request with this helper.");
+            return (null, "Your home already has an open request with this helper.");
         }
 
         foreach (var service in services)
@@ -352,18 +358,20 @@ public sealed class HelperService
         using var connection = await _db.OpenAsync();
 
         var row = await connection.QuerySingleOrDefaultAsync<OwnerRow>("""
-            SELECT e.client_user_id AS ClientUserId, hp.user_id AS HelperUserId, e.status AS Status
+            SELECT e.client_user_id AS ClientUserId, hp.user_id AS HelperUserId, e.status AS Status,
+                   EXISTS (SELECT 1 FROM home_members hm WHERE hm.home_id = e.home_id AND hm.user_id = @userId
+                           AND hm.left_at_utc IS NULL AND hm.role IN (1, 2)) AS IsHomeManager
             FROM service_engagements e
             JOIN domestic_helper_profiles hp ON hp.id = e.helper_profile_id
             WHERE e.id = @id
-            """, new { id });
+            """, new { id, userId });
 
         if (row is null || row.Status != (short)EngagementStatus.Active)
         {
             return "This engagement isn't active.";
         }
 
-        var isClient = row.ClientUserId == userId;
+        var isClient = row.ClientUserId == userId || row.IsHomeManager;
         var isHelper = row.HelperUserId == userId;
         if (!isClient && !isHelper)
         {
@@ -377,16 +385,26 @@ public sealed class HelperService
                 : "UPDATE service_engagements SET helper_completed_at_utc = coalesce(helper_completed_at_utc, now()) WHERE id = @id",
             new { id }, transaction);
 
-        await connection.ExecuteAsync("""
+        var completed = await connection.ExecuteAsync("""
             UPDATE service_engagements
             SET status = @completed, completed_at_utc = now()
-            WHERE id = @id AND client_completed_at_utc IS NOT NULL AND helper_completed_at_utc IS NOT NULL
-            """, new { id, completed = (short)EngagementStatus.Completed }, transaction);
+            WHERE id = @id AND status = @active AND client_completed_at_utc IS NOT NULL AND helper_completed_at_utc IS NOT NULL
+            """, new { id, completed = (short)EngagementStatus.Completed, active = (short)EngagementStatus.Active }, transaction);
+
+        // The day both sides call it done is the day she left the home.
+        if (completed > 0)
+        {
+            await connection.ExecuteAsync(
+                "UPDATE helper_home_placements SET left_on = CURRENT_DATE WHERE engagement_id = @id AND left_on IS NULL",
+                new { id }, transaction);
+        }
 
         transaction.Commit();
         return null;
     }
 
+    // Anyone who lived in the home while the helper worked there took her
+    // service, so any of them can review that placement, once each.
     public async Task<string?> SubmitReviewAsync(long reviewerUserId, string engagementId, int rating, string comment)
     {
         if (rating is < 1 or > 5)
@@ -406,31 +424,33 @@ public sealed class HelperService
 
         using var connection = await _db.OpenAsync();
 
-        var row = await connection.QuerySingleOrDefaultAsync<ReviewTargetRow>(
-            "SELECT helper_profile_id AS HelperProfileId, client_user_id AS ClientUserId, status AS Status FROM service_engagements WHERE id = @id",
-            new { id });
+        var placement = await connection.QuerySingleOrDefaultAsync<PlacementRow>("""
+            SELECT p.id AS PlacementId, p.helper_profile_id AS HelperProfileId
+            FROM helper_home_placements p
+            WHERE p.engagement_id = @id
+              AND EXISTS (SELECT 1 FROM home_members hm
+                          WHERE hm.home_id = p.home_id AND hm.user_id = @reviewerUserId
+                            AND hm.joined_at_utc::date <= coalesce(p.left_on, CURRENT_DATE)
+                            AND (hm.left_at_utc IS NULL OR hm.left_at_utc::date >= p.joined_on))
+            """, new { id, reviewerUserId });
 
-        if (row is null || row.ClientUserId != reviewerUserId)
+        if (placement is null)
         {
-            return "Only the person who took this service can review it.";
-        }
-        if (row.Status != (short)EngagementStatus.Completed)
-        {
-            return "You can review once the engagement is completed.";
+            return "Only someone who lived in the home while she worked there can review her.";
         }
 
         using var transaction = connection.BeginTransaction();
         try
         {
             await connection.ExecuteAsync("""
-                INSERT INTO helper_reviews (engagement_id, helper_profile_id, reviewer_user_id, rating, comment)
-                VALUES (@id, @helperProfileId, @reviewerUserId, @rating, @comment)
-                """, new { id, helperProfileId = row.HelperProfileId, reviewerUserId, rating, comment }, transaction);
+                INSERT INTO helper_reviews (placement_id, helper_profile_id, reviewer_user_id, rating, comment)
+                VALUES (@placementId, @helperProfileId, @reviewerUserId, @rating, @comment)
+                """, new { placement.PlacementId, placement.HelperProfileId, reviewerUserId, rating, comment }, transaction);
         }
         catch (PostgresException ex) when (ex.SqlState == "23505")
         {
             transaction.Rollback();
-            return "You've already reviewed this engagement.";
+            return "You've already reviewed her for this engagement.";
         }
 
         await connection.ExecuteAsync("""
@@ -438,7 +458,7 @@ public sealed class HelperService
             SET average_rating = s.avg_rating, review_count = s.total
             FROM (SELECT avg(rating) AS avg_rating, count(*)::int AS total FROM helper_reviews WHERE helper_profile_id = @helperProfileId AND NOT is_hidden) s
             WHERE hp.id = @helperProfileId
-            """, new { helperProfileId = row.HelperProfileId }, transaction);
+            """, new { placement.HelperProfileId }, transaction);
 
         transaction.Commit();
         return null;
@@ -521,6 +541,18 @@ public sealed class HelperService
         return board;
     }
 
+    // Shared between the public profile and the helper's own reviews page.
+    internal const string ReviewSql = """
+        SELECT r.id, pl.engagement_id AS EngagementId, u.full_name AS ReviewerName,
+               coalesce(p.profile_picture_url, '') AS ReviewerPhotoUrl, h.name AS HomeName,
+               r.rating, r.comment, r.created_at_utc AS CreatedAtUtc, r.reply, r.replied_at_utc AS RepliedAtUtc
+        FROM helper_reviews r
+        JOIN helper_home_placements pl ON pl.id = r.placement_id
+        JOIN homes h ON h.id = pl.home_id
+        JOIN users u ON u.id = r.reviewer_user_id
+        LEFT JOIN user_additional_profile_info p ON p.user_id = u.id
+        """;
+
     internal static async Task<List<ReviewDto>> ToReviewDtosAsync(IDbConnection connection, List<ReviewRow> rows)
     {
         var services = await LoadEngagementServicesAsync(connection, rows.Select(r => r.EngagementId).ToList());
@@ -529,6 +561,7 @@ public sealed class HelperService
             Id = r.Id.ToString(),
             ReviewerName = r.ReviewerName,
             ReviewerPhotoUrl = r.ReviewerPhotoUrl,
+            HomeName = r.HomeName,
             Services = services.GetValueOrDefault(r.EngagementId, new List<ServiceType>()).Select(ServiceTypes.Label).ToList(),
             Rating = r.Rating,
             Comment = r.Comment,
@@ -543,18 +576,33 @@ public sealed class HelperService
         var rows = (await connection.QueryAsync<ClientEngagementRow>("""
             SELECT e.id, e.helper_profile_id AS HelperProfileId, u.full_name AS HelperName, hp.photo_url AS HelperPhotoUrl,
                    u.phone_number AS HelperPhone, coalesce(up.name, '') AS HelperArea,
+                   h.name AS HomeName, cu.full_name AS RequesterName, e.client_user_id = @clientUserId AS IsRequester,
                    e.monthly_rate AS MonthlyRate, e.message, e.status, e.requested_at_utc AS RequestedAtUtc,
                    e.start_date AS StartDate, e.decline_reason AS DeclineReason,
+                   pl.joined_on AS JoinedOn, pl.left_on AS LeftOn,
                    e.client_completed_at_utc IS NOT NULL AS ClientMarkedComplete,
                    e.helper_completed_at_utc IS NOT NULL AS HelperMarkedComplete,
-                   r.id IS NOT NULL AS HasReview
+                   EXISTS (SELECT 1 FROM home_members hm WHERE hm.home_id = e.home_id AND hm.user_id = @clientUserId
+                           AND hm.left_at_utc IS NULL AND hm.role IN (1, 2)) AS IsHomeManager,
+                   pl.id IS NOT NULL AND EXISTS (SELECT 1 FROM home_members hm
+                           WHERE hm.home_id = e.home_id AND hm.user_id = @clientUserId
+                             AND hm.joined_at_utc::date <= coalesce(pl.left_on, CURRENT_DATE)
+                             AND (hm.left_at_utc IS NULL OR hm.left_at_utc::date >= pl.joined_on)) AS LivedThere,
+                   EXISTS (SELECT 1 FROM helper_reviews r WHERE r.placement_id = pl.id AND r.reviewer_user_id = @clientUserId) AS HasReview
             FROM service_engagements e
             JOIN domestic_helper_profiles hp ON hp.id = e.helper_profile_id
             JOIN users u ON u.id = hp.user_id
+            JOIN users cu ON cu.id = e.client_user_id
+            JOIN homes h ON h.id = e.home_id
             LEFT JOIN helper_addresses a ON a.helper_profile_id = hp.id
             LEFT JOIN upazilas up ON up.id = a.upazila_id
-            LEFT JOIN helper_reviews r ON r.engagement_id = e.id
-            WHERE e.client_user_id = @clientUserId AND (@onlyId IS NULL OR e.id = @onlyId)
+            LEFT JOIN helper_home_placements pl ON pl.engagement_id = e.id
+            WHERE (@onlyId IS NULL OR e.id = @onlyId)
+              AND (e.client_user_id = @clientUserId
+                   OR (pl.id IS NOT NULL AND EXISTS (SELECT 1 FROM home_members hm
+                           WHERE hm.home_id = e.home_id AND hm.user_id = @clientUserId
+                             AND hm.joined_at_utc::date <= coalesce(pl.left_on, CURRENT_DATE)
+                             AND (hm.left_at_utc IS NULL OR hm.left_at_utc::date >= pl.joined_on))))
             ORDER BY e.requested_at_utc DESC
             """, new { clientUserId, onlyId })).ToList();
 
@@ -573,6 +621,11 @@ public sealed class HelperService
                 HelperPhotoUrl = r.HelperPhotoUrl,
                 HelperPhone = status is EngagementStatus.Active or EngagementStatus.Completed ? r.HelperPhone : null,
                 HelperArea = r.HelperArea,
+                HomeName = r.HomeName,
+                RequesterName = r.RequesterName,
+                IsRequester = r.IsRequester,
+                JoinedOn = r.JoinedOn?.ToDateTime(TimeOnly.MinValue),
+                LeftOn = r.LeftOn?.ToDateTime(TimeOnly.MinValue),
                 Services = services.GetValueOrDefault(r.Id, new List<ServiceType>()),
                 MonthlyRate = r.MonthlyRate,
                 Message = r.Message,
@@ -583,7 +636,9 @@ public sealed class HelperService
                 DeclineReason = r.DeclineReason,
                 ClientMarkedComplete = r.ClientMarkedComplete,
                 HelperMarkedComplete = r.HelperMarkedComplete,
-                HasReview = r.HasReview
+                CanManage = r.IsRequester || r.IsHomeManager,
+                HasReview = r.HasReview,
+                CanReview = r.LivedThere && !r.HasReview
             };
         }).ToList();
     }
@@ -630,6 +685,7 @@ public sealed class HelperService
         public long EngagementId { get; set; }
         public string ReviewerName { get; set; } = string.Empty;
         public string ReviewerPhotoUrl { get; set; } = string.Empty;
+        public string HomeName { get; set; } = string.Empty;
         public int Rating { get; set; }
         public string Comment { get; set; } = string.Empty;
         public DateTime CreatedAtUtc { get; set; }
@@ -662,13 +718,13 @@ public sealed class HelperService
         public long ClientUserId { get; set; }
         public long HelperUserId { get; set; }
         public short Status { get; set; }
+        public bool IsHomeManager { get; set; }
     }
 
-    private sealed class ReviewTargetRow
+    private sealed class PlacementRow
     {
+        public long PlacementId { get; set; }
         public long HelperProfileId { get; set; }
-        public long ClientUserId { get; set; }
-        public short Status { get; set; }
     }
 
     private sealed class ClientEngagementRow
@@ -679,14 +735,21 @@ public sealed class HelperService
         public string HelperPhotoUrl { get; set; } = string.Empty;
         public string HelperPhone { get; set; } = string.Empty;
         public string HelperArea { get; set; } = string.Empty;
+        public string HomeName { get; set; } = string.Empty;
+        public string RequesterName { get; set; } = string.Empty;
+        public bool IsRequester { get; set; }
         public decimal MonthlyRate { get; set; }
         public string Message { get; set; } = string.Empty;
         public short Status { get; set; }
         public DateTime RequestedAtUtc { get; set; }
         public DateOnly? StartDate { get; set; }
         public string? DeclineReason { get; set; }
+        public DateOnly? JoinedOn { get; set; }
+        public DateOnly? LeftOn { get; set; }
         public bool ClientMarkedComplete { get; set; }
         public bool HelperMarkedComplete { get; set; }
+        public bool IsHomeManager { get; set; }
+        public bool LivedThere { get; set; }
         public bool HasReview { get; set; }
     }
 }

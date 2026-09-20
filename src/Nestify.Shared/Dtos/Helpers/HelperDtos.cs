@@ -106,10 +106,15 @@ public sealed class HelperAvailabilityDto
     public List<HelperAvailabilitySlotDto> Slots { get; set; } = new();
 }
 
-/// <summary>The helper's own profile: her users row plus everything in Domestic_Help.sql.</summary>
+/// <summary>
+/// The helper's own profile: her users row plus everything in Domestic_Help.sql.
+/// Sign-up only asks for name, email, phone and password; the rest is filled
+/// in from the profile page, and IsComplete says whether that has been done.
+/// </summary>
 public sealed class HelperProfileDto
 {
     public string Id { get; set; } = string.Empty;
+    public bool IsComplete { get; set; }
     public string FullName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string PhoneNumber { get; set; } = string.Empty;
@@ -168,7 +173,7 @@ public sealed class HelperVerificationStatusDto
 /// <summary>What the helper nav needs: her name, photo and the request badge.</summary>
 public sealed class HelperNavDto
 {
-    public bool HasProfile { get; set; }
+    public bool IsProfileComplete { get; set; }
     public string Name { get; set; } = string.Empty;
     public string PhotoUrl { get; set; } = string.Empty;
     public int PendingRequestCount { get; set; }
@@ -204,6 +209,7 @@ public sealed class ReviewDto
     public string Id { get; set; } = string.Empty;
     public string ReviewerName { get; set; } = string.Empty;
     public string ReviewerPhotoUrl { get; set; } = string.Empty;
+    public string HomeName { get; set; } = string.Empty;
     public List<string> Services { get; set; } = new();
     public int Rating { get; set; }
     public string Comment { get; set; } = string.Empty;
@@ -235,7 +241,10 @@ public sealed class EngagementRequestDto
     public List<EngagementSlotDto> Slots { get; set; } = new();
 }
 
-/// <summary>An engagement as the client sees it.</summary>
+/// <summary>
+/// An engagement as a bachelor sees it: either one they asked for on behalf
+/// of their home, or a helper who worked at their home while they lived there.
+/// </summary>
 public sealed class EngagementDto
 {
     public string Id { get; set; } = string.Empty;
@@ -244,6 +253,11 @@ public sealed class EngagementDto
     public string HelperPhotoUrl { get; set; } = string.Empty;
     public string? HelperPhone { get; set; }          // shared once the helper accepts
     public string HelperArea { get; set; } = string.Empty;
+    public string HomeName { get; set; } = string.Empty;
+    public string RequesterName { get; set; } = string.Empty;
+    public bool IsRequester { get; set; }
+    public DateTime? JoinedOn { get; set; }           // when she started at the home
+    public DateTime? LeftOn { get; set; }             // when the engagement ended
     public List<ServiceType> Services { get; set; } = new();
     public decimal MonthlyRate { get; set; }
     public string Message { get; set; } = string.Empty;
@@ -254,8 +268,9 @@ public sealed class EngagementDto
     public string? DeclineReason { get; set; }
     public bool ClientMarkedComplete { get; set; }
     public bool HelperMarkedComplete { get; set; }
-    public bool HasReview { get; set; }
-    public bool CanReview => Status == EngagementStatus.Completed && !HasReview;
+    public bool CanManage { get; set; }               // requester, or a current manager / co-manager of the home
+    public bool HasReview { get; set; }               // this user already reviewed her for this placement
+    public bool CanReview { get; set; }               // lived in the home while she worked there, and has not reviewed yet
 }
 
 public sealed class SubmitReviewDto
@@ -286,6 +301,7 @@ public sealed class HelperWorkspaceDashboardDto
     public double RatingAverage { get; set; }
     public int ReviewCount { get; set; }
     public bool IsVerified { get; set; }
+    public bool IsProfileComplete { get; set; }
     public List<HelperWorkspaceVisitDto> TodayVisits { get; set; } = new();
     public List<HelperWorkspaceRequestDto> NewRequests { get; set; } = new();
 }
