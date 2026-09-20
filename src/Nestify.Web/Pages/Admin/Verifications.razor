@@ -77,7 +77,7 @@ else
                 <div class="adm-row__main">
                     <p class="adm-row__title">@request.ApplicantName</p>
                     <p class="adm-row__meta">
-                        @request.SubjectType · @(request.HelperProfile is { } hp ? HelperLine(hp) : OccupationLine(request)) · @DocumentsLine(request)
+                        @request.SubjectType · @(request.HelperProfile is { } profile ? HelperLine(profile) : OccupationLine(request)) · @DocumentsLine(request)
                         @if (request.Payment is not null)
                         {
                             <text> · paid @AdminConsoleService.Taka(request.Payment.AmountBdt)</text>
@@ -124,27 +124,27 @@ else
             <div class="adm-kv">
                 <div class="adm-kv__row"><span>Email</span><strong>@_selected.Email</strong></div>
                 <div class="adm-kv__row"><span>Phone</span><strong>@_selected.Phone</strong></div>
-                @if (_selected.HelperProfile is { } helper)
+                @if (_selected.HelperProfile is { } hp)
                 {
-                    <div class="adm-kv__row"><span>Headline</span><strong>@(string.IsNullOrWhiteSpace(helper.Headline) ? "Not set" : helper.Headline)</strong></div>
-                    <div class="adm-kv__row"><span>Services</span><strong>@(helper.Services.Count == 0 ? "None picked" : string.Join(", ", helper.Services))</strong></div>
-                    <div class="adm-kv__row"><span>Monthly rate</span><strong>@AdminConsoleService.Taka(helper.MonthlyRate)</strong></div>
-                    <div class="adm-kv__row"><span>Experience</span><strong>@helper.ExperienceYears year(s)</strong></div>
-                    <div class="adm-kv__row"><span>Languages</span><strong>@helper.Languages</strong></div>
-                    <div class="adm-kv__row"><span>Area</span><strong>@(string.IsNullOrWhiteSpace(helper.AreaName) ? "Not set" : helper.AreaName)</strong></div>
-                    <div class="adm-kv__row"><span>Address</span><strong>@(string.IsNullOrWhiteSpace(helper.AddressLine) ? "Not set" : helper.AddressLine)</strong></div>
+                    <div class="adm-kv__row"><span>Headline</span><strong>@(string.IsNullOrWhiteSpace(hp.Headline) ? "Not set" : hp.Headline)</strong></div>
+                    <div class="adm-kv__row"><span>Services</span><strong>@(hp.Services.Count == 0 ? "None picked" : string.Join(", ", hp.Services))</strong></div>
+                    <div class="adm-kv__row"><span>Monthly rate</span><strong>@AdminConsoleService.Taka(hp.MonthlyRate)</strong></div>
+                    <div class="adm-kv__row"><span>Experience</span><strong>@hp.ExperienceYears year(s)</strong></div>
+                    <div class="adm-kv__row"><span>Languages</span><strong>@hp.Languages</strong></div>
+                    <div class="adm-kv__row"><span>Area</span><strong>@(string.IsNullOrWhiteSpace(hp.AreaName) ? "Not set" : hp.AreaName)</strong></div>
+                    <div class="adm-kv__row"><span>Address</span><strong>@(string.IsNullOrWhiteSpace(hp.AddressLine) ? "Not set" : hp.AddressLine)</strong></div>
                     <div class="adm-kv__row">
                         <span>Home pin</span>
                         <strong>
-                            <a href="@($"https://www.openstreetmap.org/?mlat={helper.Latitude}&mlon={helper.Longitude}#map=17/{helper.Latitude}/{helper.Longitude}")" target="_blank" rel="noopener">
-                                @helper.Latitude.ToString("0.0000"), @helper.Longitude.ToString("0.0000") — open on map
+                            <a href="@($"https://www.openstreetmap.org/?mlat={hp.Latitude}&mlon={hp.Longitude}#map=17/{hp.Latitude}/{hp.Longitude}")" target="_blank" rel="noopener">
+                                @hp.Latitude.ToString("0.0000"), @hp.Longitude.ToString("0.0000") — open on map
                             </a>
                         </strong>
                     </div>
-                    <div class="adm-kv__row"><span>Rating</span><strong>@helper.RatingAverage.ToString("0.0") from @helper.RatingCount review(s)</strong></div>
-                    @if (!string.IsNullOrWhiteSpace(helper.Bio))
+                    <div class="adm-kv__row"><span>Rating</span><strong>@hp.RatingAverage.ToString("0.0") from @hp.RatingCount review(s)</strong></div>
+                    @if (!string.IsNullOrWhiteSpace(hp.Bio))
                     {
-                        <div class="adm-kv__row adm-kv__row--block"><span>About her</span><strong>@helper.Bio</strong></div>
+                        <div class="adm-kv__row adm-kv__row--block"><span>About her</span><strong>@hp.Bio</strong></div>
                     }
                 }
                 else
@@ -299,10 +299,10 @@ else
             ? "Occupation not set"
             : string.IsNullOrWhiteSpace(request.OrganizationName) ? request.Occupation : $"{request.Occupation}, {request.OrganizationName}";
 
-    private static string HelperLine(VerificationHelperProfileDto helper) =>
-        string.IsNullOrWhiteSpace(helper.AreaName)
-            ? string.Join(", ", helper.Services)
-            : $"{string.Join(", ", helper.Services)} · {helper.AreaName}";
+    private static string HelperLine(VerificationHelperProfileDto hp) =>
+        string.IsNullOrWhiteSpace(hp.AreaName)
+            ? string.Join(", ", hp.Services)
+            : $"{string.Join(", ", hp.Services)} · {hp.AreaName}";
 
     private static string DocumentsLine(VerificationRequestDto request) =>
         request.Documents.Count == 0 ? "No documents" : string.Join(" + ", request.Documents.Select(d => d.DocumentType));
