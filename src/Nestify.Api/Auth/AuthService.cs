@@ -1,5 +1,6 @@
 using System.Data;
 using System.Net;
+using System.Text.RegularExpressions;
 using Dapper;
 using Nestify.Api.Data;
 using Nestify.Api.Profiles;
@@ -13,6 +14,11 @@ public sealed class AuthService
     private const short AccountUser = 1;
     private const short AccountDomesticHelper = 2;
     private const short AccountAdmin = 3;
+
+    // local part, one @, then a domain with at least one dot and a 2+ letter ending
+    private static readonly Regex EmailPattern = new(
+        @"^[a-z0-9._%+-]+@[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}$",
+        RegexOptions.Compiled);
 
     private readonly DbConnectionFactory _db;
     private readonly JwtTokenService _tokens;
@@ -34,6 +40,11 @@ public sealed class AuthService
         if (name.Length < 2 || email.Length == 0 || request.Password.Length < 8)
         {
             return (null, "Name, email and an 8+ character password are required.");
+        }
+
+        if (!EmailPattern.IsMatch(email))
+        {
+            return (null, "Enter a valid email address, e.g. name@example.com.");
         }
 
         var isHelper = request.AccountType is "DomesticHelp" or "DomesticHelper";

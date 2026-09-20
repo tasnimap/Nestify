@@ -296,7 +296,8 @@
         public string Name { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Enter your email address.")]
-        [EmailAddress(ErrorMessage = "That does not look like a valid email.")]
+        [RegularExpression(@"^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}$",
+            ErrorMessage = "Enter a valid email address, e.g. name@example.com.")]
         public string Email { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Enter your phone number.")]
