@@ -50,7 +50,7 @@ public sealed class VerificationController : ControllerBase
 
         await using var stream = file.OpenReadStream();
         var error = await _verifications.SubmitHelperAsync(
-            RequireUserId(), documentType, stream, file.FileName, file.ContentType, file.Length);
+            RequireUserId(), documentType, stream, file.FileName, file.ContentType);
         return error is null ? NoContent() : BadRequest(new { message = error });
     }
 

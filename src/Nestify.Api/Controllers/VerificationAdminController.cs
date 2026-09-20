@@ -18,7 +18,7 @@ public sealed class VerificationAdminController : ControllerBase
     [HttpPost("{id:long}/decision")]
     public async Task<IActionResult> Decide(long id, [FromBody] VerificationDecisionDto decision)
     {
-        var error = await _verifications.DecideAsync(id, RequireAdminId(), decision.Approve);
+        var error = await _verifications.DecideAsync(id, RequireAdminId(), decision.Approve, decision.Reason);
         return error is null ? NoContent() : BadRequest(new { message = error });
     }
     private long RequireAdminId()
@@ -26,5 +26,4 @@ public sealed class VerificationAdminController : ControllerBase
         var sub = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         return long.TryParse(sub, out var id) ? id : throw new UnauthorizedAccessException("Missing user id claim.");
     }
-    public sealed class VerificationDecisionDto { public bool Approve { get; set; } }
 }
