@@ -197,6 +197,35 @@ public sealed class AuthService
         return (response, null);
     }
 
+    // The signed-in user proves the current password before it is replaced.
+    public async Task<string?> ChangePasswordAsync(long userId, ChangePasswordRequestDto request)
+    {
+        if (string.IsNullOrWhiteSpace(request.CurrentPassword))
+        {
+            return "Enter your current password.";
+        }
+        if (request.NewPassword is null || request.NewPassword.Length < 8)
+        {
+            return "The new password needs at least 8 characters.";
+        }
+        if (request.NewPassword == request.CurrentPassword)
+        {
+            return "The new password must be different from the current one.";
+        }
+
+        using var connection = await _db.OpenAsync();
+        var currentHash = await connection.ExecuteScalarAsync<string?>(
+            "SELECT password_hash FROM users WHERE id = @userId", new { userId });
+        if (currentHash is null || !BCrypt.Net.BCrypt.Verify(request.CurrentPassword, currentHash))
+        {
+            return "The current password is wrong.";
+        }
+
+        await connection.ExecuteAsync("UPDATE users SET password_hash = @hash WHERE id = @userId",
+            new { userId, hash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword) });
+        return null;
+    }
+
     public async Task LogoutAsync(string rawRefreshToken)
     {
         if (string.IsNullOrWhiteSpace(rawRefreshToken))
