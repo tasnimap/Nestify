@@ -29,6 +29,8 @@ public interface IHelperService
     Task<decimal> GetVerificationFeeAsync();
     Task<VerificationPaymentDto> PayVerificationFeeAsync(string bkashNumber, string pin);
     Task SubmitVerificationAsync(IBrowserFile photo, IBrowserFile nid, string paymentId);
+    Task SubmitVerificationAsync(byte[] photoBytes, string photoContentType, string photoName,
+        byte[] nidBytes, string nidContentType, string nidName, string paymentId);
     Task CancelVerificationAsync();
 
     // ---- workspace ----

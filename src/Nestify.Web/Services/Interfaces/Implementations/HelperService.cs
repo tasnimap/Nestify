@@ -131,6 +131,18 @@ public sealed class HelperService : IHelperService
         await ThrowIfFailedAsync(await _http.PostAsync("api/v1/helpers/me/verification", form), "Could not send the application.");
     }
 
+    public async Task SubmitVerificationAsync(byte[] photoBytes, string photoContentType, string photoName,
+        byte[] nidBytes, string nidContentType, string nidName, string paymentId)
+    {
+        using var form = new MultipartFormDataContent();
+        form.Add(new StringContent(paymentId), "paymentId");
+
+        form.Add(FilePart(new MemoryStream(photoBytes), photoContentType), "photoFile", photoName);
+        form.Add(FilePart(new MemoryStream(nidBytes), nidContentType), "nidFile", nidName);
+
+        await ThrowIfFailedAsync(await _http.PostAsync("api/v1/helpers/me/verification", form), "Could not send the application.");
+    }
+
     public async Task CancelVerificationAsync()
         => await ThrowIfFailedAsync(await _http.DeleteAsync("api/v1/helpers/me/verification"), "Could not withdraw the application.");
 
