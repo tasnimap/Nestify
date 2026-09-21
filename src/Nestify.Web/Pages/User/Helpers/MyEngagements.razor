@@ -2,8 +2,10 @@
 @attribute [Authorize(Roles = "User")]
 @using Nestify.Shared.Dtos.Helpers
 @using Nestify.Web.Components
+@using Nestify.Web.Components.Helper
 @inject IHelperService Helpers
 @inject Nestify.Web.Services.ToastService Toast
+@inject Nestify.Web.Services.MoneyFormatterService Money
 
 <PageTitle>My Engagements — Nestify</PageTitle>
 
@@ -12,7 +14,7 @@
         <header class="dh-head dh-rise">
             <p class="dh-kicker">Domestic Help</p>
             <h1>My engagements</h1>
-            <p>Requests you've made as a client, and requests you've received as a helper.</p>
+            <p>Helpers your home has asked for, and every helper who worked at a home while you lived there. Anyone who took her service can review her.</p>
         </header>
 
         @if (_loading)
@@ -30,7 +32,7 @@
                         <svg class="nx-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
                     </span>
                     <h3>No engagements yet</h3>
-                    <p>Request a helper, or wait for a client to reach out.</p>
+                    <p>Find a helper near you and pick the hours you need.</p>
                     <a class="nx-btn nx-btn--accent" href="helpers">Browse helpers</a>
                 </div>
             </div>
@@ -41,38 +43,80 @@
                 @{ var delay = 60; }
                 @foreach (var e in _engagements)
                 {
-                    <div class="dh-panel dh-rise" style="--d:@(delay)ms">
-                        <div class="dh-review__head">
-                            <strong>@(e.MyRole == EngagementRole.Client ? e.HelperName : e.ClientName)</strong>
-                            <span class="dh-status dh-status--@(e.Status.ToString().ToLowerInvariant())">@StatusLabel(e)</span>
+                    <article class="dh-panel dh-engagement dh-rise" style="--d:@(delay)ms" @key="e.Id">
+                        <div class="dh-engagement__head">
+                            <a href="helpers/@e.HelperId"><img class="dh-engagement__photo" src="@e.HelperPhotoUrl" alt="" /></a>
+                            <div class="dh-engagement__who">
+                                <strong><a href="helpers/@e.HelperId">@e.HelperName</a></strong>
+                                <span>@string.Join(", ", e.Services.Select(ServiceTypes.Label)) · @Money.Format(e.MonthlyRate)/mo · @e.Slots.Count h/week</span>
+                                <span>@e.HomeName · asked by @(e.IsRequester ? "you" : e.RequesterName)@StintLine(e)</span>
+                            </div>
+                            <span class="dh-status dh-status--@e.Status.ToString().ToLowerInvariant()">@StatusLabel(e)</span>
                         </div>
-                        <p class="dh-muted">Role: @e.MyRole</p>
+
+                        <div class="md-slots">
+                            <ul class="md-slots__list">
+                                @foreach (var day in AvailabilityGrid.Week)
+                                {
+                                    var picks = e.Slots.Where(s => s.DayOfWeek == (int)day).OrderBy(s => s.Hour).ToList();
+                                    if (picks.Count == 0) continue;
+                                    <li>
+                                        <span class="md-slots__day">@day</span>
+                                        @foreach (var s in picks)
+                                        {
+                                            <span class="md-slots__chip">@AvailabilityGrid.HourLabel(s.Hour)</span>
+                                        }
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+
+                        @if (e.Status == EngagementStatus.Declined && !string.IsNullOrWhiteSpace(e.DeclineReason))
+                        {
+                            <p class="dh-note">@e.HelperName said: “@e.DeclineReason”</p>
+                        }
+                        @if (e.HelperPhone is not null)
+                        {
+                            <p class="dh-note">Phone: <a href="tel:@e.HelperPhone">@e.HelperPhone</a>@(e.StartDate is { } start ? $" · since {start:d MMM yyyy}" : "")</p>
+                        }
 
                         <div class="dh-engagement__actions">
-                            @if (e.MyRole == EngagementRole.Helper && e.Status == EngagementStatus.Requested)
+                            @if (e.Status == EngagementStatus.Requested)
                             {
-                                <button class="nx-btn nx-btn--accent" @onclick="() => Confirm(e.Id)">Confirm</button>
+                                <span class="dh-muted">Sent @e.RequestedAtUtc.ToLocalTime().ToString("d MMM"), waiting for her answer.</span>
+                                @if (e.IsRequester)
+                                {
+                                    <button class="nx-btn nx-btn--ghost" @onclick="() => Cancel(e)">Withdraw request</button>
+                                }
                             }
 
-                            @if (e.Status is EngagementStatus.HelperConfirmed or EngagementStatus.Active)
+                            @if (e.Status == EngagementStatus.Active && e.CanManage)
                             {
-                                var myDone = e.MyRole == EngagementRole.Client ? e.ClientMarkedComplete : e.HelperMarkedComplete;
-                                if (myDone)
+                                if (e.ClientMarkedComplete)
                                 {
-                                    <p class="dh-note">You marked complete — waiting for the other side.</p>
+                                    <p class="dh-note">You marked this complete — waiting for @e.HelperName to confirm.</p>
+                                }
+                                else if (e.HelperMarkedComplete)
+                                {
+                                    <p class="dh-note">@e.HelperName marked this complete. Confirm to close it.</p>
+                                    <button class="nx-btn nx-btn--accent" @onclick="() => MarkComplete(e)">Confirm complete</button>
                                 }
                                 else
                                 {
-                                    <button class="nx-btn nx-btn--ghost" @onclick="() => MarkComplete(e.Id)">Mark complete</button>
+                                    <button class="nx-btn nx-btn--ghost" @onclick="() => MarkComplete(e)">Mark complete</button>
                                 }
                             }
 
                             @if (e.CanReview)
                             {
-                                <button class="nx-btn nx-btn--ghost" @onclick="() => OpenReview(e)">Leave a review</button>
+                                <button class="nx-btn nx-btn--accent" @onclick="() => OpenReview(e)">Leave a review</button>
+                            }
+                            else if (e.HasReview)
+                            {
+                                <span class="dh-muted">You reviewed this engagement.</span>
                             }
                         </div>
-                    </div>
+                    </article>
                     delay += 60;
                 }
             </div>
@@ -82,10 +126,15 @@
         {
             <section class="dh-panel dh-review-box dh-rise">
                 <div class="dh-panel__head"><h2>Review @_reviewTarget.HelperName</h2></div>
+                <p class="dh-muted">You lived at @_reviewTarget.HomeName while she worked there, so you can rate her service. It goes on her public profile.</p>
                 <RatingStars Value="_reviewRating" ReadOnly="false" ShowCount="false" ValueChanged="v => _reviewRating = v" />
-                <textarea @bind="_reviewComment" placeholder="How was your experience?"></textarea>
+                <textarea @bind="_reviewComment" maxlength="1000" placeholder="How was your experience?"></textarea>
+                @if (_reviewError is not null)
+                {
+                    <p class="md-msg md-msg--bad">@_reviewError</p>
+                }
                 <div class="dh-engagement__actions">
-                    <button class="nx-btn nx-btn--accent" @onclick="SubmitReview">Submit review</button>
+                    <button class="nx-btn nx-btn--accent" disabled="@_busy" @onclick="SubmitReview">Submit review</button>
                     <button class="nx-btn nx-btn--ghost" @onclick="() => _reviewTarget = null">Cancel</button>
                 </div>
             </section>
@@ -96,10 +145,12 @@
 @code {
     private List<EngagementDto> _engagements = new();
     private bool _loading = true;
+    private bool _busy;
 
     private EngagementDto? _reviewTarget;
     private int _reviewRating = 5;
     private string _reviewComment = string.Empty;
+    private string? _reviewError;
 
     protected override Task OnInitializedAsync() => LoadAsync();
 
@@ -110,26 +161,48 @@
         _loading = false;
     }
 
+    private static string StintLine(EngagementDto e) =>
+        e.JoinedOn is not { } joined ? string.Empty
+        : e.LeftOn is { } left ? $" · worked there {joined:d MMM yyyy} – {left:d MMM yyyy}"
+        : $" · with the home since {joined:d MMM yyyy}";
+
     private static string StatusLabel(EngagementDto e) => e.Status switch
     {
-        EngagementStatus.Requested => "Requested",
-        EngagementStatus.Declined => "Declined",
-        EngagementStatus.HelperConfirmed => "Confirmed",
-        EngagementStatus.Active => "Active",
+        EngagementStatus.Requested => "Waiting",
+        EngagementStatus.Active => "Working for you",
         EngagementStatus.Completed => "Completed",
+        EngagementStatus.Declined => "Declined",
+        EngagementStatus.Cancelled => "Withdrawn",
         _ => e.Status.ToString()
     };
 
-    private async Task Confirm(string id)
+    private async Task Cancel(EngagementDto e)
     {
-        await Helpers.ConfirmEngagementAsync(id);
-        await LoadAsync();
+        await Run(() => Helpers.CancelRequestAsync(e.Id), "Request withdrawn.");
     }
 
-    private async Task MarkComplete(string id)
+    private async Task MarkComplete(EngagementDto e)
     {
-        await Helpers.MarkCompleteAsync(id);
-        await LoadAsync();
+        await Run(() => Helpers.MarkCompleteAsync(e.Id), "Marked complete.");
+    }
+
+    private async Task Run(Func<Task> action, string done)
+    {
+        _busy = true;
+        try
+        {
+            await action();
+            Toast.ShowInfo(done, "Engagements");
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            Toast.ShowWarning(ex.Message, "Engagements");
+        }
+        finally
+        {
+            _busy = false;
+        }
     }
 
     private void OpenReview(EngagementDto e)
@@ -137,14 +210,33 @@
         _reviewTarget = e;
         _reviewRating = 5;
         _reviewComment = string.Empty;
+        _reviewError = null;
     }
 
     private async Task SubmitReview()
     {
         if (_reviewTarget is null) return;
-        await Helpers.SubmitReviewAsync(_reviewTarget.Id, _reviewRating, _reviewComment);
-        Toast.ShowInfo("Review submitted.", "Thanks!");
-        _reviewTarget = null;
-        await LoadAsync();
+        if (string.IsNullOrWhiteSpace(_reviewComment))
+        {
+            _reviewError = "Write a line or two about how it went.";
+            return;
+        }
+
+        _busy = true;
+        try
+        {
+            await Helpers.SubmitReviewAsync(_reviewTarget.Id, _reviewRating, _reviewComment);
+            Toast.ShowSuccess("Review posted on her profile.", "Thanks!");
+            _reviewTarget = null;
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            _reviewError = ex.Message;
+        }
+        finally
+        {
+            _busy = false;
+        }
     }
 }

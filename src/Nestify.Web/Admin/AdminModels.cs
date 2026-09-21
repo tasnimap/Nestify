@@ -1,24 +1,5 @@
 namespace Nestify.Web.Admin;
 
-public enum ApplicationState { Pending, Approved, Declined }
-
-public enum ApplicantKind { User, DomesticHelper }
-
-public sealed class VerificationApplication
-{
-    public string Id { get; set; } = "";
-    public string Applicant { get; set; } = "";
-    public ApplicantKind Kind { get; set; }
-    public string DocumentType { get; set; } = "";
-    public string DocumentNumber { get; set; } = "";
-    public string Phone { get; set; } = "";
-    public string Area { get; set; } = "";
-    public int FeePaid { get; set; }
-    public DateTime SubmittedOn { get; set; }
-    public ApplicationState State { get; set; } = ApplicationState.Pending;
-    public string? Decision { get; set; }
-}
-
 public sealed class RevenuePoint
 {
     public string Month { get; set; } = "";

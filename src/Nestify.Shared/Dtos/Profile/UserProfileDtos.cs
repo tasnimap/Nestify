@@ -23,8 +23,8 @@ public sealed class UserProfileDto
     public string? Occupation { get; set; }
     public ProfileGender? Gender { get; set; }
     public DateOnly? DateOfBirth { get; set; }
-    public bool? IsSmoker { get; set; }
-    public bool? IsDrinker { get; set; }
+    public bool IsSmoker { get; set; }
+    public bool IsDrinker { get; set; }
     public string? OrganizationName { get; set; }
     public VerificationState VerificationState { get; set; }
     public string? Address { get; set; }
@@ -43,8 +43,8 @@ public sealed class UpdateUserProfileDto
     public string? Occupation { get; set; }
     public ProfileGender? Gender { get; set; }
     public DateOnly? DateOfBirth { get; set; }
-    public bool? IsSmoker { get; set; }
-    public bool? IsDrinker { get; set; }
+    public bool IsSmoker { get; set; }
+    public bool IsDrinker { get; set; }
     public string? OrganizationName { get; set; }
     public string? Address { get; set; }
     public string? WhatsappNumber { get; set; }
@@ -53,7 +53,24 @@ public sealed class UpdateUserProfileDto
     public string? InstagramUrl { get; set; }
 }
 
-public sealed class VerificationSubmissionDto
+/// <summary>What the bKash portal asks for. The PIN is checked and thrown away.</summary>
+public sealed class BkashPaymentDto
 {
-    public string DocumentType { get; set; } = string.Empty;
+    public string BkashNumber { get; set; } = string.Empty;
+    public string Pin { get; set; } = string.Empty;
+}
+
+/// <summary>The receipt the user sees after the fake bKash payment goes through.</summary>
+public sealed class VerificationPaymentDto
+{
+    public string PaymentId { get; set; } = string.Empty;
+    public string TransactionId { get; set; } = string.Empty;
+    public decimal AmountBdt { get; set; }
+    public string BkashNumber { get; set; } = string.Empty;
+    public DateTime PaidAtUtc { get; set; }
+}
+
+public sealed class VerificationFeeDto
+{
+    public decimal AmountBdt { get; set; }
 }

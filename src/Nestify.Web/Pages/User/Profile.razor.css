@@ -876,6 +876,98 @@
     transform: translateY(-1px);
 }
 
+/* ---- bKash payment portal ---- */
+
+.up-bkash__head {
+    background: #e2136e;
+    color: #fff;
+    border-bottom: 0;
+}
+
+.up-bkash__brand {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-size: .9rem;
+    font-weight: 600;
+}
+
+.up-bkash__logo {
+    font-size: 1.35rem;
+    font-weight: 900;
+    letter-spacing: -.02em;
+}
+
+.up-bkash__head .up-modal__close {
+    background: rgba(255, 255, 255, .18);
+    color: #fff;
+}
+
+.up-bkash__summary {
+    display: grid;
+    gap: 8px;
+    padding: 12px 14px;
+    border-radius: var(--nx-radius-sm);
+    background: #fff0f6;
+    border: 1px solid #f7c3da;
+    font-size: .9rem;
+}
+
+.up-bkash__summary > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.up-bkash__summary span {
+    color: var(--nx-muted);
+}
+
+.up-bkash__amount {
+    color: #e2136e;
+    font-size: 1.1rem;
+}
+
+.up-btn--bkash {
+    background: #e2136e;
+    border-color: #e2136e;
+    color: #fff;
+}
+
+.up-btn--bkash:hover:not(:disabled) {
+    background: #c50f5f;
+    border-color: #c50f5f;
+    color: #fff;
+}
+
+.up-bkash__done {
+    display: grid;
+    justify-items: center;
+    gap: 8px;
+    padding: 18px 12px;
+    text-align: center;
+    border-radius: var(--nx-radius-sm);
+    background: var(--nx-accent-soft);
+}
+
+.up-bkash__tick {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--nx-accent);
+    color: #fff;
+    font-size: 1.6rem;
+    font-weight: 800;
+}
+
+.up-bkash__done-title {
+    margin: 0;
+    font-weight: 800;
+    color: var(--nx-ink);
+}
+
 /* ---- responsive ---- */
 
 @media (max-width: 900px) {

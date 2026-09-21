@@ -4,9 +4,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Nestify.Api.Profiles;
 using Nestify.Shared.Dtos.Helpers;
+using Nestify.Shared.Dtos.Profile;
 
 namespace Nestify.Api.Controllers;
 
+// Helper verification: pay the fee through the fake bKash portal, then send a
+// photo of herself and her NID for an admin to check.
 [ApiController]
 [Route("api/v1/helpers/me/verification")]
 [Authorize(Roles = "DomesticHelper")]
@@ -22,35 +25,42 @@ public sealed class VerificationController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<HelperVerificationStatusDto>> GetPending()
+    public async Task<ActionResult<HelperVerificationStatusDto>> GetStatus()
+        => Ok(await _verifications.GetHelperStatusAsync(RequireUserId()));
+
+    [HttpGet("fee")]
+    public async Task<ActionResult<VerificationFeeDto>> GetFee()
+        => Ok(new VerificationFeeDto { AmountBdt = await _verifications.GetHelperFeeAsync(RequireUserId()) });
+
+    [HttpPost("payment")]
+    public async Task<ActionResult<VerificationPaymentDto>> Pay(BkashPaymentDto dto)
     {
-        var (data, error) = await _verifications.GetHelperPendingAsync(RequireUserId());
-        return error is null ? Ok(data) : BadRequest(new { message = error });
+        var (data, error) = await _verifications.PayHelperFeeAsync(RequireUserId(), dto);
+        return data is null ? BadRequest(new { message = error }) : Ok(data);
     }
 
     [HttpPost]
-    [RequestSizeLimit(MaxDocumentBytes + 1024)]
-    public async Task<IActionResult> Submit([FromForm] string documentType, IFormFile file)
+    [RequestSizeLimit(MaxDocumentBytes * 2 + 1024)]
+    public async Task<IActionResult> Submit([FromForm] string paymentId, IFormFile photoFile, IFormFile nidFile)
     {
-        if (file is null || file.Length == 0)
+        if (!long.TryParse(paymentId, out var paymentIdValue))
         {
-            return BadRequest(new { message = "Choose a document photo first." });
+            return BadRequest(new { message = "Pay the verification fee first." });
         }
 
-        if (file.Length > MaxDocumentBytes)
+        var problem = CheckImage(photoFile, "a clear photo of yourself") ?? CheckImage(nidFile, "a clear photo of your NID");
+        if (problem is not null)
         {
-            return BadRequest(new { message = "The document photo must be 10 MB or smaller." });
+            return BadRequest(new { message = problem });
         }
 
-        if (string.IsNullOrWhiteSpace(file.ContentType) ||
-            !file.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
-        {
-            return BadRequest(new { message = "Upload a clear image of your document." });
-        }
+        await using var photoStream = photoFile.OpenReadStream();
+        await using var nidStream = nidFile.OpenReadStream();
 
-        await using var stream = file.OpenReadStream();
-        var error = await _verifications.SubmitHelperAsync(
-            RequireUserId(), documentType, stream, file.FileName, file.ContentType, file.Length);
+        var error = await _verifications.SubmitHelperAsync(RequireUserId(),
+            new VerificationService.UploadedFile { Content = photoStream, FileName = photoFile.FileName, ContentType = photoFile.ContentType },
+            new VerificationService.UploadedFile { Content = nidStream, FileName = nidFile.FileName, ContentType = nidFile.ContentType },
+            paymentIdValue);
         return error is null ? NoContent() : BadRequest(new { message = error });
     }
 
@@ -59,6 +69,24 @@ public sealed class VerificationController : ControllerBase
     {
         var error = await _verifications.CancelHelperAsync(RequireUserId());
         return error is null ? NoContent() : BadRequest(new { message = error });
+    }
+
+    private static string? CheckImage(IFormFile? file, string what)
+    {
+        if (file is null || file.Length == 0)
+        {
+            return $"Upload {what}.";
+        }
+        if (file.Length > MaxDocumentBytes)
+        {
+            return "Each photo must be 10 MB or smaller.";
+        }
+        if (string.IsNullOrWhiteSpace(file.ContentType) ||
+            !file.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
+        {
+            return $"Upload {what} as an image.";
+        }
+        return null;
     }
 
     private long RequireUserId()

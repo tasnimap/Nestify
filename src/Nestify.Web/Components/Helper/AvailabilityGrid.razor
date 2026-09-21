@@ -1,15 +1,16 @@
-@* Seven day availability board: 18 hourly slots a day, 6:00 AM to 12:00 AM.
-   Free slots can be picked, up to MaxPerDay on any one day. *@
+@* The helper's weekly board as a bachelor sees it: seven days, 18 hourly
+   slots from 6:00 AM to 12:00 AM. Open hours can be picked, up to MaxPerDay
+   on any one day; booked and off hours cannot. *@
 @using Nestify.Shared.Dtos.Helpers
 
 <div class="dh-sched">
     <div class="dh-sched__top">
         <div>
-            <p class="dh-sched__range">@RangeCaption</p>
+            <p class="dh-sched__range">Every week</p>
             <p class="dh-sched__lead">
                 @if (Selectable)
                 {
-                    <span>Tap the hours you need — up to @MaxPerDay per day. Leaving it empty is fine.</span>
+                    <span>Tap the hours you need each week — up to @MaxPerDay per day.</span>
                 }
                 else
                 {
@@ -24,7 +25,7 @@
             }
             <li><span class="dh-key dh-key--free"></span>Available (@_freeCount)</li>
             <li><span class="dh-key dh-key--booked"></span>Booked (@_bookedCount)</li>
-            <li><span class="dh-key dh-key--off"></span>Not available (@_offCount)</li>
+            <li><span class="dh-key dh-key--off"></span>Not available</li>
         </ul>
     </div>
 
@@ -33,47 +34,48 @@
             <thead>
                 <tr>
                     <th scope="col" class="dh-sched__corner">Day</th>
-                    @for (var hour = HelperScheduleView.StartHour; hour < HelperScheduleView.EndHour; hour++)
+                    @for (var hour = StartHour; hour < EndHour; hour++)
                     {
-                        <th scope="col" class="dh-sched__hour">@HelperScheduleView.HourLabel(hour)</th>
+                        <th scope="col" class="dh-sched__hour">@HourLabel(hour)</th>
                     }
                 </tr>
             </thead>
             <tbody>
-                @foreach (var day in _days)
+                @foreach (var day in Week)
                 {
-                    var picked = CountForDay(day.Date);
+                    var picked = CountForDay(day);
                     var dayFull = picked >= MaxPerDay;
                     <tr>
                         <th scope="row" class="dh-sched__day">
-                            <span class="dh-sched__dow">@day.Date.ToString("ddd")</span>
-                            <span class="dh-sched__date">@day.Date.ToString("d MMM")</span>
+                            <span class="dh-sched__dow">@day.ToString()[..3]</span>
                             @if (Selectable)
                             {
                                 <span class="dh-sched__tally @(picked > 0 ? "dh-sched__tally--on" : null)">@picked/@MaxPerDay</span>
                             }
                         </th>
-                        @foreach (var slot in day.Slots)
+                        @for (var hour = StartHour; hour < EndHour; hour++)
                         {
-                            var isPicked = IsPicked(day.Date, slot.Hour);
-                            var canPick = Selectable && slot.State == SlotState.Free && (isPicked || !dayFull);
-                            var label = $"{day.Date:ddd d MMM} · {HelperScheduleView.RangeLabel(slot.Hour)} — {(isPicked ? "Picked" : HelperScheduleView.StateLabel(slot.State))}";
+                            var h = hour;
+                            var state = StateOf(day, h);
+                            var isPicked = IsPicked(day, h);
+                            var canPick = Selectable && state == "free" && (isPicked || !dayFull);
+                            var label = $"{day} · {RangeLabel(h)} — {(isPicked ? "Picked" : StateLabel(state))}";
 
                             <td class="dh-sched__cell">
-                                @if (Selectable && slot.State == SlotState.Free)
+                                @if (Selectable && state == "free")
                                 {
                                     <button type="button"
                                             class="dh-slot dh-slot--free @(isPicked ? "dh-slot--picked" : null) @(!canPick ? "dh-slot--locked" : null)"
-                                            title="@(canPick ? label : $"{day.Date:ddd d MMM} — {MaxPerDay} slots already picked for this day")"
+                                            title="@(canPick ? label : $"{day} — {MaxPerDay} hours already picked for this day")"
                                             disabled="@(!canPick)"
                                             aria-pressed="@isPicked.ToString().ToLowerInvariant()"
-                                            @onclick="() => Toggle(day.Date, slot.Hour)">
+                                            @onclick="() => Toggle(day, h)">
                                         <span class="nx-sr-only">@label</span>
                                     </button>
                                 }
                                 else
                                 {
-                                    <span class="dh-slot dh-slot--@(slot.State.ToString().ToLowerInvariant())" title="@label">
+                                    <span class="dh-slot dh-slot--@state" title="@label">
                                         <span class="nx-sr-only">@label</span>
                                     </span>
                                 }
@@ -89,20 +91,20 @@
     {
         <div class="dh-picks">
             <p class="dh-picks__head">
-                <strong>@Selection.Count</strong> @(Selection.Count == 1 ? "hour" : "hours") picked
+                <strong>@Selection.Count</strong> @(Selection.Count == 1 ? "hour" : "hours") a week picked
                 <button type="button" class="dh-picks__clear" @onclick="ClearAll">Clear</button>
             </p>
             <ul class="dh-picks__list">
-                @foreach (var group in Selection.GroupBy(s => s.Date).OrderBy(g => g.Key))
+                @foreach (var day in Week)
                 {
+                    var picks = Selection.Where(s => s.DayOfWeek == (int)day).OrderBy(s => s.Hour).ToList();
+                    if (picks.Count == 0) continue;
                     <li>
-                        <span class="dh-picks__day">@group.Key.ToString("ddd d MMM")</span>
-                        @foreach (var s in group.OrderBy(s => s.Hour))
+                        <span class="dh-picks__day">@day</span>
+                        @foreach (var s in picks)
                         {
-                            <button type="button" class="dh-picks__chip"
-                                    title="Remove @HelperScheduleView.RangeLabel(s.Hour)"
-                                    @onclick="() => Toggle(s.Date, s.Hour)">
-                                @HelperScheduleView.RangeLabel(s.Hour)
+                            <button type="button" class="dh-picks__chip" title="Remove @RangeLabel(s.Hour)" @onclick="() => Toggle(day, s.Hour)">
+                                @RangeLabel(s.Hour)
                                 <span aria-hidden="true">×</span>
                             </button>
                         }
@@ -112,16 +114,24 @@
         </div>
     }
 
-    <p class="dh-sched__note">Scroll sideways to see the whole day. Hours outside @Window are not offered.</p>
+    <p class="dh-sched__note">Scroll sideways to see the whole day. The same hours repeat every week for as long as the engagement runs.</p>
 </div>
 
 @code {
-    [Parameter, EditorRequired] public string HelperId { get; set; } = string.Empty;
+    public const int StartHour = 6;
+    public const int EndHour = 24;
 
-    /// <summary>The helper's own availability text, e.g. "Sat-Thu, 8am-2pm".</summary>
-    [Parameter] public string? AvailabilityWindow { get; set; }
+    // Saturday first, the way the week is read here.
+    public static readonly DayOfWeek[] Week =
+    {
+        DayOfWeek.Saturday, DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Tuesday,
+        DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday
+    };
 
-    /// <summary>False shows the board read only, as on the helper's own profile.</summary>
+    /// <summary>The helper's board from the API: open and booked hours.</summary>
+    [Parameter, EditorRequired] public List<HelperAvailabilitySlotDto> Slots { get; set; } = new();
+
+    /// <summary>False shows the board read only.</summary>
     [Parameter] public bool Selectable { get; set; } = true;
 
     [Parameter] public int MaxPerDay { get; set; } = 3;
@@ -130,43 +140,37 @@
 
     [Parameter] public EventCallback<List<EngagementSlotDto>> SelectionChanged { get; set; }
 
-    private IReadOnlyList<ScheduleDay> _days = Array.Empty<ScheduleDay>();
     private int _freeCount;
     private int _bookedCount;
-    private int _offCount;
-
-    private string Window => string.IsNullOrWhiteSpace(AvailabilityWindow) ? "the working window" : AvailabilityWindow;
-
-    private string RangeCaption =>
-        _days.Count == 0 ? "Next 7 days" : $"{_days[0].Date:d MMM} – {_days[^1].Date:d MMM}";
 
     protected override void OnParametersSet()
     {
-        _days = HelperScheduleView.Build(HelperId, AvailabilityWindow, DateTime.Today);
-
-        var slots = _days.SelectMany(d => d.Slots).ToList();
-        _freeCount = slots.Count(s => s.State == SlotState.Free);
-        _bookedCount = slots.Count(s => s.State == SlotState.Booked);
-        _offCount = slots.Count(s => s.State == SlotState.Off);
+        _freeCount = Slots.Count(s => s.IsOpen && !s.IsBooked);
+        _bookedCount = Slots.Count(s => s.IsBooked);
     }
 
-    private bool IsPicked(DateTime date, int hour) =>
-        Selection.Any(s => s.Date == date && s.Hour == hour);
-
-    private int CountForDay(DateTime date) => Selection.Count(s => s.Date == date);
-
-    private async Task Toggle(DateTime date, int hour)
+    private string StateOf(DayOfWeek day, int hour)
     {
-        var existing = Selection.FirstOrDefault(s => s.Date == date && s.Hour == hour);
+        var slot = Slots.FirstOrDefault(s => s.DayOfWeek == (int)day && s.Hour == hour);
+        if (slot is null || (!slot.IsOpen && !slot.IsBooked)) return "off";
+        return slot.IsBooked ? "booked" : "free";
+    }
+
+    private bool IsPicked(DayOfWeek day, int hour) => Selection.Any(s => s.DayOfWeek == (int)day && s.Hour == hour);
+
+    private int CountForDay(DayOfWeek day) => Selection.Count(s => s.DayOfWeek == (int)day);
+
+    private async Task Toggle(DayOfWeek day, int hour)
+    {
+        var existing = Selection.FirstOrDefault(s => s.DayOfWeek == (int)day && s.Hour == hour);
         if (existing is not null)
         {
             Selection.Remove(existing);
         }
         else
         {
-            // Three a day is the cap; the extra buttons are disabled, this is the backstop.
-            if (CountForDay(date) >= MaxPerDay) return;
-            Selection.Add(new EngagementSlotDto { Date = date, Hour = hour });
+            if (CountForDay(day) >= MaxPerDay) return;
+            Selection.Add(new EngagementSlotDto { DayOfWeek = (int)day, Hour = hour });
         }
 
         await SelectionChanged.InvokeAsync(Selection);
@@ -177,4 +181,21 @@
         Selection.Clear();
         await SelectionChanged.InvokeAsync(Selection);
     }
+
+    public static string HourLabel(int hour) => hour switch
+    {
+        0 or 24 => "12 AM",
+        12 => "12 PM",
+        < 12 => $"{hour} AM",
+        _ => $"{hour - 12} PM"
+    };
+
+    public static string RangeLabel(int hour) => $"{HourLabel(hour)} - {HourLabel(hour + 1)}";
+
+    private static string StateLabel(string state) => state switch
+    {
+        "free" => "Available",
+        "booked" => "Booked",
+        _ => "Not available"
+    };
 }

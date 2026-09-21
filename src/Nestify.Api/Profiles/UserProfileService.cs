@@ -214,8 +214,8 @@ public sealed class UserProfileService
         public string? Occupation { get; set; }
         public short? Gender { get; set; }
         public DateOnly? DateOfBirth { get; set; }
-        public bool? IsSmoker { get; set; }
-        public bool? IsDrinker { get; set; }
+        public bool IsSmoker { get; set; }
+        public bool IsDrinker { get; set; }
         public string? OrganizationName { get; set; }
         public bool IsVerified { get; set; }
         public string? Address { get; set; }

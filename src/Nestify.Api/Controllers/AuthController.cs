@@ -1,3 +1,6 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Nestify.Api.Auth;
 using Nestify.Shared.Dtos.Auth;
@@ -41,6 +44,20 @@ public sealed class AuthController : ControllerBase
     {
         await _auth.LogoutAsync(request.RefreshToken);
         return NoContent();
+    }
+
+    [HttpPost("password")]
+    [Authorize]
+    public async Task<IActionResult> ChangePassword(ChangePasswordRequestDto request)
+    {
+        var sub = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!long.TryParse(sub, out var userId))
+        {
+            return Unauthorized();
+        }
+
+        var error = await _auth.ChangePasswordAsync(userId, request);
+        return error is null ? NoContent() : BadRequest(new { message = error });
     }
 
     private string? CallerIp() => HttpContext.Connection.RemoteIpAddress?.ToString();

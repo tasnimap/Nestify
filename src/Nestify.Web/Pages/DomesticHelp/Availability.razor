@@ -157,7 +157,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var availability = await Helpers.GetAvailabilityAsync(DateTime.Today) ?? new HelperAvailabilityDto();
+        var availability = await Helpers.GetAvailabilityAsync() ?? new HelperAvailabilityDto();
         _available = availability.IsAvailable;
         foreach (var day in Week)
         for (var hour = StartHour; hour < EndHour; hour++)

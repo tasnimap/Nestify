@@ -43,7 +43,8 @@ public sealed class AdminConsoleService
                      (SELECT count(*)::int FROM post_takedowns)                          AS PostsTakenDown,
                      (SELECT count(*)::int FROM users u
                        LEFT JOIN admin_accounts a ON a.user_id = u.id
-                       WHERE u.account_type = @admin AND coalesce(a.is_active, true))    AS ActiveAdmins",
+                       WHERE u.account_type = @admin AND coalesce(a.is_active, true))    AS ActiveAdmins,
+                     (SELECT count(*)::int FROM verification_requests WHERE status = 1)  AS PendingVerifications",
             new { open = ReportOpen, housingActive = HousingActive, housing = ScopeHousing, listingActive = ListingActive, admin = AccountAdmin });
     }
 

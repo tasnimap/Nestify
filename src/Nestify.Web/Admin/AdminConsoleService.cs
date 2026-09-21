@@ -2,27 +2,14 @@ using Nestify.Shared.Dtos.Admin;
 
 namespace Nestify.Web.Admin;
 
-// What is left of the front-end only console state: the verification queue
-// and the dashboard's revenue and growth charts, still sample data until their
-// API exists. Moderation, fees, plans, admin accounts and the audit log come
-// from IAdminService.
+// What is left of the front-end only console state: the dashboard's revenue
+// and growth charts, still sample data until their API exists. Moderation,
+// verification, fees, plans, admin accounts and the audit log come from
+// IAdminService.
 public sealed class AdminConsoleService
 {
-    private readonly List<VerificationApplication> _applications = new();
-
-    private int _counter = 1000;
-
-    public AdminConsoleService()
-    {
-        SeedApplications();
-    }
-
     // Set by the admin shell once the signed-in name is known.
     public string CurrentAdmin { get; set; } = "Admin";
-
-    public event Action? Changed;
-
-    public IReadOnlyList<VerificationApplication> Applications => _applications;
 
     public IReadOnlyList<RevenuePoint> Revenue { get; } = new List<RevenuePoint>
     {
@@ -68,24 +55,7 @@ public sealed class AdminConsoleService
 
     public int YearRevenue => Revenue.Sum(r => r.Total);
 
-    public int PendingApplications => _applications.Count(a => a.State == ApplicationState.Pending);
-
-    // ---------- verification ----------
-
-    public void DecideApplication(string id, bool approve, string note)
-    {
-        var application = _applications.FirstOrDefault(a => a.Id == id);
-        if (application is null) return;
-
-        application.State = approve ? ApplicationState.Approved : ApplicationState.Declined;
-        application.Decision = note;
-        Changed?.Invoke();
-    }
-
     // ---------- helpers ----------
-
-    public static string KindLabel(ApplicantKind kind) =>
-        kind == ApplicantKind.DomesticHelper ? "Domestic helper" : "User";
 
     public static string ScopeLabel(ModerationScope scope) =>
         scope == ModerationScope.Housing ? "Housing" : "Marketplace";
@@ -104,34 +74,4 @@ public sealed class AdminConsoleService
     }
 
     public static string Ago(DateTime? when) => when is null ? "never" : Ago(when.Value);
-
-    private string NextId(string prefix) => $"{prefix}-{++_counter}";
-
-    // ---------- sample data ----------
-
-    private void SeedApplications()
-    {
-        _applications.AddRange(new[]
-        {
-            New("Ruhul Amin", ApplicantKind.User, "NID", "1994738201", "01711-224466", "Dhanmondi, Dhaka", 100, 2),
-            New("Shefali Begum", ApplicantKind.DomesticHelper, "NID", "1988420113", "01822-119933", "Mirpur 12, Dhaka", 150, 5),
-            New("Tahmid Rahman", ApplicantKind.User, "Student ID", "CSE-19-0418", "01933-887711", "Palashi, Dhaka", 100, 9),
-            New("Morjina Khatun", ApplicantKind.DomesticHelper, "Birth certificate", "20019134772", "01644-556677", "Badda, Dhaka", 150, 14),
-            New("Sazzad Hossain", ApplicantKind.User, "Passport", "BX0442719", "01577-334455", "Agrabad, Chattogram", 100, 20),
-            New("Rahima Akter", ApplicantKind.DomesticHelper, "NID", "1979330085", "01399-778822", "Uttara, Dhaka", 150, 27)
-        });
-
-        VerificationApplication New(string name, ApplicantKind kind, string docType, string docNo, string phone, string area, int fee, int hoursAgo) => new()
-        {
-            Id = NextId("VER"),
-            Applicant = name,
-            Kind = kind,
-            DocumentType = docType,
-            DocumentNumber = docNo,
-            Phone = phone,
-            Area = area,
-            FeePaid = fee,
-            SubmittedOn = DateTime.Now.AddHours(-hoursAgo)
-        };
-    }
 }

@@ -61,7 +61,7 @@ builder.Services.AddScoped<IHouseLookupService, HousingService>();
 // M3 - Home module, backed by api/v1/homes (User_Home.sql).
 builder.Services.AddScoped<IHomeService, HomeService>();
 
-
+// M2 - Domestic help, backed by api/v1/helpers (Domestic_Help.sql).
 builder.Services.AddScoped<IHelperService, HelperService>();
 
 // M4 - Second-hand marketplace, backed by api/v1/marketplace (Marketplace.sql).
@@ -74,19 +74,12 @@ builder.Services.AddScoped<ISettlementService, SettlementService>();
 // log, backed by api/v1/admin (Admin.sql).
 builder.Services.AddScoped<IAdminService, AdminService>();
 
-// Verification queue and dashboard charts are still sample data, kept as a
-// Singleton so decisions survive navigating between the admin pages.
+// Dashboard charts are still sample data, kept as a Singleton so the numbers
+// stay the same while navigating between the admin pages.
 builder.Services.AddSingleton<Nestify.Web.Admin.AdminConsoleService>();
 
 // The admin profile page reads the signed-in admin's own users row.
 builder.Services.AddScoped<Nestify.Web.Admin.AdminProfileClient>();
-
-// Helper (maid) workspace — sample availability, schedule, requests and reviews
-// kept as a Singleton so edits survive navigating between the helper pages.
-builder.Services.AddScoped<Nestify.Web.Maid.MaidWorkspaceService>();
-
-// The helper profile page reads the signed-in helper's own users row.
-builder.Services.AddScoped<Nestify.Web.Maid.MaidAccountClient>();
 
 // Register utility services
 builder.Services.AddScoped<MoneyFormatterService>();

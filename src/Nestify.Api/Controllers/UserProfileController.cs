@@ -70,15 +70,35 @@ public sealed class UserProfileController : ControllerBase
         return profile is null ? NotFound() : Ok(profile);
     }
 
-    [HttpPost("me/verification")]
-    [RequestSizeLimit(MaxPictureBytes + 1024)]
-    public async Task<ActionResult<UserProfileDto>> SubmitVerification([FromForm] string documentType, IFormFile file)
+    [HttpGet("me/verification/fee")]
+    public async Task<ActionResult<VerificationFeeDto>> GetVerificationFee()
+        => Ok(new VerificationFeeDto { AmountBdt = await _verifications.GetUserFeeAsync() });
+
+    // The fake bKash portal: any Bangladeshi number and any 4-5 digit PIN pay the fee.
+    [HttpPost("me/verification/payment")]
+    public async Task<ActionResult<VerificationPaymentDto>> PayVerificationFee(BkashPaymentDto dto)
     {
-        if (file is null || file.Length == 0) return BadRequest(new { message = "Choose a document photo first." });
-        if (file.Length > MaxPictureBytes) return BadRequest(new { message = "The document photo must be 5 MB or smaller." });
-        if (file.ContentType is null || !file.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase)) return BadRequest(new { message = "Upload a clear image of your document." });
-        await using var stream = file.OpenReadStream();
-        var error = await _verifications.SubmitUserAsync(RequireUserId(), documentType, stream, file.FileName, file.ContentType, file.Length);
+        var (data, error) = await _verifications.PayUserFeeAsync(RequireUserId(), dto);
+        return data is null ? BadRequest(new { message = error }) : Ok(data);
+    }
+
+    // identityFile is the NID or birth certificate; occupationFile is the
+    // student or employee ID and is only sent when the profile needs one.
+    [HttpPost("me/verification")]
+    [RequestSizeLimit(2 * MaxPictureBytes + 1024)]
+    public async Task<ActionResult<UserProfileDto>> SubmitVerification(
+        [FromForm] string identityDocumentType, [FromForm] long paymentId, IFormFile identityFile, IFormFile? occupationFile)
+    {
+        if (!IsUsableImage(identityFile, out var identityError)) return BadRequest(new { message = identityError });
+        if (occupationFile is not null && !IsUsableImage(occupationFile, out var occupationError)) return BadRequest(new { message = occupationError });
+
+        await using var identityStream = identityFile.OpenReadStream();
+        await using var occupationStream = occupationFile?.OpenReadStream();
+
+        var error = await _verifications.SubmitUserAsync(RequireUserId(), identityDocumentType,
+            new VerificationService.UploadedFile { Content = identityStream, FileName = identityFile.FileName, ContentType = identityFile.ContentType },
+            occupationFile is null ? null : new VerificationService.UploadedFile { Content = occupationStream!, FileName = occupationFile.FileName, ContentType = occupationFile.ContentType },
+            paymentId);
         if (error is not null) return BadRequest(new { message = error });
         return Ok(await _profiles.GetAsync(RequireUserId()));
     }
@@ -86,9 +106,18 @@ public sealed class UserProfileController : ControllerBase
     [HttpDelete("me/verification")]
     public async Task<ActionResult<UserProfileDto>> CancelVerification()
     {
-        var error = await _verifications.CancelAsync(RequireUserId());
+        var error = await _verifications.CancelUserAsync(RequireUserId());
         if (error is not null) return BadRequest(new { message = error });
         return Ok(await _profiles.GetAsync(RequireUserId()));
+    }
+
+    private static bool IsUsableImage(IFormFile? file, out string? error)
+    {
+        error = null;
+        if (file is null || file.Length == 0) error = "Choose a document photo first.";
+        else if (file.Length > MaxPictureBytes) error = "Each document photo must be 5 MB or smaller.";
+        else if (file.ContentType is null || !file.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase)) error = "Upload a clear image of your document.";
+        return error is null;
     }
 
     private long RequireUserId()

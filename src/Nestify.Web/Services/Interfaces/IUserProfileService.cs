@@ -2,6 +2,8 @@ using Nestify.Shared.Dtos.Profile;
 
 namespace Nestify.Web.Services.Interfaces;
 
+public sealed record VerificationUpload(Stream Content, string FileName, string ContentType);
+
 public interface IUserProfileService
 {
     /// <summary>The profile loaded so far, so the navbar can show the picture without a second call.</summary>
@@ -27,6 +29,18 @@ public interface IUserProfileService
     /// </summary>
     Task<UserProfileDto?> UploadPictureAsync(Stream content, string fileName, string contentType);
 
-    Task<UserProfileDto?> SubmitVerificationAsync(string documentType, Stream content, string fileName, string contentType);
+    /// <summary>The fee the bKash portal shows before the application is sent.</summary>
+    Task<decimal> GetVerificationFeeAsync();
+
+    /// <summary>The fake bKash payment. Throws with the server's message when the number or PIN is rejected.</summary>
+    Task<VerificationPaymentDto> PayVerificationFeeAsync(string bkashNumber, string pin);
+
+    /// <summary>
+    /// Sends the identity document (NID or birth certificate) and, for students
+    /// and job holders, the student or employee ID, together with the payment id.
+    /// </summary>
+    Task<UserProfileDto?> SubmitVerificationAsync(string identityDocumentType, VerificationUpload identity,
+        VerificationUpload? occupation, string paymentId);
+
     Task<UserProfileDto?> CancelVerificationAsync();
 }

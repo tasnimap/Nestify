@@ -3,17 +3,69 @@ namespace Nestify.Shared.Dtos.Admin;
 // Contracts for the admin console (api/v1/admin, Admin.sql) and the
 // verification queue (api/v1/admin/verifications).
 
-public enum VerificationStatus { Pending, Approved, Rejected }
+public enum VerificationStatus { Pending, Approved, Rejected, Cancelled }
 
+// One request in the admin queue: the applicant's profile as it was when the
+// admin opened it, the uploaded documents and the bKash payment behind it.
 public sealed class VerificationRequestDto
 {
     public string Id { get; set; } = string.Empty;
     public string ApplicantName { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string Phone { get; set; } = string.Empty;
+    public string ProfilePictureUrl { get; set; } = string.Empty;
     public string SubjectType { get; set; } = string.Empty;   // "User" or "Domestic Helper"
-    public string DocumentType { get; set; } = string.Empty;
-    public string? DocumentUrl { get; set; }
+    public string? Occupation { get; set; }
+    public string? OrganizationName { get; set; }
+    public DateOnly? DateOfBirth { get; set; }
+    public bool IsSmoker { get; set; }
+    public bool IsDrinker { get; set; }
+    public List<VerificationDocumentDto> Documents { get; set; } = new();
+    public VerificationPaymentSummaryDto? Payment { get; set; }
+    public VerificationHelperProfileDto? HelperProfile { get; set; }   // only on a helper's request
     public DateTime SubmittedUtc { get; set; }
+    public DateTime? DecidedUtc { get; set; }
     public VerificationStatus Status { get; set; }
+    public string? RejectionReason { get; set; }
+}
+
+// The helper profile (Domestic_Help.sql) shown in the admin modal next to
+// her photo and NID.
+public sealed class VerificationHelperProfileDto
+{
+    public string Headline { get; set; } = string.Empty;
+    public string Bio { get; set; } = string.Empty;
+    public string Languages { get; set; } = string.Empty;
+    public List<string> Services { get; set; } = new();
+    public decimal MonthlyRate { get; set; }
+    public int ExperienceYears { get; set; }
+    public string AreaName { get; set; } = string.Empty;
+    public string AddressLine { get; set; } = string.Empty;
+    public double Latitude { get; set; }
+    public double Longitude { get; set; }
+    public double RatingAverage { get; set; }
+    public int RatingCount { get; set; }
+}
+
+public sealed class VerificationDocumentDto
+{
+    public string DocumentType { get; set; } = string.Empty;
+    public string Url { get; set; } = string.Empty;
+    public string FileName { get; set; } = string.Empty;
+}
+
+public sealed class VerificationPaymentSummaryDto
+{
+    public decimal AmountBdt { get; set; }
+    public string BkashNumber { get; set; } = string.Empty;
+    public string TransactionId { get; set; } = string.Empty;
+    public DateTime PaidAtUtc { get; set; }
+}
+
+public sealed class VerificationDecisionDto
+{
+    public bool Approve { get; set; }
+    public string? Reason { get; set; }   // required when rejecting
 }
 
 public enum ModerationScope { Housing = 1, Marketplace = 2 }
@@ -31,6 +83,7 @@ public sealed class AdminSummaryDto
     public int LiveMarketItems { get; set; }
     public int PostsTakenDown { get; set; }
     public int ActiveAdmins { get; set; }
+    public int PendingVerifications { get; set; }
 }
 
 public sealed class AdminHousingPostDto

@@ -35,6 +35,31 @@ public sealed class AuthService : IAuthService
     public async Task<AuthResponseDto?> LoginAsync(LoginRequestDto request)
         => await SendAsync("api/v1/auth/login", request);
 
+    public async Task ChangePasswordAsync(string currentPassword, string newPassword)
+    {
+        var response = await _httpClient.PostAsJsonAsync("api/v1/auth/password",
+            new ChangePasswordRequestDto { CurrentPassword = currentPassword, NewPassword = newPassword });
+        if (response.IsSuccessStatusCode)
+        {
+            return;
+        }
+
+        var message = "Could not change the password.";
+        try
+        {
+            var body = await response.Content.ReadFromJsonAsync<System.Text.Json.JsonElement>();
+            if (body.TryGetProperty("message", out var text) && !string.IsNullOrWhiteSpace(text.GetString()))
+            {
+                message = text.GetString()!;
+            }
+        }
+        catch
+        {
+            // Keep the fallback message.
+        }
+        throw new ApplicationException(message);
+    }
+
     public async Task LogoutAsync()
     {
         var refreshToken = await _localStorage.GetItemAsync<string>(RefreshStorageKey);
