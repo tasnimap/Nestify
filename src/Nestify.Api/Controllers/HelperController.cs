@@ -24,15 +24,15 @@ public sealed class HelperController : ControllerBase
         => Ok(await _helpers.BrowseAsync(filter));
 
     [HttpGet("{id:long}")]
-    public async Task<ActionResult<HelperDetailDto>> Get(string id)
+    public async Task<ActionResult<HelperDetailDto>> Get(long id)
     {
-        var helper = await _helpers.GetHelperAsync(id, CurrentUserId());
+        var helper = await _helpers.GetHelperAsync(id.ToString(), CurrentUserId());
         return helper is null ? NotFound() : Ok(helper);
     }
 
     [HttpGet("{id:long}/reviews")]
-    public async Task<ActionResult<HelperPageDto<ReviewDto>>> GetReviews(string id, [FromQuery] int page = 1, [FromQuery] int pageSize = 5)
-        => Ok(await _helpers.GetReviewsAsync(id, page, pageSize));
+    public async Task<ActionResult<HelperPageDto<ReviewDto>>> GetReviews(long id, [FromQuery] int page = 1, [FromQuery] int pageSize = 5)
+        => Ok(await _helpers.GetReviewsAsync(id.ToString(), page, pageSize));
 
     [HttpGet("engagements")]
     [Authorize]
@@ -41,9 +41,9 @@ public sealed class HelperController : ControllerBase
 
     [HttpPost("{id:long}/engagements")]
     [Authorize]
-    public async Task<ActionResult<EngagementDto>> RequestEngagement(string id, [FromBody] EngagementRequestDto request)
+    public async Task<ActionResult<EngagementDto>> RequestEngagement(long id, [FromBody] EngagementRequestDto request)
     {
-        var (data, error) = await _helpers.RequestEngagementAsync(RequireUserId(), id, request);
+        var (data, error) = await _helpers.RequestEngagementAsync(RequireUserId(), id.ToString(), request);
         return data is null ? BadRequest(new { message = error }) : Ok(data);
     }
 
@@ -60,6 +60,14 @@ public sealed class HelperController : ControllerBase
     public async Task<IActionResult> MarkComplete(string id)
     {
         var error = await _helpers.MarkCompleteAsync(RequireUserId(), id);
+        return error is null ? NoContent() : BadRequest(new { message = error });
+    }
+
+    [HttpPost("engagements/{id}/release")]
+    [Authorize]
+    public async Task<IActionResult> ReleaseEngagement(string id)
+    {
+        var error = await _helpers.ReleaseEngagementAsync(RequireUserId(), id);
         return error is null ? NoContent() : BadRequest(new { message = error });
     }
 

@@ -628,6 +628,13 @@
     private VerificationStep _verificationStep;
     private IBrowserFile? _photoFile;
     private IBrowserFile? _nidFile;
+    // Byte buffers read BEFORE the InputFile elements are unmounted on step change
+    private byte[]? _photoBytes;
+    private string? _photoContentType;
+    private string? _photoName;
+    private byte[]? _nidBytes;
+    private string? _nidContentType;
+    private string? _nidName;
     private string? _photoPreview;
     private string? _nidPreview;
     private string? _verificationError;
@@ -866,6 +873,8 @@
     {
         _verificationStep = VerificationStep.Documents;
         _photoFile = _nidFile = null;
+        _photoBytes = _nidBytes = null;
+        _photoContentType = _photoName = _nidContentType = _nidName = null;
         _photoPreview = _nidPreview = null;
         _verificationError = null;
         _bkashNumber = _bkashPin = string.Empty;
@@ -922,6 +931,27 @@
         try
         {
             _verificationFee = await Helpers.GetVerificationFeeAsync();
+
+            // Read both files into memory NOW while the <InputFile> elements are
+            // still mounted. Once _verificationStep changes Blazor will unmount
+            // those elements and the IBrowserFile references become invalid.
+            await using (var ms = new MemoryStream())
+            {
+                await using var s = _photoFile.OpenReadStream(MaxPhotoBytes);
+                await s.CopyToAsync(ms);
+                _photoBytes = ms.ToArray();
+            }
+            _photoContentType = _photoFile.ContentType;
+            _photoName = _photoFile.Name;
+
+            await using (var ms = new MemoryStream())
+            {
+                await using var s = _nidFile.OpenReadStream(MaxPhotoBytes);
+                await s.CopyToAsync(ms);
+                _nidBytes = ms.ToArray();
+            }
+            _nidContentType = _nidFile.ContentType;
+            _nidName = _nidFile.Name;
         }
         catch (Exception ex)
         {
@@ -952,7 +982,7 @@
         var number = _bkashNumber.Trim();
         if (!LooksLikeBangladeshiNumber(number))
         {
-            _verificationError = "Enter a valid Bangladeshi bKash number, like 01712345678.";
+            _verificationError = "Enter a valid number like 01712345678.";
             return;
         }
         if (_bkashPin.Length is < 4 or > 5 || !_bkashPin.All(char.IsDigit))
@@ -984,13 +1014,18 @@
 
     private async Task SendApplication()
     {
-        if (_payment is null || _photoFile is null || _nidFile is null) return;
+        // Use the byte buffers captured in GoToPayment — the IBrowserFile
+        // references are invalid after the InputFile elements were unmounted.
+        if (_payment is null || _photoBytes is null || _nidBytes is null) return;
 
         _verificationError = null;
         _submittingVerification = true;
         try
         {
-            await Helpers.SubmitVerificationAsync(_photoFile, _nidFile, _payment.PaymentId);
+            await Helpers.SubmitVerificationAsync(
+                _photoBytes, _photoContentType ?? "image/jpeg", _photoName ?? "photo.jpg",
+                _nidBytes, _nidContentType ?? "image/jpeg", _nidName ?? "nid.jpg",
+                _payment.PaymentId);
             _applicationSent = true;
             P = await Helpers.GetMyProfileAsync();
         }

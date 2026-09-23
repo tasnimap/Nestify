@@ -94,7 +94,7 @@
                                 <span class="dh-count">@_slots.Count picked</span>
                             }
                         </div>
-                        <AvailabilityGrid Slots="_helper.Availability" Selectable="@(!_helper.IsMine && _helper.IsAcceptingBookings)"
+                        <AvailabilityGrid Slots="_helper.Availability" Selectable="@(!_helper.IsMine && !_helper.IsWorkingForMyHome && _helper.IsAcceptingBookings)"
                                           Selection="_slots" SelectionChanged="OnSlotsChanged" />
                     </section>
 
@@ -166,29 +166,49 @@
                         </div>
                     </dl>
 
-                    <div class="dh-book__picks">
-                        @if (!_helper.IsAcceptingBookings)
-                        {
-                            <p class="dh-book__hint">@FirstName is not taking new bookings right now.</p>
-                        }
-                        else if (_slots.Count == 0)
-                        {
-                            <p class="dh-book__hint">Pick the hours you need each week on the board — up to 3 a day.</p>
-                        }
-                        else
-                        {
-                            <p class="dh-book__hint dh-book__hint--on">
-                                <strong>@_slots.Count</strong> @(_slots.Count == 1 ? "hour" : "hours") a week across
-                                @_slots.Select(s => s.DayOfWeek).Distinct().Count() day(s)
+                    @if (_helper.IsWorkingForMyHome)
+                    {
+                        <div class="dh-book__picks">
+                            <p class="dh-book__hint dh-book__hint--on" style="background:rgba(34,197,94,0.1);color:#16a34a;border:1px solid rgba(34,197,94,0.25);border-radius:12px;padding:.75rem;">
+                                <strong>@FirstName is currently working for your home.</strong>
                             </p>
+                        </div>
+
+                        @if (_helper.CanManageEngagement)
+                        {
+                            <button class="nx-btn nx-btn--block" style="background:#dc2626;color:#fff;border-color:#dc2626;font-weight:600;" @onclick="OpenReleaseModal">
+                                Release @FirstName
+                            </button>
                         }
-                    </div>
 
-                    <button class="nx-btn nx-btn--accent nx-btn--block" disabled="@(_helper.IsMine || !_helper.IsAcceptingBookings || _slots.Count == 0)" @onclick="OpenRequest">
-                        @(_slots.Count == 0 ? "Request engagement" : $"Request {_slots.Count} {(_slots.Count == 1 ? "hour" : "hours")} a week")
-                    </button>
+                        <p class="dh-book__note"><a href="engagements/mine" style="text-decoration:underline;">View in My engagements &rarr;</a></p>
+                    }
+                    else
+                    {
+                        <div class="dh-book__picks">
+                            @if (!_helper.IsAcceptingBookings)
+                            {
+                                <p class="dh-book__hint">@FirstName is not taking new bookings right now.</p>
+                            }
+                            else if (_slots.Count == 0)
+                            {
+                                <p class="dh-book__hint">Pick the hours you need each week on the board — up to 3 a day.</p>
+                            }
+                            else
+                            {
+                                <p class="dh-book__hint dh-book__hint--on">
+                                    <strong>@_slots.Count</strong> @(_slots.Count == 1 ? "hour" : "hours") a week across
+                                    @_slots.Select(s => s.DayOfWeek).Distinct().Count() day(s)
+                                </p>
+                            }
+                        </div>
 
-                    <p class="dh-book__note">@FirstName's phone number is shared only after she accepts.</p>
+                        <button class="nx-btn nx-btn--accent nx-btn--block" disabled="@(_helper.IsMine || !_helper.IsAcceptingBookings || _slots.Count == 0)" @onclick="OpenRequest">
+                            @(_slots.Count == 0 ? "Request engagement" : $"Request {_slots.Count} {(_slots.Count == 1 ? "hour" : "hours")} a week")
+                        </button>
+
+                        <p class="dh-book__note">@FirstName's phone number is shared only after she accepts.</p>
+                    }
                 </aside>
             </article>
         }
@@ -256,6 +276,32 @@
     </div>
 }
 
+@if (_showRelease && _helper is not null && _helper.ActiveEngagementId is not null)
+{
+    <div class="md-overlay" @onclick="CloseReleaseModal">
+        <div class="md-modal md-modal--sm" role="dialog" aria-modal="true" @onclick:stopPropagation="true">
+            <header class="md-modal__head">
+                <h2>Release @FirstName?</h2>
+                <button type="button" class="md-modal__close" @onclick="CloseReleaseModal" aria-label="Close">&times;</button>
+            </header>
+            <div class="md-modal__body md-modal__body--stack">
+                <p>Are you sure you want to release <strong>@FirstName</strong> from your home?</p>
+                <p class="dh-muted">This will end her engagement immediately, free up her weekly hours for other homes, and allow home members to leave a review.</p>
+                @if (_releaseError is not null)
+                {
+                    <p class="md-msg md-msg--bad">@_releaseError</p>
+                }
+            </div>
+            <footer class="md-modal__foot">
+                <button type="button" class="nx-btn nx-btn--ghost" @onclick="CloseReleaseModal" disabled="@_releasing">Cancel</button>
+                <button type="button" class="nx-btn nx-btn--accent" style="background:#dc2626;border-color:#dc2626;" @onclick="ConfirmReleaseAsync" disabled="@_releasing">
+                    @(_releasing ? "Releasing…" : "Release helper")
+                </button>
+            </footer>
+        </div>
+    </div>
+}
+
 @code {
     [Parameter] public long Id { get; set; }
 
@@ -269,6 +315,10 @@
     private string? _requestError;
     private EngagementRequestDto _request = new();
 
+    private bool _showRelease;
+    private bool _releasing;
+    private string? _releaseError;
+
     private string FirstName =>
         _helper?.Name.Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? "the helper";
 
@@ -278,12 +328,29 @@
     {
         _loading = true;
         _slots = new List<EngagementSlotDto>();
-        _helper = await Helpers.GetHelperAsync(Id.ToString());
-        if (_helper is not null)
+        try
         {
-            _reviews = await Helpers.GetReviewsAsync(Id.ToString());
+            _helper = await Helpers.GetHelperAsync(Id.ToString());
+            if (_helper is not null)
+            {
+                try
+                {
+                    _reviews = await Helpers.GetReviewsAsync(Id.ToString());
+                }
+                catch
+                {
+                    _reviews = new HelperPageDto<ReviewDto>();
+                }
+            }
         }
-        _loading = false;
+        catch
+        {
+            _helper = null;
+        }
+        finally
+        {
+            _loading = false;
+        }
     }
 
     private async Task MoreReviews()
@@ -340,6 +407,40 @@
         finally
         {
             _requesting = false;
+        }
+    }
+
+    private void OpenReleaseModal()
+    {
+        _releaseError = null;
+        _showRelease = true;
+    }
+
+    private void CloseReleaseModal()
+    {
+        if (_releasing) return;
+        _showRelease = false;
+    }
+
+    private async Task ConfirmReleaseAsync()
+    {
+        if (_helper?.ActiveEngagementId is null) return;
+        _releasing = true;
+        _releaseError = null;
+        try
+        {
+            await Helpers.ReleaseEngagementAsync(_helper.ActiveEngagementId);
+            _showRelease = false;
+            Toast.ShowSuccess($"{FirstName} has been released from your home.", "Released");
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            _releaseError = ex.Message;
+        }
+        finally
+        {
+            _releasing = false;
         }
     }
 }

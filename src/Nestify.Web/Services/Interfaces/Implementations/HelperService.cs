@@ -52,6 +52,9 @@ public sealed class HelperService : IHelperService
     public async Task MarkCompleteAsync(string engagementId)
         => await ThrowIfFailedAsync(await _http.PostAsync($"api/v1/helpers/engagements/{engagementId}/complete", null), "Could not mark the engagement complete.");
 
+    public async Task ReleaseEngagementAsync(string engagementId)
+        => await ThrowIfFailedAsync(await _http.PostAsync($"api/v1/helpers/engagements/{engagementId}/release", null), "Could not release the helper.");
+
     public async Task SubmitReviewAsync(string engagementId, int rating, string comment)
         => await ThrowIfFailedAsync(
             await _http.PostAsJsonAsync($"api/v1/helpers/engagements/{engagementId}/review", new SubmitReviewDto { Rating = rating, Comment = comment }),
@@ -127,6 +130,18 @@ public sealed class HelperService : IHelperService
         await using var nidStream = nid.OpenReadStream(MaxUploadBytes);
         form.Add(FilePart(photoStream, photo.ContentType), "photoFile", photo.Name);
         form.Add(FilePart(nidStream, nid.ContentType), "nidFile", nid.Name);
+
+        await ThrowIfFailedAsync(await _http.PostAsync("api/v1/helpers/me/verification", form), "Could not send the application.");
+    }
+
+    public async Task SubmitVerificationAsync(byte[] photoBytes, string photoContentType, string photoName,
+        byte[] nidBytes, string nidContentType, string nidName, string paymentId)
+    {
+        using var form = new MultipartFormDataContent();
+        form.Add(new StringContent(paymentId), "paymentId");
+
+        form.Add(FilePart(new MemoryStream(photoBytes), photoContentType), "photoFile", photoName);
+        form.Add(FilePart(new MemoryStream(nidBytes), nidContentType), "nidFile", nidName);
 
         await ThrowIfFailedAsync(await _http.PostAsync("api/v1/helpers/me/verification", form), "Could not send the application.");
     }

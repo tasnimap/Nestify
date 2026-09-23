@@ -772,6 +772,7 @@ public sealed class HousingService
     // a personal requirement, an explicit matching profile value is required.
     private const string PersonalRequirementsMatchSql = @"
         ((r.gender IS NULL AND r.occupation IS NULL AND r.min_age IS NULL AND r.max_age IS NULL
+        ((r.gender IS NULL AND r.occupation IS NULL AND (r.min_age IS NULL OR r.min_age <= 0) AND (r.max_age IS NULL OR r.max_age <= 0)
           AND COALESCE(r.non_smoker_only, false) = false AND COALESCE(r.non_drinker_only, false) = false)
          OR EXISTS (
             SELECT 1 FROM user_additional_profile_info profile
@@ -782,8 +783,10 @@ public sealed class HousingService
                     OR (r.occupation = 0 AND profile.occupation ILIKE 'Student%')
                     OR (r.occupation = 1 AND profile.occupation = 'Job holder'))
                AND (r.min_age IS NULL OR (profile.date_of_birth IS NOT NULL
+               AND (r.min_age IS NULL OR r.min_age <= 0 OR (profile.date_of_birth IS NOT NULL
                     AND EXTRACT(YEAR FROM age(current_date, profile.date_of_birth)) >= r.min_age))
                AND (r.max_age IS NULL OR (profile.date_of_birth IS NOT NULL
+               AND (r.max_age IS NULL OR r.max_age <= 0 OR (profile.date_of_birth IS NOT NULL
                     AND EXTRACT(YEAR FROM age(current_date, profile.date_of_birth)) <= r.max_age))
                AND (COALESCE(r.non_smoker_only, false) = false OR profile.is_smoker = false)
                AND (COALESCE(r.non_drinker_only, false) = false OR profile.is_drinker = false)))";
@@ -818,6 +821,8 @@ public sealed class HousingService
                 occupation = e.Occupation is { } o ? (short?)o : null,
                 minAge = e.MinAge is { } min ? (short?)min : null,
                 maxAge = e.MaxAge is { } max ? (short?)max : null,
+                minAge = e.MinAge is { } min && min > 0 ? (short?)min : null,
+                maxAge = e.MaxAge is { } max && max > 0 ? (short?)max : null,
                 verifiedOnly = e.VerifiedOnly,
                 nonSmokerOnly = e.NonSmokerOnly,
                 nonDrinkerOnly = e.NonDrinkerOnly

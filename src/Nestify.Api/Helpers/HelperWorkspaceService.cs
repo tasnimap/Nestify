@@ -509,7 +509,8 @@ public sealed class HelperWorkspaceService
         var summary = await connection.QuerySingleAsync<(decimal Average, int Count)>(
             "SELECT coalesce(average_rating, 0), review_count FROM domestic_helper_profiles WHERE id = @helperId", new { helperId });
 
-        var rows = (await connection.QueryAsync<HelperService.ReviewRow>(HelperService.ReviewSql + """
+        var rows = (await connection.QueryAsync<HelperService.ReviewRow>($"""
+            {HelperService.ReviewSql}
             WHERE r.helper_profile_id = @helperId AND NOT r.is_hidden
             ORDER BY r.created_at_utc DESC
             """, new { helperId })).ToList();

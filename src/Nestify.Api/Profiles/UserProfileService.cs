@@ -72,6 +72,30 @@ public sealed class UserProfileService
             return (null, "Account not found.");
         }
 
+        var name = Clean(dto.FullName);
+        if (dto.FullName is not null && string.IsNullOrWhiteSpace(name))
+        {
+            return (null, "Full name cannot be empty.");
+        }
+
+        var phone = Clean(dto.PhoneNumber);
+        if (dto.PhoneNumber is not null && string.IsNullOrWhiteSpace(phone))
+        {
+            return (null, "Phone number cannot be empty.");
+        }
+
+        if (name is not null || phone is not null)
+        {
+            await connection.ExecuteAsync(
+                """
+                UPDATE users
+                SET full_name    = COALESCE(@name, full_name),
+                    phone_number = COALESCE(@phone, phone_number)
+                WHERE id = @userId
+                """,
+                new { userId, name, phone });
+        }
+
         await EnsureRowAsync(connection, null, userId);
 
         // A null field means "leave it as it is"; an empty box means "clear it".

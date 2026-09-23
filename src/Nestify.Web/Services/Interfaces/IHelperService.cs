@@ -16,6 +16,7 @@ public interface IHelperService
     Task<EngagementDto> RequestEngagementAsync(string helperId, EngagementRequestDto request);
     Task CancelRequestAsync(string engagementId);
     Task MarkCompleteAsync(string engagementId);
+    Task ReleaseEngagementAsync(string engagementId);
     Task SubmitReviewAsync(string engagementId, int rating, string comment);
 
     // ---- the helper's own profile ----
@@ -29,6 +30,8 @@ public interface IHelperService
     Task<decimal> GetVerificationFeeAsync();
     Task<VerificationPaymentDto> PayVerificationFeeAsync(string bkashNumber, string pin);
     Task SubmitVerificationAsync(IBrowserFile photo, IBrowserFile nid, string paymentId);
+    Task SubmitVerificationAsync(byte[] photoBytes, string photoContentType, string photoName,
+        byte[] nidBytes, string nidContentType, string nidName, string paymentId);
     Task CancelVerificationAsync();
 
     // ---- workspace ----

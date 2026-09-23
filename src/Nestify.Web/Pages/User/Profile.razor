@@ -161,9 +161,21 @@ else
 
                 <div class="up-modal__body">
                     <div class="up-field">
+                        <label for="ed-fullname">Full name</label>
+                        <input id="ed-fullname" @bind="_draft.FullName" placeholder="Your full name" />
+                    </div>
+                    <div class="up-field">
+                        <label for="ed-phone">Phone number</label>
+                        <input id="ed-phone" @bind="_draft.PhoneNumber" placeholder="e.g. 01712345678" />
+                    </div>
+                    <div class="up-field">
                         <label for="ed-occupation">Occupation</label>
                         <select id="ed-occupation" @bind="_draft.Occupation">
                             <option value="">Select your occupation</option>
+                            @if (!string.IsNullOrWhiteSpace(_draft.Occupation) && !IsStandardOccupation(_draft.Occupation))
+                            {
+                                <option value="@_draft.Occupation">@_draft.Occupation</option>
+                            }
                             <option value="Student — High school">Student — High school</option>
                             <option value="Student — College">Student — College</option>
                             <option value="Student — University">Student — University</option>
@@ -469,6 +481,13 @@ else
     private bool _paying;
     private VerificationPaymentDto? _payment;
     private bool _applicationSent;
+    // Byte buffers read BEFORE the InputFile elements are unmounted on step change
+    private byte[]? _identityBytes;
+    private string? _identityContentType;
+    private string? _identityName;
+    private byte[]? _occupationBytes;
+    private string? _occupationContentType;
+    private string? _occupationName;
 
     private UpdateUserProfileDto _draft = new();
     private string? _editError;
@@ -510,6 +529,12 @@ else
         ? "Student"
         : DisplayOccupation;
     private bool NeedsOrganization => _draft.Occupation?.StartsWith("Student", StringComparison.Ordinal) == true || _draft.Occupation == "Job holder";
+    private bool NeedsOrganization =>
+        _draft.Occupation?.StartsWith("Student", StringComparison.Ordinal) == true ||
+        _draft.Occupation == "Job holder" ||
+        !string.IsNullOrWhiteSpace(_draft.OrganizationName);
+    private static bool IsStandardOccupation(string? occ) =>
+        occ is "Student — High school" or "Student — College" or "Student — University" or "Unemployed" or "Job holder";
     private string OrganizationLabel => _draft.Occupation == "Job holder" ? "Workplace name" : "School, college or university name";
     private string OrganizationPlaceholder => _draft.Occupation == "Job holder" ? "Where do you work?" : "Where do you study?";
     // Which extra document the application needs, decided by the profile's occupation.
@@ -688,8 +713,14 @@ else
         _identityDocumentType = string.Empty;
         _identityFile = null;
         _identityPreviewUrl = null;
+        _identityBytes = null;
+        _identityContentType = null;
+        _identityName = null;
         _occupationFile = null;
         _occupationPreviewUrl = null;
+        _occupationBytes = null;
+        _occupationContentType = null;
+        _occupationName = null;
         _verificationError = null;
         _bkashNumber = string.Empty;
         _bkashPin = string.Empty;
@@ -755,6 +786,36 @@ else
         try
         {
             _verificationFee = await ProfileService.GetVerificationFeeAsync();
+
+            // Read both files into memory NOW while the <InputFile> elements are
+            // still mounted in the DOM. Once _verificationStep changes to Payment,
+            // Blazor unmounts the InputFile elements and IBrowserFile references become invalid.
+            await using (var ms = new MemoryStream())
+            {
+                await using var s = _identityFile.OpenReadStream(MaxPictureBytes);
+                await s.CopyToAsync(ms);
+                _identityBytes = ms.ToArray();
+            }
+            _identityContentType = _identityFile.ContentType;
+            _identityName = _identityFile.Name;
+
+            if (_occupationFile is not null)
+            {
+                await using (var ms = new MemoryStream())
+                {
+                    await using var s = _occupationFile.OpenReadStream(MaxPictureBytes);
+                    await s.CopyToAsync(ms);
+                    _occupationBytes = ms.ToArray();
+                }
+                _occupationContentType = _occupationFile.ContentType;
+                _occupationName = _occupationFile.Name;
+            }
+            else
+            {
+                _occupationBytes = null;
+                _occupationContentType = null;
+                _occupationName = null;
+            }
         }
         catch (Exception ex)
         {
@@ -785,7 +846,7 @@ else
         var number = _bkashNumber.Trim();
         if (!LooksLikeBangladeshiNumber(number))
         {
-            _verificationError = "Enter a valid Bangladeshi bKash number, like 01712345678.";
+            _verificationError = "Enter a valid number like 01712345678.";
             return;
         }
 
@@ -818,19 +879,19 @@ else
 
     private async Task SendApplication()
     {
-        if (_payment is null || _identityFile is null) return;
+        if (_payment is null || _identityBytes is null) return;
 
         _verificationError = null;
         _submittingVerification = true;
         try
         {
-            using var identityStream = _identityFile.OpenReadStream(MaxPictureBytes);
-            using var occupationStream = SecondDocumentLabel is not null ? _occupationFile?.OpenReadStream(MaxPictureBytes) : null;
+            using var identityStream = new MemoryStream(_identityBytes);
+            using var occupationStream = _occupationBytes is not null ? new MemoryStream(_occupationBytes) : null;
 
             var updated = await ProfileService.SubmitVerificationAsync(
                 _identityDocumentType,
-                new VerificationUpload(identityStream, _identityFile.Name, _identityFile.ContentType),
-                occupationStream is null ? null : new VerificationUpload(occupationStream, _occupationFile!.Name, _occupationFile.ContentType),
+                new VerificationUpload(identityStream, _identityName ?? "identity.jpg", _identityContentType ?? "image/jpeg"),
+                occupationStream is null ? null : new VerificationUpload(occupationStream, _occupationName ?? "occupation.jpg", _occupationContentType ?? "image/jpeg"),
                 _payment.PaymentId);
             if (updated is not null) _profile = updated;
             _applicationSent = true;
@@ -866,6 +927,8 @@ else
         _editError = null;
         _draft = new UpdateUserProfileDto
         {
+            FullName = _profile?.FullName,
+            PhoneNumber = _profile?.PhoneNumber,
             Occupation = _profile?.Occupation,
             Gender = _profile?.Gender,
             DateOfBirth = _profile?.DateOfBirth,

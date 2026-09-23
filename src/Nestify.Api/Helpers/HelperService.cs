@@ -167,6 +167,35 @@ public sealed class HelperService
 
         var services = await LoadServicesAsync(connection, new List<long> { row.Id });
 
+        string? activeEngagementId = null;
+        bool isWorkingForMyHome = false;
+        bool canManageEngagement = false;
+
+        if (currentUserId is not null)
+        {
+            var activeEng = await connection.QuerySingleOrDefaultAsync<ActiveHomeEngagementRow>("""
+                SELECT e.id AS EngagementId,
+                       (e.client_user_id = @currentUserId OR EXISTS (
+                           SELECT 1 FROM home_members hm
+                           WHERE hm.home_id = e.home_id AND hm.user_id = @currentUserId
+                             AND hm.left_at_utc IS NULL AND hm.role IN (1, 2)
+                       )) AS CanManage
+                FROM service_engagements e
+                JOIN home_members my_hm ON my_hm.home_id = e.home_id
+                     AND my_hm.user_id = @currentUserId
+                     AND my_hm.left_at_utc IS NULL
+                WHERE e.helper_profile_id = @helperId AND e.status = @activeStatus
+                LIMIT 1
+                """, new { currentUserId, helperId, activeStatus = (short)EngagementStatus.Active });
+
+            if (activeEng is not null)
+            {
+                activeEngagementId = activeEng.EngagementId.ToString();
+                isWorkingForMyHome = true;
+                canManageEngagement = activeEng.CanManage;
+            }
+        }
+
         return new HelperDetailDto
         {
             Id = row.Id.ToString(),
@@ -186,7 +215,10 @@ public sealed class HelperService
             IsAcceptingBookings = row.IsActive,
             MemberSinceUtc = row.CreatedAtUtc,
             Availability = await LoadBoardAsync(connection, row.Id),
-            IsMine = currentUserId is not null && row.UserId == currentUserId
+            IsMine = currentUserId is not null && row.UserId == currentUserId,
+            ActiveEngagementId = activeEngagementId,
+            IsWorkingForMyHome = isWorkingForMyHome,
+            CanManageEngagement = canManageEngagement
         };
     }
 
@@ -201,7 +233,8 @@ public sealed class HelperService
         page = Math.Max(page, 1);
         pageSize = pageSize <= 0 ? 5 : pageSize;
 
-        var rows = (await connection.QueryAsync<ReviewRow>(ReviewSql + """
+        var rows = (await connection.QueryAsync<ReviewRow>($"""
+            {ReviewSql}
             WHERE r.helper_profile_id = @id AND NOT r.is_hidden
             ORDER BY r.created_at_utc DESC
             LIMIT @pageSize OFFSET @offset
@@ -398,6 +431,56 @@ public sealed class HelperService
                 "UPDATE helper_home_placements SET left_on = CURRENT_DATE WHERE engagement_id = @id AND left_on IS NULL",
                 new { id }, transaction);
         }
+
+        transaction.Commit();
+        return null;
+    }
+
+    // A home manager or co-manager releases the helper from their home, immediately concluding the engagement.
+    public async Task<string?> ReleaseEngagementAsync(long clientUserId, string engagementId)
+    {
+        if (!long.TryParse(engagementId, out var id))
+        {
+            return "Engagement not found.";
+        }
+
+        using var connection = await _db.OpenAsync();
+
+        var row = await connection.QuerySingleOrDefaultAsync<OwnerRow>("""
+            SELECT e.client_user_id AS ClientUserId, hp.user_id AS HelperUserId, e.status AS Status,
+                   EXISTS (SELECT 1 FROM home_members hm WHERE hm.home_id = e.home_id AND hm.user_id = @clientUserId
+                           AND hm.left_at_utc IS NULL AND hm.role IN (1, 2)) AS IsHomeManager
+            FROM service_engagements e
+            JOIN domestic_helper_profiles hp ON hp.id = e.helper_profile_id
+            WHERE e.id = @id
+            """, new { id, clientUserId });
+
+        if (row is null || row.Status != (short)EngagementStatus.Active)
+        {
+            return "This engagement isn't active.";
+        }
+
+        var isClient = row.ClientUserId == clientUserId || row.IsHomeManager;
+        if (!isClient)
+        {
+            return "Only a manager or co-manager of the home can release the helper.";
+        }
+
+        using var transaction = connection.BeginTransaction();
+
+        await connection.ExecuteAsync("""
+            UPDATE service_engagements
+            SET status = @completed,
+                client_completed_at_utc = coalesce(client_completed_at_utc, now()),
+                completed_at_utc = now()
+            WHERE id = @id AND status = @active
+            """, new { id, completed = (short)EngagementStatus.Completed, active = (short)EngagementStatus.Active }, transaction);
+
+        await connection.ExecuteAsync("""
+            UPDATE helper_home_placements
+            SET left_on = CURRENT_DATE
+            WHERE engagement_id = @id AND left_on IS NULL
+            """, new { id }, transaction);
 
         transaction.Commit();
         return null;
@@ -711,6 +794,12 @@ public sealed class HelperService
         public long UserId { get; set; }
         public decimal MonthlyRate { get; set; }
         public bool IsActive { get; set; }
+    }
+
+    private sealed class ActiveHomeEngagementRow
+    {
+        public long EngagementId { get; set; }
+        public bool CanManage { get; set; }
     }
 
     private sealed class OwnerRow
