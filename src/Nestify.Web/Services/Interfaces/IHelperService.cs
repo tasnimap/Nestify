@@ -16,6 +16,7 @@ public interface IHelperService
     Task<EngagementDto> RequestEngagementAsync(string helperId, EngagementRequestDto request);
     Task CancelRequestAsync(string engagementId);
     Task MarkCompleteAsync(string engagementId);
+    Task ReleaseEngagementAsync(string engagementId);
     Task SubmitReviewAsync(string engagementId, int rating, string comment);
 
     // ---- the helper's own profile ----

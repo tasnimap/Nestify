@@ -31,8 +31,10 @@
         <label>Age range (optional)</label>
         <div class="hs-elig__age">
             <InputNumber class="field__input" @bind-Value="Value.MinAge" placeholder="Min" min="0" />
+            <InputNumber class="field__input" @bind-Value="Value.MinAge" placeholder="Min" min="1" />
             <span>–</span>
             <InputNumber class="field__input" @bind-Value="Value.MaxAge" placeholder="Max" min="0" />
+            <InputNumber class="field__input" @bind-Value="Value.MaxAge" placeholder="Max" min="1" />
         </div>
         <p class="field__helper">Fill in only a minimum, only a maximum, both, or neither.</p>
     </div>

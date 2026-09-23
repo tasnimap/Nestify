@@ -92,7 +92,10 @@
 
                             @if (e.Status == EngagementStatus.Active && e.CanManage)
                             {
-                                if (e.ClientMarkedComplete)
+                                <button class="nx-btn nx-btn--ghost" style="color:var(--nx-danger);border-color:var(--nx-danger);" @onclick="() => PromptRelease(e)">
+                                    Release helper
+                                </button>
+                                @if (e.ClientMarkedComplete)
                                 {
                                     <p class="dh-note">You marked this complete — waiting for @e.HelperName to confirm.</p>
                                 }
@@ -139,6 +142,28 @@
                 </div>
             </section>
         }
+
+        @if (_releaseTarget is not null)
+        {
+            <div class="md-overlay" @onclick="() => _releaseTarget = null">
+                <div class="md-modal md-modal--sm" role="dialog" aria-modal="true" @onclick:stopPropagation="true">
+                    <header class="md-modal__head">
+                        <h2>Release @_releaseTarget.HelperName?</h2>
+                        <button type="button" class="md-modal__close" @onclick="() => _releaseTarget = null" aria-label="Close">&times;</button>
+                    </header>
+                    <div class="md-modal__body">
+                        <p>Are you sure you want to release <strong>@_releaseTarget.HelperName</strong> from <strong>@_releaseTarget.HomeName</strong>?</p>
+                        <p class="dh-muted">This will end her engagement immediately, free up her weekly hours for other homes, and allow home members to leave a review.</p>
+                    </div>
+                    <footer class="md-modal__foot">
+                        <button type="button" class="nx-btn nx-btn--ghost" @onclick="() => _releaseTarget = null" disabled="@_busy">Cancel</button>
+                        <button type="button" class="nx-btn nx-btn--accent" style="background:#dc2626;border-color:#dc2626;" @onclick="ConfirmRelease" disabled="@_busy">
+                            @(_busy ? "Releasing…" : "Release helper")
+                        </button>
+                    </footer>
+                </div>
+            </div>
+        }
     </div>
 </div>
 
@@ -147,6 +172,7 @@
     private bool _loading = true;
     private bool _busy;
 
+    private EngagementDto? _releaseTarget;
     private EngagementDto? _reviewTarget;
     private int _reviewRating = 5;
     private string _reviewComment = string.Empty;
@@ -184,6 +210,17 @@
     private async Task MarkComplete(EngagementDto e)
     {
         await Run(() => Helpers.MarkCompleteAsync(e.Id), "Marked complete.");
+    }
+
+    private void PromptRelease(EngagementDto e) => _releaseTarget = e;
+
+    private async Task ConfirmRelease()
+    {
+        if (_releaseTarget is null) return;
+        var helperName = _releaseTarget.HelperName;
+        var id = _releaseTarget.Id;
+        _releaseTarget = null;
+        await Run(() => Helpers.ReleaseEngagementAsync(id), $"{helperName} has been released.");
     }
 
     private async Task Run(Func<Task> action, string done)

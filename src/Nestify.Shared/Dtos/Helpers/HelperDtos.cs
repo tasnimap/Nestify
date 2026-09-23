@@ -89,6 +89,9 @@ public sealed class HelperDetailDto
     public DateTime MemberSinceUtc { get; set; }
     public List<HelperAvailabilitySlotDto> Availability { get; set; } = new();
     public bool IsMine { get; set; }
+    public string? ActiveEngagementId { get; set; }
+    public bool IsWorkingForMyHome { get; set; }
+    public bool CanManageEngagement { get; set; }
 }
 
 /// <summary>One hour on the weekly board. DayOfWeek is 0 Sunday .. 6 Saturday.</summary>

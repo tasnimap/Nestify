@@ -19,7 +19,9 @@
 --   2. Areas                divisions, districts, upazilas
 --   3. Profiles             user_additional_profile_info
 --   4. Homes                homes, home_members, home_join_requests, home_capacity
+--   4b. Schema houses       houses, house_memberships  (from nestify-schema.sql run)
 --   5. Housing              listing types, posts, requirements, images, bookings
+--   5b. Schema bookings     booking_requests           (from nestify-schema.sql run)
 --   6. Marketplace          categories, conditions, listings, images, interests, views, reports
 --   7. Settlement           expenses, meals, contributions, settlement runs
 --   8. Verification         requests, documents, bKash payments
@@ -78,6 +80,7 @@ DROP TABLE IF EXISTS marketplace_categories       CASCADE;
 DROP TABLE IF EXISTS housing_bookings             CASCADE;
 DROP TABLE IF EXISTS housing_post_images          CASCADE;
 DROP TABLE IF EXISTS housing_post_requirements    CASCADE;
+DROP TABLE IF EXISTS booking_requests             CASCADE;
 DROP TABLE IF EXISTS housing_posts                CASCADE;
 DROP TABLE IF EXISTS housing_listing_types        CASCADE;
 
@@ -85,6 +88,9 @@ DROP TABLE IF EXISTS home_capacity                CASCADE;
 DROP TABLE IF EXISTS home_join_requests           CASCADE;
 DROP TABLE IF EXISTS home_members                 CASCADE;
 DROP TABLE IF EXISTS homes                        CASCADE;
+
+DROP TABLE IF EXISTS house_memberships            CASCADE;
+DROP TABLE IF EXISTS houses                       CASCADE;
 
 DROP TABLE IF EXISTS user_additional_profile_info CASCADE;
 
@@ -210,6 +216,46 @@ CREATE TABLE upazilas (
 CREATE INDEX        ix_upazilas_district      ON upazilas (district_id);
 CREATE INDEX        ix_upazilas_metro         ON upazilas (district_id) WHERE is_metropolitan_thana;
 CREATE UNIQUE INDEX ux_upazilas_district_name ON upazilas (district_id, name);
+
+
+-- ============================================================================
+-- 2b. Schema houses  (from nestify-schema.sql partial run)
+--
+-- An alternative house model keyed on upazila_id rather than the flat
+-- address/division fields in the 'homes' table above. Both tables exist in
+-- the live database; this section ensures a fresh install reproduces them.
+-- ============================================================================
+
+CREATE TABLE houses (
+    id                 bigint        GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name               varchar(120)  NOT NULL,
+    address_line       varchar(300)  NOT NULL,
+    upazila_id         int           NOT NULL REFERENCES upazilas (id) ON DELETE RESTRICT,
+    latitude           numeric(9,6),
+    longitude          numeric(9,6),
+    created_by_user_id bigint        NOT NULL REFERENCES users (id) ON DELETE RESTRICT,
+    created_at_utc     timestamptz   NOT NULL DEFAULT now()
+);
+
+CREATE INDEX ix_houses_upazila ON houses (upazila_id);
+
+
+-- House role of a user, scoped per house.
+-- role: 1 Manager, 2 CoManager, 3 Member.
+CREATE TABLE house_memberships (
+    id            bigint      GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    house_id      bigint      NOT NULL REFERENCES houses (id) ON DELETE CASCADE,
+    user_id       bigint      NOT NULL REFERENCES users (id)  ON DELETE RESTRICT,
+    role          smallint    NOT NULL,
+    joined_at_utc timestamptz NOT NULL DEFAULT now(),
+    left_at_utc   timestamptz,
+
+    CONSTRAINT ck_membership_role CHECK (role BETWEEN 1 AND 3)
+);
+
+CREATE UNIQUE INDEX ux_membership_active    ON house_memberships (house_id, user_id) WHERE left_at_utc IS NULL;
+CREATE INDEX        ix_membership_user      ON house_memberships (user_id)           WHERE left_at_utc IS NULL;
+CREATE UNIQUE INDEX ux_house_single_manager ON house_memberships (house_id)          WHERE role = 1 AND left_at_utc IS NULL;
 
 
 -- ============================================================================
@@ -428,6 +474,32 @@ CREATE TABLE housing_bookings (
 CREATE INDEX        ix_housing_bookings_post      ON housing_bookings (post_id, status);
 CREATE INDEX        ix_housing_bookings_requester ON housing_bookings (requester_user_id, requested_at_utc DESC);
 CREATE UNIQUE INDEX ux_housing_booking_one_open   ON housing_bookings (post_id, requester_user_id) WHERE status IN (1, 2);
+
+
+-- ============================================================================
+-- 5b. Booking requests  (from nestify-schema.sql partial run)
+--
+-- An earlier schema version used booking_requests (references housing_post_id)
+-- alongside housing_bookings. Both exist in the live database.
+-- status: 1 Pending, 2 Accepted, 3 Rejected, 4 Withdrawn.
+-- ============================================================================
+
+CREATE TABLE booking_requests (
+    id                 bigint      GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    housing_post_id    bigint      NOT NULL REFERENCES housing_posts (id) ON DELETE CASCADE,
+    requester_user_id  bigint      NOT NULL REFERENCES users (id) ON DELETE RESTRICT,
+    message            varchar(500),
+    status             smallint    NOT NULL DEFAULT 1,
+    created_at_utc     timestamptz NOT NULL DEFAULT now(),
+    decided_at_utc     timestamptz,
+    decided_by_user_id bigint      REFERENCES users (id) ON DELETE SET NULL,
+
+    CONSTRAINT ck_booking_status CHECK (status BETWEEN 1 AND 4)
+);
+
+CREATE UNIQUE INDEX ux_booking_open        ON booking_requests (housing_post_id, requester_user_id) WHERE status IN (1, 2);
+CREATE INDEX        ix_booking_post_status ON booking_requests (housing_post_id, status);
+CREATE INDEX        ix_booking_requester   ON booking_requests (requester_user_id);
 
 
 -- ============================================================================

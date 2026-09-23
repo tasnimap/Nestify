@@ -52,6 +52,9 @@ public sealed class HelperService : IHelperService
     public async Task MarkCompleteAsync(string engagementId)
         => await ThrowIfFailedAsync(await _http.PostAsync($"api/v1/helpers/engagements/{engagementId}/complete", null), "Could not mark the engagement complete.");
 
+    public async Task ReleaseEngagementAsync(string engagementId)
+        => await ThrowIfFailedAsync(await _http.PostAsync($"api/v1/helpers/engagements/{engagementId}/release", null), "Could not release the helper.");
+
     public async Task SubmitReviewAsync(string engagementId, int rating, string comment)
         => await ThrowIfFailedAsync(
             await _http.PostAsJsonAsync($"api/v1/helpers/engagements/{engagementId}/review", new SubmitReviewDto { Rating = rating, Comment = comment }),

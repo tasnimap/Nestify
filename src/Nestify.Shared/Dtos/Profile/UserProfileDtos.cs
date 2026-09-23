@@ -40,6 +40,8 @@ public sealed class UserProfileDto
 /// </summary>
 public sealed class UpdateUserProfileDto
 {
+    public string? FullName { get; set; }
+    public string? PhoneNumber { get; set; }
     public string? Occupation { get; set; }
     public ProfileGender? Gender { get; set; }
     public DateOnly? DateOfBirth { get; set; }
