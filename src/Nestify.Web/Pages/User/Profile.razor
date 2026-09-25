@@ -528,7 +528,6 @@ else
     private string PersonalOccupation => _profile?.Occupation?.StartsWith("Student", StringComparison.Ordinal) == true
         ? "Student"
         : DisplayOccupation;
-    private bool NeedsOrganization => _draft.Occupation?.StartsWith("Student", StringComparison.Ordinal) == true || _draft.Occupation == "Job holder";
     private bool NeedsOrganization =>
         _draft.Occupation?.StartsWith("Student", StringComparison.Ordinal) == true ||
         _draft.Occupation == "Job holder" ||

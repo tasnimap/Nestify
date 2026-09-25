@@ -819,8 +819,6 @@ public sealed class HousingService
                 postId,
                 gender = e.Gender is { } g ? (short?)g : null,
                 occupation = e.Occupation is { } o ? (short?)o : null,
-                minAge = e.MinAge is { } min ? (short?)min : null,
-                maxAge = e.MaxAge is { } max ? (short?)max : null,
                 minAge = e.MinAge is { } min && min > 0 ? (short?)min : null,
                 maxAge = e.MaxAge is { } max && max > 0 ? (short?)max : null,
                 verifiedOnly = e.VerifiedOnly,
