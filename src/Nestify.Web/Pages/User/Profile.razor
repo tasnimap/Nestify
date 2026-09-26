@@ -4,6 +4,7 @@
 @using Nestify.Web.Services.Interfaces
 @using Microsoft.AspNetCore.Components.Forms
 @inject IUserProfileService ProfileService
+@inject IAuthService AuthService
 
 <PageTitle>My Profile - Nestify</PageTitle>
 
@@ -443,7 +444,9 @@ else
 
                 <footer class="up-modal__foot">
                     <button type="button" class="up-btn" @onclick="ClosePassword">Cancel</button>
-                    <button type="button" class="up-btn up-btn--solid" @onclick="SavePassword">Update password</button>
+                    <button type="button" class="up-btn up-btn--solid" @onclick="SavePassword" disabled="@_savingPassword">
+                        @(_savingPassword ? "Updating…" : "Update password")
+                    </button>
                 </footer>
             </div>
         </div>
@@ -497,6 +500,7 @@ else
     private string _confirmPassword = string.Empty;
     private string? _passwordError;
     private string? _passwordDone;
+    private bool _savingPassword;
 
     // One Show/Hide toggle per password box.
     private bool _showCurrent;
@@ -980,7 +984,7 @@ else
 
     private void ClosePassword() => _showPassword = false;
 
-    private void SavePassword()
+    private async Task SavePassword()
     {
         _passwordDone = null;
 
@@ -990,9 +994,9 @@ else
             return;
         }
 
-        if (_newPassword.Length < 6)
+        if (_newPassword.Length < 8)
         {
-            _passwordError = "New password must be at least 6 characters.";
+            _passwordError = "New password must be at least 8 characters.";
             return;
         }
 
@@ -1009,8 +1013,21 @@ else
         }
 
         _passwordError = null;
-        _passwordDone = "Password updated.";
-        _currentPassword = _newPassword = _confirmPassword = string.Empty;
+        _savingPassword = true;
+        try
+        {
+            await AuthService.ChangePasswordAsync(_currentPassword, _newPassword);
+            _passwordDone = "Password updated.";
+            _currentPassword = _newPassword = _confirmPassword = string.Empty;
+        }
+        catch (Exception ex)
+        {
+            _passwordError = ex.Message;
+        }
+        finally
+        {
+            _savingPassword = false;
+        }
     }
 
     private static string Or(string? value, string fallback) =>
