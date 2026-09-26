@@ -2,6 +2,7 @@ using System.Text;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Npgsql;
 using Nestify.Api.Admin;
 using Nestify.Api.Assistant;
 using Nestify.Api.Auth;
@@ -25,11 +26,18 @@ string Env(string key) =>
     Environment.GetEnvironmentVariable(key)
     ?? throw new InvalidOperationException($"Missing environment variable '{key}'. Add it to your .env file.");
 
-var connectionString =
-    $"Host={Env("DB_HOST")};Port={Env("DB_PORT")};Database={Env("DB_NAME")};" +
-    $"Username={Env("DB_USER")};Password={Env("DB_PASSWORD")};" +
-    $"SSL Mode={Environment.GetEnvironmentVariable("DB_SSL_MODE") ?? "Prefer"};" +
-    "Include Error Detail=true";
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? $"Host={Env("DB_HOST")};Port={Env("DB_PORT")};Database={Env("DB_NAME")};" +
+       $"Username={Env("DB_USER")};Password={Env("DB_PASSWORD")};" +
+       $"SSL Mode={Environment.GetEnvironmentVariable("DB_SSL_MODE") ?? "Prefer"};" +
+       "Include Error Detail=true";
+
+// Neon requires TLS. This also normalizes a Render-provided connection string.
+var npgsqlConnection = new NpgsqlConnectionStringBuilder(connectionString)
+{
+    SslMode = SslMode.Require,
+    TrustServerCertificate = true
+};
 
 // UPLOAD_PICTURE is the unsigned upload preset the pictures are sent with.
 var cloudinarySettings = CloudinarySettings.Parse(
@@ -51,7 +59,7 @@ Dapper.SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
 
 // ---- Services ----
 builder.Services.AddSingleton(jwtSettings);
-builder.Services.AddSingleton(new DbConnectionFactory(connectionString));
+builder.Services.AddSingleton(new DbConnectionFactory(npgsqlConnection.ConnectionString));
 builder.Services.AddSingleton<JwtTokenService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<HelperService>();
@@ -92,7 +100,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(ClientCorsPolicy, policy =>
     {
-        policy.WithOrigins("https://localhost:7205", "http://localhost:5290")
+        policy.AllowAnyOrigin()
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -118,6 +126,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
@@ -127,6 +137,8 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.UseCors(ClientCorsPolicy);
+app.UseSwagger();
+app.UseSwaggerUI();
 if (!app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
