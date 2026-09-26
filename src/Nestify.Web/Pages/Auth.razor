@@ -160,10 +160,15 @@
                     </div>
                 </div>
 
-                <label class="field__check">
-                    <input type="checkbox" @bind="_register.AcceptTerms" />
-                    <span>I agree to Nestify terms of use and privacy policy.</span>
-                </label>
+                <div class="field__check">
+                    <input id="r-terms" type="checkbox" @bind="_register.AcceptTerms" />
+                    <span>
+                        <label for="r-terms">I agree to the Nestify </label>
+                        <button type="button" class="legal-trigger" @onclick="() => OpenLegal(LegalDocument.Terms)">Terms of Use</button>
+                        <span> and </span>
+                        <button type="button" class="legal-trigger" @onclick="() => OpenLegal(LegalDocument.Privacy)">Privacy Policy</button><span>.</span>
+                    </span>
+                </div>
                 <ValidationMessage For="@(() => _register.AcceptTerms)" class="field__error" />
 
                 @if (!string.IsNullOrEmpty(_registerMsg))
@@ -222,6 +227,8 @@
     </div>
 </div>
 
+<LegalModal Document="_openLegal" OnClose="CloseLegal" />
+
 @code {
     // ── Toggle ───────────────────────────────────────────────────────────────────
     // _animClass drives the full-cover curtain wipe. The two class names alternate
@@ -229,6 +236,14 @@
     // animation re-triggers each time without needing a timer to clear it.
     private bool _showRegister;
     private string _animClass = "";
+    private LegalDocument? _openLegal;
+
+    protected override void OnInitialized()
+    {
+        _showRegister = Navigation.ToBaseRelativePath(Navigation.Uri)
+            .TrimEnd('/')
+            .Equals("register", StringComparison.OrdinalIgnoreCase);
+    }
 
     private void SwitchToLogin()
     {
@@ -237,6 +252,9 @@
         _animClass    = "auth-card--anim-to-login";
         _loginMsg     = null;
     }
+
+    private void OpenLegal(LegalDocument document) => _openLegal = document;
+    private void CloseLegal() => _openLegal = null;
 
     private void SwitchToRegister()
     {

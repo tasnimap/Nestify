@@ -1,0 +1,54 @@
+@if (Document is { } document)
+{
+    <div class="legal-modal__backdrop" @onclick="Close">
+        <section class="legal-modal" role="dialog" aria-modal="true" aria-labelledby="legal-modal-title" @onclick:stopPropagation>
+            <header class="legal-modal__header">
+                <div>
+                    <p class="legal-modal__eyebrow">Nestify legal</p>
+                    <h2 id="legal-modal-title">@(document == LegalDocument.Terms ? "Terms of Use" : "Privacy Policy")</h2>
+                    <p>Last updated: 26 September 2026</p>
+                </div>
+                <button class="legal-modal__close" type="button" @onclick="Close" aria-label="Close legal notice">×</button>
+            </header>
+
+            <div class="legal-modal__body">
+                @if (document == LegalDocument.Terms)
+                {
+                    <p class="legal-modal__lead">These Terms govern your use of Nestify. By creating an account or using the platform, you agree to them.</p>
+                    <h3>Using Nestify</h3>
+                    <p>Nestify helps Bangladeshi students, bachelors, and job holders with housing, domestic-help connections, shared expenses, and second-hand listings. Use it lawfully, truthfully, and only for its intended purpose.</p>
+                    <h3>Accounts and community</h3>
+                    <p>Keep your account information accurate and your password private. Do not deceive, harass, impersonate, discriminate unlawfully, publish another person’s information without consent, or post misleading or unlawful material.</p>
+                    <h3>Verification and arrangements</h3>
+                    <p>A verification badge means information was reviewed through Nestify’s process; it is not a guarantee of identity, conduct, safety, or suitability. Nestify is not a party to housing, employment, sale, or payment arrangements between users. Please inspect listings, meet safely, and never share passwords, PINs, or one-time codes.</p>
+                    <h3>Content and platform access</h3>
+                    <p>You retain ownership of your submissions and allow Nestify to host and display them as needed to run the service. We may remove content or restrict accounts that create safety, legal, or community risks. The service may change or be interrupted as it evolves.</p>
+                }
+                else
+                {
+                    <p class="legal-modal__lead">This Privacy Policy explains how Nestify handles personal information when you use our shared-living platform.</p>
+                    <h3>Information we collect</h3>
+                    <p>We collect information you provide for your account and platform activity, such as your name, email, phone number, profile details, photos, listings, bookings, shared-expense records, and requests. Verification may also involve documents and request status. Technical and usage information helps us operate and protect the service.</p>
+                    <h3>How we use it</h3>
+                    <p>We use information to run platform features, manage accounts, facilitate listings and requests, process verification, communicate with you, prevent abuse, improve Nestify, and meet legal obligations.</p>
+                    <h3>Sharing and visibility</h3>
+                    <p>Information you publish, such as listings, profiles, photos, services, and reviews, may be visible to other users. Contact details may be disclosed after a relevant match or accepted request. We may share information with providers that help operate Nestify, when required by law, or to protect users and the platform. We do not sell personal information.</p>
+                    <h3>Your choices and security</h3>
+                    <p>You can update much of your profile in Nestify and can request access, correction, or deletion through the project’s support channel. We use reasonable safeguards, but no online system is completely secure—protect your password and never share financial credentials, PINs, or one-time codes.</p>
+                }
+            </div>
+
+            <footer class="legal-modal__footer">
+                <p>You can close this window when you’re ready.</p>
+                <button class="nx-btn nx-btn--primary" type="button" @onclick="Close">I’ve read this</button>
+            </footer>
+        </section>
+    </div>
+}
+
+@code {
+    [Parameter] public LegalDocument? Document { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    private Task Close() => OnClose.InvokeAsync();
+}
