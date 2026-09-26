@@ -27,7 +27,9 @@ string Env(string key) =>
 
 var connectionString =
     $"Host={Env("DB_HOST")};Port={Env("DB_PORT")};Database={Env("DB_NAME")};" +
-    $"Username={Env("DB_USER")};Password={Env("DB_PASSWORD")};Include Error Detail=true";
+    $"Username={Env("DB_USER")};Password={Env("DB_PASSWORD")};" +
+    $"SSL Mode={Environment.GetEnvironmentVariable("DB_SSL_MODE") ?? "Prefer"};" +
+    "Include Error Detail=true";
 
 // UPLOAD_PICTURE is the unsigned upload preset the pictures are sent with.
 var cloudinarySettings = CloudinarySettings.Parse(
