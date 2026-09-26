@@ -26,6 +26,12 @@ string Env(string key) =>
     Environment.GetEnvironmentVariable(key)
     ?? throw new InvalidOperationException($"Missing environment variable '{key}'. Add it to your .env file.");
 
+string ConfigOrEnv(string configurationKey, string environmentKey) =>
+    builder.Configuration[configurationKey]
+    ?? Environment.GetEnvironmentVariable(environmentKey)
+    ?? throw new InvalidOperationException(
+        $"Missing configuration '{configurationKey}' (or environment variable '{environmentKey}').");
+
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? $"Host={Env("DB_HOST")};Port={Env("DB_PORT")};Database={Env("DB_NAME")};" +
        $"Username={Env("DB_USER")};Password={Env("DB_PASSWORD")};" +
@@ -50,11 +56,15 @@ var cloudinarySettings = CloudinarySettings.Parse(
 
 var jwtSettings = new JwtSettings
 {
-    Issuer = Env("JWT_ISSUER"),
-    Audience = Env("JWT_AUDIENCE"),
-    SigningKey = Env("JWT_SECRET"),
-    AccessTokenMinutes = int.TryParse(Environment.GetEnvironmentVariable("JWT_ACCESS_MINUTES"), out var m) ? m : 120,
-    RefreshTokenDays = int.TryParse(Environment.GetEnvironmentVariable("JWT_REFRESH_DAYS"), out var d) ? d : 7
+    Issuer = ConfigOrEnv("Jwt:Issuer", "JWT_ISSUER"),
+    Audience = ConfigOrEnv("Jwt:Audience", "JWT_AUDIENCE"),
+    SigningKey = ConfigOrEnv("Jwt:Secret", "JWT_SECRET"),
+    AccessTokenMinutes = int.TryParse(
+        builder.Configuration["Jwt:AccessTokenMinutes"] ?? Environment.GetEnvironmentVariable("JWT_ACCESS_MINUTES"),
+        out var m) ? m : 120,
+    RefreshTokenDays = int.TryParse(
+        builder.Configuration["Jwt:RefreshTokenDays"] ?? Environment.GetEnvironmentVariable("JWT_REFRESH_DAYS"),
+        out var d) ? d : 7
 };
 
 // snake_case columns map onto PascalCase row properties without an alias on every column.
