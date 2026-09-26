@@ -1122,7 +1122,8 @@
 }
 
 .stl__bill-input {
-    width: 5.6rem;
+    width: 9rem;
+    min-width: 9rem;
     border: 0;
     background: none;
     color: var(--nx-ink);
@@ -1743,7 +1744,10 @@
     .stl__bill-amount { grid-area: amount; }
 
     .stl__bill:hover { transform: none; }
-    .stl__bill-input { width: 4.6rem; }
+    .stl__bill-input {
+        width: 9rem;
+        min-width: 9rem;
+    }
 
     .stl__ledger-row {
         grid-template-columns: minmax(0, 1fr) auto;

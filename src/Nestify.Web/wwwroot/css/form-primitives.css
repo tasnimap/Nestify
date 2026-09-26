@@ -21,6 +21,7 @@
 }
 
 .money-input__field {
+    min-width: 9rem;
     padding-left: 3rem !important;
     font-family: 'Courier New', monospace;
     text-align: right;

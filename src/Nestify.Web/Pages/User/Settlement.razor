@@ -548,7 +548,7 @@
                                        @onchange="args => ChangeBillAmount(bill, args.Value?.ToString())" />
                             </div>
 
-                            @if (CanManageOpen)
+                            @if (CanManageOpen && !IsFixedBill(bill))
                             {
                                 <button type="button" class="stl__bill-remove" title="Remove bill" disabled="@_busy" @onclick="() => RemoveBill(bill)">×</button>
                             }
@@ -1423,6 +1423,13 @@
         if (name.Contains("garbage") || name.Contains("clean")) return "garbage";
         return "other";
     }
+
+    private static bool IsFixedBill(SettlementBillDto bill) =>
+        bill.Description.Equals("Rent", StringComparison.OrdinalIgnoreCase)
+        || bill.Description.Equals("Electricity", StringComparison.OrdinalIgnoreCase)
+        || bill.Description.Equals("Water", StringComparison.OrdinalIgnoreCase)
+        || bill.Description.Equals("Gas", StringComparison.OrdinalIgnoreCase)
+        || bill.Description.Equals("Internet", StringComparison.OrdinalIgnoreCase);
 
     private static string BillIcon(string icon) => icon switch
     {

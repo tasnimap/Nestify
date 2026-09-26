@@ -25,6 +25,7 @@
             @attributes="AdditionalAttributes"
             @bind="FormattedValue"
             @bind:event="oninput"
+            @onblur="NormalizeValue"
             placeholder="@Placeholder"
             disabled="@Disabled"
             inputmode="decimal"
@@ -79,6 +80,18 @@
                 CurrentValue = (TValue)(object)parsedValue;
             }
         }
+    }
+
+    private void NormalizeValue()
+    {
+        if (!MoneyFormatter.TryParse(_formattedValue, out var parsedValue))
+        {
+            return;
+        }
+
+        var normalizedValue = Math.Round(parsedValue, 2, MidpointRounding.AwayFromZero);
+        CurrentValue = (TValue)(object)normalizedValue;
+        _formattedValue = MoneyFormatter.FormatNumber(normalizedValue);
     }
 
     protected override void OnParametersSet()
