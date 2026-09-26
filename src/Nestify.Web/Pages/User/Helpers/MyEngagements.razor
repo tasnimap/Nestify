@@ -39,11 +39,15 @@
         }
         else
         {
-            <div class="dh-list">
-                @{ var delay = 60; }
-                @foreach (var e in _engagements)
-                {
-                    <article class="dh-panel dh-engagement dh-rise" style="--d:@(delay)ms" @key="e.Id">
+            @foreach (var section in EngagementSections)
+            {
+                <section class="dh-engagement-group">
+                    <div class="dh-panel__head"><h2>@section.Title</h2></div>
+                    <div class="dh-list">
+                        @{ var delay = 60; }
+                        @foreach (var e in section.Engagements)
+                        {
+                            <article class="dh-panel dh-engagement dh-rise" style="--d:@(delay)ms" @key="e.Id">
                         <div class="dh-engagement__head">
                             <a href="helpers/@e.HelperId"><img class="dh-engagement__photo" src="@e.HelperPhotoUrl" alt="" /></a>
                             <div class="dh-engagement__who">
@@ -84,16 +88,20 @@
                             @if (e.Status == EngagementStatus.Requested)
                             {
                                 <span class="dh-muted">Sent @e.RequestedAtUtc.ToLocalTime().ToString("d MMM"), waiting for her answer.</span>
-                                @if (e.IsRequester)
+                                @if (e.CanManage && !e.IsRequester)
                                 {
-                                    <button class="nx-btn nx-btn--ghost" @onclick="() => Cancel(e)">Withdraw request</button>
+                                    <button class="nx-btn nx-btn--ghost" style="color:var(--nx-danger);border-color:var(--nx-danger);" disabled="@_busy" @onclick="() => Reject(e)">Reject request</button>
+                                }
+                                else if (e.IsRequester)
+                                {
+                                    <button class="nx-btn nx-btn--ghost" disabled="@_busy" @onclick="() => Cancel(e)">Withdraw request</button>
                                 }
                             }
 
-                            @if (e.Status == EngagementStatus.Active && e.CanManage)
+                            @if (e.IsCurrent && e.CanManage)
                             {
-                                <button class="nx-btn nx-btn--ghost" style="color:var(--nx-danger);border-color:var(--nx-danger);" @onclick="() => PromptRelease(e)">
-                                    Release helper
+                                <button class="nx-btn nx-btn--ghost" style="color:var(--nx-danger);border-color:var(--nx-danger);" disabled="@_busy" @onclick="() => PromptRelease(e)">
+                                    Terminate / release helper
                                 </button>
                                 @if (e.ClientMarkedComplete)
                                 {
@@ -106,7 +114,7 @@
                                 }
                                 else
                                 {
-                                    <button class="nx-btn nx-btn--ghost" @onclick="() => MarkComplete(e)">Mark complete</button>
+                                    <button class="nx-btn nx-btn--ghost" disabled="@_busy" @onclick="() => MarkComplete(e)">Mark complete</button>
                                 }
                             }
 
@@ -119,10 +127,12 @@
                                 <span class="dh-muted">You reviewed this engagement.</span>
                             }
                         </div>
-                    </article>
-                    delay += 60;
-                }
-            </div>
+                            </article>
+                            delay += 60;
+                        }
+                    </div>
+                </section>
+            }
         }
 
         @if (_reviewTarget is not null)
@@ -178,6 +188,18 @@
     private string _reviewComment = string.Empty;
     private string? _reviewError;
 
+    private IEnumerable<(string Title, List<EngagementDto> Engagements)> EngagementSections => new[]
+    {
+        ("CURRENT MAID", _engagements.Where(e => e.IsCurrent).ToList()),
+        ("PENDING REQUESTS", _engagements.Where(e => e.Status == EngagementStatus.Requested).ToList()),
+        ("PAST MAIDS", _engagements.Where(e => e.JoinedOn is not null && e.LeftOn is not null).ToList()),
+        ("CLOSED REQUESTS", _engagements.Where(e => e.Status is EngagementStatus.Declined or EngagementStatus.Cancelled).ToList()),
+        ("OTHER ENGAGEMENTS", _engagements.Where(e => !e.IsCurrent
+            && e.Status != EngagementStatus.Requested
+            && e.JoinedOn is null
+            && e.Status is not (EngagementStatus.Declined or EngagementStatus.Cancelled)).ToList())
+    }.Where(section => section.Item2.Count > 0);
+
     protected override Task OnInitializedAsync() => LoadAsync();
 
     private async Task LoadAsync()
@@ -198,13 +220,18 @@
         EngagementStatus.Active => "Working for you",
         EngagementStatus.Completed => "Completed",
         EngagementStatus.Declined => "Declined",
-        EngagementStatus.Cancelled => "Withdrawn",
+        EngagementStatus.Cancelled => "Cancelled",
         _ => e.Status.ToString()
     };
 
     private async Task Cancel(EngagementDto e)
     {
         await Run(() => Helpers.CancelRequestAsync(e.Id), "Request withdrawn.");
+    }
+
+    private async Task Reject(EngagementDto e)
+    {
+        await Run(() => Helpers.RejectRequestAsync(e.Id), "Request rejected.");
     }
 
     private async Task MarkComplete(EngagementDto e)

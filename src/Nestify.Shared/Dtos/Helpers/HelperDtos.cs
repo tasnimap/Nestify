@@ -261,6 +261,7 @@ public sealed class EngagementDto
     public bool IsRequester { get; set; }
     public DateTime? JoinedOn { get; set; }           // when she started at the home
     public DateTime? LeftOn { get; set; }             // when the engagement ended
+    public bool IsCurrent { get; set; }               // active engagement with an open placement
     public List<ServiceType> Services { get; set; } = new();
     public decimal MonthlyRate { get; set; }
     public string Message { get; set; } = string.Empty;
@@ -271,7 +272,7 @@ public sealed class EngagementDto
     public string? DeclineReason { get; set; }
     public bool ClientMarkedComplete { get; set; }
     public bool HelperMarkedComplete { get; set; }
-    public bool CanManage { get; set; }               // requester, or a current manager / co-manager of the home
+    public bool CanManage { get; set; }               // current manager / co-manager of the home
     public bool HasReview { get; set; }               // this user already reviewed her for this placement
     public bool CanReview { get; set; }               // lived in the home while she worked there, and has not reviewed yet
 }

@@ -464,6 +464,41 @@ public sealed class HelperWorkspaceService
 
         using var transaction = connection.BeginTransaction();
 
+        if (accept)
+        {
+            var homeId = await connection.QuerySingleOrDefaultAsync<long?>("""
+                SELECT home_id
+                FROM service_engagements
+                WHERE id = @id AND helper_profile_id = @helperId AND status = @requested
+                FOR UPDATE
+                """, new { id, helperId, requested = Requested }, transaction);
+
+            if (homeId is null)
+            {
+                transaction.Rollback();
+                return "This request was already answered.";
+            }
+
+            // Serialize acceptances for a home so two helpers cannot both
+            // become current when requests are answered at the same time.
+            await connection.ExecuteScalarAsync<long?>(
+                "SELECT id FROM homes WHERE id = @homeId FOR UPDATE",
+                new { homeId }, transaction);
+
+            var hasCurrentPlacement = await connection.ExecuteScalarAsync<bool>("""
+                SELECT EXISTS (
+                    SELECT 1 FROM helper_home_placements
+                    WHERE home_id = @homeId AND left_on IS NULL
+                )
+                """, new { homeId }, transaction);
+
+            if (hasCurrentPlacement)
+            {
+                transaction.Rollback();
+                return "This home already has a current helper. Release or complete that engagement before accepting another helper.";
+            }
+        }
+
         var changed = await connection.ExecuteAsync(accept
                 ? """
                   UPDATE service_engagements

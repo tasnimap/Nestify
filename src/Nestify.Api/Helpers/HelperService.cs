@@ -175,11 +175,11 @@ public sealed class HelperService
         {
             var activeEng = await connection.QuerySingleOrDefaultAsync<ActiveHomeEngagementRow>("""
                 SELECT e.id AS EngagementId,
-                       (e.client_user_id = @currentUserId OR EXISTS (
+                       EXISTS (
                            SELECT 1 FROM home_members hm
                            WHERE hm.home_id = e.home_id AND hm.user_id = @currentUserId
                              AND hm.left_at_utc IS NULL AND hm.role IN (1, 2)
-                       )) AS CanManage
+                       ) AS CanManage
                 FROM service_engagements e
                 JOIN home_members my_hm ON my_hm.home_id = e.home_id
                      AND my_hm.user_id = @currentUserId
@@ -380,6 +380,42 @@ public sealed class HelperService
         return changed == 0 ? "This request can't be withdrawn any more." : null;
     }
 
+    // A current home manager or co-manager can reject any pending request for their home.
+    public async Task<string?> RejectRequestAsync(long managerUserId, string engagementId)
+    {
+        if (!long.TryParse(engagementId, out var id))
+        {
+            return "Request not found.";
+        }
+
+        using var connection = await _db.OpenAsync();
+        using var transaction = connection.BeginTransaction();
+
+        var homeId = await connection.QuerySingleOrDefaultAsync<long?>("""
+            SELECT e.home_id
+            FROM service_engagements e
+            JOIN home_members hm ON hm.home_id = e.home_id
+            WHERE e.id = @id AND e.status = @requested
+              AND hm.user_id = @managerUserId AND hm.left_at_utc IS NULL AND hm.role IN (1, 2)
+            FOR UPDATE OF e, hm
+            """, new { id, managerUserId, requested = (short)EngagementStatus.Requested }, transaction);
+
+        if (homeId is null)
+        {
+            transaction.Rollback();
+            return "Only a current manager or co-manager can reject a pending request for this home.";
+        }
+
+        await connection.ExecuteAsync("""
+            UPDATE service_engagements
+            SET status = @cancelled, cancelled_at_utc = now()
+            WHERE id = @id AND home_id = @homeId AND status = @requested
+            """, new { id, homeId, requested = (short)EngagementStatus.Requested, cancelled = (short)EngagementStatus.Cancelled }, transaction);
+
+        transaction.Commit();
+        return null;
+    }
+
     // Either side marks the engagement done; it completes once both have.
     public async Task<string?> MarkCompleteAsync(long userId, string engagementId)
     {
@@ -391,7 +427,7 @@ public sealed class HelperService
         using var connection = await _db.OpenAsync();
 
         var row = await connection.QuerySingleOrDefaultAsync<OwnerRow>("""
-            SELECT e.client_user_id AS ClientUserId, hp.user_id AS HelperUserId, e.status AS Status,
+            SELECT hp.user_id AS HelperUserId, e.status AS Status,
                    EXISTS (SELECT 1 FROM home_members hm WHERE hm.home_id = e.home_id AND hm.user_id = @userId
                            AND hm.left_at_utc IS NULL AND hm.role IN (1, 2)) AS IsHomeManager
             FROM service_engagements e
@@ -404,19 +440,35 @@ public sealed class HelperService
             return "This engagement isn't active.";
         }
 
-        var isClient = row.ClientUserId == userId || row.IsHomeManager;
         var isHelper = row.HelperUserId == userId;
-        if (!isClient && !isHelper)
+        if (!row.IsHomeManager && !isHelper)
         {
             return "You aren't part of this engagement.";
         }
 
         using var transaction = connection.BeginTransaction();
 
-        await connection.ExecuteAsync(isClient
-                ? "UPDATE service_engagements SET client_completed_at_utc = coalesce(client_completed_at_utc, now()) WHERE id = @id"
-                : "UPDATE service_engagements SET helper_completed_at_utc = coalesce(helper_completed_at_utc, now()) WHERE id = @id",
-            new { id }, transaction);
+        var marked = await connection.ExecuteAsync(isHelper
+                ? """
+                  UPDATE service_engagements e
+                  SET helper_completed_at_utc = coalesce(helper_completed_at_utc, now())
+                  WHERE e.id = @id AND e.status = @active
+                    AND EXISTS (SELECT 1 FROM domestic_helper_profiles hp WHERE hp.id = e.helper_profile_id AND hp.user_id = @userId)
+                  """
+                : """
+                  UPDATE service_engagements e
+                  SET client_completed_at_utc = coalesce(client_completed_at_utc, now())
+                  WHERE e.id = @id AND e.status = @active
+                    AND EXISTS (SELECT 1 FROM home_members hm WHERE hm.home_id = e.home_id AND hm.user_id = @userId
+                                AND hm.left_at_utc IS NULL AND hm.role IN (1, 2))
+                  """,
+            new { id, userId, active = (short)EngagementStatus.Active }, transaction);
+
+        if (marked == 0)
+        {
+            transaction.Rollback();
+            return "You aren't currently authorized to complete this engagement.";
+        }
 
         var completed = await connection.ExecuteAsync("""
             UPDATE service_engagements
@@ -446,41 +498,46 @@ public sealed class HelperService
 
         using var connection = await _db.OpenAsync();
 
-        var row = await connection.QuerySingleOrDefaultAsync<OwnerRow>("""
-            SELECT e.client_user_id AS ClientUserId, hp.user_id AS HelperUserId, e.status AS Status,
-                   EXISTS (SELECT 1 FROM home_members hm WHERE hm.home_id = e.home_id AND hm.user_id = @clientUserId
-                           AND hm.left_at_utc IS NULL AND hm.role IN (1, 2)) AS IsHomeManager
-            FROM service_engagements e
-            JOIN domestic_helper_profiles hp ON hp.id = e.helper_profile_id
-            WHERE e.id = @id
-            """, new { id, clientUserId });
-
-        if (row is null || row.Status != (short)EngagementStatus.Active)
-        {
-            return "This engagement isn't active.";
-        }
-
-        var isClient = row.ClientUserId == clientUserId || row.IsHomeManager;
-        if (!isClient)
-        {
-            return "Only a manager or co-manager of the home can release the helper.";
-        }
-
         using var transaction = connection.BeginTransaction();
+        var homeId = await connection.QuerySingleOrDefaultAsync<long?>("""
+            SELECT e.home_id
+            FROM service_engagements e
+            JOIN home_members hm ON hm.home_id = e.home_id
+            WHERE e.id = @id AND e.status = @active
+              AND hm.user_id = @clientUserId AND hm.left_at_utc IS NULL AND hm.role IN (1, 2)
+            FOR UPDATE OF e, hm
+            """, new { id, clientUserId, active = (short)EngagementStatus.Active }, transaction);
+
+        if (homeId is null)
+        {
+            transaction.Rollback();
+            return "Only a current manager or co-manager can release an active helper for this home.";
+        }
+
+        var placementId = await connection.QuerySingleOrDefaultAsync<long?>("""
+            SELECT id FROM helper_home_placements
+            WHERE engagement_id = @id AND home_id = @homeId AND left_on IS NULL
+            FOR UPDATE
+            """, new { id, homeId }, transaction);
+        if (placementId is null)
+        {
+            transaction.Rollback();
+            return "No current helper placement was found for this engagement.";
+        }
 
         await connection.ExecuteAsync("""
             UPDATE service_engagements
             SET status = @completed,
                 client_completed_at_utc = coalesce(client_completed_at_utc, now()),
                 completed_at_utc = now()
-            WHERE id = @id AND status = @active
-            """, new { id, completed = (short)EngagementStatus.Completed, active = (short)EngagementStatus.Active }, transaction);
+            WHERE id = @id AND home_id = @homeId AND status = @active
+            """, new { id, homeId, completed = (short)EngagementStatus.Completed, active = (short)EngagementStatus.Active }, transaction);
 
         await connection.ExecuteAsync("""
             UPDATE helper_home_placements
             SET left_on = CURRENT_DATE
-            WHERE engagement_id = @id AND left_on IS NULL
-            """, new { id }, transaction);
+            WHERE id = @placementId AND left_on IS NULL
+            """, new { placementId }, transaction);
 
         transaction.Commit();
         return null;
@@ -682,6 +739,9 @@ public sealed class HelperService
             LEFT JOIN helper_home_placements pl ON pl.engagement_id = e.id
             WHERE (@onlyId IS NULL OR e.id = @onlyId)
               AND (e.client_user_id = @clientUserId
+                   OR EXISTS (SELECT 1 FROM home_members manager_hm
+                           WHERE manager_hm.home_id = e.home_id AND manager_hm.user_id = @clientUserId
+                             AND manager_hm.left_at_utc IS NULL AND manager_hm.role IN (1, 2))
                    OR (pl.id IS NOT NULL AND EXISTS (SELECT 1 FROM home_members hm
                            WHERE hm.home_id = e.home_id AND hm.user_id = @clientUserId
                              AND hm.joined_at_utc::date <= coalesce(pl.left_on, CURRENT_DATE)
@@ -709,6 +769,7 @@ public sealed class HelperService
                 IsRequester = r.IsRequester,
                 JoinedOn = r.JoinedOn?.ToDateTime(TimeOnly.MinValue),
                 LeftOn = r.LeftOn?.ToDateTime(TimeOnly.MinValue),
+                IsCurrent = status == EngagementStatus.Active && r.JoinedOn is not null && r.LeftOn is null,
                 Services = services.GetValueOrDefault(r.Id, new List<ServiceType>()),
                 MonthlyRate = r.MonthlyRate,
                 Message = r.Message,
@@ -719,7 +780,7 @@ public sealed class HelperService
                 DeclineReason = r.DeclineReason,
                 ClientMarkedComplete = r.ClientMarkedComplete,
                 HelperMarkedComplete = r.HelperMarkedComplete,
-                CanManage = r.IsRequester || r.IsHomeManager,
+                CanManage = r.IsHomeManager,
                 HasReview = r.HasReview,
                 CanReview = r.LivedThere && !r.HasReview
             };
@@ -804,7 +865,6 @@ public sealed class HelperService
 
     private sealed class OwnerRow
     {
-        public long ClientUserId { get; set; }
         public long HelperUserId { get; set; }
         public short Status { get; set; }
         public bool IsHomeManager { get; set; }
