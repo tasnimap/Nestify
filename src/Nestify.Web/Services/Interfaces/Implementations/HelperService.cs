@@ -49,6 +49,9 @@ public sealed class HelperService : IHelperService
     public async Task CancelRequestAsync(string engagementId)
         => await ThrowIfFailedAsync(await _http.PostAsync($"api/v1/helpers/engagements/{engagementId}/cancel", null), "Could not withdraw the request.");
 
+    public async Task RejectRequestAsync(string engagementId)
+        => await ThrowIfFailedAsync(await _http.PostAsync($"api/v1/helpers/engagements/{engagementId}/reject", null), "Could not reject the request.");
+
     public async Task MarkCompleteAsync(string engagementId)
         => await ThrowIfFailedAsync(await _http.PostAsync($"api/v1/helpers/engagements/{engagementId}/complete", null), "Could not mark the engagement complete.");
 

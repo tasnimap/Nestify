@@ -55,6 +55,14 @@ public sealed class HelperController : ControllerBase
         return error is null ? NoContent() : BadRequest(new { message = error });
     }
 
+    [HttpPost("engagements/{id}/reject")]
+    [Authorize]
+    public async Task<IActionResult> RejectRequest(string id)
+    {
+        var error = await _helpers.RejectRequestAsync(RequireUserId(), id);
+        return error is null ? NoContent() : BadRequest(new { message = error });
+    }
+
     [HttpPost("engagements/{id}/complete")]
     [Authorize]
     public async Task<IActionResult> MarkComplete(string id)
