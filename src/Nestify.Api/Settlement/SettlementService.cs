@@ -315,6 +315,24 @@ public sealed class SettlementService
             return (false, "This month's book is not open.");
         }
 
+        var bill = await connection.QuerySingleOrDefaultAsync<(string Description, decimal Amount)>(
+            """
+            SELECT description, amount
+            FROM expenses
+            WHERE id = @billId AND house_id = @homeId AND category = @category
+              AND period_year = @year AND period_month = @month
+            """, new { billId, homeId = membership.HomeId, category = EqualSplit, year, month });
+
+        if (string.IsNullOrEmpty(bill.Description))
+        {
+            return (false, "Bill not found.");
+        }
+
+        if (IsDefaultBill(bill.Description))
+        {
+            return (false, "Rent, electricity, water, gas, and internet bills are fixed and cannot be removed.");
+        }
+
         var rows = await connection.ExecuteAsync(
             """
             UPDATE expenses SET amount = @amount
@@ -347,6 +365,9 @@ public sealed class SettlementService
             """, new { billId, homeId = membership.HomeId, category = EqualSplit, year, month });
         return rows == 0 ? (false, "Bill not found.") : (true, "Bill removed.");
     }
+
+    private static bool IsDefaultBill(string description) =>
+        DefaultBills.Contains(description, StringComparer.OrdinalIgnoreCase);
 
     public async Task<(SettlementPaymentDto? Data, string? Error)> AddPaymentAsync(
         long userId, int year, int month, CreateSettlementPaymentRequest request)
