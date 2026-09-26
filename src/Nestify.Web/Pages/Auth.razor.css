@@ -55,6 +55,21 @@
 .auth-form .field__check { margin-bottom: .6rem; }
 .auth-form button[type="submit"] { margin-top: .9rem; }
 
+.legal-trigger {
+    display: inline;
+    padding: 0;
+    border: 0;
+    border-bottom: 1px solid currentColor;
+    background: transparent;
+    color: var(--nx-primary-strong);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.legal-trigger:hover { color: var(--nx-primary); }
+.legal-trigger:focus-visible { outline: 2px solid var(--nx-primary); outline-offset: 3px; border-radius: 2px; }
+
 /* ── Field icon support ── */
 .field__icon {
     position: absolute;
