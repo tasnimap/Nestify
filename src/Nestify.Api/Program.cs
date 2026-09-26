@@ -30,13 +30,17 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
     ?? $"Host={Env("DB_HOST")};Port={Env("DB_PORT")};Database={Env("DB_NAME")};" +
        $"Username={Env("DB_USER")};Password={Env("DB_PASSWORD")};" +
        $"SSL Mode={Environment.GetEnvironmentVariable("DB_SSL_MODE") ?? "Prefer"};" +
-       "Include Error Detail=true";
+       "Trust Server Certificate=true;Include Error Detail=true";
+
+if (!connectionString.Contains("Trust Server Certificate", StringComparison.OrdinalIgnoreCase))
+{
+    connectionString += ";Trust Server Certificate=true";
+}
 
 // Neon requires TLS. This also normalizes a Render-provided connection string.
 var npgsqlConnection = new NpgsqlConnectionStringBuilder(connectionString)
 {
-    SslMode = SslMode.Require,
-    TrustServerCertificate = true
+    SslMode = SslMode.Require
 };
 
 // UPLOAD_PICTURE is the unsigned upload preset the pictures are sent with.
