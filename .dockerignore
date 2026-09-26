@@ -1,0 +1,9 @@
+.git
+.github
+.vscode
+**/bin
+**/obj
+.env
+*.user
+*.suo
+README*.md

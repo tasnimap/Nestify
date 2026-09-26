@@ -2,6 +2,7 @@ using System.Text;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Npgsql;
 using Nestify.Api.Admin;
 using Nestify.Api.Assistant;
 using Nestify.Api.Auth;
@@ -25,11 +26,28 @@ string Env(string key) =>
     Environment.GetEnvironmentVariable(key)
     ?? throw new InvalidOperationException($"Missing environment variable '{key}'. Add it to your .env file.");
 
-var connectionString =
-    $"Host={Env("DB_HOST")};Port={Env("DB_PORT")};Database={Env("DB_NAME")};" +
-    $"Username={Env("DB_USER")};Password={Env("DB_PASSWORD")};" +
-    $"SSL Mode={Environment.GetEnvironmentVariable("DB_SSL_MODE") ?? "Prefer"};" +
-    "Include Error Detail=true";
+string ConfigOrEnv(string configurationKey, string environmentKey) =>
+    builder.Configuration[configurationKey]
+    ?? Environment.GetEnvironmentVariable(environmentKey)
+    ?? throw new InvalidOperationException(
+        $"Missing configuration '{configurationKey}' (or environment variable '{environmentKey}').");
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? $"Host={Env("DB_HOST")};Port={Env("DB_PORT")};Database={Env("DB_NAME")};" +
+       $"Username={Env("DB_USER")};Password={Env("DB_PASSWORD")};" +
+       $"SSL Mode={Environment.GetEnvironmentVariable("DB_SSL_MODE") ?? "Prefer"};" +
+       "Trust Server Certificate=true;Include Error Detail=true";
+
+if (!connectionString.Contains("Trust Server Certificate", StringComparison.OrdinalIgnoreCase))
+{
+    connectionString += ";Trust Server Certificate=true";
+}
+
+// Neon requires TLS. This also normalizes a Render-provided connection string.
+var npgsqlConnection = new NpgsqlConnectionStringBuilder(connectionString)
+{
+    SslMode = SslMode.Require
+};
 
 // UPLOAD_PICTURE is the unsigned upload preset the pictures are sent with.
 var cloudinarySettings = CloudinarySettings.Parse(
@@ -38,11 +56,15 @@ var cloudinarySettings = CloudinarySettings.Parse(
 
 var jwtSettings = new JwtSettings
 {
-    Issuer = Env("JWT_ISSUER"),
-    Audience = Env("JWT_AUDIENCE"),
-    SigningKey = Env("JWT_SECRET"),
-    AccessTokenMinutes = int.TryParse(Environment.GetEnvironmentVariable("JWT_ACCESS_MINUTES"), out var m) ? m : 120,
-    RefreshTokenDays = int.TryParse(Environment.GetEnvironmentVariable("JWT_REFRESH_DAYS"), out var d) ? d : 7
+    Issuer = ConfigOrEnv("Jwt:Issuer", "JWT_ISSUER"),
+    Audience = ConfigOrEnv("Jwt:Audience", "JWT_AUDIENCE"),
+    SigningKey = ConfigOrEnv("Jwt:Secret", "JWT_SECRET"),
+    AccessTokenMinutes = int.TryParse(
+        builder.Configuration["Jwt:AccessTokenMinutes"] ?? Environment.GetEnvironmentVariable("JWT_ACCESS_MINUTES"),
+        out var m) ? m : 120,
+    RefreshTokenDays = int.TryParse(
+        builder.Configuration["Jwt:RefreshTokenDays"] ?? Environment.GetEnvironmentVariable("JWT_REFRESH_DAYS"),
+        out var d) ? d : 7
 };
 
 // snake_case columns map onto PascalCase row properties without an alias on every column.
@@ -51,7 +73,7 @@ Dapper.SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
 
 // ---- Services ----
 builder.Services.AddSingleton(jwtSettings);
-builder.Services.AddSingleton(new DbConnectionFactory(connectionString));
+builder.Services.AddSingleton(new DbConnectionFactory(npgsqlConnection.ConnectionString));
 builder.Services.AddSingleton<JwtTokenService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<HelperService>();
@@ -92,7 +114,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(ClientCorsPolicy, policy =>
     {
-        policy.WithOrigins("https://localhost:7205", "http://localhost:5290")
+        policy.AllowAnyOrigin()
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -118,6 +140,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
@@ -127,6 +151,8 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.UseCors(ClientCorsPolicy);
+app.UseSwagger();
+app.UseSwaggerUI();
 if (!app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
