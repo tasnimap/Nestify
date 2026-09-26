@@ -499,7 +499,13 @@ cd Nestify
 
 #### Neon
 
-Create a Neon project and copy the connection details from its **Connect** dialog into `.env`:
+Create a Neon project, select the application branch, and create the environment file before adding the connection details:
+
+```bash
+cp .env.example .env
+```
+
+Copy the host, database, user, and password from the Neon **Connect** dialog into `.env`. Neon connections must use TLS:
 
 ```dotenv
 DB_HOST=your-neon-host
@@ -510,7 +516,7 @@ DB_PASSWORD=your_neon_password
 DB_SSL_MODE=Require
 ```
 
-Run the schema and seed files against the Neon connection shown in the dialog. With `psql`, use the connection URI directly so its TLS settings are preserved:
+Run the schema and seed files against the Neon connection shown in the dialog. With `psql`, use the connection URI directly so its TLS and channel-binding settings are preserved:
 
 ```bash
 psql "postgresql://USER:PASSWORD@HOST/neondb?sslmode=require&channel_binding=require" -f src/Nestify.Database/nestify.sql
@@ -519,7 +525,7 @@ psql "postgresql://USER:PASSWORD@HOST/neondb?sslmode=require&channel_binding=req
 psql "postgresql://USER:PASSWORD@HOST/neondb?sslmode=require&channel_binding=require" -f src/Nestify.Database/seed/domestic_help_seed.sql
 ```
 
-Replace the placeholders with the values from Neon and do not commit the URI. The schema script drops and recreates the application tables, so run it only on a new or disposable Neon branch.
+Replace the placeholders with the values from Neon, URL-encoding any special characters in `USER` or `PASSWORD`, and do not commit the URI. The schema script drops and recreates the application tables, so run it only on a new or disposable Neon branch. After loading the schema, run the API normally; it reads the `DB_*` values from `.env`.
 
 #### Local PostgreSQL
 
