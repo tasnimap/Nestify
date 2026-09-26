@@ -259,6 +259,7 @@
         await Helpers.SaveAvailabilityAsync(availability);
         _saved = new(_week);
         Recount();
+        StateHasChanged();
         Toast.ShowSuccess($"{_openCount} open hours a week published.", "Hours saved");
     }
 
