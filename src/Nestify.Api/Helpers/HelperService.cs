@@ -2,7 +2,9 @@ using System.Data;
 using Dapper;
 using Npgsql;
 using Nestify.Api.Data;
+using Nestify.Api.Notifications;
 using Nestify.Shared.Dtos.Helpers;
+using Nestify.Shared.Dtos.Notifications;
 
 namespace Nestify.Api.Helpers;
 
@@ -12,10 +14,12 @@ namespace Nestify.Api.Helpers;
 public sealed class HelperService
 {
     private readonly DbConnectionFactory _db;
+    private readonly NotificationService _notifications;
 
-    public HelperService(DbConnectionFactory db)
+    public HelperService(DbConnectionFactory db, NotificationService notifications)
     {
         _db = db;
+        _notifications = notifications;
     }
 
     // ------------------------------------------------------------ browse
@@ -356,6 +360,11 @@ public sealed class HelperService
                 new { engagementId, day = (short)slot.DayOfWeek, hour = (short)slot.Hour }, transaction);
         }
 
+        await _notifications.CreateAsync(connection, transaction, helper.UserId,
+            NotificationType.HelperRequestReceived,
+            "New household request", "You have a new household helper request.",
+            NotificationSourceType.DomesticHelperEngagement, engagementId, "/helpers/engagements");
+
         transaction.Commit();
 
         var engagement = (await LoadClientEngagementsAsync(connection, clientUserId, engagementId)).FirstOrDefault();
@@ -371,13 +380,39 @@ public sealed class HelperService
         }
 
         using var connection = await _db.OpenAsync();
+        using var transaction = connection.BeginTransaction();
+        var helperUserId = await connection.QuerySingleOrDefaultAsync<long?>("""
+            SELECT hp.user_id
+            FROM service_engagements e
+            JOIN domestic_helper_profiles hp ON hp.id = e.helper_profile_id
+            WHERE e.id = @id AND e.client_user_id = @clientUserId AND e.status = @requested
+            FOR UPDATE OF e
+            """, new { id, clientUserId, requested = (short)EngagementStatus.Requested }, transaction);
+
+        if (helperUserId is null)
+        {
+            transaction.Rollback();
+            return "This request can't be withdrawn any more.";
+        }
+
         var changed = await connection.ExecuteAsync("""
             UPDATE service_engagements
             SET status = @cancelled, cancelled_at_utc = now()
             WHERE id = @id AND client_user_id = @clientUserId AND status = @requested
-            """, new { id, clientUserId, requested = (short)EngagementStatus.Requested, cancelled = (short)EngagementStatus.Cancelled });
+            """, new { id, clientUserId, requested = (short)EngagementStatus.Requested, cancelled = (short)EngagementStatus.Cancelled }, transaction);
 
-        return changed == 0 ? "This request can't be withdrawn any more." : null;
+        if (changed == 0)
+        {
+            transaction.Rollback();
+            return "This request can't be withdrawn any more.";
+        }
+
+        await _notifications.CreateAsync(connection, transaction, helperUserId.Value,
+            NotificationType.PendingRequestClosed,
+            "Household request withdrawn", "A household helper request was withdrawn.",
+            NotificationSourceType.DomesticHelperEngagement, id, "/helpers/engagements");
+        transaction.Commit();
+        return null;
     }
 
     // A current home manager or co-manager can reject any pending request for their home.
@@ -391,26 +426,38 @@ public sealed class HelperService
         using var connection = await _db.OpenAsync();
         using var transaction = connection.BeginTransaction();
 
-        var homeId = await connection.QuerySingleOrDefaultAsync<long?>("""
-            SELECT e.home_id
+        var target = await connection.QuerySingleOrDefaultAsync<RejectTargetRow>("""
+            SELECT e.home_id AS HomeId, hp.user_id AS HelperUserId
             FROM service_engagements e
             JOIN home_members hm ON hm.home_id = e.home_id
+            JOIN domestic_helper_profiles hp ON hp.id = e.helper_profile_id
             WHERE e.id = @id AND e.status = @requested
               AND hm.user_id = @managerUserId AND hm.left_at_utc IS NULL AND hm.role IN (1, 2)
             FOR UPDATE OF e, hm
             """, new { id, managerUserId, requested = (short)EngagementStatus.Requested }, transaction);
 
-        if (homeId is null)
+        if (target is null)
         {
             transaction.Rollback();
             return "Only a current manager or co-manager can reject a pending request for this home.";
         }
 
-        await connection.ExecuteAsync("""
+        var changed = await connection.ExecuteAsync("""
             UPDATE service_engagements
             SET status = @cancelled, cancelled_at_utc = now()
             WHERE id = @id AND home_id = @homeId AND status = @requested
-            """, new { id, homeId, requested = (short)EngagementStatus.Requested, cancelled = (short)EngagementStatus.Cancelled }, transaction);
+            """, new { id, homeId = target.HomeId, requested = (short)EngagementStatus.Requested, cancelled = (short)EngagementStatus.Cancelled }, transaction);
+
+        if (changed == 0)
+        {
+            transaction.Rollback();
+            return "This request was already answered.";
+        }
+
+        await _notifications.CreateAsync(connection, transaction, target.HelperUserId,
+            NotificationType.PendingRequestClosed,
+            "Household request closed", "A household helper request was closed by the household.",
+            NotificationSourceType.DomesticHelperEngagement, id, "/helpers/engagements");
 
         transaction.Commit();
         return null;
@@ -425,28 +472,31 @@ public sealed class HelperService
         }
 
         using var connection = await _db.OpenAsync();
+        using var transaction = connection.BeginTransaction();
 
         var row = await connection.QuerySingleOrDefaultAsync<OwnerRow>("""
-            SELECT hp.user_id AS HelperUserId, e.status AS Status,
+            SELECT hp.user_id AS HelperUserId, e.client_user_id AS ClientUserId, e.status AS Status,
+                   e.helper_completed_at_utc IS NOT NULL AS HelperAlreadyMarkedComplete,
                    EXISTS (SELECT 1 FROM home_members hm WHERE hm.home_id = e.home_id AND hm.user_id = @userId
                            AND hm.left_at_utc IS NULL AND hm.role IN (1, 2)) AS IsHomeManager
             FROM service_engagements e
             JOIN domestic_helper_profiles hp ON hp.id = e.helper_profile_id
             WHERE e.id = @id
-            """, new { id, userId });
+            FOR UPDATE OF e
+            """, new { id, userId }, transaction);
 
         if (row is null || row.Status != (short)EngagementStatus.Active)
         {
+            transaction.Rollback();
             return "This engagement isn't active.";
         }
 
         var isHelper = row.HelperUserId == userId;
         if (!row.IsHomeManager && !isHelper)
         {
+            transaction.Rollback();
             return "You aren't part of this engagement.";
         }
-
-        using var transaction = connection.BeginTransaction();
 
         var marked = await connection.ExecuteAsync(isHelper
                 ? """
@@ -484,6 +534,14 @@ public sealed class HelperService
                 new { id }, transaction);
         }
 
+        if (isHelper && !row.HelperAlreadyMarkedComplete)
+        {
+            await _notifications.CreateAsync(connection, transaction, row.ClientUserId,
+                NotificationType.HelperCompletionMarked,
+                "Helper marked complete", "The helper marked this engagement complete.",
+                NotificationSourceType.DomesticHelperEngagement, id, "/engagements/mine");
+        }
+
         transaction.Commit();
         return null;
     }
@@ -499,16 +557,17 @@ public sealed class HelperService
         using var connection = await _db.OpenAsync();
 
         using var transaction = connection.BeginTransaction();
-        var homeId = await connection.QuerySingleOrDefaultAsync<long?>("""
-            SELECT e.home_id
+        var target = await connection.QuerySingleOrDefaultAsync<ReleaseTargetRow>("""
+            SELECT e.home_id AS HomeId, hp.user_id AS HelperUserId
             FROM service_engagements e
             JOIN home_members hm ON hm.home_id = e.home_id
+            JOIN domestic_helper_profiles hp ON hp.id = e.helper_profile_id
             WHERE e.id = @id AND e.status = @active
               AND hm.user_id = @clientUserId AND hm.left_at_utc IS NULL AND hm.role IN (1, 2)
             FOR UPDATE OF e, hm
             """, new { id, clientUserId, active = (short)EngagementStatus.Active }, transaction);
 
-        if (homeId is null)
+        if (target is null)
         {
             transaction.Rollback();
             return "Only a current manager or co-manager can release an active helper for this home.";
@@ -518,7 +577,7 @@ public sealed class HelperService
             SELECT id FROM helper_home_placements
             WHERE engagement_id = @id AND home_id = @homeId AND left_on IS NULL
             FOR UPDATE
-            """, new { id, homeId }, transaction);
+            """, new { id, homeId = target.HomeId }, transaction);
         if (placementId is null)
         {
             transaction.Rollback();
@@ -531,13 +590,18 @@ public sealed class HelperService
                 client_completed_at_utc = coalesce(client_completed_at_utc, now()),
                 completed_at_utc = now()
             WHERE id = @id AND home_id = @homeId AND status = @active
-            """, new { id, homeId, completed = (short)EngagementStatus.Completed, active = (short)EngagementStatus.Active }, transaction);
+            """, new { id, homeId = target.HomeId, completed = (short)EngagementStatus.Completed, active = (short)EngagementStatus.Active }, transaction);
 
         await connection.ExecuteAsync("""
             UPDATE helper_home_placements
             SET left_on = CURRENT_DATE
             WHERE id = @placementId AND left_on IS NULL
             """, new { placementId }, transaction);
+
+        await _notifications.CreateAsync(connection, transaction, target.HelperUserId,
+            NotificationType.EngagementReleased,
+            "Helper engagement released", "The household released you from this engagement.",
+            NotificationSourceType.DomesticHelperEngagement, id, "/helpers/engagements");
 
         transaction.Commit();
         return null;
@@ -565,8 +629,9 @@ public sealed class HelperService
         using var connection = await _db.OpenAsync();
 
         var placement = await connection.QuerySingleOrDefaultAsync<PlacementRow>("""
-            SELECT p.id AS PlacementId, p.helper_profile_id AS HelperProfileId
+            SELECT p.id AS PlacementId, p.helper_profile_id AS HelperProfileId, hp.user_id AS HelperUserId
             FROM helper_home_placements p
+            JOIN domestic_helper_profiles hp ON hp.id = p.helper_profile_id
             WHERE p.engagement_id = @id
               AND EXISTS (SELECT 1 FROM home_members hm
                           WHERE hm.home_id = p.home_id AND hm.user_id = @reviewerUserId
@@ -582,23 +647,29 @@ public sealed class HelperService
         using var transaction = connection.BeginTransaction();
         try
         {
-            await connection.ExecuteAsync("""
+            var reviewId = await connection.ExecuteScalarAsync<long>("""
                 INSERT INTO helper_reviews (placement_id, helper_profile_id, reviewer_user_id, rating, comment)
                 VALUES (@placementId, @helperProfileId, @reviewerUserId, @rating, @comment)
+                RETURNING id
                 """, new { placement.PlacementId, placement.HelperProfileId, reviewerUserId, rating, comment }, transaction);
+
+            await connection.ExecuteAsync("""
+                UPDATE domestic_helper_profiles hp
+                SET average_rating = s.avg_rating, review_count = s.total
+                FROM (SELECT avg(rating) AS avg_rating, count(*)::int AS total FROM helper_reviews WHERE helper_profile_id = @helperProfileId AND NOT is_hidden) s
+                WHERE hp.id = @helperProfileId
+                """, new { placement.HelperProfileId }, transaction);
+
+            await _notifications.CreateAsync(connection, transaction, placement.HelperUserId,
+                NotificationType.HelperReviewSubmitted,
+                "New helper review", "A household member left you a review.",
+                NotificationSourceType.DomesticHelperReview, reviewId, "/helpers/reviews");
         }
         catch (PostgresException ex) when (ex.SqlState == "23505")
         {
             transaction.Rollback();
             return "You've already reviewed her for this engagement.";
         }
-
-        await connection.ExecuteAsync("""
-            UPDATE domestic_helper_profiles hp
-            SET average_rating = s.avg_rating, review_count = s.total
-            FROM (SELECT avg(rating) AS avg_rating, count(*)::int AS total FROM helper_reviews WHERE helper_profile_id = @helperProfileId AND NOT is_hidden) s
-            WHERE hp.id = @helperProfileId
-            """, new { placement.HelperProfileId }, transaction);
 
         transaction.Commit();
         return null;
@@ -866,14 +937,29 @@ public sealed class HelperService
     private sealed class OwnerRow
     {
         public long HelperUserId { get; set; }
+        public long ClientUserId { get; set; }
         public short Status { get; set; }
         public bool IsHomeManager { get; set; }
+        public bool HelperAlreadyMarkedComplete { get; set; }
+    }
+
+    private sealed class RejectTargetRow
+    {
+        public long HomeId { get; set; }
+        public long HelperUserId { get; set; }
+    }
+
+    private sealed class ReleaseTargetRow
+    {
+        public long HomeId { get; set; }
+        public long HelperUserId { get; set; }
     }
 
     private sealed class PlacementRow
     {
         public long PlacementId { get; set; }
         public long HelperProfileId { get; set; }
+        public long HelperUserId { get; set; }
     }
 
     private sealed class ClientEngagementRow

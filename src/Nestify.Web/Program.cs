@@ -43,7 +43,7 @@ builder.Services.AddScoped(sp =>
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAssistantService, AssistantService>();
-builder.Services.AddScoped<INotificationService, MockNotificationService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 // Extra profile details (picture, occupation, address, socials)
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();

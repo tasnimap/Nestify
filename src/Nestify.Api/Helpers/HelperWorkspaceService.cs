@@ -1,7 +1,9 @@
 using System.Data;
 using Dapper;
 using Nestify.Api.Data;
+using Nestify.Api.Notifications;
 using Nestify.Shared.Dtos.Helpers;
+using Nestify.Shared.Dtos.Notifications;
 
 namespace Nestify.Api.Helpers;
 
@@ -18,10 +20,12 @@ public sealed class HelperWorkspaceService
     private const short Declined = (short)EngagementStatus.Declined;
 
     private readonly DbConnectionFactory _db;
+    private readonly NotificationService _notifications;
 
-    public HelperWorkspaceService(DbConnectionFactory db)
+    public HelperWorkspaceService(DbConnectionFactory db, NotificationService notifications)
     {
         _db = db;
+        _notifications = notifications;
     }
 
     // ------------------------------------------------------------ profile
@@ -464,33 +468,38 @@ public sealed class HelperWorkspaceService
 
         using var transaction = connection.BeginTransaction();
 
+        var target = await connection.QuerySingleOrDefaultAsync<DecisionTargetRow>("""
+            SELECT home_id AS HomeId, client_user_id AS ClientUserId
+            FROM service_engagements
+            WHERE id = @id AND helper_profile_id = @helperId AND status = @requested
+            FOR UPDATE
+            """, new { id, helperId, requested = Requested }, transaction);
+
+        if (target is null)
+        {
+            transaction.Rollback();
+            return "This request was already answered.";
+        }
+
         if (accept)
         {
-            var homeId = await connection.QuerySingleOrDefaultAsync<long?>("""
-                SELECT home_id
-                FROM service_engagements
-                WHERE id = @id AND helper_profile_id = @helperId AND status = @requested
-                FOR UPDATE
-                """, new { id, helperId, requested = Requested }, transaction);
-
-            if (homeId is null)
+            if (target.HomeId is null)
             {
                 transaction.Rollback();
-                return "This request was already answered.";
+                return "This request is missing its household relationship.";
             }
-
             // Serialize acceptances for a home so two helpers cannot both
             // become current when requests are answered at the same time.
             await connection.ExecuteScalarAsync<long?>(
                 "SELECT id FROM homes WHERE id = @homeId FOR UPDATE",
-                new { homeId }, transaction);
+                new { homeId = target.HomeId.Value }, transaction);
 
             var hasCurrentPlacement = await connection.ExecuteScalarAsync<bool>("""
                 SELECT EXISTS (
                     SELECT 1 FROM helper_home_placements
                     WHERE home_id = @homeId AND left_on IS NULL
                 )
-                """, new { homeId }, transaction);
+                """, new { homeId = target.HomeId.Value }, transaction);
 
             if (hasCurrentPlacement)
             {
@@ -529,6 +538,12 @@ public sealed class HelperWorkspaceService
                 ON CONFLICT (engagement_id) DO NOTHING
                 """, new { id }, transaction);
         }
+
+        await _notifications.CreateAsync(connection, transaction, target.ClientUserId,
+            accept ? NotificationType.EngagementAccepted : NotificationType.EngagementDeclined,
+            accept ? "Helper accepted your request" : "Helper declined your request",
+            accept ? "The helper accepted your request." : "The helper declined your request.",
+            NotificationSourceType.DomesticHelperEngagement, id, "/engagements/mine");
 
         transaction.Commit();
         return null;
@@ -572,14 +587,45 @@ public sealed class HelperWorkspaceService
         }
 
         using var connection = await _db.OpenAsync();
+        using var transaction = connection.BeginTransaction();
+        var target = await connection.QuerySingleOrDefaultAsync<ReplyTargetRow>("""
+            SELECT r.reviewer_user_id AS ReviewerUserId, r.reply AS ExistingReply
+            FROM helper_reviews r
+            JOIN domestic_helper_profiles hp ON hp.id = r.helper_profile_id
+            WHERE r.id = @id AND r.helper_profile_id = hp.id AND hp.user_id = @userId
+            FOR UPDATE OF r
+            """, new { id, userId }, transaction);
+
+        if (target is null)
+        {
+            transaction.Rollback();
+            return "Review not found.";
+        }
+
+        var newReply = reply.Length == 0 ? null : reply;
         var changed = await connection.ExecuteAsync("""
             UPDATE helper_reviews r
             SET reply = @reply, replied_at_utc = CASE WHEN @reply IS NULL THEN NULL ELSE now() END
             FROM domestic_helper_profiles hp
             WHERE r.id = @id AND r.helper_profile_id = hp.id AND hp.user_id = @userId
-            """, new { id, userId, reply = reply.Length == 0 ? null : reply });
+            """, new { id, userId, reply = newReply }, transaction);
 
-        return changed == 0 ? "Review not found." : null;
+        if (changed == 0)
+        {
+            transaction.Rollback();
+            return "Review not found.";
+        }
+
+        if (newReply is not null && !string.Equals(target.ExistingReply, newReply, StringComparison.Ordinal))
+        {
+            await _notifications.CreateAsync(connection, transaction, target.ReviewerUserId,
+                NotificationType.ReviewReplyReceived,
+                "Helper replied to your review", "The helper replied to your review.",
+                NotificationSourceType.DomesticHelperReview, id, "/engagements/mine");
+        }
+
+        transaction.Commit();
+        return null;
     }
 
     // ------------------------------------------------------------ visits
@@ -787,5 +833,17 @@ public sealed class HelperWorkspaceService
         public decimal OfferedRate { get; set; }
         public string Message { get; set; } = string.Empty;
         public DateTime RequestedAtUtc { get; set; }
+    }
+
+    private sealed class ReplyTargetRow
+    {
+        public long ReviewerUserId { get; set; }
+        public string? ExistingReply { get; set; }
+    }
+
+    private sealed class DecisionTargetRow
+    {
+        public long? HomeId { get; set; }
+        public long ClientUserId { get; set; }
     }
 }

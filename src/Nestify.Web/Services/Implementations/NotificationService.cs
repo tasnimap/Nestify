@@ -1,9 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-using Nestify.Web.Models;
+using Nestify.Shared.Dtos.Notifications;
 using Nestify.Web.Services.Interfaces;
 
 namespace Nestify.Web.Services.Implementations
@@ -11,27 +8,18 @@ namespace Nestify.Web.Services.Implementations
     public class NotificationService : INotificationService
     {
         private readonly HttpClient _httpClient;
-        private const string NotificationsEndpoint = "api/notifications";
+        private const string NotificationsEndpoint = "api/v1/notifications";
 
         public NotificationService(HttpClient httpClient)
         {
             _httpClient = httpClient;
         }
 
-        public async Task<IReadOnlyList<Notification>> GetNotificationsAsync()
-        {
-            try
-            {
-                var notifications = await _httpClient.GetFromJsonAsync<List<Notification>>(NotificationsEndpoint);
-                return notifications ?? new List<Notification>();
-            }
-            catch
-            {
-                return new List<Notification>();
-            }
-        }
+        public async Task<NotificationFeedDto> GetNotificationsAsync() =>
+            await _httpClient.GetFromJsonAsync<NotificationFeedDto>(NotificationsEndpoint)
+            ?? throw new InvalidOperationException("The notifications endpoint returned an empty response.");
 
-        public async Task MarkAsReadAsync(Guid id)
+        public async Task MarkAsReadAsync(long id)
         {
             var response = await _httpClient.PostAsync($"{NotificationsEndpoint}/{id}/read", null);
             response.EnsureSuccessStatusCode();
@@ -39,7 +27,7 @@ namespace Nestify.Web.Services.Implementations
 
         public async Task MarkAllAsReadAsync()
         {
-            var response = await _httpClient.PostAsync($"{NotificationsEndpoint}/readall", null);
+            var response = await _httpClient.PostAsync($"{NotificationsEndpoint}/read-all", null);
             response.EnsureSuccessStatusCode();
         }
     }

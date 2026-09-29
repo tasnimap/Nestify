@@ -1,19 +1,28 @@
-@using Nestify.Web.Models
+@using Nestify.Shared.Dtos.Notifications
 @using Microsoft.AspNetCore.Components
 
 <div class="notification-item @(Notification.IsRead ? "read" : "unread")" style="padding: 0.5rem; border-bottom: 1px solid #e5e5e5;">
     <div class="d-flex justify-content-between align-items-center">
-        <strong class="text-capitalize" style="color: var(--nx-primary);">@Notification.Type</strong>
-        <small class="text-muted" style="font-size: 0.75rem;">@Notification.Timestamp.ToLocalTime().ToString("g")</small>
+        <strong style="color: var(--nx-primary);">@Notification.Title</strong>
+        <small class="text-muted" style="font-size: 0.75rem;">@Notification.CreatedAtUtc.ToLocalTime().ToString("g")</small>
     </div>
-    <p class="mb-1" style="margin-top: 0.25rem;">@Notification.Message</p>
+    @if (!string.IsNullOrWhiteSpace(Notification.LinkPath) && Notification.LinkPath.StartsWith('/') && !Notification.LinkPath.StartsWith("//"))
+    {
+        <a href="@Notification.LinkPath" class="text-decoration-none">
+            <p class="mb-1" style="margin-top: 0.25rem;">@Notification.Body</p>
+        </a>
+    }
+    else
+    {
+        <p class="mb-1" style="margin-top: 0.25rem;">@Notification.Body</p>
+    }
     @if (!Notification.IsRead)
     {
-        <button class="btn btn-sm btn-link p-0" @onclick="()=>OnMarkRead.InvokeAsync(Notification.Id)">Mark as read</button>
+        <button class="btn btn-sm btn-link p-0" @onclick="() => OnMarkRead.InvokeAsync(Notification.Id)">Mark as read</button>
     }
 </div>
 
 @code {
-    [Parameter] public Notification Notification { get; set; } = default!;
-    [Parameter] public EventCallback<Guid> OnMarkRead { get; set; }
+    [Parameter] public NotificationDto Notification { get; set; } = default!;
+    [Parameter] public EventCallback<long> OnMarkRead { get; set; }
 }

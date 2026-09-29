@@ -1,14 +1,21 @@
-@using Nestify.Web.Models
-@using Nestify.Web.Services.Interfaces
-@inject INotificationService NotificationService
+@using Nestify.Shared.Dtos.Notifications
 
 <div class="notification-dropdown @(Show ? "show" : "hide")" @onclick:stopPropagation="true">
     <ul class="notification-list">
-        @if (Notifications != null && Notifications.Any())
+        @if (Loading)
+        {
+            <li class="empty">Loading notifications…</li>
+        }
+        else if (Error is not null)
+        {
+            <li class="notification-error" role="alert">@Error</li>
+            <li><button class="btn btn-link btn-sm" @onclick="OnRetry">Try again</button></li>
+        }
+        else if (Notifications.Count > 0)
         {
             foreach (var n in Notifications)
             {
-                <NotificationItem Notification="n" OnMarkRead="MarkAsRead" />
+                <NotificationItem Notification="n" OnMarkRead="OnMarkRead" />
             }
         }
         else
@@ -16,30 +23,16 @@
             <li class="empty">No notifications</li>
         }
     </ul>
-    <button class="btn btn-link btn-sm mt-2" @onclick="MarkAllAsRead">Mark all as read</button>
+    <button class="btn btn-link btn-sm mt-2" disabled="@(Loading || UnreadCount == 0)" @onclick="OnMarkAllRead">Mark all as read</button>
 </div>
 
 @code {
-    [Parameter] public IReadOnlyList<Notification> Notifications { get; set; } = new List<Notification>();
+    [Parameter] public IReadOnlyList<NotificationDto> Notifications { get; set; } = Array.Empty<NotificationDto>();
+    [Parameter] public int UnreadCount { get; set; }
     [Parameter] public bool Show { get; set; }
-    [Parameter] public EventCallback OnClose { get; set; }
-    [Parameter] public EventCallback OnRefresh { get; set; }
-
-    private async Task MarkAsRead(Guid id)
-    {
-        await NotificationService.MarkAsReadAsync(id);
-        if (OnRefresh.HasDelegate)
-        {
-            await OnRefresh.InvokeAsync();
-        }
-    }
-
-    private async Task MarkAllAsRead()
-    {
-        await NotificationService.MarkAllAsReadAsync();
-        if (OnRefresh.HasDelegate)
-        {
-            await OnRefresh.InvokeAsync();
-        }
-    }
+    [Parameter] public bool Loading { get; set; }
+    [Parameter] public string? Error { get; set; }
+    [Parameter] public EventCallback<long> OnMarkRead { get; set; }
+    [Parameter] public EventCallback OnMarkAllRead { get; set; }
+    [Parameter] public EventCallback OnRetry { get; set; }
 }
