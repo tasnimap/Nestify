@@ -10,6 +10,7 @@ using Nestify.Api.Helpers;
 using Nestify.Api.Homes;
 using Nestify.Api.Housing;
 using Nestify.Api.Marketplace;
+using Nestify.Api.Notifications;
 using Nestify.Api.Profiles;
 using Nestify.Api.Settlement;
 
@@ -54,6 +55,7 @@ builder.Services.AddSingleton<JwtTokenService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<HelperService>();
 builder.Services.AddScoped<HelperWorkspaceService>();
+builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<UserProfileService>();
 builder.Services.AddScoped<VerificationService>();
 builder.Services.AddScoped<HomeService>();

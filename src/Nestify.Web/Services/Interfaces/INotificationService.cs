@@ -1,14 +1,12 @@
-using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using Nestify.Web.Models;
+using Nestify.Shared.Dtos.Notifications;
 
 namespace Nestify.Web.Services.Interfaces
 {
     public interface INotificationService
     {
-        Task<IReadOnlyList<Notification>> GetNotificationsAsync();
-        Task MarkAsReadAsync(Guid id);
+        Task<NotificationFeedDto> GetNotificationsAsync();
+        Task MarkAsReadAsync(long id);
         Task MarkAllAsReadAsync();
     }
 }

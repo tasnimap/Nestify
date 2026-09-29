@@ -1,4 +1,4 @@
-@using Nestify.Web.Models
+@using Nestify.Shared.Dtos.Notifications
 @using Nestify.Web.Services.Interfaces
 @inject INotificationService NotificationService
 
@@ -10,26 +10,67 @@
             <span class="hnav__dot" style="position: absolute; top: 0; right: 0;">@UnreadCount</span>
         }
     </button>
-    <NotificationDropdown Notifications="notifications" Show="showDropdown" OnClose="CloseDropdown" OnRefresh="RefreshNotificationsAsync" />
+    <NotificationDropdown Notifications="feed.Notifications" UnreadCount="UnreadCount" Show="showDropdown"
+                          Loading="loading" Error="@error" OnMarkRead="MarkAsReadAsync"
+                          OnMarkAllRead="MarkAllAsReadAsync" OnRetry="RefreshNotificationsAsync" />
 </div>
 
 @code {
-    private List<Notification> notifications = new();
+    private NotificationFeedDto feed = new();
     private bool showDropdown = false;
-    // Dynamically compute unread count based on current notifications list
-    private int UnreadCount => notifications.Count(n => !n.IsRead);
+    private bool loading;
+    private string? error;
+    private int UnreadCount => feed.UnreadCount;
 
     protected override async Task OnInitializedAsync()
     {
         await RefreshNotificationsAsync();
-        // Ensure component re-renders after initial load
-        StateHasChanged();
     }
 
     private async Task RefreshNotificationsAsync()
     {
-        notifications = (await NotificationService.GetNotificationsAsync()).ToList();
-        StateHasChanged();
+        loading = true;
+        error = null;
+        try
+        {
+            feed = await NotificationService.GetNotificationsAsync();
+        }
+        catch
+        {
+            error = "Notifications could not be loaded. Please try again.";
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private async Task MarkAsReadAsync(long id)
+    {
+        error = null;
+        try
+        {
+            await NotificationService.MarkAsReadAsync(id);
+            await RefreshNotificationsAsync();
+        }
+        catch
+        {
+            error = "The notification could not be marked as read.";
+        }
+    }
+
+    private async Task MarkAllAsReadAsync()
+    {
+        error = null;
+        try
+        {
+            await NotificationService.MarkAllAsReadAsync();
+            await RefreshNotificationsAsync();
+        }
+        catch
+        {
+            error = "Notifications could not be marked as read.";
+        }
     }
 
     private void ToggleDropdown()
