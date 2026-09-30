@@ -11,6 +11,9 @@ public sealed class AdminService : IAdminService
 
     public AdminService(HttpClient http) => _http = http;
 
+    public async Task<AdminDashboardDto> GetDashboardAsync() =>
+        await GetAsync<AdminDashboardDto>("api/v1/admin/dashboard") ?? new AdminDashboardDto();
+
     public async Task<AdminSummaryDto> GetSummaryAsync() =>
         await GetAsync<AdminSummaryDto>("api/v1/admin/summary") ?? new AdminSummaryDto();
 

@@ -2,16 +2,15 @@ using Nestify.Shared.Dtos.Admin;
 
 namespace Nestify.Web.Admin;
 
-// What is left of the front-end only console state: the dashboard's revenue
-// and growth charts, still sample data until their API exists. Moderation,
-// verification, fees, plans, admin accounts and the audit log come from
-// IAdminService.
+// Shared display helpers for the admin console. The former front-end dashboard
+// sample data is retained below as commented reference; live dashboard data
+// comes from IAdminService.
 public sealed class AdminConsoleService
 {
     // Set by the admin shell once the signed-in name is known.
     public string CurrentAdmin { get; set; } = "Admin";
 
-    public IReadOnlyList<RevenuePoint> Revenue { get; } = new List<RevenuePoint>
+    /* public IReadOnlyList<RevenuePoint> Revenue { get; } = new List<RevenuePoint>
     {
         new() { Month = "Oct", Housing = 18400, Marketplace = 9200,  Verification = 6300 },
         new() { Month = "Nov", Housing = 21100, Marketplace = 10400, Verification = 7100 },
@@ -53,7 +52,7 @@ public sealed class AdminConsoleService
 
     public int LastMonthRevenue => Revenue[^2].Total;
 
-    public int YearRevenue => Revenue.Sum(r => r.Total);
+    public int YearRevenue => Revenue.Sum(r => r.Total); */
 
     // ---------- helpers ----------
 

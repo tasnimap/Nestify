@@ -5,6 +5,7 @@ namespace Nestify.Web.Services.Interfaces;
 // The admin console pages: moderation, fees and plans, admin accounts, audit log.
 public interface IAdminService
 {
+    Task<AdminDashboardDto> GetDashboardAsync();
     Task<AdminSummaryDto> GetSummaryAsync();
 
     Task<List<AdminHousingPostDto>> GetHousingPostsAsync();

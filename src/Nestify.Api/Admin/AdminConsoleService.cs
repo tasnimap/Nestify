@@ -22,6 +22,7 @@ public sealed class AdminConsoleService
     private const short ListingRemoved = 3;
 
     private const short AccountAdmin = 3;
+    private const short VerificationApproved = 2;
 
     private readonly DbConnectionFactory _db;
 
@@ -47,6 +48,73 @@ public sealed class AdminConsoleService
                      (SELECT count(*)::int FROM verification_requests WHERE status = 1)  AS PendingVerifications",
             new { open = ReportOpen, housingActive = HousingActive, housing = ScopeHousing, listingActive = ListingActive, admin = AccountAdmin });
     }
+
+    // ------------------------------------------------------------ dashboard
+
+    public async Task<AdminDashboardDto> GetDashboardAsync()
+    {
+        using var connection = await _db.OpenAsync();
+
+        var summary = await GetSummaryAsync(connection);
+        var stats = await connection.QuerySingleAsync<AdminDashboardStatsDto>(
+            @"SELECT
+                (SELECT count(*)::int FROM users WHERE account_type <> @admin) AS TotalUsers,
+                (SELECT count(*)::int FROM domestic_helper_profiles) AS TotalHelpers,
+                (SELECT count(*)::int FROM users
+                  WHERE account_type <> @admin AND created_at_utc >= date_trunc('month', now())) AS NewUsersThisMonth,
+                (SELECT count(*)::int FROM homes) AS HomesCreated,
+                (SELECT count(*)::int FROM service_engagements WHERE status IN (@activeEngagement, @completed)) AS HelpersHired,
+                (SELECT count(*)::int FROM marketplace_listings WHERE status = @sold) AS ItemsSold,
+                (SELECT count(*)::int FROM marketplace_listings) AS ItemsListed,
+                (SELECT count(*)::int FROM verification_requests WHERE status = @approved) AS VerifiedAccounts",
+            new { admin = AccountAdmin, activeEngagement = 2, completed = 3, sold = 2, approved = VerificationApproved });
+
+        var revenue = (await connection.QueryAsync<AdminRevenuePointDto>(
+            @"SELECT month_start AS MonthUtc,
+                     coalesce(sum(p.amount_bdt), 0) AS Verification
+                FROM generate_series(
+                       date_trunc('month', now()) - interval '11 months',
+                       date_trunc('month', now()),
+                       interval '1 month') AS months(month_start)
+                LEFT JOIN verification_payments p
+                  ON p.paid_at_utc >= month_start
+                 AND p.paid_at_utc < month_start + interval '1 month'
+               GROUP BY month_start
+               ORDER BY month_start")).ToList();
+
+        var growth = (await connection.QueryAsync<AdminGrowthPointDto>(
+            @"SELECT month_start AS MonthUtc,
+                     count(u.id) FILTER (WHERE u.account_type <> @admin)::int AS Users,
+                     count(u.id) FILTER (WHERE u.account_type = @helper)::int AS Helpers
+                FROM generate_series(
+                       date_trunc('month', now()) - interval '5 months',
+                       date_trunc('month', now()),
+                       interval '1 month') AS months(month_start)
+                LEFT JOIN users u
+                  ON u.created_at_utc >= month_start
+                 AND u.created_at_utc < month_start + interval '1 month'
+               GROUP BY month_start
+               ORDER BY month_start",
+            new { admin = AccountAdmin, helper = 2 })).ToList();
+
+        return new AdminDashboardDto { Summary = summary, Stats = stats, VerificationRevenue = revenue, Growth = growth };
+    }
+
+    private async Task<AdminSummaryDto> GetSummaryAsync(IDbConnection connection) =>
+        await connection.QuerySingleAsync<AdminSummaryDto>(
+            @"SELECT (SELECT count(*)::int FROM housing_reports WHERE state = @open)      AS OpenHousingReports,
+                     (SELECT count(*)::int FROM marketplace_reports WHERE state = @open)  AS OpenMarketReports,
+                     (SELECT count(*)::int FROM housing_posts p
+                       WHERE p.status = @housingActive AND NOT EXISTS (
+                           SELECT 1 FROM post_takedowns t
+                            WHERE t.scope = @housing AND t.post_id = p.id AND t.restored_at_utc IS NULL)) AS LiveHousingPosts,
+                     (SELECT count(*)::int FROM marketplace_listings WHERE status = @listingActive) AS LiveMarketItems,
+                     (SELECT count(*)::int FROM post_takedowns)                          AS PostsTakenDown,
+                     (SELECT count(*)::int FROM users u
+                       LEFT JOIN admin_accounts a ON a.user_id = u.id
+                       WHERE u.account_type = @admin AND coalesce(a.is_active, true))    AS ActiveAdmins,
+                     (SELECT count(*)::int FROM verification_requests WHERE status = 1)  AS PendingVerifications",
+            new { open = ReportOpen, housingActive = HousingActive, housing = ScopeHousing, listingActive = ListingActive, admin = AccountAdmin });
 
     // ------------------------------------------------------------ housing
 
