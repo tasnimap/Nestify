@@ -586,7 +586,7 @@ Nestify is deployed on Render as two services: a Blazor WebAssembly frontend and
 
 | Service | URL |
 |---------|-----|
-| Nestify frontend | [https://nestify-1-df6p.onrender.com](https://nestify-1df6p.onrender.com) |
+| Nestify frontend | [nestify-1df6p.onrender.com](https://nestify-1-df6p.onrender.com/) |
 | API | [nestify-uqcz.onrender.com](https://nestify-uqcz.onrender.com) |
 | Swagger UI | [API Swagger](https://nestify-uqcz.onrender.com/swagger/index.html) |
 
