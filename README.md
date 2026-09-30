@@ -1,3 +1,4 @@
+For an existing Neon database, apply the numbered files in `src/Nestify.Database/migrations/` in order. The current set includes migrations `001` through `004`; migration `004` makes the optional smoking and drinking profile fields nullable. Do not rerun `nestify.sql` against a live database because it drops and recreates the application tables.
 # Nestify — Bachelor Life, Unified
 
 Nestify is a web platform for Bangladeshi university students and bachelors who live away from home in shared flats and messes. It brings the four scattered, word-of-mouth parts of bachelor life under one verified account:
@@ -539,6 +540,8 @@ psql -U postgres -d Nestify -f src/Nestify.Database/seed/domestic_help_seed.sql
 ```
 
 `nestify.sql` drops and recreates every table, so only run it on a fresh (or disposable) database. The per-module files next to it are the same schema split up and can be run individually to migrate an existing database.
+
+For an existing Neon database, apply the numbered files in `src/Nestify.Database/migrations/` in order. The current set includes migrations `001` through `004`; migration `004` makes the optional smoking and drinking profile fields nullable. Do not rerun `nestify.sql` against a live database because it drops and recreates the application tables.
 
 ### 3. Configure secrets
 
