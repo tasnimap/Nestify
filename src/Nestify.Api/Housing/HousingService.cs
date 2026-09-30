@@ -781,14 +781,14 @@ public sealed class HousingService
                     OR r.occupation = 2
                     OR (r.occupation = 0 AND profile.occupation ILIKE 'Student%')
                     OR (r.occupation = 1 AND profile.occupation = 'Job holder'))
-               AND (r.min_age IS NULL OR (profile.date_of_birth IS NOT NULL
-               AND (r.min_age IS NULL OR r.min_age <= 0 OR (profile.date_of_birth IS NOT NULL
-                    AND EXTRACT(YEAR FROM age(current_date, profile.date_of_birth)) >= r.min_age))
-               AND (r.max_age IS NULL OR (profile.date_of_birth IS NOT NULL
-               AND (r.max_age IS NULL OR r.max_age <= 0 OR (profile.date_of_birth IS NOT NULL
-                    AND EXTRACT(YEAR FROM age(current_date, profile.date_of_birth)) <= r.max_age))
+            AND (r.min_age IS NULL OR r.min_age <= 0 OR
+                (profile.date_of_birth IS NOT NULL AND
+                 EXTRACT(YEAR FROM age(current_date, profile.date_of_birth)) >= r.min_age))
+            AND (r.max_age IS NULL OR r.max_age <= 0 OR
+                (profile.date_of_birth IS NOT NULL AND
+                 EXTRACT(YEAR FROM age(current_date, profile.date_of_birth)) <= r.max_age))
                AND (COALESCE(r.non_smoker_only, false) = false OR profile.is_smoker = false)
-               AND (COALESCE(r.non_drinker_only, false) = false OR profile.is_drinker = false)))";
+            AND (COALESCE(r.non_drinker_only, false) = false OR profile.is_drinker = false))";
 
     private static Task<bool> MatchesPersonalRequirementsAsync(IDbConnection connection, long userId, long postId) =>
         connection.ExecuteScalarAsync<bool>(
