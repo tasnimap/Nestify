@@ -608,13 +608,21 @@ else
     private record Social(string Key, string Name, string Handle, string Href, string Icon);
     private record Bar(string Label, string Display, int Percent);
 
-    private static readonly Stat[] Stats =
-    {
-        new("2", "Active bookings", "+1 this week"),
-        new("18", "Meals logged", "6 pending"),
-        new("Tk 4,250", "Shared expenses", "settled"),
-        new("3", "Market interests", "1 replied")
-    };
+    private IReadOnlyList<Stat> Stats =>
+    [
+        new(_profile?.Activity.ActiveBookingCount.ToString() ?? "0", "Active bookings", BookingTrend),
+        new((_profile?.Activity.CurrentMonthMeals ?? 0).ToString("0.#"), "Meals logged", "this month"),
+        new($"Tk {(_profile?.Activity.CurrentMonthSettlementPaid ?? 0):N0}", "Settlement paid", SettlementTrend),
+        new(_profile?.Activity.ActiveMarketplaceInterestCount.ToString() ?? "0", "Market interests", InterestTrend)
+    ];
+
+    private string BookingTrend => _profile?.Activity.PendingBookingCount is > 0
+        ? $"{_profile.Activity.PendingBookingCount} pending"
+        : "None pending";
+    private string SettlementTrend => _profile?.Activity.HasCurrentSettlement == true ? "this month" : "No active settlement";
+    private string InterestTrend => _profile?.Activity.PendingMarketplaceInterestCount is > 0
+        ? $"{_profile.Activity.PendingMarketplaceInterestCount} pending"
+        : "None pending";
 
     // Only the links the user has actually filled in are shown.
     private List<Social> Socials
@@ -654,12 +662,29 @@ else
         }
     }
 
-    private static readonly Bar[] Monthly =
+    private IReadOnlyList<Bar> Monthly
     {
-        new("Meal participation", "18 / 30 days", 60),
-        new("Expense share paid", "Tk 4,250 / 5,000", 85),
-        new("Profile completeness", "92%", 92)
-    };
+        get
+        {
+            var activity = _profile?.Activity;
+            var daysElapsed = DateTime.DaysInMonth(DateTime.Today.Year, DateTime.Today.Month);
+            daysElapsed = Math.Min(daysElapsed, DateTime.Today.Day);
+            var hasSettlement = activity?.HasCurrentSettlement == true;
+            var mealPercent = hasSettlement && daysElapsed > 0
+                ? Math.Clamp((int)Math.Round(activity!.CurrentMonthMealDays * 100d / daysElapsed), 0, 100)
+                : 0;
+            var settlementPercent = hasSettlement && activity!.CurrentMonthSettlementDue > 0
+                ? Math.Clamp((int)Math.Round(activity.CurrentMonthSettlementPaid * 100m / activity.CurrentMonthSettlementDue), 0, 100)
+                : 0;
+
+            return
+            [
+                new("Meal participation", hasSettlement ? $"{activity!.CurrentMonthMealDays} / {daysElapsed} days" : "No active settlement", mealPercent),
+                new("Settlement contribution", hasSettlement ? $"Tk {activity!.CurrentMonthSettlementPaid:N0} / {activity.CurrentMonthSettlementDue:N0}" : "No active settlement", settlementPercent),
+                new("Profile completeness", $"{activity?.CompletenessPercent ?? 0}%", activity?.CompletenessPercent ?? 0)
+            ];
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {

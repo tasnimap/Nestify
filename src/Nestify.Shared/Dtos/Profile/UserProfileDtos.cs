@@ -32,6 +32,22 @@ public sealed class UserProfileDto
     public string? FacebookUrl { get; set; }
     public string? XUrl { get; set; }
     public string? InstagramUrl { get; set; }
+    public ProfileActivityDto Activity { get; set; } = new();
+}
+
+/// <summary>Current, user-owned activity shown on the profile page.</summary>
+public sealed class ProfileActivityDto
+{
+    public int ActiveBookingCount { get; set; }
+    public int PendingBookingCount { get; set; }
+    public decimal CurrentMonthMeals { get; set; }
+    public int CurrentMonthMealDays { get; set; }
+    public bool HasCurrentSettlement { get; set; }
+    public decimal CurrentMonthSettlementPaid { get; set; }
+    public decimal CurrentMonthSettlementDue { get; set; }
+    public int ActiveMarketplaceInterestCount { get; set; }
+    public int PendingMarketplaceInterestCount { get; set; }
+    public int CompletenessPercent { get; set; }
 }
 
 /// <summary>
