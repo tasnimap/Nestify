@@ -588,9 +588,9 @@ Nestify is deployed on Render as two services: a Blazor WebAssembly frontend and
 |---------|-----|
 | Nestify frontend | [nestify-1df6p.onrender.com](https://nestify-1df6p.onrender.com) |
 | API | [nestify-uqcz.onrender.com](https://nestify-uqcz.onrender.com) |
-| Swagger UI | [API Swagger](https://nestify-uqcz.onrender.com/swagger) |
+| Swagger UI | [API Swagger](https://nestify-uqcz.onrender.com/swagger/index.html) |
 
-The frontend calls the API over HTTPS. The API uses Neon PostgreSQL and accepts Neon PostgreSQL URI connection strings with TLS. Swagger remains enabled in Production so evaluators can inspect and test the API.
+The frontend calls the API over HTTPS. The API uses Neon PostgreSQL and accepts Neon PostgreSQL URI connection strings with TLS. Swagger remains enabled in Production so evaluators can inspect and test the API. If the frontend URL returns `404`, redeploy its Render service with `Dockerfile.web` and repository-root Docker context.
 
 ### Deployment work completed
 
