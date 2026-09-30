@@ -23,9 +23,10 @@ Built as a student project for the Software Development Lab course, Ahsanullah U
 6. [Data model (ERD)](#data-model-erd)
 7. [Data flow diagrams](#data-flow-diagrams)
 8. [Installation](#installation)
-9. [Usage](#usage)
-10. [API overview](#api-overview)
-11. [Screenshots](#screenshots)
+9. [Live deployment](#live-deployment)
+10. [Usage](#usage)
+11. [API overview](#api-overview)
+12. [Screenshots](#screenshots)
 
 ---
 
@@ -576,6 +577,31 @@ Admins are not created from the sign-up form. Register a normal account, then pr
 UPDATE users SET account_type = 3 WHERE email = 'you@example.com';
 INSERT INTO user_roles (user_id, role_id) SELECT id, 3 FROM users WHERE email = 'you@example.com';
 ```
+
+---
+
+## Live deployment
+
+Nestify is deployed on Render as two services: a Blazor WebAssembly frontend and an ASP.NET Core API.
+
+| Service | URL |
+|---------|-----|
+| Nestify frontend | [nestify-1df6p.onrender.com](https://nestify-1df6p.onrender.com) |
+| API | [nestify-uqcz.onrender.com](https://nestify-uqcz.onrender.com) |
+| Swagger UI | [API Swagger](https://nestify-uqcz.onrender.com/swagger/index.html) |
+
+The frontend calls the API over HTTPS. The API uses Neon PostgreSQL and accepts Neon PostgreSQL URI connection strings with TLS. Swagger remains enabled in Production so evaluators can inspect and test the API. If the frontend URL returns `404`, redeploy its Render service with `Dockerfile.web` and repository-root Docker context.
+
+### Deployment work completed
+
+- Added a production multi-stage [Dockerfile](Dockerfile) for the API on port `8080`.
+- Added [Dockerfile.web](Dockerfile.web) and [nginx.web.conf](nginx.web.conf) for the Blazor WebAssembly frontend, including SPA route fallback.
+- Added Render deployment instructions in [RENDER_DEPLOYMENT.md](RENDER_DEPLOYMENT.md).
+- Added public CORS and Production Swagger support to the API.
+- Added support for Render `ConnectionStrings__DefaultConnection` and `Jwt__*` variables.
+- Added PostgreSQL URI normalization for Neon pooled and direct connections, with TLS enforced.
+- Fixed housing browse queries for users with multiple active home memberships.
+- Replaced the Nestify Assistant speech-bubble icon with a robot icon.
 
 ---
 
