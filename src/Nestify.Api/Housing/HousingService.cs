@@ -788,7 +788,7 @@ public sealed class HousingService
                 (profile.date_of_birth IS NOT NULL AND
                  EXTRACT(YEAR FROM age(current_date, profile.date_of_birth)) <= r.max_age))
                AND (COALESCE(r.non_smoker_only, false) = false OR profile.is_smoker = false)
-            AND (COALESCE(r.non_drinker_only, false) = false OR profile.is_drinker = false))";
+            AND (COALESCE(r.non_drinker_only, false) = false OR profile.is_drinker = false)))";
 
     private static Task<bool> MatchesPersonalRequirementsAsync(IDbConnection connection, long userId, long postId) =>
         connection.ExecuteScalarAsync<bool>(
