@@ -771,7 +771,6 @@ public sealed class HousingService
     // Older profiles can still see an unconstrained listing. Once a listing has
     // a personal requirement, an explicit matching profile value is required.
     private const string PersonalRequirementsMatchSql = @"
-        ((r.gender IS NULL AND r.occupation IS NULL AND r.min_age IS NULL AND r.max_age IS NULL
         ((r.gender IS NULL AND r.occupation IS NULL AND (r.min_age IS NULL OR r.min_age <= 0) AND (r.max_age IS NULL OR r.max_age <= 0)
           AND COALESCE(r.non_smoker_only, false) = false AND COALESCE(r.non_drinker_only, false) = false)
          OR EXISTS (

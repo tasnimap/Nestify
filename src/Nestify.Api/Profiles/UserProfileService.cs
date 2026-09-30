@@ -156,6 +156,7 @@ public sealed class UserProfileService
                    u.full_name             AS FullName,
                    u.email                 AS Email,
                    u.phone_number          AS PhoneNumber,
+                   u.account_type          AS AccountType,
                    u.created_at_utc        AS CreatedAtUtc,
                    p.profile_picture_url   AS ProfilePictureUrl,
                    p.occupation            AS Occupation,
@@ -169,9 +170,13 @@ public sealed class UserProfileService
                    p.whatsapp_number       AS WhatsappNumber,
                    p.facebook_url          AS FacebookUrl,
                    p.x_url                 AS XUrl,
-                   p.instagram_url         AS InstagramUrl
+                   p.instagram_url         AS InstagramUrl,
+                   hm.role                 AS HomeRole,
+                   h.name                  AS HomeName
             FROM users u
             JOIN user_additional_profile_info p ON p.user_id = u.id
+            LEFT JOIN home_members hm ON hm.user_id = u.id AND hm.left_at_utc IS NULL
+            LEFT JOIN homes h ON h.id = hm.home_id
             WHERE u.id = @userId
             """,
             new { userId },
@@ -182,7 +187,20 @@ public sealed class UserProfileService
             return null;
         }
 
-        return new UserProfileDto
+        var role = row.AccountType switch
+        {
+            3 => "Administrator",
+            2 => "Domestic Helper",
+            _ => row.HomeRole switch
+            {
+                1 => "Manager",
+                2 => "Co-manager",
+                3 => "House member",
+                _ => "No active home"
+            }
+        };
+
+        var profile = new UserProfileDto
         {
             UserId = row.UserId.ToString(),
             FullName = row.FullName,
@@ -205,11 +223,97 @@ public sealed class UserProfileService
             WhatsappNumber = row.WhatsappNumber,
             FacebookUrl = row.FacebookUrl,
             XUrl = row.XUrl,
-            InstagramUrl = row.InstagramUrl
+            InstagramUrl = row.InstagramUrl,
+            Role = role,
+            HomeRole = row.HomeRole,
+            HomeName = row.HomeName
         };
+
+        profile.Activity = await ReadActivityAsync(connection, transaction, userId, profile);
+        return profile;
     }
 
     private static string? Clean(string? value) => value?.Trim();
+
+    private static async Task<ProfileActivityDto> ReadActivityAsync(
+        IDbConnection connection, IDbTransaction? transaction, long userId, UserProfileDto profile)
+    {
+        var activity = await connection.QuerySingleAsync<ProfileActivityDto>(
+            """
+            WITH period AS (
+                SELECT EXTRACT(YEAR FROM now() AT TIME ZONE 'Asia/Dhaka')::int AS year,
+                       EXTRACT(MONTH FROM now() AT TIME ZONE 'Asia/Dhaka')::int AS month
+            ), current_home AS (
+                SELECT home_id
+                FROM home_members
+                WHERE user_id = @userId AND left_at_utc IS NULL
+                ORDER BY joined_at_utc DESC, id DESC
+                LIMIT 1
+            ), current_book AS (
+                SELECT r.id, r.house_id
+                FROM settlement_runs r
+                JOIN current_home h ON h.home_id = r.house_id
+                CROSS JOIN period p
+                WHERE r.period_year = p.year AND r.period_month = p.month
+                LIMIT 1
+            ), current_meals AS (
+                SELECT DISTINCT ON (m.user_id, m.meal_date)
+                       m.user_id, m.meal_date, m.meal_count
+                FROM meal_entries m
+                JOIN current_book b ON b.house_id = m.house_id
+                CROSS JOIN period p
+                WHERE m.period_year = p.year AND m.period_month = p.month
+                ORDER BY m.user_id, m.meal_date, m.recorded_at_utc DESC, m.id DESC
+            ), book_totals AS (
+                SELECT (SELECT COUNT(*) FROM settlement_members sm JOIN current_book b ON b.id = sm.settlement_run_id) AS member_count,
+                       (SELECT COALESCE(SUM(e.amount), 0) FROM expenses e JOIN current_book b ON b.house_id = e.house_id CROSS JOIN period p WHERE e.period_year = p.year AND e.period_month = p.month AND e.category = 1) AS bills_total,
+                       (SELECT COALESCE(SUM(c.amount), 0) FROM contributions c JOIN current_book b ON b.house_id = c.house_id CROSS JOIN period p WHERE c.period_year = p.year AND c.period_month = p.month AND c.fund_type = 1) AS meal_fund,
+                       (SELECT COALESCE(SUM(meal_count), 0) FROM current_meals) AS total_meals,
+                       (SELECT COALESCE(SUM(meal_count), 0) FROM current_meals WHERE user_id = @userId) AS user_meals
+            )
+            SELECT
+                (SELECT COUNT(*)::int FROM housing_bookings WHERE requester_user_id = @userId AND status IN (1, 2)) AS ActiveBookingCount,
+                (SELECT COUNT(*)::int FROM housing_bookings WHERE requester_user_id = @userId AND status = 1) AS PendingBookingCount,
+                (SELECT COALESCE(SUM(meal_count), 0) FROM current_meals WHERE user_id = @userId) AS CurrentMonthMeals,
+                (SELECT COUNT(*)::int FROM current_meals WHERE user_id = @userId AND meal_count > 0) AS CurrentMonthMealDays,
+                EXISTS (SELECT 1 FROM current_book) AS HasCurrentSettlement,
+                COALESCE((SELECT SUM(c.amount) FROM contributions c JOIN current_book b ON b.house_id = c.house_id CROSS JOIN period p WHERE c.user_id = @userId AND c.period_year = p.year AND c.period_month = p.month), 0) AS CurrentMonthSettlementPaid,
+                CASE WHEN EXISTS (SELECT 1 FROM current_book) THEN
+                    ROUND(COALESCE(book_totals.bills_total / NULLIF(book_totals.member_count, 0), 0), 2) +
+                    ROUND(COALESCE(book_totals.user_meals * book_totals.meal_fund / NULLIF(book_totals.total_meals, 0), 0), 2)
+                ELSE 0 END AS CurrentMonthSettlementDue,
+                (SELECT COUNT(*)::int FROM marketplace_buy_interests WHERE buyer_user_id = @userId AND status IN (1, 2)) AS ActiveMarketplaceInterestCount,
+                (SELECT COUNT(*)::int FROM marketplace_buy_interests WHERE buyer_user_id = @userId AND status = 1) AS PendingMarketplaceInterestCount
+            FROM book_totals
+            """, new { userId }, transaction);
+
+        activity.CompletenessPercent = CalculateCompleteness(profile);
+        return activity;
+    }
+
+    private static int CalculateCompleteness(UserProfileDto profile)
+    {
+        var fields = new List<bool>
+        {
+            !string.IsNullOrWhiteSpace(profile.FullName),
+            !string.IsNullOrWhiteSpace(profile.Email),
+            !string.IsNullOrWhiteSpace(profile.PhoneNumber),
+            !string.IsNullOrWhiteSpace(profile.ProfilePictureUrl) && profile.ProfilePictureUrl != UserProfileDto.DefaultPictureUrl,
+            !string.IsNullOrWhiteSpace(profile.Occupation),
+            profile.Gender is not null,
+            profile.DateOfBirth is not null,
+            !string.IsNullOrWhiteSpace(profile.Address),
+            !string.IsNullOrWhiteSpace(profile.WhatsappNumber),
+            !string.IsNullOrWhiteSpace(profile.FacebookUrl) || !string.IsNullOrWhiteSpace(profile.XUrl) || !string.IsNullOrWhiteSpace(profile.InstagramUrl)
+        };
+
+        if (profile.Occupation?.StartsWith("Student", StringComparison.Ordinal) == true || profile.Occupation == "Job holder")
+        {
+            fields.Add(!string.IsNullOrWhiteSpace(profile.OrganizationName));
+        }
+
+        return (int)Math.Round(fields.Count(value => value) * 100d / fields.Count, MidpointRounding.AwayFromZero);
+    }
 
     private static async Task<VerificationState> ReadVerificationStateAsync(IDbConnection connection, long userId)
     {
@@ -238,8 +342,8 @@ public sealed class UserProfileService
         public string? Occupation { get; set; }
         public short? Gender { get; set; }
         public DateOnly? DateOfBirth { get; set; }
-        public bool IsSmoker { get; set; }
-        public bool IsDrinker { get; set; }
+        public bool? IsSmoker { get; set; }
+        public bool? IsDrinker { get; set; }
         public string? OrganizationName { get; set; }
         public bool IsVerified { get; set; }
         public string? Address { get; set; }
@@ -247,5 +351,8 @@ public sealed class UserProfileService
         public string? FacebookUrl { get; set; }
         public string? XUrl { get; set; }
         public string? InstagramUrl { get; set; }
+        public short AccountType { get; set; } = 1;
+        public short? HomeRole { get; set; }
+        public string? HomeName { get; set; }
     }
 }

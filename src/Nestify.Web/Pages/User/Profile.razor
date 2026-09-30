@@ -48,7 +48,7 @@ else
                 </div>
 
                 <div class="up-head__text">
-                    <p class="up-kicker">Bachelor account</p>
+                    <p class="up-kicker">@AccountKicker</p>
                     <h1>@_profile.FullName</h1>
                     <p class="up-head__meta">@DisplayOccupation &middot; @DisplayAddress</p>
                     <div class="up-chips">
@@ -63,7 +63,7 @@ else
                         }
                         else
                         { <button type="button" class="up-chip up-chip--apply" @onclick="OpenVerification">Apply for verification</button> }
-                        <span class="up-chip">House member</span>
+                        <span class="up-chip">@DisplayRole</span>
                         <span class="up-chip">Joined @JoinedOn</span>
                     </div>
                 </div>
@@ -214,6 +214,7 @@ else
                     <div class="up-field">
                         <label for="ed-smoker">Smoking</label>
                         <select id="ed-smoker" @bind="SmokerSelection">
+                            <option value="">Not chosen</option>
                             <option value="false">Non-smoker</option>
                             <option value="true">Smoker</option>
                         </select>
@@ -221,6 +222,7 @@ else
                     <div class="up-field">
                         <label for="ed-drinker">Drinking</label>
                         <select id="ed-drinker" @bind="DrinkerSelection">
+                            <option value="">Not chosen</option>
                             <option value="false">Non-drinker</option>
                             <option value="true">Drinker</option>
                         </select>
@@ -572,9 +574,27 @@ else
         return age;
     }
 
-    private string DisplaySmoker => _profile?.IsSmoker == true ? "Smoker" : "Non-smoker";
+    private string AccountKicker => !string.IsNullOrWhiteSpace(_profile?.HomeName)
+        ? _profile.HomeName
+        : "Bachelor account";
 
-    private string DisplayDrinker => _profile?.IsDrinker == true ? "Drinker" : "Non-drinker";
+    private string DisplayRole => !string.IsNullOrWhiteSpace(_profile?.Role)
+        ? _profile.Role
+        : "Member";
+
+    private string DisplaySmoker => _profile?.IsSmoker switch
+    {
+        true => "Smoker",
+        false => "Non-smoker",
+        _ => "Not chosen"
+    };
+
+    private string DisplayDrinker => _profile?.IsDrinker switch
+    {
+        true => "Drinker",
+        false => "Non-drinker",
+        _ => "Not chosen"
+    };
 
     private string GenderSelection
     {
@@ -594,27 +614,55 @@ else
 
     private string SmokerSelection
     {
-        get => _draft.IsSmoker ? "true" : "false";
-        set => _draft.IsSmoker = value == "true";
+        get => _draft.IsSmoker switch
+        {
+            true => "true",
+            false => "false",
+            _ => ""
+        };
+        set => _draft.IsSmoker = value switch
+        {
+            "true" => true,
+            "false" => false,
+            _ => null
+        };
     }
 
     private string DrinkerSelection
     {
-        get => _draft.IsDrinker ? "true" : "false";
-        set => _draft.IsDrinker = value == "true";
+        get => _draft.IsDrinker switch
+        {
+            true => "true",
+            false => "false",
+            _ => ""
+        };
+        set => _draft.IsDrinker = value switch
+        {
+            "true" => true,
+            "false" => false,
+            _ => null
+        };
     }
 
     private record Stat(string Value, string Label, string Trend);
     private record Social(string Key, string Name, string Handle, string Href, string Icon);
     private record Bar(string Label, string Display, int Percent);
 
-    private static readonly Stat[] Stats =
-    {
-        new("2", "Active bookings", "+1 this week"),
-        new("18", "Meals logged", "6 pending"),
-        new("Tk 4,250", "Shared expenses", "settled"),
-        new("3", "Market interests", "1 replied")
-    };
+    private IReadOnlyList<Stat> Stats =>
+    [
+        new(_profile?.Activity.ActiveBookingCount.ToString() ?? "0", "Active bookings", BookingTrend),
+        new((_profile?.Activity.CurrentMonthMeals ?? 0).ToString("0.#"), "Meals logged", "this month"),
+        new($"Tk {(_profile?.Activity.CurrentMonthSettlementPaid ?? 0):N0}", "Settlement paid", SettlementTrend),
+        new(_profile?.Activity.ActiveMarketplaceInterestCount.ToString() ?? "0", "Market interests", InterestTrend)
+    ];
+
+    private string BookingTrend => _profile?.Activity.PendingBookingCount is > 0
+        ? $"{_profile.Activity.PendingBookingCount} pending"
+        : "None pending";
+    private string SettlementTrend => _profile?.Activity.HasCurrentSettlement == true ? "this month" : "No active settlement";
+    private string InterestTrend => _profile?.Activity.PendingMarketplaceInterestCount is > 0
+        ? $"{_profile.Activity.PendingMarketplaceInterestCount} pending"
+        : "None pending";
 
     // Only the links the user has actually filled in are shown.
     private List<Social> Socials
@@ -654,12 +702,29 @@ else
         }
     }
 
-    private static readonly Bar[] Monthly =
+    private IReadOnlyList<Bar> Monthly
     {
-        new("Meal participation", "18 / 30 days", 60),
-        new("Expense share paid", "Tk 4,250 / 5,000", 85),
-        new("Profile completeness", "92%", 92)
-    };
+        get
+        {
+            var activity = _profile?.Activity;
+            var daysElapsed = DateTime.DaysInMonth(DateTime.Today.Year, DateTime.Today.Month);
+            daysElapsed = Math.Min(daysElapsed, DateTime.Today.Day);
+            var hasSettlement = activity?.HasCurrentSettlement == true;
+            var mealPercent = hasSettlement && daysElapsed > 0
+                ? Math.Clamp((int)Math.Round(activity!.CurrentMonthMealDays * 100d / daysElapsed), 0, 100)
+                : 0;
+            var settlementPercent = hasSettlement && activity!.CurrentMonthSettlementDue > 0
+                ? Math.Clamp((int)Math.Round(activity.CurrentMonthSettlementPaid * 100m / activity.CurrentMonthSettlementDue), 0, 100)
+                : 0;
+
+            return
+            [
+                new("Meal participation", hasSettlement ? $"{activity!.CurrentMonthMealDays} / {daysElapsed} days" : "No active settlement", mealPercent),
+                new("Settlement contribution", hasSettlement ? $"Tk {activity!.CurrentMonthSettlementPaid:N0} / {activity.CurrentMonthSettlementDue:N0}" : "No active settlement", settlementPercent),
+                new("Profile completeness", $"{activity?.CompletenessPercent ?? 0}%", activity?.CompletenessPercent ?? 0)
+            ];
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -935,8 +1000,8 @@ else
             Occupation = _profile?.Occupation,
             Gender = _profile?.Gender,
             DateOfBirth = _profile?.DateOfBirth,
-            IsSmoker = _profile?.IsSmoker ?? false,
-            IsDrinker = _profile?.IsDrinker ?? false,
+            IsSmoker = _profile?.IsSmoker,
+            IsDrinker = _profile?.IsDrinker,
             OrganizationName = _profile?.OrganizationName,
             Address = _profile?.Address,
             WhatsappNumber = _profile?.WhatsappNumber,

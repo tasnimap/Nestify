@@ -274,8 +274,8 @@ CREATE TABLE user_additional_profile_info (
     organization_name   varchar(160),                    -- workplace or school / university name
     gender              smallint,                        -- 0 Male, 1 Female
     date_of_birth       date,
-    is_smoker           boolean      NOT NULL DEFAULT false,
-    is_drinker          boolean      NOT NULL DEFAULT false,
+    is_smoker           boolean,
+    is_drinker          boolean,
     is_verified         boolean      NOT NULL DEFAULT false,
     address             varchar(250),
     whatsapp_number     varchar(20),
