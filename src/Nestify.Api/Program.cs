@@ -39,16 +39,45 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
        $"SSL Mode={Environment.GetEnvironmentVariable("DB_SSL_MODE") ?? "Prefer"};" +
        "Trust Server Certificate=true;Include Error Detail=true";
 
-if (!connectionString.Contains("Trust Server Certificate", StringComparison.OrdinalIgnoreCase))
+// Neon supplies a PostgreSQL URI, while local development commonly uses the
+// semicolon-delimited Npgsql format. Normalize either form before opening connections.
+NpgsqlConnectionStringBuilder BuildNpgsqlConnectionString(string value)
 {
-    connectionString += ";Trust Server Certificate=true";
+    if (Uri.TryCreate(value, UriKind.Absolute, out var uri)
+        && (uri.Scheme.Equals("postgresql", StringComparison.OrdinalIgnoreCase)
+            || uri.Scheme.Equals("postgres", StringComparison.OrdinalIgnoreCase)))
+    {
+        var userInfo = uri.UserInfo.Split(':', 2);
+        var parsed = new NpgsqlConnectionStringBuilder
+        {
+            Host = uri.Host,
+            Port = uri.Port > 0 ? uri.Port : 5432,
+            Database = uri.AbsolutePath.Trim('/'),
+            SslMode = SslMode.Require
+        };
+
+        if (userInfo.Length > 0)
+        {
+            parsed.Username = Uri.UnescapeDataString(userInfo[0]);
+        }
+
+        if (userInfo.Length > 1)
+        {
+            parsed.Password = Uri.UnescapeDataString(userInfo[1]);
+        }
+
+        return parsed;
+    }
+
+    var npgsqlBuilder = new NpgsqlConnectionStringBuilder(value)
+    {
+        SslMode = SslMode.Require
+    };
+
+    return npgsqlBuilder;
 }
 
-// Neon requires TLS. This also normalizes a Render-provided connection string.
-var npgsqlConnection = new NpgsqlConnectionStringBuilder(connectionString)
-{
-    SslMode = SslMode.Require
-};
+var npgsqlConnection = BuildNpgsqlConnectionString(connectionString);
 
 // UPLOAD_PICTURE is the unsigned upload preset the pictures are sent with.
 var cloudinarySettings = CloudinarySettings.Parse(

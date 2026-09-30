@@ -14,7 +14,7 @@ This repository deploys `src/Nestify.Api` as a Docker Web Service. The Docker im
 
 Nestify currently uses Dapper and SQL files, not EF Core. There is no `dotnet ef database update` step in this repository. If EF Core is added later, run migrations with the direct Neon connection, never through the transaction pooler. Do not run schema migrations automatically on every Web Service startup.
 
-The API normalizes the database connection to `SSL Mode=Require;Trust Server Certificate=true;` for Neon. `Trust Server Certificate=true` is appropriate here because Neon provides the TLS endpoint; the connection is still encrypted.
+The API accepts both Neon PostgreSQL URIs and semicolon-delimited Npgsql connection strings, then enforces `SSL Mode=Require` before opening a connection. The URI form from Neon, for example `postgresql://user:password@host/neondb?sslmode=require`, is valid in Render as-is.
 
 ## 2. Connect GitHub to Render
 
