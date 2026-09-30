@@ -86,7 +86,7 @@ public sealed class HousingService
         {
             "p.status = @active",
             "NOT EXISTS (SELECT 1 FROM post_takedowns t WHERE t.scope = 1 AND t.post_id = p.id AND t.restored_at_utc IS NULL)",
-            "p.home_id <> COALESCE((SELECT home_id FROM home_members WHERE user_id = @userId AND left_at_utc IS NULL), 0)",
+            "NOT EXISTS (SELECT 1 FROM home_members own_home WHERE own_home.home_id = p.home_id AND own_home.user_id = @userId AND own_home.left_at_utc IS NULL)",
             "(COALESCE(r.verified_only, false) = false OR COALESCE((SELECT is_verified FROM user_additional_profile_info WHERE user_id = @userId), false))",
             @"GREATEST(0, COALESCE(c.max_occupants, 4)
                  - (SELECT count(*) FROM home_members m WHERE m.home_id = h.id AND m.left_at_utc IS NULL)
