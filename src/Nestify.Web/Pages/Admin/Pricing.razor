@@ -4,20 +4,22 @@
 @inject IAdminService Admin
 @inject ToastService Toast
 
-<PageTitle>Fees and plans — Nestify Admin</PageTitle>
+<PageTitle>Verification fees — Nestify Admin</PageTitle>
 
 <header class="adm-head adm-rise">
     <div>
         <p class="adm-eyebrow">Money</p>
-        <h1>Fees &amp; posting plans</h1>
-        <p>Set what a verification costs and how many posts a package buys. Changes apply to new purchases only.</p>
+        <h1>Verification fees</h1>
+        <p>Set the one-off amount charged when someone applies for verification.</p>
     </div>
+    @* Posting plans are retained for a later release, but are not currently offered.
     <div class="adm-head__actions">
         <button class="adm-btn adm-btn--primary" type="button" @onclick="() => NewPlan(ModerationScope.Housing)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
             New plan
         </button>
     </div>
+    *@
 </header>
 
 <section class="adm-card adm-rise" style="--d:.06s;margin-bottom:1rem;">
@@ -30,7 +32,7 @@
 
     @if (_loading)
     {
-        <EmptyState Title="Loading" Message="Fetching fees and plans." />
+        <EmptyState Title="Loading" Message="Fetching verification fees." />
     }
     else
     {
@@ -61,6 +63,7 @@
     }
 </section>
 
+@* Housing and marketplace posting plans are intentionally hidden until their payment flows are enabled.
 @if (!_loading)
 {
     <div class="adm-grid adm-grid--2">
@@ -123,7 +126,9 @@
         }
     </div>
 }
+*@
 
+@* Retained plan editor; intentionally not rendered.
 @if (_draft is not null)
 {
     <div class="adm-modal" role="dialog" aria-modal="true">
@@ -183,7 +188,9 @@
         </div>
     </div>
 }
+*@
 
+@* Retained plan deletion dialog; intentionally not rendered.
 @if (_deleting is not null)
 {
     <div class="adm-modal" role="dialog" aria-modal="true">
@@ -212,18 +219,20 @@
         </div>
     </div>
 }
+*@
 
 @code {
     private readonly Dictionary<string, decimal> _amounts = new();
-    private AdminPlanDto? _deleting;
-    private List<AdminFeeDto> _fees = new();
+    /* private AdminPlanDto? _deleting;
     private List<AdminPlanDto> _plans = new();
-    private bool _loading = true;
-    private bool _busy;
 
     private SavePlanDto? _draft;
     private string? _editingId;
-    private string? _error;
+    private string? _error; */
+
+    private List<AdminFeeDto> _fees = new();
+    private bool _loading = true;
+    private bool _busy;
 
     protected override async Task OnInitializedAsync() => await LoadAsync();
 
@@ -231,9 +240,9 @@
     {
         _loading = true;
         var fees = Admin.GetFeesAsync();
-        var plans = Admin.GetPlansAsync();
+        // var plans = Admin.GetPlansAsync(); // Posting plans are not currently shown or managed.
         _fees = await fees;
-        _plans = await plans;
+        // _plans = await plans;
 
         foreach (var fee in _fees)
         {
@@ -258,7 +267,7 @@
         await LoadAsync();
     }
 
-    private void NewPlan(ModerationScope scope)
+    /* private void NewPlan(ModerationScope scope)
     {
         _editingId = null;
         _error = null;
@@ -336,6 +345,8 @@
         Toast.ShowSuccess(message);
         await LoadAsync();
     }
+
+    */
 
     private static decimal ToAmount(object? value, decimal fallback) =>
         decimal.TryParse(value?.ToString(), System.Globalization.NumberStyles.Number,

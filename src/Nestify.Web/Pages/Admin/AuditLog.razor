@@ -18,20 +18,20 @@
 
 <div class="adm-toolbar adm-rise" style="--d:.08s">
     <div class="adm-tabs">
-        <button class="adm-tab @(_admin is null ? "adm-tab--on" : null)" type="button" @onclick="() => _admin = null">
+        <button class="adm-tab @(_admin is null ? "adm-tab--on" : null)" type="button" @onclick="() => SetAdmin(null)">
             All admins
         </button>
         @foreach (var name in _entries.Select(a => a.Admin).Distinct())
         {
             var current = name;
-            <button class="adm-tab @(_admin == current ? "adm-tab--on" : null)" type="button" @onclick="() => _admin = current">
+            <button class="adm-tab @(_admin == current ? "adm-tab--on" : null)" type="button" @onclick="() => SetAdmin(current)">
                 @current
             </button>
         }
     </div>
     <label class="adm-search adm-toolbar__grow">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
-        <input type="search" placeholder="Search action, target or note" @bind="_query" @bind:event="oninput" />
+        <input type="search" placeholder="Search action, target or note" @bind="Query" @bind:event="oninput" />
     </label>
 </div>
 
@@ -45,6 +45,8 @@ else if (Filtered.Count == 0)
 }
 else
 {
+    var auditPage = ClampPage(Filtered.Count);
+    var pageEntries = Filtered.Skip((auditPage - 1) * PageSize).Take(PageSize).ToList();
     <div class="adm-grid adm-grid--2">
         <section class="adm-card adm-rise">
             <div class="adm-card__head">
@@ -54,7 +56,7 @@ else
                 </div>
             </div>
             <div class="adm-timeline">
-                @foreach (var entry in Filtered.Take(14))
+                @foreach (var entry in pageEntries)
                 {
                     <div class="adm-tl">
                         <div class="adm-tl__rail">
@@ -93,7 +95,7 @@ else
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var entry in Filtered)
+                        @foreach (var entry in pageEntries)
                         {
                             var at = entry.AtUtc.ToLocalTime();
                             <tr>
@@ -119,13 +121,18 @@ else
             </div>
         </section>
     </div>
+
+    <Pager Page="auditPage" PageSize="PageSize" Total="Filtered.Count" PageChanged="p => _page = p" />
 }
 
 @code {
+    private const int PageSize = 10;
+
     private List<AdminAuditEntryDto> _entries = new();
     private bool _loading = true;
     private string? _admin;
     private string _query = "";
+    private int _page = 1;
 
     protected override async Task OnInitializedAsync()
     {
@@ -139,6 +146,25 @@ else
             .Where(a => string.IsNullOrWhiteSpace(_query) ||
                         (a.Action + a.Target + a.Note).Contains(_query, StringComparison.OrdinalIgnoreCase))
             .ToList();
+
+    private string Query
+    {
+        get => _query;
+        set { _query = value; _page = 1; }
+    }
+
+    private void SetAdmin(string? admin)
+    {
+        _admin = admin;
+        _page = 1;
+    }
+
+    private int ClampPage(int total)
+    {
+        var pageCount = Math.Max(1, (int)Math.Ceiling(total / (double)PageSize));
+        _page = Math.Clamp(_page, 1, pageCount);
+        return _page;
+    }
 
     private static string DotClass(string kind) => kind switch
     {

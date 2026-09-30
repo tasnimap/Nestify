@@ -1,7 +1,6 @@
 @page "/admin"
 @layout AdminShell
 @attribute [Authorize(Roles = "Admin")]
-@inject AdminConsoleService Store
 @inject IAdminService Admin
 
 <PageTitle>Dashboard — Nestify Admin</PageTitle>
@@ -10,7 +9,7 @@
     <div>
         <p class="adm-eyebrow">Control room</p>
         <h1>Dashboard</h1>
-        <p>Everything the platform earned, everyone it serves, and what moderation cleared this month.</p>
+        <p>Verification-fee revenue, live platform activity, and the moderation work in progress.</p>
     </div>
     <div class="adm-head__actions">
         <a class="adm-btn adm-btn--ghost" href="admin/audit">
@@ -30,7 +29,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 2v20" /><path d="M17 6.5c0-1.9-2.2-3-5-3s-5 1.1-5 3 2.2 2.8 5 3.3 5 1.4 5 3.4-2.2 3.3-5 3.3-5-1.2-5-3" /></svg>
         </div>
         <p class="adm-kpi__label">Revenue this month</p>
-        <p class="adm-kpi__value"><CountUp Value="Store.MonthRevenue" Prefix="৳" /></p>
+        <p class="adm-kpi__value"><CountUp Value="MonthRevenue" Prefix="৳" /></p>
         <p class="adm-kpi__foot">
             <span class="adm-trend adm-trend--up">▲ @GrowthPercent%</span> vs last month
         </p>
@@ -42,16 +41,16 @@
         </div>
         <p class="adm-kpi__label">Registered users</p>
         <p class="adm-kpi__value"><CountUp Value="Stats.TotalUsers" /></p>
-        <p class="adm-kpi__foot">@Stats.ActiveThisMonth.ToString("N0") active this month</p>
+        <p class="adm-kpi__foot">@Stats.NewUsersThisMonth.ToString("N0") joined this month</p>
     </article>
 
     <article class="adm-kpi adm-kpi--teal adm-rise" style="--d:.16s">
         <div class="adm-kpi__icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m3 10 9-7 9 7v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><path d="M9 21v-7h6v7" /></svg>
         </div>
-        <p class="adm-kpi__label">Homes found</p>
-        <p class="adm-kpi__value"><CountUp Value="Stats.HomesFound" /></p>
-        <p class="adm-kpi__foot">through Nestify listings</p>
+        <p class="adm-kpi__label">Homes created</p>
+        <p class="adm-kpi__value"><CountUp Value="Stats.HomesCreated" /></p>
+        <p class="adm-kpi__foot">created on Nestify</p>
     </article>
 
     <article class="adm-kpi adm-kpi--rose adm-rise" style="--d:.22s">
@@ -68,16 +67,17 @@
     <section class="adm-card adm-rise adm-span-2" style="--d:.28s">
         <div class="adm-card__head">
             <div>
-                <h2>Revenue over the year</h2>
-                <p>Monthly earnings split between housing plans, marketplace plans and verification fees.</p>
+                <h2>Verification-fee revenue</h2>
+                <p>Payments received through verification over the last 12 months.</p>
             </div>
             <div class="adm-chips">
-                <span class="adm-chip">Year total @AdminConsoleService.Taka(Store.YearRevenue)</span>
+                <span class="adm-chip">Year total @AdminConsoleService.Taka(YearRevenue)</span>
             </div>
         </div>
         <AdminLineChart Title="Revenue by month" Prefix="৳" Labels="Months" Series="RevenueSeries" />
     </section>
 
+    @* Posting-plan revenue is intentionally hidden until its payment flow is enabled.
     <section class="adm-card adm-rise" style="--d:.34s">
         <div class="adm-card__head">
             <div>
@@ -86,8 +86,9 @@
             </div>
         </div>
         <AdminDonut Title="Revenue split" Slices="RevenueSplit"
-                    Center="@AdminConsoleService.Taka(Store.MonthRevenue)" CenterLabel="September" />
+                    Center="@AdminConsoleService.Taka(MonthRevenue)" CenterLabel="This month" />
     </section>
+    *@
 
     <section class="adm-card adm-rise" style="--d:.4s">
         <div class="adm-card__head">
@@ -97,16 +98,16 @@
             </div>
         </div>
         <div class="adm-bars">
-            @for (var i = 0; i < Store.Growth.Count; i++)
+            @for (var i = 0; i < Growth.Count; i++)
             {
-                var point = Store.Growth[i];
+                var point = Growth[i];
                 var height = Math.Round(100.0 * point.Users / MaxGrowth, 1);
                 <div class="adm-bar">
                     <span class="adm-bar__cap">@point.Users.ToString("N0")</span>
                     <div class="adm-bar__track">
                         <div class="adm-bar__fill" style="height:@Css(height)%;--d:@Css(i * 0.08)s"></div>
                     </div>
-                    <span class="adm-bar__label">@point.Month</span>
+                    <span class="adm-bar__label">@point.MonthUtc.ToLocalTime().ToString("MMM")</span>
                 </div>
             }
         </div>
@@ -124,7 +125,7 @@
         <div class="adm-card__head">
             <div>
                 <h2>What Nestify did for people</h2>
-                <p>Outcomes counted since launch.</p>
+                <p>Live totals counted since launch.</p>
             </div>
         </div>
         <div class="adm-meter">
@@ -200,7 +201,7 @@
             <div class="adm-kpi adm-kpi--amber">
                 <p class="adm-kpi__label">Items sold</p>
                 <p class="adm-kpi__value">@Stats.ItemsSold.ToString("N0")</p>
-                <p class="adm-kpi__foot">of @Stats.ItemsListed.ToString("N0") listed</p>
+                <p class="adm-kpi__foot">of @Stats.ItemsListed.ToString("N0") total listings</p>
             </div>
             <div class="adm-kpi">
                 <p class="adm-kpi__label">Helpers hired</p>
@@ -213,38 +214,46 @@
 
 @code {
     private AdminSummaryDto _summary = new();
+    private AdminDashboardStatsDto _stats = new();
+    private List<AdminRevenuePointDto> _revenue = new();
+    private List<AdminGrowthPointDto> _growth = new();
     private List<AdminAuditEntryDto> _audit = new();
 
-    private PlatformStats Stats => Store.Stats;
+    private AdminDashboardStatsDto Stats => _stats;
+    private List<AdminGrowthPointDto> Growth => _growth;
 
     protected override async Task OnInitializedAsync()
     {
-        var summary = Admin.GetSummaryAsync();
+        var dashboard = Admin.GetDashboardAsync();
         var audit = Admin.GetAuditAsync(5);
-        _summary = await summary;
+        var data = await dashboard;
+        _summary = data.Summary;
+        _stats = data.Stats;
+        _revenue = data.VerificationRevenue;
+        _growth = data.Growth;
         _audit = await audit;
         _outcomes = null;
     }
 
-    private List<string> Months => Store.Revenue.Select(r => r.Month).ToList();
+    private List<string> Months => _revenue.Select(r => r.MonthUtc.ToLocalTime().ToString("MMM")).ToList();
 
     private List<ChartSeries> RevenueSeries => new()
     {
-        new ChartSeries { Name = "Total", Color = "#6d28d9", Values = Store.Revenue.Select(r => r.Total).ToList() },
-        new ChartSeries { Name = "Housing", Color = "#0f9b8e", Values = Store.Revenue.Select(r => r.Housing).ToList() },
-        new ChartSeries { Name = "Marketplace", Color = "#b45309", Values = Store.Revenue.Select(r => r.Marketplace).ToList() }
+        new ChartSeries { Name = "Verification fees", Color = "#6d28d9", Values = _revenue.Select(r => (int)r.Verification).ToList() }
     };
 
+    /* Keep the future posting-plan revenue split implementation here, but do not render it yet.
     private List<DonutSlice> RevenueSplit => new()
     {
-        new DonutSlice { Name = "Housing plans", Value = Store.Revenue[^1].Housing, Color = "#6d28d9" },
-        new DonutSlice { Name = "Marketplace plans", Value = Store.Revenue[^1].Marketplace, Color = "#0f9b8e" },
-        new DonutSlice { Name = "Verification fees", Value = Store.Revenue[^1].Verification, Color = "#f0a338" }
+        new DonutSlice { Name = "Housing plans", Value = 0, Color = "#6d28d9" },
+        new DonutSlice { Name = "Marketplace plans", Value = 0, Color = "#0f9b8e" },
+        new DonutSlice { Name = "Verification fees", Value = MonthRevenue, Color = "#f0a338" }
     };
+    */
 
     private List<(string Label, int Value)> Outcomes => _outcomes ??= new()
     {
-        ("Homes found through Nestify", Stats.HomesFound),
+        ("Homes created", Stats.HomesCreated),
         ("Domestic helpers hired", Stats.HelpersHired),
         ("Items bought and sold", Stats.ItemsSold),
         ("Accounts verified", Stats.VerifiedAccounts),
@@ -255,12 +264,18 @@
 
     private int MaxOutcome => Math.Max(1, Outcomes.Max(o => o.Value));
 
-    private int MaxGrowth => Store.Growth.Max(g => g.Users);
+    private int MaxGrowth => Math.Max(1, Growth.Count == 0 ? 0 : Growth.Max(g => g.Users));
+
+    private int MonthRevenue => _revenue.Count == 0 ? 0 : (int)_revenue[^1].Verification;
+
+    private int LastMonthRevenue => _revenue.Count < 2 ? 0 : (int)_revenue[^2].Verification;
+
+    private int YearRevenue => (int)_revenue.Sum(r => r.Verification);
 
     private string GrowthPercent =>
-        Store.LastMonthRevenue == 0
+        LastMonthRevenue == 0
             ? "0"
-            : (100.0 * (Store.MonthRevenue - Store.LastMonthRevenue) / Store.LastMonthRevenue).ToString("0.#");
+            : (100.0 * (MonthRevenue - LastMonthRevenue) / LastMonthRevenue).ToString("0.#");
 
     private static string DotClass(string kind) => kind switch
     {

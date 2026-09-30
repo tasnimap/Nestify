@@ -20,6 +20,9 @@ public sealed class AdminConsoleController : ControllerBase
     [HttpGet("summary")]
     public async Task<ActionResult<AdminSummaryDto>> Summary() => Ok(await _admin.GetSummaryAsync());
 
+    [HttpGet("dashboard")]
+    public async Task<ActionResult<AdminDashboardDto>> Dashboard() => Ok(await _admin.GetDashboardAsync());
+
     // ---- Housing ----
 
     [HttpGet("housing/posts")]

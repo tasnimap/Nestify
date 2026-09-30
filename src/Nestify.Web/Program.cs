@@ -74,8 +74,8 @@ builder.Services.AddScoped<ISettlementService, SettlementService>();
 // log, backed by api/v1/admin (Admin.sql).
 builder.Services.AddScoped<IAdminService, AdminService>();
 
-// Dashboard charts are still sample data, kept as a Singleton so the numbers
-// stay the same while navigating between the admin pages.
+// Kept for shared admin display helpers. Its former sample dashboard data is
+// commented out in AdminConsoleService; dashboard values now come from the API.
 builder.Services.AddSingleton<Nestify.Web.Admin.AdminConsoleService>();
 
 // The admin profile page reads the signed-in admin's own users row.

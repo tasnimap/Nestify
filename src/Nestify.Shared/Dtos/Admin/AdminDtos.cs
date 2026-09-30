@@ -86,6 +86,42 @@ public sealed class AdminSummaryDto
     public int PendingVerifications { get; set; }
 }
 
+// The live data shown on the admin dashboard. Revenue currently contains
+// verification payments only; posting-plan revenue is intentionally not
+// included until those payment flows are enabled.
+public sealed class AdminDashboardDto
+{
+    public AdminSummaryDto Summary { get; set; } = new();
+    public AdminDashboardStatsDto Stats { get; set; } = new();
+    public List<AdminRevenuePointDto> VerificationRevenue { get; set; } = new();
+    public List<AdminGrowthPointDto> Growth { get; set; } = new();
+}
+
+public sealed class AdminDashboardStatsDto
+{
+    public int TotalUsers { get; set; }
+    public int TotalHelpers { get; set; }
+    public int NewUsersThisMonth { get; set; }
+    public int HomesCreated { get; set; }
+    public int HelpersHired { get; set; }
+    public int ItemsSold { get; set; }
+    public int ItemsListed { get; set; }
+    public int VerifiedAccounts { get; set; }
+}
+
+public sealed class AdminRevenuePointDto
+{
+    public DateTime MonthUtc { get; set; }
+    public decimal Verification { get; set; }
+}
+
+public sealed class AdminGrowthPointDto
+{
+    public DateTime MonthUtc { get; set; }
+    public int Users { get; set; }
+    public int Helpers { get; set; }
+}
+
 public sealed class AdminHousingPostDto
 {
     public string Id { get; set; } = string.Empty;
