@@ -156,6 +156,7 @@ public sealed class UserProfileService
                    u.full_name             AS FullName,
                    u.email                 AS Email,
                    u.phone_number          AS PhoneNumber,
+                   u.account_type          AS AccountType,
                    u.created_at_utc        AS CreatedAtUtc,
                    p.profile_picture_url   AS ProfilePictureUrl,
                    p.occupation            AS Occupation,
@@ -169,9 +170,13 @@ public sealed class UserProfileService
                    p.whatsapp_number       AS WhatsappNumber,
                    p.facebook_url          AS FacebookUrl,
                    p.x_url                 AS XUrl,
-                   p.instagram_url         AS InstagramUrl
+                   p.instagram_url         AS InstagramUrl,
+                   hm.role                 AS HomeRole,
+                   h.name                  AS HomeName
             FROM users u
             JOIN user_additional_profile_info p ON p.user_id = u.id
+            LEFT JOIN home_members hm ON hm.user_id = u.id AND hm.left_at_utc IS NULL
+            LEFT JOIN homes h ON h.id = hm.home_id
             WHERE u.id = @userId
             """,
             new { userId },
@@ -181,6 +186,19 @@ public sealed class UserProfileService
         {
             return null;
         }
+
+        var role = row.AccountType switch
+        {
+            3 => "Administrator",
+            2 => "Domestic Helper",
+            _ => row.HomeRole switch
+            {
+                1 => "Manager",
+                2 => "Co-manager",
+                3 => "House member",
+                _ => "No active home"
+            }
+        };
 
         var profile = new UserProfileDto
         {
@@ -205,7 +223,10 @@ public sealed class UserProfileService
             WhatsappNumber = row.WhatsappNumber,
             FacebookUrl = row.FacebookUrl,
             XUrl = row.XUrl,
-            InstagramUrl = row.InstagramUrl
+            InstagramUrl = row.InstagramUrl,
+            Role = role,
+            HomeRole = row.HomeRole,
+            HomeName = row.HomeName
         };
 
         profile.Activity = await ReadActivityAsync(connection, transaction, userId, profile);
@@ -321,8 +342,8 @@ public sealed class UserProfileService
         public string? Occupation { get; set; }
         public short? Gender { get; set; }
         public DateOnly? DateOfBirth { get; set; }
-        public bool IsSmoker { get; set; }
-        public bool IsDrinker { get; set; }
+        public bool? IsSmoker { get; set; }
+        public bool? IsDrinker { get; set; }
         public string? OrganizationName { get; set; }
         public bool IsVerified { get; set; }
         public string? Address { get; set; }
@@ -330,5 +351,8 @@ public sealed class UserProfileService
         public string? FacebookUrl { get; set; }
         public string? XUrl { get; set; }
         public string? InstagramUrl { get; set; }
+        public short AccountType { get; set; } = 1;
+        public short? HomeRole { get; set; }
+        public string? HomeName { get; set; }
     }
 }

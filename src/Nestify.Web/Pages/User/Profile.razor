@@ -48,7 +48,7 @@ else
                 </div>
 
                 <div class="up-head__text">
-                    <p class="up-kicker">Bachelor account</p>
+                    <p class="up-kicker">@AccountKicker</p>
                     <h1>@_profile.FullName</h1>
                     <p class="up-head__meta">@DisplayOccupation &middot; @DisplayAddress</p>
                     <div class="up-chips">
@@ -63,7 +63,7 @@ else
                         }
                         else
                         { <button type="button" class="up-chip up-chip--apply" @onclick="OpenVerification">Apply for verification</button> }
-                        <span class="up-chip">House member</span>
+                        <span class="up-chip">@DisplayRole</span>
                         <span class="up-chip">Joined @JoinedOn</span>
                     </div>
                 </div>
@@ -214,6 +214,7 @@ else
                     <div class="up-field">
                         <label for="ed-smoker">Smoking</label>
                         <select id="ed-smoker" @bind="SmokerSelection">
+                            <option value="">Not chosen</option>
                             <option value="false">Non-smoker</option>
                             <option value="true">Smoker</option>
                         </select>
@@ -221,6 +222,7 @@ else
                     <div class="up-field">
                         <label for="ed-drinker">Drinking</label>
                         <select id="ed-drinker" @bind="DrinkerSelection">
+                            <option value="">Not chosen</option>
                             <option value="false">Non-drinker</option>
                             <option value="true">Drinker</option>
                         </select>
@@ -572,9 +574,27 @@ else
         return age;
     }
 
-    private string DisplaySmoker => _profile?.IsSmoker == true ? "Smoker" : "Non-smoker";
+    private string AccountKicker => !string.IsNullOrWhiteSpace(_profile?.HomeName)
+        ? _profile.HomeName
+        : "Bachelor account";
 
-    private string DisplayDrinker => _profile?.IsDrinker == true ? "Drinker" : "Non-drinker";
+    private string DisplayRole => !string.IsNullOrWhiteSpace(_profile?.Role)
+        ? _profile.Role
+        : "Member";
+
+    private string DisplaySmoker => _profile?.IsSmoker switch
+    {
+        true => "Smoker",
+        false => "Non-smoker",
+        _ => "Not chosen"
+    };
+
+    private string DisplayDrinker => _profile?.IsDrinker switch
+    {
+        true => "Drinker",
+        false => "Non-drinker",
+        _ => "Not chosen"
+    };
 
     private string GenderSelection
     {
@@ -594,14 +614,34 @@ else
 
     private string SmokerSelection
     {
-        get => _draft.IsSmoker ? "true" : "false";
-        set => _draft.IsSmoker = value == "true";
+        get => _draft.IsSmoker switch
+        {
+            true => "true",
+            false => "false",
+            _ => ""
+        };
+        set => _draft.IsSmoker = value switch
+        {
+            "true" => true,
+            "false" => false,
+            _ => null
+        };
     }
 
     private string DrinkerSelection
     {
-        get => _draft.IsDrinker ? "true" : "false";
-        set => _draft.IsDrinker = value == "true";
+        get => _draft.IsDrinker switch
+        {
+            true => "true",
+            false => "false",
+            _ => ""
+        };
+        set => _draft.IsDrinker = value switch
+        {
+            "true" => true,
+            "false" => false,
+            _ => null
+        };
     }
 
     private record Stat(string Value, string Label, string Trend);
@@ -960,8 +1000,8 @@ else
             Occupation = _profile?.Occupation,
             Gender = _profile?.Gender,
             DateOfBirth = _profile?.DateOfBirth,
-            IsSmoker = _profile?.IsSmoker ?? false,
-            IsDrinker = _profile?.IsDrinker ?? false,
+            IsSmoker = _profile?.IsSmoker,
+            IsDrinker = _profile?.IsDrinker,
             OrganizationName = _profile?.OrganizationName,
             Address = _profile?.Address,
             WhatsappNumber = _profile?.WhatsappNumber,

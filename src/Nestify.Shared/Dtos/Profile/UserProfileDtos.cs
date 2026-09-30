@@ -23,8 +23,8 @@ public sealed class UserProfileDto
     public string? Occupation { get; set; }
     public ProfileGender? Gender { get; set; }
     public DateOnly? DateOfBirth { get; set; }
-    public bool IsSmoker { get; set; }
-    public bool IsDrinker { get; set; }
+    public bool? IsSmoker { get; set; }
+    public bool? IsDrinker { get; set; }
     public string? OrganizationName { get; set; }
     public VerificationState VerificationState { get; set; }
     public string? Address { get; set; }
@@ -32,6 +32,9 @@ public sealed class UserProfileDto
     public string? FacebookUrl { get; set; }
     public string? XUrl { get; set; }
     public string? InstagramUrl { get; set; }
+    public string Role { get; set; } = "Member";
+    public short? HomeRole { get; set; }
+    public string? HomeName { get; set; }
     public ProfileActivityDto Activity { get; set; } = new();
 }
 
@@ -61,8 +64,8 @@ public sealed class UpdateUserProfileDto
     public string? Occupation { get; set; }
     public ProfileGender? Gender { get; set; }
     public DateOnly? DateOfBirth { get; set; }
-    public bool IsSmoker { get; set; }
-    public bool IsDrinker { get; set; }
+    public bool? IsSmoker { get; set; }
+    public bool? IsDrinker { get; set; }
     public string? OrganizationName { get; set; }
     public string? Address { get; set; }
     public string? WhatsappNumber { get; set; }

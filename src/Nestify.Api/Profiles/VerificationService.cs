@@ -404,7 +404,7 @@ public sealed class VerificationService
                    coalesce(hp.photo_url, p.profile_picture_url, '') AS ProfilePictureUrl,
                    p.occupation AS Occupation, p.organization_name AS OrganizationName,
                    p.date_of_birth AS DateOfBirth,
-                   coalesce(p.is_smoker, false) AS IsSmoker, coalesce(p.is_drinker, false) AS IsDrinker,
+                   p.is_smoker AS IsSmoker, p.is_drinker AS IsDrinker,
                    pay.amount_bdt AS PaymentAmount, pay.bkash_number AS PaymentNumber,
                    pay.transaction_id AS PaymentTransactionId, pay.paid_at_utc AS PaymentPaidAtUtc
             FROM verification_requests v
@@ -597,8 +597,8 @@ public sealed class VerificationService
         public string? Occupation { get; init; }
         public string? OrganizationName { get; init; }
         public DateOnly? DateOfBirth { get; init; }
-        public bool IsSmoker { get; init; }
-        public bool IsDrinker { get; init; }
+        public bool? IsSmoker { get; init; }
+        public bool? IsDrinker { get; init; }
         public decimal? PaymentAmount { get; init; }
         public string? PaymentNumber { get; init; }
         public string? PaymentTransactionId { get; init; }

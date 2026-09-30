@@ -18,8 +18,8 @@ public sealed class VerificationRequestDto
     public string? Occupation { get; set; }
     public string? OrganizationName { get; set; }
     public DateOnly? DateOfBirth { get; set; }
-    public bool IsSmoker { get; set; }
-    public bool IsDrinker { get; set; }
+    public bool? IsSmoker { get; set; }
+    public bool? IsDrinker { get; set; }
     public List<VerificationDocumentDto> Documents { get; set; } = new();
     public VerificationPaymentSummaryDto? Payment { get; set; }
     public VerificationHelperProfileDto? HelperProfile { get; set; }   // only on a helper's request

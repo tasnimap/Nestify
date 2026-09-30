@@ -152,8 +152,8 @@ else
                     <div class="adm-kv__row"><span>Date of birth</span><strong>@DateOfBirth(_selected)</strong></div>
                     <div class="adm-kv__row"><span>Occupation</span><strong>@(string.IsNullOrWhiteSpace(_selected.Occupation) ? "Not set" : _selected.Occupation)</strong></div>
                     <div class="adm-kv__row"><span>@OrganizationLabel(_selected)</span><strong>@(string.IsNullOrWhiteSpace(_selected.OrganizationName) ? "Not set" : _selected.OrganizationName)</strong></div>
-                    <div class="adm-kv__row"><span>Smoking</span><strong>@(_selected.IsSmoker ? "Smoker" : "Non-smoker")</strong></div>
-                    <div class="adm-kv__row"><span>Drinking</span><strong>@(_selected.IsDrinker ? "Drinker" : "Non-drinker")</strong></div>
+                    <div class="adm-kv__row"><span>Smoking</span><strong>@(_selected.IsSmoker switch { true => "Smoker", false => "Non-smoker", _ => "Not chosen" })</strong></div>
+                    <div class="adm-kv__row"><span>Drinking</span><strong>@(_selected.IsDrinker switch { true => "Drinker", false => "Non-drinker", _ => "Not chosen" })</strong></div>
                 }
                 @if (_selected.Payment is not null)
                 {
