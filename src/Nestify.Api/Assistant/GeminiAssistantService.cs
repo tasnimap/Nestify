@@ -40,7 +40,7 @@ public sealed class GeminiAssistantService
         var model = _configuration["GEMINI_MODEL"];
         if (string.IsNullOrWhiteSpace(model))
         {
-            model = "gemini-3.6-flash";
+            model = "gemini-2.5-flash";
         }
 
         // Preserve only a small amount of user-visible conversation context.

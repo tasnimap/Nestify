@@ -553,7 +553,7 @@ Fill in the values in `.env` (the API reads it on startup and it is git-ignored)
 | `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` | PostgreSQL connection |
 | `JWT_SECRET`, `JWT_ISSUER`, `JWT_AUDIENCE`, `JWT_ACCESS_MINUTES`, `JWT_REFRESH_DAYS` | Token signing and lifetimes (`JWT_SECRET` must be 32+ random characters) |
 | `CLOUDINARY_URL`, `UPLOAD_PICTURE` | Cloudinary API URL and the unsigned preset name |
-| `GEMINI_API_KEY`, `GEMINI_MODEL` | Assistant; optional, defaults to `gemini-3.6-flash` |
+| `GEMINI_API_KEY`, `GEMINI_MODEL` | Assistant; optional, defaults to `gemini-2.5-flash` |
 
 ### 4. Run
 
@@ -586,7 +586,7 @@ Nestify is deployed on Render as two services: a Blazor WebAssembly frontend and
 
 | Service | URL |
 |---------|-----|
-| Nestify frontend | [nestify-1df6p.onrender.com](https://nestify-1df6p.onrender.com) |
+| Nestify frontend | [https://nestify-1-df6p.onrender.com](https://nestify-1df6p.onrender.com) |
 | API | [nestify-uqcz.onrender.com](https://nestify-uqcz.onrender.com) |
 | Swagger UI | [API Swagger](https://nestify-uqcz.onrender.com/swagger/index.html) |
 
