@@ -184,12 +184,9 @@ using (var scope = app.Services.CreateScope())
 app.UseCors(ClientCorsPolicy);
 app.UseSwagger();
 app.UseSwaggerUI();
-if (!app.Environment.IsDevelopment())
-{
-    app.UseHttpsRedirection();
-}
 app.UseAuthentication();
 app.UseRateLimiter();
 app.UseAuthorization();
+app.MapGet("/", () => Results.Redirect("/swagger"));
 app.MapControllers();
 app.Run();
