@@ -52,6 +52,7 @@
     }
     else
     {
+        var accountPage = ClampPage(_admins.Count);
         <div class="adm-table__scroll">
             <table class="adm-table">
                 <thead>
@@ -65,7 +66,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var admin in _admins)
+                    @foreach (var admin in _admins.Skip((accountPage - 1) * PageSize).Take(PageSize))
                     {
                         var current = admin;
                         <tr>
@@ -94,6 +95,8 @@
                 </tbody>
             </table>
         </div>
+
+        <Pager Page="accountPage" PageSize="PageSize" Total="_admins.Count" PageChanged="p => _page = p" />
     }
 </section>
 
@@ -160,10 +163,13 @@
 }
 
 @code {
+    private const int PageSize = 10;
+
     private List<AdminAccountDto> _admins = new();
     private int _auditCount;
     private bool _loading = true;
     private bool _busy;
+    private int _page = 1;
 
     private CreateAdminDto? _draft;
     private string? _error;
@@ -177,7 +183,15 @@
         var audit = Admin.GetAuditAsync(1000);
         _admins = await admins;
         _auditCount = (await audit).Count;
+        _page = 1;
         _loading = false;
+    }
+
+    private int ClampPage(int total)
+    {
+        var pageCount = Math.Max(1, (int)Math.Ceiling(total / (double)PageSize));
+        _page = Math.Clamp(_page, 1, pageCount);
+        return _page;
     }
 
     private void StartNew()
