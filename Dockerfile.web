@@ -1,0 +1,18 @@
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+
+COPY src/Nestify.Shared/Nestify.Shared.csproj src/Nestify.Shared/
+COPY src/Nestify.Web/Nestify.Web.csproj src/Nestify.Web/
+RUN dotnet restore src/Nestify.Web/Nestify.Web.csproj
+
+COPY src/Nestify.Shared/ src/Nestify.Shared/
+COPY src/Nestify.Web/ src/Nestify.Web/
+RUN dotnet publish src/Nestify.Web/Nestify.Web.csproj \
+    --configuration Release \
+    --output /app/publish \
+    --no-restore
+
+FROM nginx:alpine AS runtime
+COPY nginx.web.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/publish/wwwroot /usr/share/nginx/html
+EXPOSE 10000

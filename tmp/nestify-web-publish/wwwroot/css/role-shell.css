@@ -1,0 +1,253 @@
+/* ============================================================
+   Nestify — role shells
+   Shared chrome for the three interfaces (User / Helper / Admin).
+   Built on the same tokens in nestify.css; each shell is set apart
+   by its navigation pattern and accent, not a new visual language.
+   ============================================================ */
+
+.layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100dvh;
+}
+
+.layout__body {
+    flex: 1;
+    outline: none;
+}
+
+.skip-link {
+    position: absolute;
+    left: 1rem;
+    top: -3rem;
+    z-index: 200;
+    padding: .6rem 1rem;
+    border-radius: 8px;
+    background: var(--nx-primary);
+    color: #fff;
+    font-weight: 600;
+    transition: top .18s ease;
+}
+
+.skip-link:focus { top: 1rem; text-decoration: none; }
+
+/* ---------- shared footer ---------- */
+
+.site-footer {
+    background: var(--nx-bg-deep);
+    color: #b7afd0;
+    padding-block: 3rem 2.25rem;
+}
+
+.site-footer__inner { display: grid; gap: 1.75rem; }
+.site-footer__brand { display: flex; align-items: center; gap: .85rem; }
+
+.site-footer__name { color: #fff; font-weight: 700; font-size: 1.05rem; }
+.site-footer__tag { font-size: .85rem; color: #8f88ac; }
+.site-footer__links { display: flex; flex-wrap: wrap; gap: 1.5rem; }
+.site-footer__links a { color: #cfc8e6; font-size: .92rem; font-weight: 500; }
+.site-footer__links a:hover { color: #fff; text-decoration: none; }
+
+.site-footer__legal {
+    font-size: .82rem;
+    color: #7d769b;
+    border-top: 1px solid rgba(255, 255, 255, .08);
+    padding-top: 1.5rem;
+}
+
+@media (min-width: 800px) {
+    .site-footer__inner { grid-template-columns: 1fr auto; align-items: center; column-gap: 2rem; }
+    .site-footer__legal { grid-column: 1 / -1; }
+}
+
+/* ============================================================
+   Helper (Domestic Help) shell — top bar
+   ============================================================ */
+
+.hnav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(255, 255, 255, .9);
+    backdrop-filter: saturate(180%) blur(14px);
+    -webkit-backdrop-filter: saturate(180%) blur(14px);
+    border-bottom: 1px solid var(--nx-border);
+}
+
+.hnav__inner {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-height: var(--nx-nav-h);
+}
+
+.hnav__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: .6rem;
+    color: var(--nx-ink);
+    font-weight: 700;
+    font-size: 1.15rem;
+    letter-spacing: -.02em;
+}
+
+.hnav__brand:hover { text-decoration: none; }
+
+.hnav__mark {
+    display: grid;
+    place-items: center;
+    width: 2.15rem;
+    height: 2.15rem;
+    border-radius: 10px 10px 10px 3px;
+    background: var(--nx-accent);
+    color: #fff;
+    font-family: var(--nx-display);
+    font-weight: 700;
+}
+
+.hnav__badge {
+    padding: .2rem .6rem;
+    border-radius: 999px;
+    background: var(--nx-accent-soft);
+    color: var(--nx-accent);
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.hnav__links {
+    display: flex;
+    align-items: center;
+    gap: .25rem;
+    margin: 0 0 0 auto;
+    padding: 0;
+    list-style: none;
+}
+
+.hnav__link {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .55rem .9rem;
+    border-radius: 9px;
+    color: var(--nx-body);
+    font-weight: 600;
+    font-size: .95rem;
+    transition: color .16s ease, background .16s ease;
+}
+
+.hnav__link:hover { color: var(--nx-accent); background: var(--nx-accent-soft); text-decoration: none; }
+.hnav__link.active { color: var(--nx-accent); background: var(--nx-accent-soft); }
+
+.hnav__menu { position: relative; margin-left: .5rem; }
+
+.hnav__menu-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: .55rem;
+    padding: .35rem .5rem .35rem .35rem;
+    border: 1px solid var(--nx-border-strong);
+    border-radius: 999px;
+    background: #fff;
+    font: inherit;
+    font-weight: 600;
+    font-size: .9rem;
+    color: var(--nx-ink);
+    cursor: pointer;
+}
+
+.hnav__avatar {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--nx-accent);
+    color: #fff;
+    font-size: .8rem;
+    font-weight: 700;
+}
+
+.role-menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + .5rem);
+    min-width: 208px;
+    padding: .4rem;
+    background: #fff;
+    border: 1px solid var(--nx-border);
+    border-radius: 12px;
+    box-shadow: var(--nx-shadow-md);
+    display: grid;
+    gap: .15rem;
+    z-index: 120;
+}
+
+.role-menu__name {
+    padding: .5rem .65rem;
+    font-size: .8rem;
+    color: var(--nx-muted);
+    border-bottom: 1px solid var(--nx-border);
+    margin-bottom: .25rem;
+}
+
+.role-menu a,
+.role-menu button {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    width: 100%;
+    padding: .6rem .65rem;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    font: inherit;
+    font-size: .92rem;
+    font-weight: 600;
+    color: var(--nx-ink);
+    text-align: left;
+    cursor: pointer;
+}
+
+.role-menu a:hover,
+.role-menu button:hover { background: var(--nx-primary-soft); text-decoration: none; }
+.role-menu__danger { color: var(--nx-danger); }
+.role-menu__danger:hover { background: var(--nx-danger-soft); }
+
+.hnav__toggle {
+    display: none;
+    width: 44px;
+    height: 44px;
+    margin-left: auto;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--nx-border-strong);
+    border-radius: 10px;
+    background: #fff;
+    cursor: pointer;
+}
+
+@media (max-width: 860px) {
+    .hnav__toggle { display: inline-flex; }
+
+    .hnav__links {
+        position: absolute;
+        left: 0; right: 0; top: 100%;
+        flex-direction: column;
+        align-items: stretch;
+        gap: .25rem;
+        margin: 0;
+        padding: 1rem clamp(1.15rem, 4vw, 2.5rem) 1.25rem;
+        background: #fff;
+        border-bottom: 1px solid var(--nx-border);
+        box-shadow: var(--nx-shadow-md);
+        transform: translateY(-8px);
+        opacity: 0;
+        pointer-events: none;
+        transition: transform .2s ease, opacity .2s ease;
+    }
+
+    .hnav__links--open { transform: translateY(0); opacity: 1; pointer-events: auto; }
+    .hnav__menu { margin: .5rem 0 0; }
+}
