@@ -2,6 +2,8 @@
 
 This repository deploys `src/Nestify.Api` as a Docker Web Service. The Docker image listens on port `8080`, and Swagger UI is available at `/swagger` in Production.
 
+The Blazor frontend is deployed separately as a second Docker Web Service using `Dockerfile.web`. It listens on Render's default web port `10000` and calls the API at `https://nestify-uqcz.onrender.com/`.
+
 ## 1. Prepare Neon
 
 1. Create a Neon PostgreSQL project and database.
@@ -90,3 +92,18 @@ Use the service URL as the API base URL in the Blazor client. The API enables pu
 - Set the Blazor API base URL to the Render HTTPS URL.
 - Sign in from the deployed client and inspect the browser Network panel for CORS errors.
 - Confirm authenticated requests carry `Authorization: Bearer ...` and do not expose any server secret.
+
+## 6. Deploy the Blazor frontend
+
+Create a second Render service from the same GitHub repository:
+
+1. Choose **New > Web Service** and select the same repository and branch.
+2. Choose **Docker** as the runtime.
+3. Set **Dockerfile Path** to `./Dockerfile.web`.
+4. Leave the **Docker Context** as the repository root (`.`).
+5. Choose an instance size and create the service.
+6. Deploy the latest commit. Render will build the Blazor WASM files and serve them through Nginx.
+
+The frontend Docker image exposes port `10000`, Render's default HTTP port. No database or JWT secrets belong on this frontend service. The API URL is compiled from `src/Nestify.Web/wwwroot/appsettings.json`.
+
+When it is live, use the frontend service URL for the teacher and team. The API URL remains available separately at `https://nestify-uqcz.onrender.com/swagger`.
