@@ -1,30 +1,41 @@
 @using Nestify.Shared.Dtos.Notifications
 
-<div class="notification-dropdown @(Show ? "show" : "hide")" @onclick:stopPropagation="true">
-    <ul class="notification-list">
+<section class="notification-dropdown @(Show ? "show" : "hide")" role="dialog" aria-label="Notifications" aria-hidden="@(!Show)" @onclick:stopPropagation="true">
+    <header class="notification-dropdown__header">
+        <h2>Notifications</h2>
+        <button type="button" class="notification-dropdown__mark-all"
+                disabled="@(Loading || UnreadCount == 0)" @onclick="OnMarkAllRead">
+            Mark all as read
+        </button>
+    </header>
+
+    <div class="notification-dropdown__content">
         @if (Loading)
         {
-            <li class="empty">Loading notifications…</li>
+            <p class="notification-dropdown__state">Loading notifications…</p>
         }
         else if (Error is not null)
         {
-            <li class="notification-error" role="alert">@Error</li>
-            <li><button class="btn btn-link btn-sm" @onclick="OnRetry">Try again</button></li>
+            <div class="notification-dropdown__state notification-dropdown__state--error" role="alert">
+                <p>@Error</p>
+                <button type="button" class="notification-dropdown__mark-all" @onclick="OnRetry">Try again</button>
+            </div>
         }
         else if (Notifications.Count > 0)
         {
-            foreach (var n in Notifications)
-            {
-                <NotificationItem Notification="n" OnMarkRead="OnMarkRead" />
-            }
+            <ul class="notification-list">
+                @foreach (var n in Notifications)
+                {
+                    <NotificationItem Notification="n" OnMarkRead="OnMarkRead" />
+                }
+            </ul>
         }
         else
         {
-            <li class="empty">No notifications</li>
+            <p class="notification-dropdown__state notification-dropdown__empty">You're all caught up</p>
         }
-    </ul>
-    <button class="btn btn-link btn-sm mt-2" disabled="@(Loading || UnreadCount == 0)" @onclick="OnMarkAllRead">Mark all as read</button>
-</div>
+    </div>
+</section>
 
 @code {
     [Parameter] public IReadOnlyList<NotificationDto> Notifications { get; set; } = Array.Empty<NotificationDto>();
