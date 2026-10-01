@@ -23,7 +23,7 @@
                 </div>
                 <button type="button" class="md-switch @(_available ? "md-switch--on" : null)"
                         role="switch" aria-checked="@_available.ToString().ToLowerInvariant()"
-                        aria-label="Available for new bookings" @onclick="ToggleAvailable">
+                        aria-label="Available for new bookings" disabled="@(!CanEdit)" @onclick="ToggleAvailable">
                     <span class="md-switch__knob"></span>
                 </button>
             </div>
@@ -49,6 +49,17 @@
         </div>
 
         <section class="dh-panel md-board dh-rise @(!_available ? "md-board--paused" : null)" style="--d:120ms">
+            @if (_availabilityError is not null)
+            {
+                <div class="md-msg md-msg--bad" role="alert">
+                    @_availabilityError
+                    @if (!_loading)
+                    {
+                        <button type="button" class="dh-picks__clear" @onclick="LoadAvailabilityAsync">Try again</button>
+                    }
+                </div>
+            }
+
             <div class="md-board__top">
                 <div class="md-weeknav__label">
                     <strong>Weekly pattern</strong>
@@ -65,12 +76,12 @@
             <div class="md-presets">
                 <span class="md-presets__label">Quick fill</span>
                 <div class="md-presets__row">
-                    <button type="button" class="dh-chip" @onclick="() => ApplyPreset(6, 12)">Mornings</button>
-                    <button type="button" class="dh-chip" @onclick="() => ApplyPreset(12, 17)">Afternoons</button>
-                    <button type="button" class="dh-chip" @onclick="() => ApplyPreset(17, 22)">Evenings</button>
-                    <button type="button" class="dh-chip" @onclick="() => ApplyPreset(8, 18)">Office hours</button>
-                    <button type="button" class="dh-chip" @onclick="() => ApplyPreset(6, 24)">Full days</button>
-                    <button type="button" class="dh-chip md-chip--clear" @onclick="ClearWeek">Clear week</button>
+                    <button type="button" class="dh-chip" disabled="@(!CanEdit)" @onclick="() => ApplyPreset(6, 12)">Mornings</button>
+                    <button type="button" class="dh-chip" disabled="@(!CanEdit)" @onclick="() => ApplyPreset(12, 17)">Afternoons</button>
+                    <button type="button" class="dh-chip" disabled="@(!CanEdit)" @onclick="() => ApplyPreset(17, 22)">Evenings</button>
+                    <button type="button" class="dh-chip" disabled="@(!CanEdit)" @onclick="() => ApplyPreset(8, 18)">Office hours</button>
+                    <button type="button" class="dh-chip" disabled="@(!CanEdit)" @onclick="() => ApplyPreset(6, 24)">Full days</button>
+                    <button type="button" class="dh-chip md-chip--clear" disabled="@(!CanEdit)" @onclick="ClearWeek">Clear week</button>
                 </div>
             </div>
 
@@ -85,6 +96,7 @@
                         <button type="button" role="columnheader"
                                 class="md-grid__day @(isToday ? "md-grid__day--today" : null) @(open > 0 ? "md-grid__day--on" : null)"
                                 title="Toggle the whole day"
+                                disabled="@(!CanEdit)"
                                 @onclick="() => ToggleDay(d)">
                             <span class="md-grid__dow">@DayShort(d)</span>
                             <span class="md-grid__date">@DayLetter(d)</span>
@@ -109,7 +121,7 @@
                                     title="@label"
                                     aria-label="@label"
                                     aria-pressed="@((state == SlotState.Open).ToString().ToLowerInvariant())"
-                                    disabled="@booked"
+                                    disabled="@(booked || !CanEdit)"
                                     @onpointerdown="() => StartPaint(key)"
                                     @onpointerenter="() => Paint(key)"
                                     @onclick="() => Tap(key)">
@@ -132,8 +144,8 @@
             <span class="md-savebar__text">
                 <strong>@_dirtyCount</strong> @(_dirtyCount == 1 ? "hour" : "hours") changed
             </span>
-            <button type="button" class="nx-btn nx-btn--ghost" @onclick="Discard">Discard</button>
-            <button type="button" class="nx-btn nx-btn--accent" @onclick="Save">Save hours</button>
+            <button type="button" class="nx-btn nx-btn--ghost" @onclick="Discard" disabled="@(!CanEdit || _saving)">Discard</button>
+            <button type="button" class="nx-btn nx-btn--accent" @onclick="Save" disabled="@(!CanEdit || _saving)">@(_saving ? "Saving…" : "Save hours")</button>
         </div>
     </div>
 </div>
@@ -142,6 +154,9 @@
     private Dictionary<(DayOfWeek Day, int Hour), SlotState> _week = new();
     private Dictionary<(DayOfWeek Day, int Hour), SlotState> _saved = new();
     private bool _available;
+    private bool _loading = true;
+    private bool _saving;
+    private string? _availabilityError;
 
     private int _openCount;
     private int _bookedCount;
@@ -154,19 +169,63 @@
     private const int StartHour = 6, EndHour = 24;
     private static readonly DayOfWeek[] Week = [DayOfWeek.Saturday, DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday];
     private enum SlotState { Off, Open, Booked }
+    private bool CanEdit => !_loading && _availabilityError is null;
 
-    protected override async Task OnInitializedAsync()
+    protected override Task OnInitializedAsync() => LoadAvailabilityAsync();
+
+    private async Task LoadAvailabilityAsync()
     {
-        var availability = await Helpers.GetAvailabilityAsync() ?? new HelperAvailabilityDto();
-        _available = availability.IsAvailable;
+        _loading = true;
+        _availabilityError = null;
+        InitializeEmptyBoard();
+
+        try
+        {
+            var availability = await Helpers.GetAvailabilityAsync();
+            if (availability is null)
+            {
+                throw new InvalidOperationException("The availability service did not return a schedule.");
+            }
+            if (availability.Slots is null || availability.Slots.Count != 7 * 18
+                || availability.Slots.Any(s => s.DayOfWeek is < 0 or > 6 || s.Hour is < StartHour or >= EndHour)
+                || availability.Slots.Select(s => (s.DayOfWeek, s.Hour)).Distinct().Count() != 7 * 18)
+            {
+                throw new InvalidOperationException("The availability service returned an incomplete weekly board.");
+            }
+
+            _available = availability.IsAvailable;
+            foreach (var day in Week)
+            for (var hour = StartHour; hour < EndHour; hour++)
+            {
+                // PostgreSQL and System.DayOfWeek both number Sunday as 0;
+                // the Saturday-first UI only changes display order.
+                var slot = availability.Slots.FirstOrDefault(s => s.DayOfWeek == (int)day && s.Hour == hour);
+                _week[(day, hour)] = slot?.IsBooked == true ? SlotState.Booked : slot?.IsOpen == true ? SlotState.Open : SlotState.Off;
+            }
+
+            _saved = new(_week);
+        }
+        catch
+        {
+            _availabilityError = "Could not load your saved hours. Check your connection and try again.";
+            Toast.ShowError(_availabilityError, "Availability not loaded");
+        }
+        finally
+        {
+            _loading = false;
+            Recount();
+        }
+    }
+
+    private void InitializeEmptyBoard()
+    {
+        _week = new Dictionary<(DayOfWeek Day, int Hour), SlotState>();
         foreach (var day in Week)
         for (var hour = StartHour; hour < EndHour; hour++)
         {
-            var slot = availability.Slots.FirstOrDefault(s => s.DayOfWeek == (int)day && s.Hour == hour);
-            _week[(day, hour)] = slot?.IsBooked == true ? SlotState.Booked : slot?.IsOpen == true ? SlotState.Open : SlotState.Off;
+            _week[(day, hour)] = SlotState.Off;
         }
         _saved = new(_week);
-        Recount();
     }
 
     private void Recount()
@@ -174,7 +233,7 @@
         _openCount = _week.Values.Count(s => s == SlotState.Open);
         _bookedCount = _week.Values.Count(s => s == SlotState.Booked);
         _daysWorking = _week.Where(kv => kv.Value != SlotState.Off).Select(kv => kv.Key.Day).Distinct().Count();
-        _dirtyCount = _week.Count(kv => _saved[kv.Key] != kv.Value);
+        _dirtyCount = _week.Count(kv => !_saved.TryGetValue(kv.Key, out var saved) || saved != kv.Value);
     }
 
     private int OpenCountForDay(DayOfWeek day) =>
@@ -254,13 +313,41 @@
 
     private async Task Save()
     {
-        var availability = new HelperAvailabilityDto { IsAvailable = _available,
-            Slots = _week.Select(kv => new HelperAvailabilitySlotDto { DayOfWeek = (int)kv.Key.Day, Hour = kv.Key.Hour, IsOpen = kv.Value == SlotState.Open, IsBooked = kv.Value == SlotState.Booked }).ToList() };
-        await Helpers.SaveAvailabilityAsync(availability);
-        _saved = new(_week);
-        Recount();
-        StateHasChanged();
-        Toast.ShowSuccess($"{_openCount} open hours a week published.", "Hours saved");
+        if (!CanEdit || _saving || _dirtyCount == 0) return;
+
+        _saving = true;
+        _availabilityError = null;
+        try
+        {
+            var availability = new HelperAvailabilityDto
+            {
+                IsAvailable = _available,
+                Slots = _week.Select(kv => new HelperAvailabilitySlotDto
+                {
+                    DayOfWeek = (int)kv.Key.Day,
+                    Hour = kv.Key.Hour,
+                    IsOpen = kv.Value == SlotState.Open,
+                    IsBooked = kv.Value == SlotState.Booked
+                }).ToList()
+            };
+
+            await Helpers.SaveAvailabilityAsync(availability);
+
+            // The PUT succeeded, so this exact board is now the saved snapshot.
+            // This also keeps subsequent edits and Discard aligned with the API.
+            _saved = new(_week);
+            Recount();
+            Toast.ShowSuccess($"{_openCount} open hours a week published.", "Hours saved");
+        }
+        catch (Exception ex)
+        {
+            _availabilityError = $"Could not save your hours: {ex.Message}";
+            Toast.ShowError(_availabilityError, "Hours not saved");
+        }
+        finally
+        {
+            _saving = false;
+        }
     }
 
     private void Discard()
@@ -271,6 +358,7 @@
 
     private async Task ToggleAvailable()
     {
+        if (!CanEdit || _saving) return;
         _available = !_available;
         try
         {
