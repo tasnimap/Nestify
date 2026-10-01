@@ -25,7 +25,8 @@ const string ClientCorsPolicy = "NestifyClient";
 // ---- Configuration from environment ----
 string Env(string key) =>
     Environment.GetEnvironmentVariable(key)
-    ?? throw new InvalidOperationException($"Missing environment variable '{key}'. Add it to your .env file.");
+    ?? throw new InvalidOperationException(
+        $"Missing environment variable '{key}'. Add it to your .env file.");
 
 string ConfigOrEnv(string configurationKey, string environmentKey) =>
     builder.Configuration[configurationKey]
@@ -48,6 +49,7 @@ NpgsqlConnectionStringBuilder BuildNpgsqlConnectionString(string value)
             || uri.Scheme.Equals("postgres", StringComparison.OrdinalIgnoreCase)))
     {
         var userInfo = uri.UserInfo.Split(':', 2);
+
         var parsed = new NpgsqlConnectionStringBuilder
         {
             Host = uri.Host,
@@ -69,10 +71,10 @@ NpgsqlConnectionStringBuilder BuildNpgsqlConnectionString(string value)
         return parsed;
     }
 
-    var npgsqlBuilder = new NpgsqlConnectionStringBuilder(value)
-    {
-        SslMode = SslMode.Require
-    };
+    // IMPORTANT:
+    // Do not force SSL here. The SSL mode comes from DB_SSL_MODE
+    // in the connection string above.
+    var npgsqlBuilder = new NpgsqlConnectionStringBuilder(value);
 
     return npgsqlBuilder;
 }
@@ -90,10 +92,12 @@ var jwtSettings = new JwtSettings
     Audience = ConfigOrEnv("Jwt:Audience", "JWT_AUDIENCE"),
     SigningKey = ConfigOrEnv("Jwt:Secret", "JWT_SECRET"),
     AccessTokenMinutes = int.TryParse(
-        builder.Configuration["Jwt:AccessTokenMinutes"] ?? Environment.GetEnvironmentVariable("JWT_ACCESS_MINUTES"),
+        builder.Configuration["Jwt:AccessTokenMinutes"]
+            ?? Environment.GetEnvironmentVariable("JWT_ACCESS_MINUTES"),
         out var m) ? m : 120,
     RefreshTokenDays = int.TryParse(
-        builder.Configuration["Jwt:RefreshTokenDays"] ?? Environment.GetEnvironmentVariable("JWT_REFRESH_DAYS"),
+        builder.Configuration["Jwt:RefreshTokenDays"]
+            ?? Environment.GetEnvironmentVariable("JWT_REFRESH_DAYS"),
         out var d) ? d : 7
 };
 
@@ -117,27 +121,35 @@ builder.Services.AddScoped<SettlementService>();
 builder.Services.AddScoped<MarketplaceService>();
 builder.Services.AddScoped<AdminConsoleService>();
 builder.Services.AddSingleton(cloudinarySettings);
+
 builder.Services.AddHttpClient<CloudinaryUploader>();
+
 builder.Services.AddHttpClient<GeminiAssistantService>(client =>
 {
-    client.BaseAddress = new Uri("https://generativelanguage.googleapis.com/");
+    client.BaseAddress = new Uri(
+        "https://generativelanguage.googleapis.com/");
     client.Timeout = TimeSpan.FromSeconds(30);
 });
+
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
     options.AddPolicy("assistant-chat", context =>
     {
         var userId = context.User.FindFirst("sub")?.Value
                      ?? context.Connection.RemoteIpAddress?.ToString()
                      ?? "anonymous";
-        return RateLimitPartition.GetFixedWindowLimiter(userId, _ => new FixedWindowRateLimiterOptions
-        {
-            PermitLimit = 12,
-            Window = TimeSpan.FromMinutes(1),
-            QueueLimit = 0,
-            AutoReplenishment = true
-        });
+
+        return RateLimitPartition.GetFixedWindowLimiter(
+            userId,
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 12,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0,
+                AutoReplenishment = true
+            });
     });
 });
 
@@ -155,15 +167,21 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.MapInboundClaims = false;
+
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
+
             ValidIssuer = jwtSettings.Issuer,
             ValidAudience = jwtSettings.Audience,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SigningKey)),
+
+            IssuerSigningKey =
+                new SymmetricSecurityKey(
+                    Encoding.UTF8.GetBytes(jwtSettings.SigningKey)),
+
             NameClaimType = "name",
             RoleClaimType = "role"
         };
@@ -178,7 +196,9 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-    await scope.ServiceProvider.GetRequiredService<SettlementService>().EnsureSchemaCompatibilityAsync();
+    await scope.ServiceProvider
+        .GetRequiredService<SettlementService>()
+        .EnsureSchemaCompatibilityAsync();
 }
 
 app.UseCors(ClientCorsPolicy);
@@ -189,4 +209,5 @@ app.UseRateLimiter();
 app.UseAuthorization();
 app.MapGet("/", () => Results.Redirect("/swagger"));
 app.MapControllers();
+
 app.Run();

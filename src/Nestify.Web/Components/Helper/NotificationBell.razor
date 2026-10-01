@@ -1,15 +1,25 @@
 @using Nestify.Shared.Dtos.Notifications
 @using Nestify.Web.Services.Interfaces
+@using Microsoft.AspNetCore.Components.Web
 @inject INotificationService NotificationService
 
-<div class="notification-bell" style="position: relative; display: inline-block;">
-    <button class="btn btn-link" @onclick="ToggleDropdown" style="font-size: 1.5rem;">
-        <i class="oi oi-bell"></i>
+<div class="notification-bell @(showDropdown ? "notification-bell--open" : null)"
+     @onkeydown:document="HandleDocumentKeyDown"
+     @onpointerdown:document="HandleDocumentPointerDown"
+     @onpointerdown:stopPropagation="true">
+    <button type="button" class="notification-bell__trigger"
+            aria-label="Notifications@(UnreadCount > 0 ? $", {UnreadCount} unread" : null)"
+            aria-haspopup="dialog" aria-expanded="@showDropdown.ToString().ToLowerInvariant()"
+            @onclick="ToggleDropdown">
+        <svg class="notification-bell__icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" />
+        </svg>
         @if (UnreadCount > 0)
         {
-            <span class="hnav__dot" style="position: absolute; top: 0; right: 0;">@UnreadCount</span>
+            <span class="notification-bell__badge">@(UnreadCount > 9 ? "9+" : UnreadCount)</span>
         }
     </button>
+
     <NotificationDropdown Notifications="feed.Notifications" UnreadCount="UnreadCount" Show="showDropdown"
                           Loading="loading" Error="@error" OnMarkRead="MarkAsReadAsync"
                           OnMarkAllRead="MarkAllAsReadAsync" OnRetry="RefreshNotificationsAsync" />
@@ -81,5 +91,21 @@
     private void CloseDropdown()
     {
         showDropdown = false;
+    }
+
+    private void HandleDocumentKeyDown(KeyboardEventArgs args)
+    {
+        if (showDropdown && args.Key == "Escape")
+        {
+            CloseDropdown();
+        }
+    }
+
+    private void HandleDocumentPointerDown(PointerEventArgs args)
+    {
+        if (showDropdown)
+        {
+            CloseDropdown();
+        }
     }
 }

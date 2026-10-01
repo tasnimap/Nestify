@@ -1,26 +1,38 @@
 @using Nestify.Shared.Dtos.Notifications
 @using Microsoft.AspNetCore.Components
 
-<div class="notification-item @(Notification.IsRead ? "read" : "unread")" style="padding: 0.5rem; border-bottom: 1px solid #e5e5e5;">
-    <div class="d-flex justify-content-between align-items-center">
-        <strong style="color: var(--nx-primary);">@Notification.Title</strong>
-        <small class="text-muted" style="font-size: 0.75rem;">@Notification.CreatedAtUtc.ToLocalTime().ToString("g")</small>
-    </div>
-    @if (!string.IsNullOrWhiteSpace(Notification.LinkPath) && Notification.LinkPath.StartsWith('/') && !Notification.LinkPath.StartsWith("//"))
+<li class="notification-item @(Notification.IsRead ? "notification-item--read" : "notification-item--unread")">
+    @if (!Notification.IsRead)
     {
-        <a href="@Notification.LinkPath" class="text-decoration-none">
-            <p class="mb-1" style="margin-top: 0.25rem;">@Notification.Body</p>
-        </a>
+        <span class="notification-item__dot" aria-label="Unread"></span>
     }
     else
     {
-        <p class="mb-1" style="margin-top: 0.25rem;">@Notification.Body</p>
+        <span class="notification-item__dot notification-item__dot--hidden" aria-hidden="true"></span>
     }
-    @if (!Notification.IsRead)
-    {
-        <button class="btn btn-sm btn-link p-0" @onclick="() => OnMarkRead.InvokeAsync(Notification.Id)">Mark as read</button>
-    }
-</div>
+    <div class="notification-item__main">
+        <div class="notification-item__heading">
+            <strong class="notification-item__title">@Notification.Title</strong>
+            <time class="notification-item__time" datetime="@Notification.CreatedAtUtc.ToString("O")">
+                @Notification.CreatedAtUtc.ToLocalTime().ToString("g")
+            </time>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(Notification.LinkPath) && Notification.LinkPath.StartsWith('/') && !Notification.LinkPath.StartsWith("//"))
+        {
+            <a href="@Notification.LinkPath" class="notification-item__body-link">
+                <p class="notification-item__body">@Notification.Body</p>
+            </a>
+        }
+        else
+        {
+            <p class="notification-item__body">@Notification.Body</p>
+        }
+        @if (!Notification.IsRead)
+        {
+            <button type="button" class="notification-item__mark-read" @onclick="() => OnMarkRead.InvokeAsync(Notification.Id)">Mark as read</button>
+        }
+    </div>
+</li>
 
 @code {
     [Parameter] public NotificationDto Notification { get; set; } = default!;
