@@ -615,9 +615,11 @@ public sealed class HomeService
         var members = await connection.QueryAsync<HomeMemberDto>(
             @"SELECT hm.id::text AS Id, hm.user_id::text AS UserId, u.full_name AS Name, u.email AS Email,
                      hm.role AS Role, hm.joined_at_utc AS JoinedAtUtc,
-                     (hm.user_id = @userId) AS IsMe
+                     (hm.user_id = @userId) AS IsMe,
+                     COALESCE(p.profile_picture_url, 'https://res.cloudinary.com/dait0sacc/image/upload/v1774704629/k7ygnoel72ychr8ico6n.png') AS ProfilePictureUrl
               FROM home_members hm
               JOIN users u ON u.id = hm.user_id
+              LEFT JOIN user_additional_profile_info p ON p.user_id = hm.user_id
               WHERE hm.home_id = @homeId AND hm.left_at_utc IS NULL
               ORDER BY hm.role, hm.joined_at_utc",
             new { homeId, userId });
@@ -630,9 +632,11 @@ public sealed class HomeService
         {
             var requests = await connection.QueryAsync<HomeJoinRequestDto>(
                 @"SELECT r.id::text AS Id, u.full_name AS Name, u.email AS Email,
-                         r.requested_at_utc AS RequestedAtUtc
+                         r.requested_at_utc AS RequestedAtUtc,
+                         COALESCE(p.profile_picture_url, 'https://res.cloudinary.com/dait0sacc/image/upload/v1774704629/k7ygnoel72ychr8ico6n.png') AS ProfilePictureUrl
                   FROM home_join_requests r
                   JOIN users u ON u.id = r.user_id
+                  LEFT JOIN user_additional_profile_info p ON p.user_id = r.user_id
                   WHERE r.home_id = @homeId AND r.status = @status
                   ORDER BY r.requested_at_utc",
                 new { homeId, status = RequestPending });

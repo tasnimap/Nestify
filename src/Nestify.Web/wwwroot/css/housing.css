@@ -1235,6 +1235,23 @@
     flex-wrap: wrap;
 }
 
+.hs-requester-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 2px solid var(--nx-border);
+}
+
+.hs-requester-card__header-left {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    min-width: 0;
+    flex: 1;
+}
+
 .hs-requester-card__title-section {
     display: flex;
     align-items: center;

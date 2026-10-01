@@ -66,11 +66,14 @@
                     {
                         <article class="hs-requester-card hs-requester-card--@HousingView.StatusModifier(requester.Status)">
                             <header class="hs-requester-card__header">
-                                <div class="hs-requester-card__title-section">
-                                    <h3>@requester.RequesterName</h3>
-                                    <span class="hs-badge hs-badge--@HousingView.StatusModifier(requester.Status)">
-                                        @HousingView.Label(requester.Status)
-                                    </span>
+                                <div class="hs-requester-card__header-left">
+                                    <img class="hs-requester-avatar" src="@requester.ProfilePictureUrl" alt="@requester.RequesterName" />
+                                    <div class="hs-requester-card__title-section">
+                                        <h3>@requester.RequesterName</h3>
+                                        <span class="hs-badge hs-badge--@HousingView.StatusModifier(requester.Status)">
+                                            @HousingView.Label(requester.Status)
+                                        </span>
+                                    </div>
                                 </div>
                                 <div class="hs-requester-card__meta">
                                     <time>@HousingView.RelativeTime(requester.RequestedAtUtc)</time>

@@ -1,4 +1,4 @@
-﻿// src/Nestify.Web/Services/Interfaces/Implementations/HomeService.cs
+// src/Nestify.Web/Services/Interfaces/Implementations/HomeService.cs
 // The real IHomeService, talking to api/v1/homes (User_Home.sql). The page still
 // only sees HomeView / HomeRules, so nothing in MyHome.razor changes.
 //
@@ -201,6 +201,7 @@ public sealed class HomeService : IHomeService
                 Id = r.Id,
                 Name = r.Name,
                 Email = r.Email,
+                ProfilePictureUrl = r.ProfilePictureUrl,
                 RequestedAtUtc = r.RequestedAtUtc
             }).ToList(),
             Members = dto.Members.Select(m => new HomeMemberView
@@ -208,6 +209,7 @@ public sealed class HomeService : IHomeService
                 Id = m.Id,
                 Name = m.Name,
                 Email = m.Email,
+                ProfilePictureUrl = m.ProfilePictureUrl,
                 Role = ToRole(m.Role),
                 JoinedOnUtc = m.JoinedAtUtc,
                 IsMe = m.IsMe

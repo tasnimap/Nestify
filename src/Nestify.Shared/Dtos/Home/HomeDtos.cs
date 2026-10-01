@@ -1,4 +1,4 @@
-﻿// src/Nestify.Shared/Dtos/Home/HomeDtos.cs
+// src/Nestify.Shared/Dtos/Home/HomeDtos.cs
 // The homes / home_members tables from User_Home.sql, shaped the way the /home
 // page needs them. Role numbers here are the database numbers: 1 Manager,
 // 2 Co-manager, 3 Member.
@@ -13,6 +13,7 @@ public sealed class HomeMemberDto
     public short Role { get; set; }
     public DateTime JoinedAtUtc { get; set; }
     public bool IsMe { get; set; }
+    public string ProfilePictureUrl { get; set; } = "https://res.cloudinary.com/dait0sacc/image/upload/v1774704629/k7ygnoel72ychr8ico6n.png";
 }
 
 public sealed class HomeDto
@@ -40,6 +41,7 @@ public sealed class HomeJoinRequestDto
     public string Name { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public DateTime RequestedAtUtc { get; set; }
+    public string ProfilePictureUrl { get; set; } = "https://res.cloudinary.com/dait0sacc/image/upload/v1774704629/k7ygnoel72ychr8ico6n.png";
 }
 
 /// <summary>The request the caller is waiting on, shown while they are in no home.</summary>
