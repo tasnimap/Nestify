@@ -140,11 +140,11 @@ public sealed class HousingService
                JOIN homes h ON h.id = p.home_id
                LEFT JOIN home_capacity c ON c.home_id = h.id
                LEFT JOIN housing_post_requirements r ON r.post_id = p.id
-               WHERE {whereSql}",
+               WHERE ({whereSql})",
             args);
 
         var rows = (await connection.QueryAsync<PostRow>(
-            $"{PostSelect} WHERE {whereSql} ORDER BY p.created_at_utc DESC OFFSET @offset LIMIT @limit",
+            $"{PostSelect} WHERE ({whereSql}) ORDER BY p.created_at_utc DESC OFFSET @offset LIMIT @limit",
             args)).ToList();
 
         var images = await LoadImagesAsync(connection, rows.Select(r => r.Id));
@@ -487,9 +487,11 @@ public sealed class HousingService
 
         var rows = await connection.QueryAsync<BookingRequesterDto>(
             @"SELECT b.id::text AS BookingId, u.full_name AS RequesterName, b.requested_at_utc AS RequestedAtUtc,
-                     b.status - 1 AS Status, b.message AS Message
+                     b.status - 1 AS Status, b.message AS Message,
+                     COALESCE(p.profile_picture_url, 'https://res.cloudinary.com/dait0sacc/image/upload/v1774704629/k7ygnoel72ychr8ico6n.png') AS ProfilePictureUrl
               FROM housing_bookings b
               JOIN users u ON u.id = b.requester_user_id
+              LEFT JOIN user_additional_profile_info p ON p.user_id = b.requester_user_id
               WHERE b.post_id = @postId
               ORDER BY b.requested_at_utc DESC",
             new { postId });

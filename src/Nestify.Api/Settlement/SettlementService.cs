@@ -328,11 +328,6 @@ public sealed class SettlementService
             return (false, "Bill not found.");
         }
 
-        if (IsDefaultBill(bill.Description))
-        {
-            return (false, "Rent, electricity, water, gas, and internet bills are fixed and cannot be removed.");
-        }
-
         var rows = await connection.ExecuteAsync(
             """
             UPDATE expenses SET amount = @amount
@@ -355,6 +350,18 @@ public sealed class SettlementService
         if (await GetOpenBookAsync(connection, null, membership.HomeId, year, month) is null)
         {
             return (false, "This month's book is not open.");
+        }
+
+        var description = await connection.ExecuteScalarAsync<string>(
+            """
+            SELECT description FROM expenses
+            WHERE id = @billId AND house_id = @homeId AND category = @category
+              AND period_year = @year AND period_month = @month
+            """, new { billId, homeId = membership.HomeId, category = EqualSplit, year, month });
+
+        if (description is not null && IsDefaultBill(description))
+        {
+            return (false, "Rent, electricity, water, gas, and internet bills are fixed and cannot be removed.");
         }
 
         var rows = await connection.ExecuteAsync(

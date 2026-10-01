@@ -159,7 +159,9 @@
                                 @foreach (var request in _home.PendingRequests)
                                 {
                                     <li class="hm-member">
-                                        <span class="hm-avatar">@Initials(request.Name)</span>
+                                        <span class="hm-avatar">
+                                            <img src="@request.ProfilePictureUrl" alt="@request.Name" />
+                                        </span>
                                         <div class="hm-member__id">
                                             <b>@request.Name</b>
                                             <small>@request.Email</small>
@@ -193,7 +195,9 @@
                         @foreach (var member in Ordered(_home.Members))
                         {
                             <li class="hm-member @(_openMenuId == member.Id ? "is-menu-open" : "")">
-                                <span class="hm-avatar">@Initials(member.Name)</span>
+                                <span class="hm-avatar">
+                                    <img src="@member.ProfilePictureUrl" alt="@member.Name" />
+                                </span>
                                 <div class="hm-member__id">
                                     <b>@member.Name @(member.IsMe ? "(you)" : "")</b>
                                     <small>@member.Email</small>

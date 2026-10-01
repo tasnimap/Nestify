@@ -1,3 +1,6 @@
+-- currently tables are created at neon..
+
+
 -- ============================================================================
 -- Nestify: the whole database in one file.
 --

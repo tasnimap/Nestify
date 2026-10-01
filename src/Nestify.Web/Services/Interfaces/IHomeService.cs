@@ -1,4 +1,4 @@
-﻿// src/Nestify.Web/Services/Interfaces/IHomeService.cs
+// src/Nestify.Web/Services/Interfaces/IHomeService.cs
 // The "home" (shared house) a user belongs to. A user is in at most one home.
 // Frontend phase: MockHomeService keeps everything in memory. When the API lands,
 // write a HomeService against it and keep this interface + HomeRules as they are —
@@ -17,6 +17,7 @@ public sealed class HomeMemberView
     public string Id { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
+    public string ProfilePictureUrl { get; set; } = string.Empty;
     public HomeRole Role { get; set; }
     public DateTime JoinedOnUtc { get; set; }
     public bool IsMe { get; set; }
@@ -28,6 +29,7 @@ public sealed class HomeJoinRequestView
     public string Id { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
+    public string ProfilePictureUrl { get; set; } = string.Empty;
     public DateTime RequestedAtUtc { get; set; }
 }
 

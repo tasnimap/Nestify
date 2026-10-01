@@ -1,4 +1,4 @@
-﻿namespace Nestify.Shared.Dtos.Housing;
+namespace Nestify.Shared.Dtos.Housing;
 
 public enum ListingType
 {
@@ -183,6 +183,7 @@ public sealed class BookingRequesterDto
     public DateTime RequestedAtUtc { get; set; }
     public BookingStatus Status { get; set; } = BookingStatus.Pending;
     public string? Message { get; set; }
+    public string ProfilePictureUrl { get; set; } = "https://res.cloudinary.com/dait0sacc/image/upload/v1774704629/k7ygnoel72ychr8ico6n.png";
 }
 
 /// <summary>

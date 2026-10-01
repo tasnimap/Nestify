@@ -272,9 +272,30 @@
     private async Task ToggleAvailable()
     {
         _available = !_available;
-        await Save();
-        Toast.ShowInfo(_available ? "You are visible to bachelors again." : "You are hidden from new bookings.",
-            _available ? "Accepting bookings" : "Paused");
+        try
+        {
+            // Save only the IsAvailable flag using the last-saved slots,
+            // so unsaved hour changes are not accidentally committed.
+            var dto = new HelperAvailabilityDto
+            {
+                IsAvailable = _available,
+                Slots = _saved.Select(kv => new HelperAvailabilitySlotDto
+                {
+                    DayOfWeek = (int)kv.Key.Day,
+                    Hour      = kv.Key.Hour,
+                    IsOpen    = kv.Value == SlotState.Open,
+                    IsBooked  = kv.Value == SlotState.Booked
+                }).ToList()
+            };
+            await Helpers.SaveAvailabilityAsync(dto);
+            Toast.ShowInfo(_available ? "You are visible to bachelors again." : "You are hidden from new bookings.",
+                _available ? "Accepting bookings" : "Paused");
+        }
+        catch (Exception ex)
+        {
+            _available = !_available; // revert optimistic change
+            Toast.ShowWarning(ex.Message, "Availability");
+        }
     }
 
     private static string HourLabel(int hour) => DateTime.Today.AddHours(hour).ToString("h tt");
