@@ -361,7 +361,13 @@
         _reviews = next;
     }
 
-    private void OnSlotsChanged(List<EngagementSlotDto> slots) => _slots = slots;
+    private void OnSlotsChanged(List<EngagementSlotDto> slots)
+    {
+        // Keep the page's selection state independent of the grid's mutable
+        // parameter list, then rerender so the request button reflects it.
+        _slots = slots?.ToList() ?? new List<EngagementSlotDto>();
+        StateHasChanged();
+    }
 
     private void OpenRequest()
     {
