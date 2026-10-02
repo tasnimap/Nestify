@@ -135,6 +135,16 @@ html[data-theme="dark"] .layout--user .dh {
     background-color: var(--nx-bg);
 }
 
+html[data-theme="dark"] .layout--user .hs-modal__header {
+    border-bottom-color: var(--nx-border);
+    background: var(--nx-card);
+    color: var(--nx-ink);
+}
+
+html[data-theme="dark"] .layout--user .hs-modal__header h2 {
+    color: var(--nx-ink);
+}
+
 html[data-theme="dark"] .layout--user .hs-lens,
 html[data-theme="dark"] .layout--user .hs-actionbox,
 html[data-theme="dark"] .layout--user .hs-contact-card,
