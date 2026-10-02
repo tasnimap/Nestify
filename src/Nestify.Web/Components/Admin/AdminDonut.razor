@@ -1,41 +1,56 @@
 @* Revenue split ring. Each arc sweeps in on load. *@
 
 <div class="adm-donut">
-    <svg width="160" height="160" viewBox="0 0 160 160" role="img" aria-label="@Title">
-        <circle cx="80" cy="80" r="54" fill="none" stroke="#f1eefb" stroke-width="20" />
+    <div class="adm-donut__visual">
+        <svg width="240" height="240" viewBox="0 0 200 200" role="img" aria-label="@Title">
+            <circle cx="100" cy="100" r="70" fill="none" stroke="#f3effe" stroke-width="24" />
 
-        @{
-            double used = 0;
-            var index = 0;
-        }
-        @foreach (var slice in Slices)
-        {
-            var length = Total == 0 ? 0 : Circumference * slice.Value / Total;
-            var offset = -used;
-            used += length;
-            var delay = index++ * 0.12;
+            @{
+                double used = 0;
+                var index = 0;
+            }
+            @foreach (var slice in Slices)
+            {
+                var rawLength = Total == 0 ? 0 : Circumference * slice.Value / Total;
+                var length = Math.Max(0, rawLength - 3.5);
+                var offset = -used;
+                used += rawLength;
+                var delay = index++ * 0.12;
 
-            <circle class="adm-donut__seg" cx="80" cy="80" r="54" fill="none"
-                    stroke="@slice.Color" stroke-width="20" stroke-linecap="butt"
-                    stroke-dasharray="@F(length) @F(Circumference - length)"
-                    stroke-dashoffset="@F(offset)"
-                    transform="rotate(-90 80 80)"
-                    style="animation-delay:@F(delay)s">
-                <title>@slice.Name: @Percent(slice.Value)%</title>
-            </circle>
-        }
+                <circle class="adm-donut__seg" cx="100" cy="100" r="70" fill="none"
+                        stroke="@slice.Color" stroke-width="24" stroke-linecap="butt"
+                        stroke-dasharray="@F(length) @F(Circumference - length)"
+                        stroke-dashoffset="@F(offset)"
+                        transform="rotate(-90 100 100)"
+                        style="animation-delay:@F(delay)s">
+                    <title>@slice.Name: @Percent(slice.Value)%</title>
+                </circle>
+            }
 
-        @Label("adm-donut__mid", 78, Center, "19")
-        @Label("adm-donut__sub", 95, CenterLabel, null)
-    </svg>
+            @Label("adm-donut__mid", 96, Center, "26")
+            @Label("adm-donut__sub", 120, CenterLabel, "10.5")
+        </svg>
+    </div>
 
     <div class="adm-legend">
         @foreach (var slice in Slices)
         {
+            var pct = Percent(slice.Value);
             <div class="adm-legend__row">
-                <span class="adm-legend__dot" style="background:@slice.Color"></span>
-                <span class="adm-legend__name">@slice.Name</span>
-                <span class="adm-legend__val">@Percent(slice.Value)%</span>
+                <div class="adm-legend__header">
+                    <span class="adm-legend__tag">
+                        <span class="adm-legend__dot" style="background:@slice.Color"></span>
+                        <span class="adm-legend__name">@slice.Name</span>
+                    </span>
+                    <span class="adm-legend__val" style="color:@slice.Color; background:@(slice.Color)14">@pct%</span>
+                </div>
+                <div class="adm-legend__bar">
+                    <div class="adm-legend__fill" style="width:@pct%; background:@slice.Color"></div>
+                </div>
+                <div class="adm-legend__foot">
+                    <span class="adm-legend__lbl">Generated</span>
+                    <span class="adm-legend__amount">@ValuePrefix@slice.Value.ToString("N0")</span>
+                </div>
             </div>
         }
     </div>
@@ -47,7 +62,7 @@
     {
         builder.OpenElement(0, "text");
         builder.AddAttribute(1, "class", cssClass);
-        builder.AddAttribute(2, "x", "80");
+        builder.AddAttribute(2, "x", "100");
         builder.AddAttribute(3, "y", F(y));
         builder.AddAttribute(4, "text-anchor", "middle");
         if (fontSize is not null)
@@ -62,8 +77,9 @@
     [Parameter] public string Title { get; set; } = "Split";
     [Parameter] public string Center { get; set; } = "";
     [Parameter] public string CenterLabel { get; set; } = "";
+    [Parameter] public string ValuePrefix { get; set; } = "";
 
-    private const double Circumference = 2 * Math.PI * 54;
+    private const double Circumference = 2 * Math.PI * 70;
 
     private double Total => Slices.Sum(s => s.Value);
 

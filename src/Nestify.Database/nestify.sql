@@ -1063,6 +1063,7 @@ CREATE TABLE plan_purchases (
       user_id          bigint      NOT NULL REFERENCES users (id) ON DELETE CASCADE,
       scope            smallint    NOT NULL,  -- snapshot: keeps purchased credits independent of plan edits/deletion
       posts_left       int         NOT NULL,
+      amount_bdt       numeric(10,2) NOT NULL, -- purchase-price snapshot for revenue reporting
     purchased_at_utc timestamptz NOT NULL DEFAULT now(),
     expires_at_utc   timestamptz NOT NULL,
 

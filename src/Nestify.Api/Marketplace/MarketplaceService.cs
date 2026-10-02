@@ -67,6 +67,17 @@ public sealed class MarketplaceService
 
             CREATE INDEX IF NOT EXISTS ix_marketplace_pin_payments_listing
                 ON marketplace_pin_payments (listing_id, paid_at_utc DESC);
+
+            ALTER TABLE plan_purchases
+                ADD COLUMN IF NOT EXISTS amount_bdt numeric(10,2);
+
+            UPDATE plan_purchases pp
+               SET amount_bdt = p.price_bdt
+              FROM post_plans p
+             WHERE p.id = pp.plan_id AND pp.amount_bdt IS NULL;
+
+            ALTER TABLE plan_purchases
+                ALTER COLUMN amount_bdt SET NOT NULL;
             """);
     }
 
@@ -270,9 +281,9 @@ public sealed class MarketplaceService
             """, new { userId, expiresAt, scope = 2 }, transaction);
 
         await connection.ExecuteAsync("""
-            INSERT INTO plan_purchases (plan_id, user_id, scope, posts_left, expires_at_utc)
-            VALUES (@planId, @userId, @scope, @posts, @expiresAt)
-            """, new { planId, userId, scope = 2, posts = plan.Posts, expiresAt }, transaction);
+            INSERT INTO plan_purchases (plan_id, user_id, scope, posts_left, amount_bdt, expires_at_utc)
+            VALUES (@planId, @userId, @scope, @posts, @amount, @expiresAt)
+            """, new { planId, userId, scope = 2, posts = plan.Posts, amount = plan.PriceBdt, expiresAt }, transaction);
         var balance = await ReadPostingBalanceAsync(connection, transaction, userId);
         transaction.Commit();
 
