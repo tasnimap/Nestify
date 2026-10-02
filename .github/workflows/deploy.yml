@@ -6,3 +6,7 @@ on:
       - main
   workflow_dispatch:
 
+env:
+  DOTNET_VERSION: '10.0.x'
+  API_PROJECT: src/Nestify.Api/Nestify.Api.csproj
+  PUBLISH_DIRECTORY: ./publish
