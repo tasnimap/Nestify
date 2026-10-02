@@ -269,11 +269,11 @@
     {
         RevenueChartTab.Verification => new()
         {
-            new ChartSeries { Name = "Verification revenue", Color = "#2563eb", Values = _revenue.Select(r => (int)r.Verification).ToList() }
+            new ChartSeries { Name = "Verification revenue", Color = "#7c3aed", Values = _revenue.Select(r => (int)r.Verification).ToList() }
         },
         RevenueChartTab.Marketplace => new()
         {
-            new ChartSeries { Name = "Marketplace revenue", Color = "#f0a338", Values = _revenue.Select(r => (int)(r.MarketplacePostingPlans + r.MarketplacePins)).ToList() }
+            new ChartSeries { Name = "Marketplace revenue", Color = "#0d9488", Values = _revenue.Select(r => (int)(r.MarketplacePostingPlans + r.MarketplacePins)).ToList() }
         },
         _ => new()
         {
@@ -306,8 +306,8 @@
 
     private List<DonutSlice> RevenueSplit => new()
     {
-        new DonutSlice { Name = "Verification", Value = CurrentVerificationRevenue, Color = "#2563eb" },
-        new DonutSlice { Name = "Marketplace", Value = CurrentMarketplaceRevenue, Color = "#f0a338" }
+        new DonutSlice { Name = "Verification", Value = CurrentVerificationRevenue, Color = "#7c3aed" },
+        new DonutSlice { Name = "Marketplace", Value = CurrentMarketplaceRevenue, Color = "#0d9488" }
     };
 
     private List<(string Label, int Value)> Outcomes => _outcomes ??= new()
