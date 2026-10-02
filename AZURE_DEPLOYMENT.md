@@ -33,3 +33,23 @@ Add these settings under **Azure Portal > Web App > Configuration > Application 
 | `GEMINI_API_KEY` | Gemini API key when assistant endpoints are enabled |
 
 If a connection string is not supplied, the API falls back to the separate `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, and optional `DB_SSL_MODE` variables. Keep all secrets in App Service settings and never commit their values.
+
+## Database migrations
+
+This repository currently uses Dapper and checked-in SQL migrations, not Entity Framework Core. Apply the SQL files in `src/Nestify.Database/migrations/` using a controlled release process and the direct PostgreSQL connection before deploying the application. Do not run schema changes automatically on every application startup.
+
+The workflow contains an opt-in migration step controlled by the repository variable `RUN_DATABASE_MIGRATIONS=true`. Enable it only after adding EF Core packages and migrations to the API project; it runs:
+
+```bash
+dotnet ef database update --project src/Nestify.Api/Nestify.Api.csproj \
+  --startup-project src/Nestify.Api/Nestify.Api.csproj
+```
+
+For production, a reviewed EF migration bundle is an alternative:
+
+```bash
+dotnet ef migrations bundle --self-contained -r linux-x64 -o efbundle
+./efbundle --connection "$ConnectionStrings__DefaultConnection"
+```
+
+Run migrations before the deployment step and use a direct database connection rather than a transaction pooler.
