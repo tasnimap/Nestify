@@ -1,11 +1,11 @@
 @inject IJSRuntime JS
 
-<button class="nav__theme-toggle"
+<button class="nav__theme-indicator"
         type="button"
-        aria-label="@(_isDark ? "Switch to light mode" : "Switch to dark mode")"
-        aria-pressed="@_isDark.ToString().ToLowerInvariant()"
-        title="@(_isDark ? "Switch to light mode" : "Switch to dark mode")"
-        @onclick="ToggleAsync">
+        aria-label="Toggle color theme"
+        aria-pressed="false"
+        title="Toggle color theme"
+        @onclick="ToggleTheme">
     <span class="nav__theme-switch" aria-hidden="true">
         <svg class="nav__theme-icon nav__theme-icon--sun" viewBox="0 0 24 24">
             <circle cx="12" cy="12" r="3.5" />
@@ -22,23 +22,13 @@
 </button>
 
 @code {
-    private bool _isDark;
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!firstRender)
+        if (firstRender)
         {
-            return;
+            await JS.InvokeVoidAsync("nestifyTheme.syncToggle");
         }
-
-        _isDark = await JS.InvokeAsync<bool>("nestifyTheme.isDark");
-        StateHasChanged();
     }
 
-    private async Task ToggleAsync()
-    {
-        var nextTheme = !_isDark;
-        await JS.InvokeVoidAsync("nestifyTheme.setDark", nextTheme);
-        _isDark = nextTheme;
-    }
+    private async Task ToggleTheme() => await JS.InvokeVoidAsync("nestifyTheme.toggle");
 }

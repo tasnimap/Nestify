@@ -1,39 +1,80 @@
-html[data-theme="dark"] .layout--user {
+html[data-theme="dark"] {
     color-scheme: dark;
-    --nx-primary: #b79aff;
-    --nx-primary-strong: #cbb7ff;
-    --nx-primary-soft: rgba(167, 139, 250, .14);
-    --nx-primary-softer: #1c1927;
+}
 
-    --nx-accent: #b79aff;
-    --nx-accent-bright: #c6adff;
-    --nx-accent-soft: rgba(167, 139, 250, .14);
+html[data-theme="dark"] .layout--user {
+    --nx-primary: #6d28d9;
+    --nx-primary-strong: #5b21b6;
+    --nx-primary-soft: #312b41;
+    --nx-primary-softer: #211f29;
 
-    --nx-ink: #f0edf7;
-    --nx-body: #d0cada;
-    --nx-muted: #a49db3;
-    --nx-bg: #12111a;
-    --nx-bg-alt: #191722;
-    --nx-bg-deep: #0e0c15;
-    --nx-card: #1e1c28;
-    --nx-border: #353142;
-    --nx-border-strong: #484258;
+    --nx-accent: #83c99a;
+    --nx-accent-bright: #a0ddb0;
+    --nx-accent-soft: #203329;
 
-    --nx-danger: #ff8585;
-    --nx-danger-soft: rgba(255, 99, 99, .13);
-    --nx-ring: rgba(183, 154, 255, .48);
+    --nx-ink: #f0edf4;
+    --nx-body: #d1ccd7;
+    --nx-muted: #a7a1b0;
+    --nx-bg: #17161d;
+    --nx-bg-alt: #1e1c25;
+    --nx-bg-deep: #121118;
+    --nx-card: #25232d;
+    --nx-border: #393641;
+    --nx-border-strong: #4a4655;
+    --nx-line: #393641;
+    --nx-surface-raised: #2b2934;
+    --nx-control-bg: #201e28;
 
-    --nx-shadow-sm: 0 2px 8px rgba(0, 0, 0, .2);
-    --nx-shadow-md: 0 14px 34px -12px rgba(0, 0, 0, .52);
-    --nx-shadow-lg: 0 36px 72px -28px rgba(0, 0, 0, .62);
+    --nx-danger: #ff9696;
+    --nx-danger-soft: #3b252a;
+    --nx-ring: rgba(192, 170, 255, .5);
+
+    --nx-shadow-sm: 0 2px 8px rgba(4, 3, 8, .2);
+    --nx-shadow-md: 0 14px 34px -14px rgba(4, 3, 8, .42);
+    --nx-shadow-lg: 0 36px 72px -30px rgba(4, 3, 8, .56);
 
     background: var(--nx-bg);
     color: var(--nx-body);
 }
 
+html[data-theme="dark"] body {
+    background: var(--nx-bg);
+}
+
+html[data-theme="dark"] .layout--user .nx-section--deep {
+    background: var(--nx-bg-deep);
+}
+
+html[data-theme="dark"] .layout--user .nx-btn--primary,
+html[data-theme="dark"] .layout--user .nx-btn--accent {
+    background: #6d28d9;
+    border-color: transparent;
+    color: #fff;
+}
+
+html[data-theme="dark"] .layout--user .nx-btn--primary:hover:not(:disabled) {
+    background: #5b21b6;
+}
+
+html[data-theme="dark"] .layout--user .nx-btn--accent:hover:not(:disabled) {
+    background: #0c6a2f;
+}
+
+html[data-theme="dark"] .layout--user .nx-btn--ghost {
+    color: var(--nx-ink);
+}
+
 html[data-theme="dark"] .layout--user .nav {
-    background: rgba(20, 18, 29, .9);
-    border-bottom-color: var(--nx-border);
+    background: var(--nx-bg);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-bottom-color: transparent;
+    box-shadow: none;
+    filter: none;
+}
+
+html[data-theme="dark"] .layout--user .nav__cta {
+    box-shadow: none;
 }
 
 html[data-theme="dark"] .layout--user .nav__account-trigger,
@@ -48,7 +89,7 @@ html[data-theme="dark"] .layout--user textarea,
 html[data-theme="dark"] .layout--user select,
 html[data-theme="dark"] .layout--user .form-control,
 html[data-theme="dark"] .layout--user .form-select {
-    background-color: var(--nx-card);
+    background-color: var(--nx-control-bg);
     border-color: var(--nx-border-strong);
     color: var(--nx-ink);
 }
@@ -76,6 +117,177 @@ html[data-theme="dark"] .layout--user table {
 html[data-theme="dark"] .layout--user hr {
     border-color: var(--nx-border);
     opacity: 1;
+}
+
+html[data-theme="dark"] .layout--user .hs-page,
+html[data-theme="dark"] .layout--user .mk-page,
+html[data-theme="dark"] .layout--user .dh {
+    color: var(--nx-body);
+    background-color: var(--nx-bg);
+}
+
+html[data-theme="dark"] .layout--user .hs-lens,
+html[data-theme="dark"] .layout--user .hs-actionbox,
+html[data-theme="dark"] .layout--user .hs-contact-card,
+html[data-theme="dark"] .layout--user .mk-lens,
+html[data-theme="dark"] .layout--user .mk-detail__about,
+html[data-theme="dark"] .layout--user .mk-package,
+html[data-theme="dark"] .layout--user .mk-pay-form,
+html[data-theme="dark"] .layout--user .dh-stat,
+html[data-theme="dark"] .layout--user .dh-panel,
+html[data-theme="dark"] .layout--user .dh-metric,
+html[data-theme="dark"] .layout--user .dh-lens {
+    color: var(--nx-body);
+    border-color: var(--nx-border);
+    background-color: var(--nx-card);
+    box-shadow: var(--nx-shadow-sm);
+}
+
+html[data-theme="dark"] .layout--user .hs-lens,
+html[data-theme="dark"] .layout--user .mk-lens {
+    border-left-color: var(--nx-primary);
+    background-image: linear-gradient(180deg, var(--nx-card), var(--nx-bg-alt));
+}
+
+html[data-theme="dark"] .layout--user .hs-contact-card,
+html[data-theme="dark"] .layout--user .mk-contact-card {
+    background-image: linear-gradient(145deg, var(--nx-card), var(--nx-accent-soft));
+}
+
+html[data-theme="dark"] .layout--user .hs-card,
+html[data-theme="dark"] .layout--user .mk-card,
+html[data-theme="dark"] .layout--user .stl__card,
+html[data-theme="dark"] .layout--user .stl__panel,
+html[data-theme="dark"] .layout--user .stl__summary,
+html[data-theme="dark"] .layout--user .stl__bill,
+html[data-theme="dark"] .layout--user .stl__statement,
+html[data-theme="dark"] .layout--user .up-card,
+html[data-theme="dark"] .layout--user .up-panel {
+    border-color: var(--nx-border);
+    background-color: var(--nx-card);
+    box-shadow: var(--nx-shadow-sm);
+}
+
+html[data-theme="dark"] .layout--user .hs-seg__opt,
+html[data-theme="dark"] .layout--user .mk-chip,
+html[data-theme="dark"] .layout--user .dh-chip {
+    border-color: var(--nx-border-strong);
+    background-color: var(--nx-surface-raised);
+    color: var(--nx-body);
+}
+
+html[data-theme="dark"] .layout--user .hs-seg__opt--active,
+html[data-theme="dark"] .layout--user .mk-chip--active,
+html[data-theme="dark"] .layout--user .hs-booking-filter.is-active {
+    border-color: #8068b7;
+    background-color: #7358a8;
+    color: #fff;
+}
+
+html[data-theme="dark"] .layout--user .dh-chip--on,
+html[data-theme="dark"] .layout--user .md-tab--on,
+html[data-theme="dark"] .layout--user .md-pager__btn--on {
+    border-color: #467f5a;
+    background: #386c4b;
+    color: #fff;
+    box-shadow: none;
+}
+
+html[data-theme="dark"] .layout--user .dh-head,
+html[data-theme="dark"] .layout--user .dh-hero,
+html[data-theme="dark"] .layout--user .dh-profile {
+    background: linear-gradient(135deg, #252131, #382d4d 60%, #44345d);
+    box-shadow: 0 18px 42px -28px rgba(7, 5, 12, .8);
+}
+
+html[data-theme="dark"] .layout--user .md-head {
+    background: linear-gradient(135deg, #252131, #382d4d 60%, #44345d);
+    box-shadow: 0 18px 42px -28px rgba(7, 5, 12, .8);
+}
+
+html[data-theme="dark"] .layout--user .hs-badge--status-pending,
+html[data-theme="dark"] .layout--user .hs-badge--status-filled,
+html[data-theme="dark"] .layout--user .mk-badge--fair,
+html[data-theme="dark"] .layout--user .mk-badge--pending,
+html[data-theme="dark"] .layout--user .dh-status--requested {
+    border-color: #67502d;
+    background: #352b1d;
+    color: #f0c77d;
+}
+
+html[data-theme="dark"] .layout--user .mk-badge--status-active,
+html[data-theme="dark"] .layout--user .mk-badge--accepted,
+html[data-theme="dark"] .layout--user .mk-badge--fulfilled,
+html[data-theme="dark"] .layout--user .dh-status--helperconfirmed,
+html[data-theme="dark"] .layout--user .dh-status--active {
+    border-color: #34533e;
+    background: #203329;
+    color: #a6dfb6;
+}
+
+html[data-theme="dark"] .layout--user .mk-badge--status-sold {
+    background: #312b41;
+    color: #d4c4ff;
+}
+
+html[data-theme="dark"] .layout--user .mk-badge--status-removed,
+html[data-theme="dark"] .layout--user .mk-badge--declined,
+html[data-theme="dark"] .layout--user .dh-status--declined {
+    border-color: #59343b;
+    background: #3b252a;
+    color: #ffaaaa;
+}
+
+html[data-theme="dark"] .layout--user .mk-credit,
+html[data-theme="dark"] .layout--user .mk-checkout__balance {
+    border-color: #34533e;
+    background: #203329;
+    color: #a6dfb6;
+}
+
+html[data-theme="dark"] .layout--user .mk-specs__cell--highlight {
+    border-color: #67502d !important;
+    background: #352b1d !important;
+}
+
+html[data-theme="dark"] .layout--user .mk-specs__cell--highlight .mk-specs__v {
+    color: #f0c77d !important;
+}
+
+html[data-theme="dark"] .layout--user .mk-checkout__close {
+    background: var(--nx-surface-raised);
+    color: var(--nx-body);
+}
+
+html[data-theme="dark"] .layout--user .mk-pay-form {
+    border-color: var(--nx-border);
+    background: var(--nx-bg-alt);
+}
+
+html[data-theme="dark"] .layout--user .mk-pay-form input {
+    border-color: var(--nx-border-strong);
+    background: var(--nx-control-bg);
+    color: var(--nx-ink);
+}
+
+html[data-theme="dark"] .layout--user .dh-skeleton__bar {
+    background: linear-gradient(100deg, var(--nx-bg-alt) 30%, var(--nx-surface-raised) 50%, var(--nx-bg-alt) 70%);
+}
+
+html[data-theme="dark"] .layout--user .md-grid__tally {
+    background: var(--nx-surface-raised);
+    color: var(--nx-muted);
+}
+
+html[data-theme="dark"] .layout--user .md-grid__day--on .md-grid__tally {
+    background: var(--nx-accent-soft);
+    color: var(--nx-accent-bright);
+}
+
+html[data-theme="dark"] .layout--user .md-reply--edit,
+html[data-theme="dark"] .layout--user .md-day--on {
+    background-color: var(--nx-bg-alt);
+    color: var(--nx-body);
 }
 
 html[data-theme="dark"] .layout--user .notification-dropdown {
@@ -158,12 +370,20 @@ html[data-theme="dark"] .toast--error .toast__message {
 
 html.theme-transitioning .layout--user,
 html.theme-transitioning .layout--user * {
-    transition: background .24s ease, color .24s ease, border-color .24s ease, box-shadow .24s ease, transform .24s ease !important;
+    transition: background .26s ease, color .26s ease, border-color .26s ease, box-shadow .26s ease !important;
+}
+
+html.theme-transitioning .layout--user .nav__theme-knob {
+    transition: transform .18s ease !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
     html.theme-transitioning .layout--user,
     html.theme-transitioning .layout--user * {
+        transition: none !important;
+    }
+
+    html.theme-transitioning .layout--user .nav__theme-knob {
         transition: none !important;
     }
 }
