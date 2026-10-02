@@ -585,13 +585,15 @@ INSERT INTO user_roles (user_id, role_id) SELECT id, 3 FROM users WHERE email = 
 
 ## Live deployment
 
-Nestify is deployed on Render as two services: a Blazor WebAssembly frontend and an ASP.NET Core API.
+Nestify is deployed on Render as two services: a Blazor WebAssembly frontend and an ASP.NET Core API. The API is also deployed to Azure App Service through GitHub Actions for CI/CD.
 
 | Service | URL |
 |---------|-----|
 | Nestify frontend | [nestify-1df6p.onrender.com](https://nestify-1-df6p.onrender.com/) |
 | API | [nestify-uqcz.onrender.com](https://nestify-uqcz.onrender.com) |
 | Swagger UI | [API Swagger](https://nestify-uqcz.onrender.com/swagger/index.html) |
+| Azure API | [Azure App Service](https://nestify-web-2026-anf8fag0cjhcayce.eastasia-01.azurewebsites.net) |
+| Azure Swagger UI | [Azure API Swagger](https://nestify-web-2026-anf8fag0cjhcayce.eastasia-01.azurewebsites.net/swagger) |
 
 The frontend calls the API over HTTPS. The API uses Neon PostgreSQL and accepts Neon PostgreSQL URI connection strings with TLS. Swagger remains enabled in Production so evaluators can inspect and test the API. If the frontend URL returns `404`, redeploy its Render service with `Dockerfile.web` and repository-root Docker context.
 
@@ -599,12 +601,28 @@ The frontend calls the API over HTTPS. The API uses Neon PostgreSQL and accepts 
 
 - Added a production multi-stage [Dockerfile](Dockerfile) for the API on port `8080`.
 - Added [Dockerfile.web](Dockerfile.web) and [nginx.web.conf](nginx.web.conf) for the Blazor WebAssembly frontend, including SPA route fallback.
-- Added Render deployment instructions in [RENDER_DEPLOYMENT.md](RENDER_DEPLOYMENT.md).
+- Added Render deployment instructions in [docs/render-deployment.md](docs/render-deployment.md).
 - Added public CORS and Production Swagger support to the API.
 - Added support for Render `ConnectionStrings__DefaultConnection` and `Jwt__*` variables.
 - Added PostgreSQL URI normalization for Neon pooled and direct connections, with TLS enforced.
 - Fixed housing browse queries for users with multiple active home memberships.
 - Replaced the Nestify Assistant speech-bubble icon with a robot icon.
+- Added a styled “Hello from Nestify!” greeting to the Nestify Assistant.
+
+### Azure backend CI/CD
+
+The [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) workflow deploys `src/Nestify.Api` to the Azure App Service production slot.
+
+- Pushes to `main` trigger the workflow automatically.
+- `workflow_dispatch` supports manual deployments from the GitHub Actions tab.
+- The build job restores, builds in Release mode, publishes the API, and uploads the publish artifact.
+- The deploy job downloads the artifact, authenticates to Azure with GitHub OIDC, and deploys with `azure/webapps-deploy`.
+- Required GitHub repository secrets are `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`, and `AZURE_WEBAPP_NAME`.
+- Configure the Entra federated credential for the `tasnimap/Nestify` `main` branch and grant it Website Contributor access to the App Service.
+- Detailed Azure setup, application settings, and migration guidance is available in [docs/azure-deployment.md](docs/azure-deployment.md).
+- Operational rollback, monitoring, and troubleshooting procedures are available in [docs/deployment-runbook.md](docs/deployment-runbook.md).
+
+The Render frontend continues to use the Render API. Azure currently hosts the backend only; the frontend is not deployed to Azure.
 
 ---
 

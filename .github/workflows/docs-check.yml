@@ -1,0 +1,43 @@
+name: Documentation checks
+
+on:
+  pull_request:
+    paths:
+      - '**.md'
+      - '.github/workflows/**'
+      - 'Dockerfile*'
+      - 'nginx.web.conf'
+
+permissions:
+  contents: read
+
+jobs:
+  docs:
+    name: Check deployment documentation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out pull request
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Require deployment docs when deployment files change
+        shell: bash
+        run: |
+          set -euo pipefail
+          changed="$(git diff --name-only "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}")"
+          if printf '%s\n' "$changed" | grep -Eq '^\.github/workflows/deploy\.yml$|^Dockerfile(\.web)?$|^nginx\.web\.conf$'; then
+            if ! printf '%s\n' "$changed" | grep -Eq '^docs/|^README\.md$'; then
+              echo "Deployment files changed without a documentation update."
+              exit 1
+            fi
+          fi
+
+      - name: Verify required deployment documentation exists
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f README.md
+          test -f docs/azure-deployment.md
+          test -f docs/render-deployment.md
+          test -f docs/deployment-runbook.md
