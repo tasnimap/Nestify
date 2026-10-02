@@ -40,11 +40,17 @@
                     <h2 id="posting-package-title">Keep your listings moving</h2>
                     <p class="mk-checkout__intro">Each published item uses one token. Tokens expire by package, so use the earliest-expiring package first.</p>
 
+                    <div class="mk-checkout__balance">
+                        <span>Available to publish</span>
+                        <strong>@_postingBalance.PostsLeft <small>posts</small></strong>
+                        <em>@(_postingBalance.NextExpiryUtc is { } nextExpiry ? $"Next expiry: {nextExpiry.ToLocalTime():d MMM yyyy}" : "Choose a package to get started")</em>
+                    </div>
+
                     <div class="mk-package-grid">
                         @foreach (var plan in _postingPlans)
                         {
-                            <button type="button" class="mk-package @(_selectedPlan?.Id == plan.Id ? "mk-package--selected" : null)" @onclick="() => _selectedPlan = plan">
-                                <strong>@plan.Name</strong><span>@plan.Posts posts</span><small>Valid for @plan.ValidDays days</small><b>৳@plan.PriceBdt.ToString("N0")</b>
+                            <button type="button" aria-pressed="@(_selectedPlan?.Id == plan.Id)" class="mk-package @(_selectedPlan?.Id == plan.Id ? "mk-package--selected" : null)" @onclick="() => _selectedPlan = plan">
+                                <strong>@plan.Name</strong><span>@plan.Posts post tokens</span><small>Expires after @plan.ValidDays days</small><b>৳@plan.PriceBdt.ToString("N0")</b>
                             </button>
                         }
                     </div>
