@@ -8,7 +8,7 @@ The Blazor frontend is deployed separately as a second Docker Web Service using 
 
 1. Create a Neon PostgreSQL project and database.
 2. Run `src/Nestify.Database/nestify.sql` against the database using the **direct** Neon connection string.
-3. Apply files in `src/Nestify.Database/migrations/` in filename order (`001` through `008`). Migration `008` adds a home-level shared posting-credit balance for housing plans.
+3. Apply files in `src/Nestify.Database/migrations/` in filename order (`001` through `009`). Migration `008` adds a home-level shared posting-credit balance for housing plans; migration `009` adds paid Housing post pinning.
 4. Run the seed scripts only when the database is ready for sample data.
 5. Keep two Neon connection strings available:
    - **Direct connection**: use for schema changes and migrations. It normally contains `-pooler` nowhere in the hostname.

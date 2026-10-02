@@ -18,6 +18,8 @@ public sealed class HousingService
     private const short PostActive = 1;
     private const short PostClosed = 2;
     private const short PostFilled = 3;
+    private const decimal HousingPinFeeBdt = 50m;
+    private const int HousingPinDays = 7;
 
     private const short BookingPending = 1;
     private const short BookingAccepted = 2;
@@ -34,6 +36,8 @@ public sealed class HousingService
         SELECT p.id AS Id, p.home_id AS HomeId, p.posted_by_user_id AS PostedByUserId,
                p.title AS Title, p.description AS Description, p.listing_type_id AS ListingTypeId,
                p.monthly_rent_bdt AS MonthlyRent, p.status AS Status, p.created_at_utc AS CreatedAtUtc,
+               (p.is_pinned AND (p.pinned_until_utc IS NULL OR p.pinned_until_utc > now())) AS IsPinned,
+               p.pinned_until_utc AS PinnedUntilUtc,
                h.area_name AS AreaName, h.division AS Division,
                GREATEST(0, COALESCE(c.max_occupants, 4) -
                    (SELECT count(*) FROM home_members m WHERE m.home_id = h.id AND m.left_at_utc IS NULL) -
@@ -209,6 +213,84 @@ public sealed class HousingService
         }, null);
     }
 
+    public HousingPinFeeDto GetPinFee() => new()
+    {
+        AmountBdt = HousingPinFeeBdt,
+        Days = HousingPinDays
+    };
+
+    public async Task<(HousingPinResultDto? Data, string? Error)> PinPostAsync(
+        long userId, long postId, PinHousingPostDto dto)
+    {
+        var number = new string((dto.BkashNumber ?? string.Empty)
+            .Where(c => !char.IsWhiteSpace(c) && c != '-').ToArray());
+        if (!BangladeshiPhone.IsMatch(number))
+        {
+            return (null, "Enter a valid Bangladeshi bKash number, like 01712345678.");
+        }
+        if (!BkashPin.IsMatch(dto.Pin ?? string.Empty))
+        {
+            return (null, "The bKash PIN must be 4 or 5 digits.");
+        }
+
+        using var connection = await _db.OpenAsync();
+        using var transaction = connection.BeginTransaction();
+        var post = await connection.QuerySingleOrDefaultAsync<(long HomeId, short Status, bool IsPinned, DateTime? PinnedUntilUtc)>(
+            @"SELECT p.home_id AS HomeId, p.status AS Status, p.is_pinned AS IsPinned,
+                     p.pinned_until_utc AS PinnedUntilUtc
+                FROM housing_posts p
+               WHERE p.id = @postId
+               FOR UPDATE",
+            new { postId }, transaction);
+
+        if (post == default || !await IsOwnerAsync(connection, userId, post.HomeId, transaction))
+        {
+            return (null, "That listing is not yours to pin.");
+        }
+        if (post.Status != PostActive)
+        {
+            return (null, "Only active Housing listings can be pinned.");
+        }
+
+        var now = DateTime.UtcNow;
+        var baseTime = post.IsPinned && post.PinnedUntilUtc is { } expiry && expiry > now
+            ? expiry
+            : now;
+        var pinnedUntilUtc = baseTime.AddDays(HousingPinDays);
+        var transactionId = "BK" + NewHousingTransactionId();
+
+        await connection.ExecuteAsync(
+            @"UPDATE housing_posts
+                 SET is_pinned = true, pinned_at_utc = @now, pinned_until_utc = @pinnedUntilUtc
+               WHERE id = @postId",
+            new { postId, now, pinnedUntilUtc }, transaction);
+        await connection.ExecuteAsync(
+            @"INSERT INTO housing_pin_payments
+                  (post_id, user_id, amount_bdt, bkash_number, transaction_id, pinned_days, paid_at_utc)
+              VALUES (@postId, @userId, @amount, @number, @transactionId, @days, @now)",
+            new
+            {
+                postId,
+                userId,
+                amount = HousingPinFeeBdt,
+                number,
+                transactionId,
+                days = HousingPinDays,
+                now
+            }, transaction);
+        transaction.Commit();
+
+        return (new HousingPinResultDto
+        {
+            PostId = postId.ToString(),
+            TransactionId = transactionId,
+            AmountBdt = HousingPinFeeBdt,
+            BkashNumber = number,
+            PinnedUntilUtc = pinnedUntilUtc,
+            PaidAtUtc = now
+        }, null);
+    }
+
     // ------------------------------------------------------------ browse
 
     // Posts from the caller's own home never show in browse; those live on "my posts".
@@ -280,7 +362,7 @@ public sealed class HousingService
             args);
 
         var rows = (await connection.QueryAsync<PostRow>(
-            $"{PostSelect} WHERE ({whereSql}) ORDER BY p.created_at_utc DESC OFFSET @offset LIMIT @limit",
+            $"{PostSelect} WHERE ({whereSql}) ORDER BY (CASE WHEN p.is_pinned AND (p.pinned_until_utc IS NULL OR p.pinned_until_utc > now()) THEN 0 ELSE 1 END), p.created_at_utc DESC OFFSET @offset LIMIT @limit",
             args)).ToList();
 
         var images = await LoadImagesAsync(connection, rows.Select(r => r.Id));
@@ -501,7 +583,7 @@ public sealed class HousingService
             $@"{PostSelect}
                JOIN home_members hm ON hm.home_id = p.home_id AND hm.user_id = @userId
                                     AND hm.left_at_utc IS NULL AND hm.role IN (@manager, @coManager)
-               ORDER BY p.created_at_utc DESC",
+               ORDER BY (CASE WHEN p.is_pinned AND (p.pinned_until_utc IS NULL OR p.pinned_until_utc > now()) THEN 0 ELSE 1 END), p.created_at_utc DESC",
             new { userId, manager = HomeService.RoleManager, coManager = HomeService.RoleCoManager })).ToList();
 
         var ids = rows.Select(r => r.Id).ToArray();
@@ -1146,6 +1228,8 @@ public sealed class HousingService
         Division = r.Division,
         Status = ToPostStatus(r.Status),
         CreatedAtUtc = r.CreatedAtUtc,
+        IsPinned = r.IsPinned,
+        PinnedUntilUtc = r.PinnedUntilUtc,
         ImageUrls = images.TryGetValue(r.Id, out var list) ? list : new List<string>()
     };
 
@@ -1168,6 +1252,8 @@ public sealed class HousingService
         Division = r.Division,
         Status = ToPostStatus(r.Status),
         CreatedAtUtc = r.CreatedAtUtc,
+        IsPinned = r.IsPinned,
+        PinnedUntilUtc = r.PinnedUntilUtc,
         IsMine = isMine,
         ImageUrls = images.TryGetValue(r.Id, out var list) ? list : new List<string>(),
         Eligibility = new EligibilityDto
@@ -1193,6 +1279,8 @@ public sealed class HousingService
         public decimal MonthlyRent { get; set; }
         public short Status { get; set; }
         public DateTime CreatedAtUtc { get; set; }
+        public bool IsPinned { get; set; }
+        public DateTime? PinnedUntilUtc { get; set; }
         public string AreaName { get; set; } = string.Empty;
         public string Division { get; set; } = string.Empty;
         public int SeatsAvailable { get; set; }

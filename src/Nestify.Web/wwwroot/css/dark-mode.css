@@ -287,6 +287,68 @@ html[data-theme="dark"] .layout--user .mk-package--selected::after {
     color: #fff;
 }
 
+html[data-theme="dark"] .layout--user .hs-pin-btn {
+    border-color: #67502d;
+    background: #352b1d;
+    color: #f0c77d;
+}
+
+html[data-theme="dark"] .layout--user .hs-pin-btn:hover:not(:disabled) {
+    border-color: #a17a39;
+    background: #44351f;
+    color: #ffe1a1;
+}
+
+html[data-theme="dark"] .layout--user .hs-pin-expiry {
+    color: #f0c77d;
+}
+
+html[data-theme="dark"] .layout--user .mk-pin-perks {
+    border-color: #67502d;
+    background: #30291f;
+}
+
+html[data-theme="dark"] .layout--user .mk-pin-pricing {
+    border-color: #63404e;
+    background: linear-gradient(135deg, #38242f, #30232d);
+}
+
+html[data-theme="dark"] .layout--user .hs-pin-modal .mk-pin-pricing__head span,
+html[data-theme="dark"] .layout--user .hs-pin-modal .mk-pin-pricing__detail {
+    color: #f0b5ce;
+}
+
+html[data-theme="dark"] .layout--user .hs-pin-modal .mk-pin-pricing__amount {
+    color: #ff8fbd;
+}
+
+html[data-theme="dark"] .layout--user .hs-pin-modal .mk-bkash-checkout {
+    border-color: #63404e;
+    background: var(--nx-card);
+}
+
+html[data-theme="dark"] .layout--user .hs-pin-modal .mk-bkash-checkout__banner {
+    border-color: #63404e;
+}
+
+html[data-theme="dark"] .layout--user .hs-pin-modal .mk-bkash-field label {
+    color: var(--nx-body);
+}
+
+html[data-theme="dark"] .layout--user .hs-pin-modal .mk-bkash-input-wrap input {
+    border-color: var(--nx-border-strong);
+    background: var(--nx-control-bg);
+    color: var(--nx-ink);
+}
+
+html[data-theme="dark"] .layout--user .hs-pin-modal .mk-bkash-input-wrap input:focus {
+    background: var(--nx-surface-raised);
+}
+
+html[data-theme="dark"] .layout--user .hs-pin-modal .mk-pin-info__status {
+    color: #f0c77d;
+}
+
 html[data-theme="dark"] .layout--user .mk-pay-form {
     border-color: var(--nx-border);
     background: var(--nx-bg-alt);

@@ -1045,6 +1045,26 @@
 }
 .hs-row__actions .nx-btn { min-height: 40px; padding: .5rem 1rem; font-size: .88rem; }
 .hs-row__actions-spacer { flex: 1; }
+.hs-pin-btn {
+    border-color: #fcd34d;
+    background: #fffbeb;
+    color: #92400e;
+}
+.hs-pin-btn:hover:not(:disabled) {
+    border-color: #f59e0b;
+    background: #fef3c7;
+    color: #78350f;
+}
+.hs-pin-expiry { color: #92400e; font-weight: 600; }
+.mk-pin-info__thumb img { width: 100%; height: 100%; object-fit: cover; }
+.mk-pin-info__thumb > span {
+    display: grid;
+    width: 100%;
+    height: 100%;
+    place-items: center;
+    background: var(--nx-primary-soft);
+    font-size: 1.5rem;
+}
 
 .hs-danger-btn:hover:not(:disabled) {
     border-color: var(--nx-danger) !important;

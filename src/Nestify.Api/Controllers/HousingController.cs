@@ -48,6 +48,17 @@ public sealed class HousingController : ControllerBase
         return data is null ? BadRequest(new { message = error }) : Ok(data);
     }
 
+    [HttpGet("pin-fee")]
+    public ActionResult<HousingPinFeeDto> GetPinFee() =>
+        Ok(_housing.GetPinFee());
+
+    [HttpPost("posts/{id:long}/pin")]
+    public async Task<ActionResult<HousingPinResultDto>> PinPost(long id, PinHousingPostDto dto)
+    {
+        var (data, error) = await _housing.PinPostAsync(RequireUserId(), id, dto);
+        return data is null ? BadRequest(new { message = error }) : Ok(data);
+    }
+
     // ---- Browse + detail ----
 
     [HttpGet("posts")]

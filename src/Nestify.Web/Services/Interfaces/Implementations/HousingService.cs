@@ -52,6 +52,22 @@ public sealed class HousingService : IHousingService, IHouseLookupService
                ?? throw new ApplicationException("The bKash payment did not go through.");
     }
 
+    public async Task<HousingPinFeeDto> GetPinFeeAsync() =>
+        await _httpClient.GetFromJsonAsync<HousingPinFeeDto>("api/v1/housing/pin-fee")
+        ?? new HousingPinFeeDto();
+
+    public async Task<HousingPinResultDto> PinPostAsync(string id, PinHousingPostDto request)
+    {
+        var response = await _httpClient.PostAsJsonAsync($"api/v1/housing/posts/{Uri.EscapeDataString(id)}/pin", request);
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new ApplicationException(await ReadMessageAsync(response) ?? "The bKash payment did not go through.");
+        }
+
+        return await response.Content.ReadFromJsonAsync<HousingPinResultDto>()
+               ?? throw new ApplicationException("The bKash payment did not go through.");
+    }
+
     // ---- Browse + detail ----
 
     public async Task<HousingPageDto<HousingPostSummaryDto>> BrowseAsync(HousingPostFilterDto filter)

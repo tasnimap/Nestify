@@ -38,6 +38,13 @@
                         <span class="hs-badge hs-badge--@HousingView.StatusModifier(_post.Status)">
                             @HousingView.Label(_post.Status)
                         </span>
+                        @if (_post.IsPinned)
+                        {
+                            <span class="mk-badge--pinned"
+                                  title="@(_post.PinnedUntilUtc is { } expiry ? $"Pinned until {expiry.ToLocalTime():d MMM, h:mm tt}" : "Pinned")">
+                                📌 Pinned
+                            </span>
+                        }
                     </div>
                     <h1>@_post.Title</h1>
                     <div class="hs-detail__meta">
@@ -125,6 +132,12 @@
                         @if (_post.IsMine)
                         {
                             <a class="nx-btn nx-btn--ghost" href="housing/@_post.Id/edit">Edit listing</a>
+                            @if (_post.Status == PostStatus.Active)
+                            {
+                                <button class="nx-btn nx-btn--ghost hs-pin-btn" @onclick="OpenPinModal">
+                                    📌 @(_post.IsPinned ? "Extend pin" : "Pin listing")
+                                </button>
+                            }
                         }
                         @if (!_post.IsMine)
                         {
@@ -209,6 +222,18 @@
                    Caption="@_post.Title" OnClose="CloseLightbox" />
 }
 
+@if (_showPinModal && _post is not null)
+{
+    <HousingPinPostModal PostId="@_post.Id"
+                         ListingTitle="@_post.Title"
+                         MonthlyRent="@_post.MonthlyRent"
+                         CoverImage="@_post.ImageUrls.FirstOrDefault()"
+                         IsCurrentlyPinned="@_post.IsPinned"
+                         CurrentPinnedUntilUtc="@_post.PinnedUntilUtc"
+                         OnClose="ClosePinModal"
+                         OnPinned="OnPostPinned" />
+}
+
 @code {
     [Parameter] public string Id { get; set; } = string.Empty;
 
@@ -224,6 +249,7 @@
     // Lightbox
     private bool _showLightbox;
     private int _lightboxIndex;
+    private bool _showPinModal;
 
     private bool CanBook => _post is
     {
@@ -290,6 +316,15 @@
     }
 
     private void CloseLightbox() => _showLightbox = false;
+
+    private void OpenPinModal() => _showPinModal = true;
+
+    private void ClosePinModal() => _showPinModal = false;
+
+    private async Task OnPostPinned(HousingPinResultDto _)
+    {
+        await LoadAsync();
+    }
 
     private void OpenBookingModal()
     {

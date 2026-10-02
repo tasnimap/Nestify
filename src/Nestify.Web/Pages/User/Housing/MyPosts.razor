@@ -82,6 +82,13 @@
                                     <span class="hs-badge hs-badge--@HousingView.StatusModifier(postDto.Post.Status)">
                                         @HousingView.Label(postDto.Post.Status)
                                     </span>
+                                    @if (postDto.Post.IsPinned)
+                                    {
+                                        <span class="mk-badge--pinned"
+                                              title="@(postDto.Post.PinnedUntilUtc is { } expiry ? $"Pinned until {expiry.ToLocalTime():d MMM, h:mm tt}" : "Pinned")">
+                                            📌 Pinned
+                                        </span>
+                                    }
                                     @if (postDto.PendingBookingRequestCount > 0)
                                     {
                                         <span class="hs-count-pill">@postDto.PendingBookingRequestCount pending</span>
@@ -95,6 +102,11 @@
                                         <circle cx="12" cy="10" r="3" />
                                     </svg>
                                     <span>@postDto.Post.AreaName, @postDto.Post.Division</span>
+                                    @if (postDto.Post.IsPinned && postDto.Post.PinnedUntilUtc is { } pinUntil)
+                                    {
+                                        <span class="hs-dot"></span>
+                                        <span class="hs-pin-expiry">Pinned till @pinUntil.ToLocalTime().ToString("d MMM, h:mm tt")</span>
+                                    }
                                 </div>
                             </div>
                             <div class="hs-price hs-price--sm">
@@ -171,6 +183,13 @@
                                 <a class="nx-btn nx-btn--ghost" href="housing/@postDto.Post.Id/bookings">View all (@postDto.BookingRequestCount)</a>
                             }
                             <a class="nx-btn nx-btn--ghost" href="housing/@postDto.Post.Id/edit">Edit</a>
+                            @if (postDto.Post.Status == PostStatus.Active)
+                            {
+                                <button type="button" class="nx-btn nx-btn--ghost hs-pin-btn"
+                                        @onclick="() => OpenPinModal(postDto.Post)">
+                                    📌 @(postDto.Post.IsPinned ? "Extend pin" : "Pin listing")
+                                </button>
+                            }
                             <span class="hs-row__actions-spacer"></span>
                             @if (postDto.Post.Status == PostStatus.Active)
                             {
@@ -199,9 +218,22 @@
     <PhotoLightbox Images="_photoPost.ImageUrls" Caption="@_photoPost.Title" OnClose="ClosePhotos" />
 }
 
+@if (_pinPost is not null)
+{
+    <HousingPinPostModal PostId="@_pinPost.Id"
+                         ListingTitle="@_pinPost.Title"
+                         MonthlyRent="@_pinPost.MonthlyRent"
+                         CoverImage="@_pinPost.ImageUrls.FirstOrDefault()"
+                         IsCurrentlyPinned="@_pinPost.IsPinned"
+                         CurrentPinnedUntilUtc="@_pinPost.PinnedUntilUtc"
+                         OnClose="ClosePinModal"
+                         OnPinned="OnPostPinned" />
+}
+
 @code {
     private List<MyHousingPostDto> _posts = new();
     private HousingPostSummaryDto? _photoPost;
+    private HousingPostSummaryDto? _pinPost;
     private bool _loading = true;
     private string? _expandedPostId;
     private List<BookingRequesterDto> _currentRequesters = new();
@@ -227,6 +259,12 @@
     private void OpenPhotos(HousingPostSummaryDto post) => _photoPost = post;
 
     private void ClosePhotos() => _photoPost = null;
+
+    private void OpenPinModal(HousingPostSummaryDto post) => _pinPost = post;
+
+    private void ClosePinModal() => _pinPost = null;
+
+    private Task OnPostPinned(HousingPinResultDto _) => LoadPosts();
 
     private async Task LoadPosts()
     {

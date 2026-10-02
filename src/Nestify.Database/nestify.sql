@@ -408,6 +408,9 @@ CREATE TABLE housing_posts (
     listing_type_id   smallint      NOT NULL REFERENCES housing_listing_types (id) ON DELETE RESTRICT,
     monthly_rent_bdt  numeric(10,2) NOT NULL,
     status            smallint      NOT NULL DEFAULT 1,   -- 1 Active, 2 Closed, 3 Filled
+    is_pinned         boolean       NOT NULL DEFAULT false,
+    pinned_at_utc     timestamptz,
+    pinned_until_utc  timestamptz,
     created_at_utc    timestamptz   NOT NULL DEFAULT now(),
     updated_at_utc    timestamptz   NOT NULL DEFAULT now(),
     closed_at_utc     timestamptz,
@@ -420,6 +423,7 @@ CREATE TABLE housing_posts (
 
 CREATE INDEX ix_housing_posts_home   ON housing_posts (home_id);
 CREATE INDEX ix_housing_posts_browse ON housing_posts (created_at_utc DESC) WHERE status = 1;
+CREATE INDEX ix_housing_posts_pinned ON housing_posts (is_pinned, pinned_until_utc) WHERE status = 1;
 CREATE INDEX ix_housing_posts_rent   ON housing_posts (monthly_rent_bdt)   WHERE status = 1;
 CREATE INDEX ix_housing_posts_type   ON housing_posts (listing_type_id)    WHERE status = 1;
 
@@ -606,6 +610,20 @@ CREATE TABLE marketplace_pin_payments (
 );
 
 CREATE INDEX ix_marketplace_pin_payments_listing ON marketplace_pin_payments (listing_id, paid_at_utc DESC);
+
+-- bKash payments made to pin / feature Housing posts to the top of browse.
+CREATE TABLE housing_pin_payments (
+    id              bigint         GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    post_id          bigint         NOT NULL REFERENCES housing_posts (id) ON DELETE CASCADE,
+    user_id          bigint         NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    amount_bdt       numeric(10,2)  NOT NULL,
+    bkash_number     varchar(20)    NOT NULL,
+    transaction_id   varchar(40)    NOT NULL,
+    pinned_days      int            NOT NULL DEFAULT 7,
+    paid_at_utc      timestamptz    NOT NULL DEFAULT now()
+);
+
+CREATE INDEX ix_housing_pin_payments_post ON housing_pin_payments (post_id, paid_at_utc DESC);
 
 
 -- Photos of a listing, one row per photo. sort_order 0 is the cover image.

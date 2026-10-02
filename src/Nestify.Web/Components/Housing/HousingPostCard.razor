@@ -6,6 +6,12 @@
     <div class="hs-card__media">
         <div class="hs-card__top">
             <span class="hs-chip hs-chip--type">@HousingView.ShortLabel(Post.ListingType)</span>
+            @if (Post.IsPinned)
+            {
+                <span class="mk-badge--pinned" title="@(Post.PinnedUntilUtc is { } expiry ? $"Pinned until {expiry.ToLocalTime():d MMM, h:mm tt}" : "Pinned")">
+                    📌 Pinned
+                </span>
+            }
             @if (Post.Status != PostStatus.Active)
             {
                 <span class="hs-chip hs-chip--closed">@HousingView.Label(Post.Status)</span>
