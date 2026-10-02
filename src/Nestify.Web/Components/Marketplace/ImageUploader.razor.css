@@ -44,7 +44,7 @@
     width: 2.6rem;
     height: 2.6rem;
     border-radius: 12px 12px 12px 4px;
-    background: #fff;
+    background: var(--nx-card);
     border: 1px solid var(--nx-border);
     color: var(--nx-primary);
     flex: none;
@@ -74,7 +74,7 @@
     padding: .4rem .5rem;
     border: 1px solid var(--nx-border);
     border-radius: 12px;
-    background: #fff;
+    background: var(--nx-card);
     animation: mk-pop .35s var(--mk-ease) both;
     transition: border-color var(--mk-fast) ease, box-shadow var(--mk-mid) ease;
 }

@@ -4,10 +4,11 @@
 
 .stl {
     position: relative;
+    --nx-line: var(--nx-border);
     background:
         radial-gradient(1100px 460px at 12% -8%, rgba(109, 40, 217, .13), transparent 60%),
         radial-gradient(900px 420px at 92% 4%, rgba(22, 163, 74, .10), transparent 62%),
-        linear-gradient(180deg, var(--nx-primary-softer), #fff 30rem);
+        linear-gradient(180deg, var(--nx-primary-softer), var(--nx-bg) 30rem);
     overflow: clip;
 }
 
@@ -59,7 +60,7 @@
     padding: 1.25rem;
     border: 1px solid var(--nx-line);
     border-radius: 1rem;
-    background: rgba(255, 255, 255, .76);
+    background: var(--nx-card);
 }
 
 .stl__member-costs-head,
@@ -109,7 +110,7 @@
     border: 1px solid var(--nx-line);
     border-radius: 999px;
     padding: .4rem .7rem .4rem .45rem;
-    background: #fff;
+    background: var(--nx-card);
     color: var(--nx-muted);
     cursor: pointer;
     font: inherit;
@@ -332,7 +333,7 @@
     padding: .25rem .3rem;
     border: 1px solid var(--nx-border);
     border-radius: 999px;
-    background: rgba(255, 255, 255, .78);
+    background: var(--nx-card);
     backdrop-filter: blur(10px);
     box-shadow: var(--nx-shadow-sm);
 }
@@ -410,7 +411,7 @@
     border: 1px solid var(--nx-border-strong);
     border-left: 4px solid var(--nx-primary);
     border-radius: var(--nx-radius);
-    background: rgba(255, 255, 255, .85);
+    background: var(--nx-card);
     backdrop-filter: blur(10px);
     box-shadow: var(--nx-shadow-sm);
     animation: stl-rise .62s cubic-bezier(.22, 1, .36, 1) both;
@@ -441,7 +442,7 @@
     padding: 2.5rem 1.5rem;
     border: 1px dashed var(--nx-border-strong);
     border-radius: var(--nx-radius-lg, var(--nx-radius));
-    background: rgba(255, 255, 255, .7);
+    background: var(--nx-card);
     text-align: center;
     animation: stl-rise .62s cubic-bezier(.22, 1, .36, 1) both;
     animation-delay: var(--delay, 0ms);
@@ -490,7 +491,7 @@
     padding: .6rem .8rem;
     border: 1px solid var(--nx-border);
     border-radius: var(--nx-radius);
-    background: rgba(255, 255, 255, .7);
+    background: var(--nx-card);
 }
 
 .stl__add-row .stl__member-name {
@@ -516,7 +517,7 @@
     padding: .7rem .9rem;
     border: 1px solid var(--nx-border);
     border-radius: var(--nx-radius);
-    background: #fff;
+    background: var(--nx-card);
     font-size: .92rem;
 }
 
@@ -537,7 +538,7 @@
     padding: 1.15rem 1.25rem;
     border: 1px solid var(--nx-border);
     border-radius: var(--nx-radius);
-    background: rgba(255, 255, 255, .8);
+    background: var(--nx-card);
     backdrop-filter: blur(12px);
     box-shadow: var(--nx-shadow-sm);
     overflow: hidden;
@@ -593,7 +594,7 @@
     padding: .35rem;
     border: 1px solid var(--nx-border);
     border-radius: 999px;
-    background: rgba(255, 255, 255, .82);
+    background: var(--nx-card);
     backdrop-filter: blur(12px);
     box-shadow: var(--nx-shadow-sm);
 }
@@ -668,7 +669,7 @@
     padding: 1.35rem 1.5rem 1.5rem;
     border: 1px solid var(--nx-border);
     border-radius: var(--nx-radius-lg);
-    background: rgba(255, 255, 255, .9);
+    background: var(--nx-card);
     backdrop-filter: blur(14px);
     box-shadow: var(--nx-shadow-sm);
     transition: box-shadow .35s ease;
@@ -748,7 +749,7 @@
     padding: .9rem 1.05rem;
     border: 1px solid var(--nx-border);
     border-radius: var(--nx-radius);
-    background: rgba(255, 255, 255, .82);
+    background: var(--nx-card);
     backdrop-filter: blur(10px);
     box-shadow: var(--nx-shadow-sm);
     transition: transform .3s cubic-bezier(.22, 1, .36, 1), box-shadow .3s ease;
@@ -824,7 +825,7 @@
     padding: .45rem .6rem;
     text-align: center;
     border-bottom: 1px solid var(--nx-border);
-    background: #fff;
+    background: var(--nx-card);
 }
 
 .stl__sheet thead th {
@@ -911,7 +912,7 @@
 .stl__view-btn:hover { color: var(--nx-primary-strong); }
 
 .stl__view-btn.is-active {
-    background: #fff;
+    background: var(--nx-card);
     color: var(--nx-primary-strong);
     box-shadow: var(--nx-shadow-sm);
 }
@@ -977,7 +978,7 @@
     position: relative;
     z-index: 1;
     border-color: var(--nx-primary);
-    background: #fff;
+    background: var(--nx-card);
     transform: scale(1.12);
     box-shadow: 0 0 0 4px var(--nx-ring);
 }
@@ -1046,7 +1047,7 @@
     padding: .8rem 1rem;
     border: 1px solid var(--nx-border);
     border-radius: var(--nx-radius);
-    background: #fff;
+    background: var(--nx-card);
     transition: transform .28s cubic-bezier(.22, 1, .36, 1), box-shadow .28s ease, border-color .28s ease;
 }
 
@@ -1112,7 +1113,7 @@
 
 .stl__bill-amount:focus-within {
     border-color: var(--nx-primary);
-    background: #fff;
+    background: var(--nx-card);
     box-shadow: 0 0 0 4px var(--nx-ring);
 }
 
@@ -1199,7 +1200,7 @@
     padding: .6rem .7rem;
     border: 1px solid var(--nx-border);
     border-radius: 12px;
-    background: #fff;
+    background: var(--nx-card);
     color: var(--nx-body);
     font: inherit;
     font-size: .88rem;
@@ -1235,7 +1236,7 @@
     padding: 1.1rem 1.2rem;
     border: 1px solid var(--nx-border);
     border-radius: var(--nx-radius);
-    background: rgba(255, 255, 255, .85);
+    background: var(--nx-card);
     backdrop-filter: blur(10px);
     box-shadow: var(--nx-shadow-sm);
     transition: transform .3s cubic-bezier(.22, 1, .36, 1), box-shadow .3s ease;
@@ -1295,7 +1296,7 @@
     padding: .7rem .9rem;
     border: 1px solid var(--nx-border);
     border-radius: 14px;
-    background: #fff;
+    background: var(--nx-card);
     transition: transform .25s cubic-bezier(.22, 1, .36, 1), border-color .25s ease, box-shadow .25s ease;
 }
 
@@ -1356,7 +1357,7 @@
     display: grid;
     gap: .2rem;
     padding: .95rem 1.1rem;
-    background: #fff;
+    background: var(--nx-card);
     transition: background .25s ease;
 }
 
@@ -1546,7 +1547,7 @@
     padding: 1.25rem;
     border: 1px solid var(--nx-border);
     border-radius: var(--nx-radius-lg);
-    background: rgba(255, 255, 255, .9);
+    background: var(--nx-card);
     backdrop-filter: blur(12px);
     box-shadow: var(--nx-shadow-sm);
     overflow: hidden;

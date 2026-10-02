@@ -5,6 +5,7 @@
 @inject AdminConsoleService Store
 @inject Nestify.Web.Services.Interfaces.IAdminService Admin
 @inject Nestify.Web.Services.Interfaces.IAuthService AuthService
+@inject IJSRuntime JS
 
 <div class="adm">
     <a class="skip-link" href="#adm-main">Skip to main content</a>
@@ -96,6 +97,24 @@
                 <div class="adm__bar-sub">Signed in as @(_name ?? "Admin")</div>
             </div>
             <div class="adm__bar-right">
+                <button class="adm__theme-toggle"
+                        type="button"
+                        aria-label="Toggle admin color theme"
+                        aria-pressed="false"
+                        title="Toggle admin color theme"
+                        @onclick="ToggleAdminTheme">
+                    <span class="adm__theme-track" aria-hidden="true">
+                        <svg class="adm__theme-icon adm__theme-icon--sun" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="3.5" />
+                            <path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42" />
+                        </svg>
+                        <span class="adm__theme-knob"></span>
+                        <svg class="adm__theme-icon adm__theme-icon--moon" viewBox="0 0 24 24">
+                            <path d="M20.4 15.3A8.6 8.6 0 0 1 8.7 3.6 8.7 8.7 0 1 0 20.4 15.3Z" />
+                            <circle cx="17.3" cy="5.7" r=".8" />
+                        </svg>
+                    </span>
+                </button>
                 <span class="adm__clock">@DateTime.Now.ToString("dddd, d MMM yyyy")</span>
             </div>
         </header>
@@ -131,6 +150,17 @@
     }
 
     protected override async Task OnInitializedAsync() => await RefreshReportsAsync();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("nestifyAdminTheme.syncToggle");
+        }
+    }
+
+    private async Task ToggleAdminTheme() =>
+        await JS.InvokeVoidAsync("nestifyAdminTheme.toggle");
 
     // Report and verification counts come from the API and are re-read on every
     // page change so a strike, dismissal or decision updates the pills straight away.

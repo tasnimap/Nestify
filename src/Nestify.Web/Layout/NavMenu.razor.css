@@ -12,7 +12,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1rem;
+    gap: .6rem;
     min-height: var(--nx-nav-h);
 }
 
@@ -35,13 +35,13 @@
 .nav__panel {
     display: flex;
     align-items: center;
-    gap: 2rem;
+    gap: clamp(.45rem, 1vw, .9rem);
 }
 
 .nav__links {
     display: flex;
     align-items: center;
-    gap: .35rem;
+    gap: .15rem;
     margin: 0;
     padding: 0;
     list-style: none;
@@ -50,11 +50,12 @@
 .nav__panel ::deep .nav__link {
     display: inline-flex;
     align-items: center;
-    padding: .55rem .9rem;
+    padding: .55rem clamp(.4rem, .7vw, .75rem);
     border-radius: 9px;
     color: var(--nx-body);
     font-weight: 600;
-    font-size: .95rem;
+    font-size: .9rem;
+    white-space: nowrap;
     transition: color .16s ease, background .16s ease;
 }
 
@@ -82,7 +83,7 @@
     padding: .3rem .6rem .3rem .35rem;
     border: 1px solid var(--nx-border-strong);
     border-radius: 999px;
-    background: #fff;
+    background: var(--nx-card);
     font: inherit;
     font-weight: 600;
     font-size: .9rem;
@@ -128,7 +129,7 @@
     justify-content: center;
     border: 1px solid var(--nx-border-strong);
     border-radius: 10px;
-    background: #fff;
+    background: var(--nx-card);
     cursor: pointer;
 }
 
@@ -163,7 +164,7 @@
         align-items: stretch;
         gap: 1rem;
         padding: 1.25rem clamp(1.15rem, 4vw, 2.5rem) 1.75rem;
-        background: #fff;
+        background: var(--nx-card);
         border-bottom: 1px solid var(--nx-border);
         box-shadow: var(--nx-shadow-md);
         transform: translateY(-8px);

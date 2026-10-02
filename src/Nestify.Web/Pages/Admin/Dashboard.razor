@@ -5,6 +5,7 @@
 
 <PageTitle>Dashboard — Nestify Admin</PageTitle>
 
+<div class="adm-dashboard">
 <header class="adm-head adm-rise">
     <div>
         <p class="adm-eyebrow">Control room</p>
@@ -23,7 +24,7 @@
     </div>
 </header>
 
-<div class="adm-grid adm-grid--4" style="margin-bottom:1rem;">
+<div class="adm-grid adm-grid--4 adm-dashboard__metrics">
     <article class="adm-kpi adm-rise" style="--d:.04s">
         <div class="adm-kpi__icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 2v20" /><path d="M17 6.5c0-1.9-2.2-3-5-3s-5 1.1-5 3 2.2 2.8 5 3.3 5 1.4 5 3.4-2.2 3.3-5 3.3-5-1.2-5-3" /></svg>
@@ -63,8 +64,8 @@
     </article>
 </div>
 
-<div class="adm-grid adm-grid--2" style="margin-bottom:1rem;">
-    <section class="adm-card adm-rise adm-span-2" style="--d:.28s">
+<div class="adm-grid adm-grid--2 adm-dashboard__analytics-grid">
+    <section class="adm-card adm-rise adm-span-2 adm-dashboard__revenue" style="--d:.28s">
         <div class="adm-card__head">
             <div>
                 <h2>@RevenueChartTitle</h2>
@@ -146,7 +147,7 @@
     </section>
 </div>
 
-<div class="adm-grid adm-grid--2">
+<div class="adm-grid adm-grid--2 adm-dashboard__details-grid">
     <section class="adm-card adm-rise" style="--d:.46s">
         <div class="adm-card__head">
             <div>
@@ -236,6 +237,8 @@
             </div>
         </div>
     </section>
+</div>
+
 </div>
 
 @code {

@@ -25,7 +25,7 @@
     grid-template-columns: var(--split) 1fr;
     width: min(1080px, 100%);
     min-height: 660px;
-    background: #fff;
+    background: var(--nx-card);
     border-radius: var(--nx-radius-lg);
     border: 1px solid var(--nx-border);
     box-shadow: var(--nx-shadow-lg);
@@ -257,7 +257,7 @@
 }
 
 .auth-overlay__btn:hover {
-    background: #fff;
+    background: var(--nx-card);
     color: var(--nx-primary-strong);
 }
 

@@ -16,7 +16,7 @@
     background:
         radial-gradient(90rem 32rem at 12% -12%, rgba(139, 92, 246, .12), transparent 60%),
         radial-gradient(70rem 28rem at 92% -6%, rgba(109, 40, 217, .10), transparent 62%),
-        linear-gradient(180deg, var(--nx-bg-alt), #fff 30rem);
+        linear-gradient(180deg, var(--nx-bg-alt), var(--nx-bg) 30rem);
     overflow-x: hidden;
 }
 
@@ -102,7 +102,7 @@
     padding: 1.05rem 1.1rem;
     border: 1px solid var(--nx-border);
     border-radius: 16px;
-    background: rgba(255, 255, 255, .82);
+    background: var(--nx-card);
     backdrop-filter: blur(8px);
     box-shadow: var(--nx-shadow-sm);
     overflow: hidden;
@@ -220,7 +220,7 @@
 
 .dh-item:hover {
     transform: translateX(3px);
-    background: #fff;
+    background: var(--nx-card);
     border-color: var(--nx-border);
 }
 
@@ -298,7 +298,7 @@
 .dh-skeleton__bar {
     height: 74px;
     border-radius: 16px;
-    background: linear-gradient(100deg, var(--nx-bg-alt) 30%, #fff 50%, var(--nx-bg-alt) 70%);
+    background: linear-gradient(100deg, var(--nx-bg-alt) 30%, var(--nx-card) 50%, var(--nx-bg-alt) 70%);
     background-size: 200% 100%;
     animation: dh-shimmer 1.4s linear infinite;
 }
@@ -326,7 +326,7 @@
     padding: .7rem .9rem;
     border: 1px solid var(--nx-border);
     border-radius: 12px;
-    background: #fff;
+    background: var(--nx-card);
     font: inherit;
     font-size: 16px;
     color: var(--nx-ink);
@@ -350,7 +350,7 @@
     padding: .45rem .95rem;
     border: 1px solid var(--nx-border);
     border-radius: 999px;
-    background: #fff;
+    background: var(--nx-card);
     font: inherit;
     font-size: .85rem;
     font-weight: 650;
@@ -381,7 +381,7 @@
     padding: .7rem .9rem;
     border: 1px solid var(--nx-border);
     border-radius: 12px;
-    background: #fff;
+    background: var(--nx-card);
     font: inherit;
     font-size: 16px;
     color: var(--nx-ink);
@@ -506,7 +506,7 @@
     padding: 1rem .75rem;
     border: 1px solid var(--nx-border);
     border-radius: 14px;
-    background: linear-gradient(180deg, #fff, var(--nx-bg-alt));
+    background: linear-gradient(180deg, var(--nx-card), var(--nx-bg-alt));
     text-align: center;
     transition: transform .25s var(--dh-ease), box-shadow .25s var(--dh-ease);
 }
@@ -609,7 +609,7 @@
     padding: clamp(1rem, 3vw, 1.35rem);
     border: 1px solid var(--nx-border);
     border-radius: var(--dh-radius);
-    background: rgba(255, 255, 255, .85);
+    background: var(--nx-card);
     backdrop-filter: blur(8px);
     box-shadow: var(--nx-shadow-sm);
 }
@@ -656,7 +656,7 @@
     padding: .65rem .85rem;
     border: 1px solid var(--nx-border);
     border-radius: 12px;
-    background: #fff;
+    background: var(--nx-card);
     font: inherit;
     font-size: 16px;
     color: var(--nx-ink);
@@ -968,7 +968,7 @@
     transition: background .25s var(--dh-ease), border-color .25s var(--dh-ease);
 }
 
-.dh-review:hover { background: #fff; border-color: #d9c9f7; }
+.dh-review:hover { background: var(--nx-card); border-color: #d9c9f7; }
 
 .dh-review__head {
     display: flex;
@@ -1023,7 +1023,7 @@
     overflow-x: auto;
     border: 1px solid var(--nx-border);
     border-radius: 14px;
-    background: #fff;
+    background: var(--nx-card);
     -webkit-overflow-scrolling: touch;
 }
 
@@ -1039,7 +1039,7 @@
     position: sticky;
     left: 0;
     z-index: 2;
-    background: #fff;
+    background: var(--nx-card);
     text-align: left;
     padding: .35rem .55rem;
     box-shadow: 6px 0 8px -8px rgba(28, 24, 48, .35);
@@ -1206,7 +1206,7 @@ button.dh-slot:focus-visible {
     padding: .2rem .6rem;
     border: 1px solid #d9c9f7;
     border-radius: 999px;
-    background: #fff;
+    background: var(--nx-card);
     font: inherit;
     font-size: .76rem;
     font-weight: 700;
@@ -1268,7 +1268,7 @@ button.dh-slot:focus-visible {
     padding: .75rem .9rem;
     border: 1px solid var(--nx-border);
     border-radius: 12px;
-    background: #fff;
+    background: var(--nx-card);
     font: inherit;
     font-size: 16px;
     color: var(--nx-ink);

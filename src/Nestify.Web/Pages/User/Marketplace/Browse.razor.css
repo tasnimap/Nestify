@@ -16,7 +16,7 @@
     display: grid;
     gap: 1.25rem;
     padding: 1.25rem;
-    background: linear-gradient(180deg, #fff, var(--nx-primary-softer));
+    background: linear-gradient(180deg, var(--nx-card), var(--nx-primary-softer));
     border: 1px solid var(--nx-border);
     border-left: 3px solid var(--nx-primary);
     border-radius: 18px;
@@ -50,7 +50,7 @@
     padding: .6rem .8rem;
     border: 1.5px solid var(--nx-border-strong);
     border-radius: 12px;
-    background: #fff;
+    background: var(--nx-card);
     transition: border-color var(--mk-fast) ease, box-shadow var(--mk-mid) var(--mk-ease);
 }
 .mk-lens__search:focus-within {
@@ -86,7 +86,7 @@
     font: inherit;
     font-size: .88rem;
     font-variant-numeric: tabular-nums;
-    background: #fff;
+    background: var(--nx-card);
     transition: border-color var(--mk-fast) ease, box-shadow var(--mk-mid) var(--mk-ease);
 }
 .mk-lens__price input:focus {
@@ -103,7 +103,7 @@
     border-radius: 11px;
     font: inherit;
     font-size: .9rem;
-    background: #fff;
+    background: var(--nx-card);
     color: var(--nx-ink);
     transition: border-color var(--mk-fast) ease, box-shadow var(--mk-mid) var(--mk-ease);
 }
@@ -174,7 +174,7 @@
         top: var(--nx-nav-h);
         z-index: 5;
         padding: .5rem 0;
-        background: linear-gradient(180deg, var(--nx-bg-alt) 70%, rgba(255, 255, 255, 0));
+        background: linear-gradient(180deg, var(--nx-bg-alt) 70%, transparent);
         -webkit-backdrop-filter: blur(8px);
         backdrop-filter: blur(8px);
     }

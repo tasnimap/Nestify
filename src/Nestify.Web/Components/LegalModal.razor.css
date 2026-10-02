@@ -18,7 +18,7 @@
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, .42);
     border-radius: 22px;
-    background: #fff;
+    background: var(--nx-card);
     box-shadow: 0 1.5rem 4rem rgba(12, 7, 31, .36);
     animation: legal-pop-in .24s cubic-bezier(.2, .85, .35, 1.1);
 }
