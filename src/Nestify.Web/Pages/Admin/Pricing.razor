@@ -15,7 +15,7 @@
     <div class="adm-head__actions">
         <button class="adm-btn adm-btn--primary" type="button" @onclick="() => NewPlan(ModerationScope.Marketplace)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
-            New plan
+            New marketplace plan
         </button>
     </div>
 </header>
@@ -66,6 +66,7 @@
     <div class="adm-grid">
         @{
             var group = ModerationScope.Marketplace;
+            var housingGroup = ModerationScope.Housing;
             <section class="adm-card adm-rise" style="--d:.12s">
                 <div class="adm-card__head">
                     <div>
@@ -99,7 +100,7 @@
                                     </p>
                                     <p class="adm-row__meta">
                                         @current.Posts posts for @AdminConsoleService.Taka(current.Price)
-                                        · valid @current.ValidDays days · @current.Subscribers.ToString("N0") buyers
+                                        · valid @current.ValidDays days · @current.Subscribers.ToString("N0") purchases
                                     </p>
                                 </div>
                                 <div class="adm-row__side">
@@ -115,6 +116,56 @@
                     </div>
                 }
             </section>
+
+            <section class="adm-card adm-rise" style="--d:.16s">
+                    <div class="adm-card__head">
+                        <div>
+                            <h2>Housing plans</h2>
+                            <p>Shared by every current member of the house.</p>
+                        </div>
+                        <button class="adm-btn adm-btn--ghost adm-btn--sm" type="button" @onclick="() => NewPlan(housingGroup)">Add plan</button>
+                    </div>
+
+                    @if (!_plans.Any(p => p.Scope == housingGroup))
+                    {
+                        <EmptyState Title="No plans yet" Message="Add the first shared housing-token package." />
+                    }
+                    else
+                    {
+                        <div class="adm-rows">
+                            @foreach (var plan in _plans.Where(p => p.Scope == housingGroup))
+                            {
+                                var current = plan;
+                                <article class="adm-row" style="box-shadow:none;">
+                                    <span class="adm-thumb adm-thumb--violet" aria-hidden="true">
+                                        @current.Posts
+                                    </span>
+                                    <div class="adm-row__main">
+                                        <p class="adm-row__title">
+                                            @current.Name
+                                            @if (!current.IsActive)
+                                            {
+                                                <span class="adm-badge adm-badge--muted" style="margin-left:.4rem;">off</span>
+                                            }
+                                        </p>
+                                        <p class="adm-row__meta">
+                                            @current.Posts shared posts for @AdminConsoleService.Taka(current.Price)
+                                            · valid @current.ValidDays days · @current.Subscribers.ToString("N0") house purchases
+                                        </p>
+                                    </div>
+                                    <div class="adm-row__side">
+                                        <button class="adm-btn adm-btn--ghost adm-btn--sm" type="button" @onclick="() => EditPlan(current)">Edit</button>
+                                        <button class="adm-btn @(current.IsActive ? "adm-btn--danger" : "adm-btn--ok") adm-btn--sm"
+                                                type="button" disabled="@_busy" @onclick="() => TogglePlan(current)">
+                                            @(current.IsActive ? "Disable" : "Enable")
+                                        </button>
+                                        <button class="adm-btn adm-btn--ghost adm-btn--sm" type="button" disabled="@_busy" @onclick="() => _deleting = current">Delete</button>
+                                    </div>
+                                </article>
+                            }
+                        </div>
+                    }
+                </section>
         }
     </div>
 }
@@ -126,7 +177,9 @@
             <div class="adm-modal__head">
                 <div>
                     <h2>@(_editingId is null ? "New plan" : "Edit plan")</h2>
-                    <p>A plan is a bundle of posts someone buys once.</p>
+                    <p>@(_draft.Scope == ModerationScope.Housing
+                        ? "A housing package adds tokens to the selected house's shared balance."
+                        : "A marketplace package adds posting tokens to one seller's balance.")</p>
                 </div>
                 <button class="adm-icon-btn" type="button" aria-label="Close" @onclick="() => _draft = null">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
@@ -138,7 +191,7 @@
                     <label for="plan-name">Plan name</label>
                     <input id="plan-name" class="adm-input" @bind="_draft.Name" placeholder="Starter" />
                 </div>
-                <p class="adm-note">This package can be used for marketplace item listings.</p>
+                <p class="adm-note">This package is for @AdminConsoleService.ScopeLabel(_draft.Scope) posts.</p>
                 <div class="adm-grid adm-grid--3">
                     <div class="adm-field">
                         <label for="plan-posts">Posts</label>

@@ -131,6 +131,40 @@ public sealed class CreateHousingPostRequestDto
     public List<string> ImageUrls { get; set; } = new();
 }
 
+public sealed class HousingPostingPlanDto
+{
+    public string Id { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public int Posts { get; set; }
+    public decimal PriceBdt { get; set; }
+    public int ValidDays { get; set; }
+}
+
+public sealed class HousingPostingBalanceDto
+{
+    public string HomeId { get; set; } = string.Empty;
+    public int PostsLeft { get; set; }
+    public DateTime? NextExpiryUtc { get; set; }
+}
+
+public sealed class BuyHousingPlanDto
+{
+    public string HomeId { get; set; } = string.Empty;
+    public string PlanId { get; set; } = string.Empty;
+    public string BkashNumber { get; set; } = string.Empty;
+    public string Pin { get; set; } = string.Empty;
+}
+
+public sealed class HousingPlanPurchaseDto
+{
+    public string PlanName { get; set; } = string.Empty;
+    public int PostsAdded { get; set; }
+    public int PostsLeft { get; set; }
+    public decimal AmountBdt { get; set; }
+    public DateTime ExpiresAtUtc { get; set; }
+    public string TransactionId { get; set; } = string.Empty;
+}
+
 /// <summary>Payload for <c>/housing/{id}/edit</c>. No HouseId — a post cannot be reparented (§3.6).</summary>
 public sealed class UpdateHousingPostRequestDto
 {

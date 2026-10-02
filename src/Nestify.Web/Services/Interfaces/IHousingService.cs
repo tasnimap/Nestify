@@ -12,6 +12,11 @@ namespace Nestify.Web.Services.Interfaces;
 /// </summary>
 public interface IHousingService
 {
+    Task<IReadOnlyList<HouseOptionDto>> GetMemberHousesAsync();
+    Task<IReadOnlyList<HousingPostingPlanDto>> GetPostingPlansAsync();
+    Task<HousingPostingBalanceDto> GetPostingBalanceAsync(string homeId);
+    Task<HousingPlanPurchaseDto> BuyPostingPlanAsync(BuyHousingPlanDto request);
+
     Task<HousingPageDto<HousingPostSummaryDto>> BrowseAsync(HousingPostFilterDto filter);
 
     /// <summary>

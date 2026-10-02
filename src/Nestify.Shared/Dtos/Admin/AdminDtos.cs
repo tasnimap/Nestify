@@ -111,6 +111,7 @@ public sealed class AdminRevenuePointDto
 {
     public DateTime MonthUtc { get; set; }
     public decimal Verification { get; set; }
+    public decimal HousingPostingPlans { get; set; }
     public decimal MarketplacePostingPlans { get; set; }
     public decimal MarketplacePins { get; set; }
 }

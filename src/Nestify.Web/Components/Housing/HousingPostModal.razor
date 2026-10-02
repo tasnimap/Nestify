@@ -70,9 +70,9 @@
             Toast.ShowSuccess("Your listing is live.", "Post published");
             await OnCreated.InvokeAsync(id);
         }
-        catch
+        catch (Exception ex)
         {
-            Toast.ShowError("Couldn't publish the listing. Please try again.", "Something went wrong");
+            Toast.ShowError(ex.Message, "Couldn't publish the listing");
             _busy = false;
         }
     }

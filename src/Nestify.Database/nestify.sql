@@ -1061,6 +1061,7 @@ CREATE TABLE plan_purchases (
     id               bigint      GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
       plan_id          bigint      NOT NULL REFERENCES post_plans (id) ON DELETE RESTRICT,
       user_id          bigint      NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+      home_id          bigint      REFERENCES homes (id) ON DELETE CASCADE,
       scope            smallint    NOT NULL,  -- snapshot: keeps purchased credits independent of plan edits/deletion
       posts_left       int         NOT NULL,
       amount_bdt       numeric(10,2) NOT NULL, -- purchase-price snapshot for revenue reporting
@@ -1072,6 +1073,9 @@ CREATE TABLE plan_purchases (
 
 CREATE INDEX ix_plan_purchases_plan ON plan_purchases (plan_id);
 CREATE INDEX ix_plan_purchases_user ON plan_purchases (user_id, expires_at_utc DESC);
+CREATE INDEX ix_plan_purchases_home_scope_expiry
+    ON plan_purchases (home_id, scope, expires_at_utc DESC)
+    WHERE home_id IS NOT NULL;
 
 
 -- Extra details for a users row with account_type 3. An admin with no row

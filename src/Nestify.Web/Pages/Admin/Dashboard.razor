@@ -79,6 +79,8 @@
                             class="adm-tab @RevenueTabClass(RevenueChartTab.Verification)" @onclick="() => _revenueTab = RevenueChartTab.Verification">Verification</button>
                     <button type="button" role="tab" aria-selected="@(_revenueTab == RevenueChartTab.Marketplace)"
                             class="adm-tab @RevenueTabClass(RevenueChartTab.Marketplace)" @onclick="() => _revenueTab = RevenueChartTab.Marketplace">Marketplace</button>
+                    <button type="button" role="tab" aria-selected="@(_revenueTab == RevenueChartTab.Housing)"
+                            class="adm-tab @RevenueTabClass(RevenueChartTab.Housing)" @onclick="() => _revenueTab = RevenueChartTab.Housing">Housing</button>
                 </div>
                 <div class="adm-chips">
                     <span class="adm-chip">Year total @AdminConsoleService.Taka(SelectedYearRevenue)</span>
@@ -92,7 +94,7 @@
         <div class="adm-card__head">
             <div>
                 <h2>Revenue split</h2>
-                <p>This month's share of verification and marketplace revenue.</p>
+                <p>This month's share of verification, housing and marketplace revenue.</p>
             </div>
         </div>
         <AdminDonut Title="Revenue split" Slices="RevenueSplit"
@@ -278,6 +280,10 @@
         {
             new ChartSeries { Name = "Marketplace revenue", Color = "#0d9488", Values = _revenue.Select(r => (int)(r.MarketplacePostingPlans + r.MarketplacePins)).ToList() }
         },
+        RevenueChartTab.Housing => new()
+        {
+            new ChartSeries { Name = "Housing revenue", Color = "#8b5cf6", Values = _revenue.Select(r => (int)r.HousingPostingPlans).ToList() }
+        },
         _ => new()
         {
             new ChartSeries { Name = "Total revenue", Color = "#6d28d9", Values = _revenue.Select(r => (int)TotalRevenue(r)).ToList() }
@@ -288,6 +294,7 @@
     {
         RevenueChartTab.Verification => "Verification revenue",
         RevenueChartTab.Marketplace => "Marketplace revenue",
+        RevenueChartTab.Housing => "Housing revenue",
         _ => "Revenue overview"
     };
 
@@ -295,13 +302,15 @@
     {
         RevenueChartTab.Verification => "Verification-fee payments received over the last 12 months.",
         RevenueChartTab.Marketplace => "Total marketplace revenue from posting-plan purchases and post-pinning payments over the last 12 months.",
-        _ => "Combined verification and marketplace revenue over the last 12 months."
+        RevenueChartTab.Housing => "Revenue from shared housing-token package purchases over the last 12 months.",
+        _ => "Combined verification, housing and marketplace revenue over the last 12 months."
     };
 
     private int SelectedYearRevenue => _revenueTab switch
     {
         RevenueChartTab.Verification => (int)_revenue.Sum(r => r.Verification),
         RevenueChartTab.Marketplace => (int)_revenue.Sum(r => r.MarketplacePostingPlans + r.MarketplacePins),
+        RevenueChartTab.Housing => (int)_revenue.Sum(r => r.HousingPostingPlans),
         _ => YearRevenue
     };
 
@@ -310,6 +319,7 @@
     private List<DonutSlice> RevenueSplit => new()
     {
         new DonutSlice { Name = "Verification", Value = CurrentVerificationRevenue, Color = "#7c3aed" },
+        new DonutSlice { Name = "Housing", Value = CurrentHousingRevenue, Color = "#8b5cf6" },
         new DonutSlice { Name = "Marketplace", Value = CurrentMarketplaceRevenue, Color = "#0d9488" }
     };
 
@@ -329,7 +339,7 @@
     private int MaxGrowth => Math.Max(1, Growth.Count == 0 ? 0 : Growth.Max(g => g.Users));
 
     private static decimal TotalRevenue(AdminRevenuePointDto point) =>
-        point.Verification + point.MarketplacePostingPlans + point.MarketplacePins;
+        point.Verification + point.HousingPostingPlans + point.MarketplacePostingPlans + point.MarketplacePins;
 
     private int MonthRevenue => _revenue.Count == 0 ? 0 : (int)TotalRevenue(_revenue[^1]);
 
@@ -338,6 +348,8 @@
     private int CurrentMarketplaceRevenue => _revenue.Count == 0
         ? 0
         : (int)(_revenue[^1].MarketplacePostingPlans + _revenue[^1].MarketplacePins);
+
+    private int CurrentHousingRevenue => _revenue.Count == 0 ? 0 : (int)_revenue[^1].HousingPostingPlans;
 
     private int LastMonthRevenue => _revenue.Count < 2 ? 0 : (int)TotalRevenue(_revenue[^2]);
 
@@ -362,6 +374,7 @@
     {
         All,
         Verification,
-        Marketplace
+        Marketplace,
+        Housing
     }
 }

@@ -24,6 +24,9 @@
                     genuine booking instead of a dozen "is this still available" messages.
                 </p>
             </div>
+            <div class="hs-head__actions">
+                <HousingPostingTokens />
+            </div>
         </header>
 
         @if (_loadingHouses)
@@ -76,9 +79,9 @@
             Toast.ShowSuccess("Your listing is live.", "Post published");
             Nav.NavigateTo($"housing/{id}");
         }
-        catch
+        catch (Exception ex)
         {
-            Toast.ShowError("Couldn't publish the listing. Please try again.", "Something went wrong");
+            Toast.ShowError(ex.Message, "Couldn't publish the listing");
             _busy = false;
         }
     }
