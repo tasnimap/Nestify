@@ -153,6 +153,41 @@ public sealed class CreateMarketplaceItemDto
     public IReadOnlyList<string> Images { get; set; } = new List<string>();
 }
 
+/// <summary>A marketplace posting bundle offered to sellers.</summary>
+public sealed class MarketplacePostingPlanDto
+{
+    public string Id { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public int Posts { get; set; }
+    public decimal PriceBdt { get; set; }
+    public int ValidDays { get; set; }
+}
+
+/// <summary>The signed-in seller's usable posting credits across all active bundles.</summary>
+public sealed class MarketplacePostingBalanceDto
+{
+    public int PostsLeft { get; set; }
+    public DateTime? NextExpiryUtc { get; set; }
+}
+
+/// <summary>Checkout request for the demonstration bKash gateway. The PIN is validated, never stored.</summary>
+public sealed class BuyMarketplacePlanDto
+{
+    public string PlanId { get; set; } = string.Empty;
+    public string BkashNumber { get; set; } = string.Empty;
+    public string Pin { get; set; } = string.Empty;
+}
+
+public sealed class MarketplacePlanPurchaseDto
+{
+    public string PlanName { get; set; } = string.Empty;
+    public int PostsAdded { get; set; }
+    public int PostsLeft { get; set; }
+    public decimal AmountBdt { get; set; }
+    public DateTime ExpiresAtUtc { get; set; }
+    public string TransactionId { get; set; } = string.Empty;
+}
+
 /// <summary>Payload for <c>/marketplace/items/{id}/edit</c>. No seller field, no status field.</summary>
 public sealed class UpdateMarketplaceItemDto
 {

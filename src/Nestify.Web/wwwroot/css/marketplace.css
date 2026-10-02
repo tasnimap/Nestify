@@ -98,6 +98,24 @@
     flex-wrap: wrap;
 }
 
+.mk-credit { border: 1px solid #bbf7d0; background: #f0fdf4; color: #166534; border-radius: var(--mk-notch-sm); padding: .5rem .8rem; text-align: left; cursor: pointer; }
+.mk-credit strong, .mk-credit span { display: block; }
+.mk-credit strong { font-size: .9rem; }
+.mk-credit span { font-size: .72rem; margin-top: .1rem; }
+.mk-checkout-backdrop { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; padding: 1rem; background: rgba(24, 16, 43, .48); animation: mk-fade var(--mk-fast) ease both; }
+.mk-checkout { position: relative; width: min(680px, 100%); max-height: calc(100vh - 2rem); overflow: auto; background: #fff; border-radius: var(--nx-radius); padding: 2rem; box-shadow: 0 28px 70px rgba(22, 16, 45, .35); }
+.mk-checkout h2 { margin: .25rem 0 .5rem; }
+.mk-checkout__intro { color: var(--nx-muted); margin-bottom: 1.25rem; }
+.mk-checkout__close { position: absolute; right: 1rem; top: .75rem; border: 0; background: none; font-size: 1.8rem; cursor: pointer; color: var(--nx-muted); }
+.mk-package-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .75rem; }
+.mk-package { display: grid; gap: .25rem; text-align: left; padding: 1rem; cursor: pointer; border: 1px solid #e5e7eb; border-radius: var(--mk-notch-sm); background: #fff; color: var(--nx-ink); }
+.mk-package:hover, .mk-package--selected { border-color: var(--nx-primary); background: var(--nx-primary-softer); box-shadow: var(--mk-lift); }
+.mk-package small { color: var(--nx-muted); }.mk-package b { color: var(--nx-accent); margin-top: .3rem; }
+.mk-pay-form { display: grid; gap: .7rem; margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid #e5e7eb; }
+.mk-pay-form input { width: 100%; border: 1px solid #d1d5db; border-radius: 10px; padding: .75rem; font: inherit; }
+.mk-pay-form__brand { display: flex; justify-content: space-between; color: #d12053; }.mk-pay-form__brand span { color: var(--nx-muted); font-size: .8rem; }
+.mk-checkout__error { color: #b91c1c; margin: 0; font-size: .9rem; }
+
 .mk-back {
     display: inline-flex;
     align-items: center;

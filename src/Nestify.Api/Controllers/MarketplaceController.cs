@@ -35,6 +35,21 @@ public sealed class MarketplaceController : ControllerBase
 
     // ---- Create + edit + mine ----
 
+    [HttpGet("posting-plans")]
+    public async Task<ActionResult<IReadOnlyList<MarketplacePostingPlanDto>>> PostingPlans() =>
+        Ok(await _marketplace.GetPostingPlansAsync());
+
+    [HttpGet("posting-balance")]
+    public async Task<ActionResult<MarketplacePostingBalanceDto>> PostingBalance() =>
+        Ok(await _marketplace.GetPostingBalanceAsync(RequireUserId()));
+
+    [HttpPost("posting-plans/purchase")]
+    public async Task<ActionResult<MarketplacePlanPurchaseDto>> PurchasePostingPlan(BuyMarketplacePlanDto dto)
+    {
+        var (data, error) = await _marketplace.BuyPostingPlanAsync(RequireUserId(), dto);
+        return data is null ? BadRequest(new { message = error }) : Ok(data);
+    }
+
     [HttpPost("items")]
     public async Task<IActionResult> Create(CreateMarketplaceItemDto dto)
     {

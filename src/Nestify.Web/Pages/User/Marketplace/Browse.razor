@@ -20,12 +20,50 @@
             <div class="mk-head__actions">
                 <a class="nx-btn nx-btn--ghost" href="buy-interests/mine">My buy requests</a>
                 <a class="nx-btn nx-btn--ghost" href="marketplace/mine">My listings</a>
+                <button type="button" class="mk-credit" @onclick="OpenPackages">
+                    <strong>@_postingBalance.PostsLeft posts</strong>
+                    <span>@(_postingBalance.NextExpiryUtc is { } expiry ? $"expires {expiry.ToLocalTime():d MMM}" : "buy posting tokens")</span>
+                </button>
                 <button type="button" class="nx-btn nx-btn--primary" @onclick="OpenPostModal">
                     <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
                     Post an item
                 </button>
             </div>
         </header>
+
+        @if (_showPackages)
+        {
+            <div class="mk-checkout-backdrop" role="presentation" @onclick="ClosePackages">
+                <section class="mk-checkout" role="dialog" aria-modal="true" aria-labelledby="posting-package-title" @onclick:stopPropagation="true">
+                    <button class="mk-checkout__close" type="button" aria-label="Close" @onclick="ClosePackages">×</button>
+                    <p class="nx-eyebrow">Marketplace posting tokens</p>
+                    <h2 id="posting-package-title">Keep your listings moving</h2>
+                    <p class="mk-checkout__intro">Each published item uses one token. Tokens expire by package, so use the earliest-expiring package first.</p>
+
+                    <div class="mk-package-grid">
+                        @foreach (var plan in _postingPlans)
+                        {
+                            <button type="button" class="mk-package @(_selectedPlan?.Id == plan.Id ? "mk-package--selected" : null)" @onclick="() => _selectedPlan = plan">
+                                <strong>@plan.Name</strong><span>@plan.Posts posts</span><small>Valid for @plan.ValidDays days</small><b>৳@plan.PriceBdt.ToString("N0")</b>
+                            </button>
+                        }
+                    </div>
+
+                    @if (_selectedPlan is not null)
+                    {
+                        <div class="mk-pay-form">
+                            <div class="mk-pay-form__brand"><b>bKash</b><span>Secure practice checkout</span></div>
+                            <input type="tel" placeholder="bKash number (e.g. 01712345678)" @bind="_bkashNumber" />
+                            <input type="password" inputmode="numeric" maxlength="5" placeholder="bKash PIN" @bind="_bkashPin" />
+                            @if (!string.IsNullOrWhiteSpace(_checkoutError)) { <p class="mk-checkout__error">@_checkoutError</p> }
+                            <button type="button" class="nx-btn nx-btn--primary" disabled="@_checkingOut" @onclick="CheckoutAsync">
+                                @(_checkingOut ? "Processing…" : $"Pay ৳{_selectedPlan.PriceBdt:N0} and add {_selectedPlan.Posts} posts")
+                            </button>
+                        </div>
+                    }
+                </section>
+            </div>
+        }
 
         <div class="mk-browse">
             <aside class="mk-lens" aria-label="Filter listings">
@@ -205,10 +243,49 @@
 
 @code {
     private bool _showPostModal;
+    private bool _showPackages;
+    private bool _checkingOut;
+    private string _bkashNumber = string.Empty;
+    private string _bkashPin = string.Empty;
+    private string? _checkoutError;
+    private IReadOnlyList<MarketplacePostingPlanDto> _postingPlans = Array.Empty<MarketplacePostingPlanDto>();
+    private MarketplacePostingPlanDto? _selectedPlan;
+    private MarketplacePostingBalanceDto _postingBalance = new();
 
     private void OpenPostModal() => _showPostModal = true;
 
     private void ClosePostModal() => _showPostModal = false;
+
+    private async Task OpenPackages()
+    {
+        _showPackages = true;
+        _checkoutError = null;
+        try
+        {
+            _postingPlans = await Marketplace.GetPostingPlansAsync();
+            _postingBalance = await Marketplace.GetPostingBalanceAsync();
+            _selectedPlan ??= _postingPlans.FirstOrDefault();
+        }
+        catch { _checkoutError = "Could not load posting packages. Please try again."; }
+    }
+
+    private void ClosePackages() => _showPackages = false;
+
+    private async Task CheckoutAsync()
+    {
+        if (_selectedPlan is null) return;
+        _checkingOut = true;
+        _checkoutError = null;
+        try
+        {
+            var purchase = await Marketplace.BuyPostingPlanAsync(new BuyMarketplacePlanDto { PlanId = _selectedPlan.Id, BkashNumber = _bkashNumber, Pin = _bkashPin });
+            _postingBalance.PostsLeft = purchase.PostsLeft;
+            _postingBalance.NextExpiryUtc = purchase.ExpiresAtUtc;
+            _showPackages = false;
+        }
+        catch (Exception ex) { _checkoutError = ex.Message; }
+        finally { _checkingOut = false; }
+    }
 
     private Task OnItemCreated(string id)
     {
@@ -246,6 +323,7 @@
     protected override async Task OnInitializedAsync()
     {
         _divisions = await Areas.GetDivisionsAsync();
+        try { _postingBalance = await Marketplace.GetPostingBalanceAsync(); } catch { }
         await LoadAsync();
     }
 
