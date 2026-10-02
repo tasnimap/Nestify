@@ -87,18 +87,16 @@
         <AdminLineChart Title="@RevenueChartTitle" Prefix="৳" Labels="Months" Series="RevenueSeries" />
     </section>
 
-    @* Posting-plan revenue is intentionally hidden until its payment flow is enabled.
     <section class="adm-card adm-rise" style="--d:.34s">
         <div class="adm-card__head">
             <div>
-                <h2>Where the money comes from</h2>
-                <p>Share of this month's earnings.</p>
+                <h2>Revenue split</h2>
+                <p>This month's share of verification and marketplace revenue.</p>
             </div>
         </div>
         <AdminDonut Title="Revenue split" Slices="RevenueSplit"
                     Center="@AdminConsoleService.Taka(MonthRevenue)" CenterLabel="This month" />
     </section>
-    *@
 
     <section class="adm-card adm-rise" style="--d:.4s">
         <div class="adm-card__head">
@@ -306,14 +304,11 @@
 
     private string RevenueTabClass(RevenueChartTab tab) => _revenueTab == tab ? "adm-tab--on" : string.Empty;
 
-    /* Keep the future posting-plan revenue split implementation here, but do not render it yet.
     private List<DonutSlice> RevenueSplit => new()
     {
-        new DonutSlice { Name = "Housing plans", Value = 0, Color = "#6d28d9" },
-        new DonutSlice { Name = "Marketplace plans", Value = 0, Color = "#0f9b8e" },
-        new DonutSlice { Name = "Verification fees", Value = MonthRevenue, Color = "#f0a338" }
+        new DonutSlice { Name = "Verification", Value = CurrentVerificationRevenue, Color = "#2563eb" },
+        new DonutSlice { Name = "Marketplace", Value = CurrentMarketplaceRevenue, Color = "#f0a338" }
     };
-    */
 
     private List<(string Label, int Value)> Outcomes => _outcomes ??= new()
     {
@@ -334,6 +329,12 @@
         point.Verification + point.MarketplacePostingPlans + point.MarketplacePins;
 
     private int MonthRevenue => _revenue.Count == 0 ? 0 : (int)TotalRevenue(_revenue[^1]);
+
+    private int CurrentVerificationRevenue => _revenue.Count == 0 ? 0 : (int)_revenue[^1].Verification;
+
+    private int CurrentMarketplaceRevenue => _revenue.Count == 0
+        ? 0
+        : (int)(_revenue[^1].MarketplacePostingPlans + _revenue[^1].MarketplacePins);
 
     private int LastMonthRevenue => _revenue.Count < 2 ? 0 : (int)TotalRevenue(_revenue[^2]);
 
