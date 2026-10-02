@@ -43,3 +43,9 @@ jobs:
     name: Deploy to Azure Web App
     runs-on: ubuntu-latest
     needs: build
+    steps:
+      - name: Download published artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: nestify-api-publish
+          path: ${{ env.PUBLISH_DIRECTORY }}
