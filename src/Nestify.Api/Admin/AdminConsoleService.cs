@@ -80,6 +80,11 @@ public sealed class AdminConsoleService
                                 WHERE pp.scope = @marketplaceScope
                                   AND pp.purchased_at_utc >= month_start
                                   AND pp.purchased_at_utc < month_start + interval '1 month'), 0) AS MarketplacePostingPlans,
+                     coalesce((SELECT sum(pp.amount_bdt)
+                                 FROM plan_purchases pp
+                                WHERE pp.scope = @housingScope
+                                  AND pp.purchased_at_utc >= month_start
+                                  AND pp.purchased_at_utc < month_start + interval '1 month'), 0) AS HousingPostingPlans,
                      coalesce((SELECT sum(pin.amount_bdt)
                                  FROM marketplace_pin_payments pin
                                 WHERE pin.paid_at_utc >= month_start
@@ -89,7 +94,7 @@ public sealed class AdminConsoleService
                        date_trunc('month', now()),
                        interval '1 month') AS months(month_start)
                ORDER BY month_start",
-            new { marketplaceScope = ScopeMarketplace })).ToList();
+            new { marketplaceScope = ScopeMarketplace, housingScope = ScopeHousing })).ToList();
 
         var growth = (await connection.QueryAsync<AdminGrowthPointDto>(
             @"SELECT month_start AS MonthUtc,

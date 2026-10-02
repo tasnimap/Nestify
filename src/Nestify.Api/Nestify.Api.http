@@ -1,6 +1,23 @@
 @Nestify.Api_HostAddress = http://localhost:5293
+@userToken = replace-with-user-jwt
+@housingPostId = 123
 
 GET {{Nestify.Api_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###
+
+### Get the Housing post pin fee and duration
+GET {{Nestify.Api_HostAddress}}/api/v1/housing/pin-fee
+Authorization: Bearer {{userToken}}
+Accept: application/json
+
+### Pin or extend an active Housing post (demo bKash flow; replace the post ID)
+POST {{Nestify.Api_HostAddress}}/api/v1/housing/posts/{{housingPostId}}/pin
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "bkashNumber": "01712345678",
+  "pin": "1234"
+}

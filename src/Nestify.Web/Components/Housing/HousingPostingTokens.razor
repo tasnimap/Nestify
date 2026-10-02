@@ -1,0 +1,213 @@
+@inject IHousingService Housing
+
+@if (_loadError is not null)
+{
+    <button type="button" class="mk-credit" @onclick="LoadAsync">
+        <strong>Housing tokens unavailable</strong>
+        <span>Retry</span>
+    </button>
+}
+else if (_home is not null)
+{
+    <button type="button" class="mk-credit" @onclick="OpenPackages">
+        <strong>@_balance.PostsLeft shared posts</strong>
+        <span>@(_balance.NextExpiryUtc is { } expiry ? $"expires {expiry.ToLocalTime():d MMM}" : "buy housing tokens")</span>
+    </button>
+}
+
+@if (_showPackages && _home is not null)
+{
+    <div class="mk-checkout-backdrop" role="presentation" @onclick="ClosePackages">
+        <section class="mk-checkout" role="dialog" aria-modal="true" aria-labelledby="housing-package-title"
+                 @onclick:stopPropagation="true">
+            <button class="mk-checkout__close" type="button" aria-label="Close" @onclick="ClosePackages">×</button>
+            <p class="nx-eyebrow">Housing posting tokens</p>
+            <h2 id="housing-package-title">Shared tokens for your house</h2>
+            <p class="mk-checkout__intro">
+                Each new housing listing uses one token. Everyone in your house shares the same balance.
+                Buying another package extends the expiry of active tokens.
+            </p>
+
+            @if (_homes.Count > 1)
+            {
+                <div class="mk-pay-form">
+                    <label for="housing-token-home">Add tokens to</label>
+                    <select id="housing-token-home" value="@_home.Id" @onchange="OnHomeChanged">
+                        @foreach (var home in _homes)
+                        {
+                            <option value="@home.Id">@home.Name — @home.AreaName</option>
+                        }
+                    </select>
+                </div>
+            }
+
+            <div class="mk-checkout__balance">
+                <span>Available to publish · @_home.Name</span>
+                <strong>@_balance.PostsLeft <small>posts</small></strong>
+                <em>@(_balance.NextExpiryUtc is { } nextExpiry
+                    ? $"Next expiry: {nextExpiry.ToLocalTime():d MMM yyyy}"
+                    : "Choose a package to get started")</em>
+            </div>
+
+            @if (_plans.Count == 0)
+            {
+                <p class="mk-checkout__error">No housing packages are available right now.</p>
+            }
+            else
+            {
+                <div class="mk-package-grid">
+                    @foreach (var plan in _plans)
+                    {
+                        <button type="button" aria-pressed="@(_selectedPlan?.Id == plan.Id)"
+                                class="mk-package @(_selectedPlan?.Id == plan.Id ? "mk-package--selected" : null)"
+                                @onclick="() => _selectedPlan = plan">
+                            <strong>@plan.Name</strong>
+                            <span>@plan.Posts shared post tokens</span>
+                            <small>Expires after @plan.ValidDays days</small>
+                            <b>৳@plan.PriceBdt.ToString("N0")</b>
+                        </button>
+                    }
+                </div>
+
+                @if (_selectedPlan is not null)
+                {
+                    <div class="mk-pay-form">
+                        <div class="mk-pay-form__brand"><b>bKash</b><span>Secure practice checkout</span></div>
+                        <label for="housing-bkash-number">bKash number</label>
+                        <input id="housing-bkash-number" type="tel" autocomplete="tel"
+                               placeholder="bKash number (e.g. 01712345678)" @bind="_bkashNumber" />
+                        <label for="housing-bkash-pin">bKash PIN</label>
+                        <input id="housing-bkash-pin" type="password" inputmode="numeric" maxlength="5"
+                               autocomplete="off" placeholder="4 or 5 digits" @bind="_bkashPin" />
+                        @if (_checkoutError is not null)
+                        {
+                            <p class="mk-checkout__error">@_checkoutError</p>
+                        }
+                        <button type="button" class="nx-btn nx-btn--primary" disabled="@_checkingOut" @onclick="CheckoutAsync">
+                            @(_checkingOut ? "Processing…" : $"Pay ৳{_selectedPlan.PriceBdt:N0} and add {_selectedPlan.Posts} shared tokens")
+                        </button>
+                        <small>This is a practice payment flow; no real money is charged.</small>
+                    </div>
+                }
+            }
+
+            @if (_loadError is not null)
+            {
+                <p class="mk-checkout__error" role="alert">@_loadError</p>
+            }
+        </section>
+    </div>
+}
+
+@code {
+    private IReadOnlyList<HouseOptionDto> _homes = Array.Empty<HouseOptionDto>();
+    private IReadOnlyList<HousingPostingPlanDto> _plans = Array.Empty<HousingPostingPlanDto>();
+    private HouseOptionDto? _home;
+    private HousingPostingBalanceDto _balance = new();
+    private HousingPostingPlanDto? _selectedPlan;
+    private string _bkashNumber = string.Empty;
+    private string _bkashPin = string.Empty;
+    private string? _loadError;
+    private string? _checkoutError;
+    private bool _checkingOut;
+    private bool _showPackages;
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _loadError = null;
+        try
+        {
+            _homes = await Housing.GetMemberHousesAsync();
+            _home = _homes.FirstOrDefault();
+            if (_home is null)
+            {
+                return;
+            }
+
+            var plansTask = Housing.GetPostingPlansAsync();
+            var balanceTask = Housing.GetPostingBalanceAsync(_home.Id);
+            _plans = await plansTask;
+            _balance = await balanceTask;
+            _selectedPlan ??= _plans.FirstOrDefault();
+        }
+        catch (Exception ex)
+        {
+            _loadError = ex.Message;
+        }
+    }
+
+    private void OpenPackages()
+    {
+        _checkoutError = null;
+        _bkashNumber = string.Empty;
+        _bkashPin = string.Empty;
+        _showPackages = true;
+    }
+
+    private void ClosePackages()
+    {
+        if (!_checkingOut)
+        {
+            _showPackages = false;
+        }
+    }
+
+    private async Task OnHomeChanged(ChangeEventArgs args)
+    {
+        var homeId = args.Value?.ToString();
+        var home = _homes.FirstOrDefault(h => h.Id == homeId);
+        if (home is null)
+        {
+            return;
+        }
+
+        _home = home;
+        _loadError = null;
+        try
+        {
+            _balance = await Housing.GetPostingBalanceAsync(home.Id);
+        }
+        catch (Exception ex)
+        {
+            _loadError = ex.Message;
+        }
+    }
+
+    private async Task CheckoutAsync()
+    {
+        if (_home is null || _selectedPlan is null)
+        {
+            return;
+        }
+
+        _checkingOut = true;
+        _checkoutError = null;
+        try
+        {
+            var purchase = await Housing.BuyPostingPlanAsync(new BuyHousingPlanDto
+            {
+                HomeId = _home.Id,
+                PlanId = _selectedPlan.Id,
+                BkashNumber = _bkashNumber,
+                Pin = _bkashPin
+            });
+            _balance = new HousingPostingBalanceDto
+            {
+                HomeId = _home.Id,
+                PostsLeft = purchase.PostsLeft,
+                NextExpiryUtc = purchase.ExpiresAtUtc
+            };
+            _showPackages = false;
+        }
+        catch (Exception ex)
+        {
+            _checkoutError = ex.Message;
+        }
+        finally
+        {
+            _checkingOut = false;
+        }
+    }
+}

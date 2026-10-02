@@ -1135,6 +1135,7 @@
 
 .adm-thumb--teal { background: linear-gradient(135deg, #2dd4bf, var(--ad-teal)); box-shadow: 0 6px 16px -4px var(--ad-teal-glow); }
 .adm-thumb--amber { background: linear-gradient(135deg, #fbbf24, var(--ad-amber)); box-shadow: 0 6px 16px -4px var(--ad-amber-glow); }
+.adm-thumb--violet { background: linear-gradient(135deg, var(--ad-violet-bright), var(--ad-violet)); box-shadow: 0 6px 16px -4px var(--ad-violet-glow); }
 .adm-thumb--photo { object-fit: cover; background: var(--ad-canvas); border: 1px solid var(--ad-line); }
 .adm-row--click { cursor: pointer; }
 

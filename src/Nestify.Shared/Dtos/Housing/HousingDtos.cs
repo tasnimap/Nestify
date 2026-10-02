@@ -68,6 +68,8 @@ public sealed class HousingPostSummaryDto
     public string Division { get; set; } = string.Empty;
     public PostStatus Status { get; set; } = PostStatus.Active;
     public DateTime CreatedAtUtc { get; set; }
+    public bool IsPinned { get; set; }
+    public DateTime? PinnedUntilUtc { get; set; }
     public List<string> ImageUrls { get; set; } = new();
 }
 
@@ -84,6 +86,8 @@ public sealed class HousingPostDetailDto
     public string Division { get; set; } = string.Empty;
     public PostStatus Status { get; set; } = PostStatus.Active;
     public DateTime CreatedAtUtc { get; set; }
+    public bool IsPinned { get; set; }
+    public DateTime? PinnedUntilUtc { get; set; }
     public EligibilityDto Eligibility { get; set; } = new();
 
     /// <summary>True when the signed-in user owns this post — gates Edit/Close, hides Book.</summary>
@@ -129,6 +133,65 @@ public sealed class CreateHousingPostRequestDto
     public decimal MonthlyRent { get; set; }
     public EligibilityDto Eligibility { get; set; } = new();
     public List<string> ImageUrls { get; set; } = new();
+}
+
+public sealed class HousingPostingPlanDto
+{
+    public string Id { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public int Posts { get; set; }
+    public decimal PriceBdt { get; set; }
+    public int ValidDays { get; set; }
+}
+
+public sealed class HousingPostingBalanceDto
+{
+    public string HomeId { get; set; } = string.Empty;
+    public int PostsLeft { get; set; }
+    public DateTime? NextExpiryUtc { get; set; }
+}
+
+public sealed class BuyHousingPlanDto
+{
+    public string HomeId { get; set; } = string.Empty;
+    public string PlanId { get; set; } = string.Empty;
+    public string BkashNumber { get; set; } = string.Empty;
+    public string Pin { get; set; } = string.Empty;
+}
+
+public sealed class HousingPlanPurchaseDto
+{
+    public string PlanName { get; set; } = string.Empty;
+    public int PostsAdded { get; set; }
+    public int PostsLeft { get; set; }
+    public decimal AmountBdt { get; set; }
+    public DateTime ExpiresAtUtc { get; set; }
+    public string TransactionId { get; set; } = string.Empty;
+}
+
+/// <summary>Pricing details for pinning a Housing post.</summary>
+public sealed class HousingPinFeeDto
+{
+    public decimal AmountBdt { get; set; } = 50m;
+    public int Days { get; set; } = 7;
+}
+
+/// <summary>Request to pin or extend an owned Housing post using the bKash demo checkout.</summary>
+public sealed class PinHousingPostDto
+{
+    public string BkashNumber { get; set; } = string.Empty;
+    public string Pin { get; set; } = string.Empty;
+}
+
+/// <summary>Receipt returned after pinning a Housing post.</summary>
+public sealed class HousingPinResultDto
+{
+    public string PostId { get; set; } = string.Empty;
+    public string TransactionId { get; set; } = string.Empty;
+    public decimal AmountBdt { get; set; }
+    public string BkashNumber { get; set; } = string.Empty;
+    public DateTime PinnedUntilUtc { get; set; }
+    public DateTime PaidAtUtc { get; set; }
 }
 
 /// <summary>Payload for <c>/housing/{id}/edit</c>. No HouseId — a post cannot be reparented (§3.6).</summary>

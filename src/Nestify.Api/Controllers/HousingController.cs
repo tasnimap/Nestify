@@ -26,6 +26,39 @@ public sealed class HousingController : ControllerBase
     public async Task<ActionResult<List<HouseOptionDto>>> GetHouses() =>
         Ok(await _housing.GetManageableHousesAsync(RequireUserId()));
 
+    [HttpGet("houses/mine")]
+    public async Task<ActionResult<List<HouseOptionDto>>> GetMemberHouses() =>
+        Ok(await _housing.GetMemberHousesAsync(RequireUserId()));
+
+    [HttpGet("posting-plans")]
+    public async Task<ActionResult<IReadOnlyList<HousingPostingPlanDto>>> PostingPlans() =>
+        Ok(await _housing.GetPostingPlansAsync());
+
+    [HttpGet("houses/{homeId:long}/posting-balance")]
+    public async Task<ActionResult<HousingPostingBalanceDto>> PostingBalance(long homeId)
+    {
+        var balance = await _housing.GetPostingBalanceAsync(RequireUserId(), homeId);
+        return balance is null ? Forbid() : Ok(balance);
+    }
+
+    [HttpPost("posting-plans/purchase")]
+    public async Task<ActionResult<HousingPlanPurchaseDto>> PurchasePostingPlan(BuyHousingPlanDto dto)
+    {
+        var (data, error) = await _housing.BuyPostingPlanAsync(RequireUserId(), dto);
+        return data is null ? BadRequest(new { message = error }) : Ok(data);
+    }
+
+    [HttpGet("pin-fee")]
+    public ActionResult<HousingPinFeeDto> GetPinFee() =>
+        Ok(_housing.GetPinFee());
+
+    [HttpPost("posts/{id:long}/pin")]
+    public async Task<ActionResult<HousingPinResultDto>> PinPost(long id, PinHousingPostDto dto)
+    {
+        var (data, error) = await _housing.PinPostAsync(RequireUserId(), id, dto);
+        return data is null ? BadRequest(new { message = error }) : Ok(data);
+    }
+
     // ---- Browse + detail ----
 
     [HttpGet("posts")]

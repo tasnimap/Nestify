@@ -20,6 +20,54 @@ public sealed class HousingService : IHousingService, IHouseLookupService
     public async Task<IReadOnlyList<HouseOptionDto>> GetManageableHousesAsync() =>
         await _httpClient.GetFromJsonAsync<List<HouseOptionDto>>("api/v1/housing/houses") ?? new List<HouseOptionDto>();
 
+    public async Task<IReadOnlyList<HouseOptionDto>> GetMemberHousesAsync() =>
+        await _httpClient.GetFromJsonAsync<List<HouseOptionDto>>("api/v1/housing/houses/mine")
+        ?? new List<HouseOptionDto>();
+
+    public async Task<IReadOnlyList<HousingPostingPlanDto>> GetPostingPlansAsync() =>
+        await _httpClient.GetFromJsonAsync<List<HousingPostingPlanDto>>("api/v1/housing/posting-plans")
+        ?? new List<HousingPostingPlanDto>();
+
+    public async Task<HousingPostingBalanceDto> GetPostingBalanceAsync(string homeId)
+    {
+        var response = await _httpClient.GetAsync($"api/v1/housing/houses/{Uri.EscapeDataString(homeId)}/posting-balance");
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new ApplicationException(await ReadMessageAsync(response) ?? "Could not load this house's posting-token balance.");
+        }
+
+        return await response.Content.ReadFromJsonAsync<HousingPostingBalanceDto>()
+               ?? throw new ApplicationException("Could not load this house's posting-token balance.");
+    }
+
+    public async Task<HousingPlanPurchaseDto> BuyPostingPlanAsync(BuyHousingPlanDto request)
+    {
+        var response = await _httpClient.PostAsJsonAsync("api/v1/housing/posting-plans/purchase", request);
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new ApplicationException(await ReadMessageAsync(response) ?? "The bKash payment did not go through.");
+        }
+
+        return await response.Content.ReadFromJsonAsync<HousingPlanPurchaseDto>()
+               ?? throw new ApplicationException("The bKash payment did not go through.");
+    }
+
+    public async Task<HousingPinFeeDto> GetPinFeeAsync() =>
+        await _httpClient.GetFromJsonAsync<HousingPinFeeDto>("api/v1/housing/pin-fee")
+        ?? new HousingPinFeeDto();
+
+    public async Task<HousingPinResultDto> PinPostAsync(string id, PinHousingPostDto request)
+    {
+        var response = await _httpClient.PostAsJsonAsync($"api/v1/housing/posts/{Uri.EscapeDataString(id)}/pin", request);
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new ApplicationException(await ReadMessageAsync(response) ?? "The bKash payment did not go through.");
+        }
+
+        return await response.Content.ReadFromJsonAsync<HousingPinResultDto>()
+               ?? throw new ApplicationException("The bKash payment did not go through.");
+    }
+
     // ---- Browse + detail ----
 
     public async Task<HousingPageDto<HousingPostSummaryDto>> BrowseAsync(HousingPostFilterDto filter)

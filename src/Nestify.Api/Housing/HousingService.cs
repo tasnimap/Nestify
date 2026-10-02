@@ -1,4 +1,6 @@
 using System.Data;
+using System.Security.Cryptography;
+using System.Text.RegularExpressions;
 using Dapper;
 using Nestify.Api.Data;
 using Nestify.Api.Homes;
@@ -16,6 +18,8 @@ public sealed class HousingService
     private const short PostActive = 1;
     private const short PostClosed = 2;
     private const short PostFilled = 3;
+    private const decimal HousingPinFeeBdt = 50m;
+    private const int HousingPinDays = 7;
 
     private const short BookingPending = 1;
     private const short BookingAccepted = 2;
@@ -23,12 +27,17 @@ public sealed class HousingService
     private const short BookingWithdrawn = 4;
 
     private const int MaxImages = 6;
+    private const short HousingPostingScope = 1;
+    private static readonly Regex BangladeshiPhone = new(@"^(\+?88)?01[3-9]\d{8}$", RegexOptions.Compiled);
+    private static readonly Regex BkashPin = new(@"^\d{4,5}$", RegexOptions.Compiled);
 
     // Columns every post read shares. Seats are worked out here from the home.
     private const string PostSelect = @"
         SELECT p.id AS Id, p.home_id AS HomeId, p.posted_by_user_id AS PostedByUserId,
                p.title AS Title, p.description AS Description, p.listing_type_id AS ListingTypeId,
                p.monthly_rent_bdt AS MonthlyRent, p.status AS Status, p.created_at_utc AS CreatedAtUtc,
+               (p.is_pinned AND (p.pinned_until_utc IS NULL OR p.pinned_until_utc > now())) AS IsPinned,
+               p.pinned_until_utc AS PinnedUntilUtc,
                h.area_name AS AreaName, h.division AS Division,
                GREATEST(0, COALESCE(c.max_occupants, 4) -
                    (SELECT count(*) FROM home_members m WHERE m.home_id = h.id AND m.left_at_utc IS NULL) -
@@ -71,6 +80,215 @@ public sealed class HousingService
               WHERE hm.user_id = @userId AND hm.left_at_utc IS NULL AND hm.role IN (@manager, @coManager)",
             new { userId, manager = HomeService.RoleManager, coManager = HomeService.RoleCoManager });
         return rows.ToList();
+    }
+
+    public async Task<List<HouseOptionDto>> GetMemberHousesAsync(long userId)
+    {
+        using var connection = await _db.OpenAsync();
+        var rows = await connection.QueryAsync<HouseOptionDto>(
+            @"SELECT h.id::text AS Id, h.name AS Name, h.area_name AS AreaName, h.division AS Division,
+                     COALESCE(c.max_occupants, 4) AS MaxOccupants,
+                     (SELECT count(*) FROM home_members m WHERE m.home_id = h.id AND m.left_at_utc IS NULL) AS CurrentOccupants
+              FROM home_members hm
+              JOIN homes h ON h.id = hm.home_id
+              LEFT JOIN home_capacity c ON c.home_id = h.id
+              WHERE hm.user_id = @userId AND hm.left_at_utc IS NULL
+              ORDER BY hm.joined_at_utc",
+            new { userId });
+        return rows.ToList();
+    }
+
+    public async Task<IReadOnlyList<HousingPostingPlanDto>> GetPostingPlansAsync()
+    {
+        using var connection = await _db.OpenAsync();
+        var rows = await connection.QueryAsync<HousingPostingPlanDto>(
+            @"SELECT id::text AS Id, name AS Name, posts AS Posts,
+                     price_bdt AS PriceBdt, valid_days AS ValidDays
+                FROM post_plans
+               WHERE scope = @scope AND is_active = true AND is_deleted = false
+               ORDER BY price_bdt, posts",
+            new { scope = HousingPostingScope });
+        return rows.ToList();
+    }
+
+    public async Task<HousingPostingBalanceDto?> GetPostingBalanceAsync(long userId, long homeId)
+    {
+        using var connection = await _db.OpenAsync();
+        if (!await IsActiveHomeMemberAsync(connection, userId, homeId))
+        {
+            return null;
+        }
+
+        return await ReadHousingPostingBalanceAsync(connection, null, homeId);
+    }
+
+    public async Task<(HousingPlanPurchaseDto? Data, string? Error)> BuyPostingPlanAsync(long userId, BuyHousingPlanDto dto)
+    {
+        if (!long.TryParse(dto.HomeId, out var homeId) || homeId <= 0)
+        {
+            return (null, "Choose a house to add these shared tokens to.");
+        }
+        if (!long.TryParse(dto.PlanId, out var planId))
+        {
+            return (null, "Choose a posting package.");
+        }
+
+        var number = new string((dto.BkashNumber ?? string.Empty).Where(c => !char.IsWhiteSpace(c) && c != '-').ToArray());
+        if (!BangladeshiPhone.IsMatch(number))
+        {
+            return (null, "Enter a valid Bangladeshi bKash number, like 01712345678.");
+        }
+        if (!BkashPin.IsMatch(dto.Pin ?? string.Empty))
+        {
+            return (null, "The bKash PIN must be 4 or 5 digits.");
+        }
+
+        using var connection = await _db.OpenAsync();
+        using var transaction = connection.BeginTransaction();
+        var lockedHomeId = await connection.QuerySingleOrDefaultAsync<long?>(
+            "SELECT id FROM homes WHERE id = @homeId FOR UPDATE",
+            new { homeId }, transaction);
+        if (lockedHomeId is null || !await IsActiveHomeMemberAsync(connection, userId, homeId, transaction))
+        {
+            return (null, "You must be an active member of that house to buy shared tokens.");
+        }
+
+        var plan = await connection.QuerySingleOrDefaultAsync<HousingPostingPlanDto>(
+            @"SELECT id::text AS Id, name AS Name, posts AS Posts,
+                     price_bdt AS PriceBdt, valid_days AS ValidDays
+                FROM post_plans
+               WHERE id = @planId AND scope = @scope AND is_active = true AND is_deleted = false",
+            new { planId, scope = HousingPostingScope }, transaction);
+        if (plan is null)
+        {
+            return (null, "That housing posting package is no longer available.");
+        }
+
+        // Match Marketplace renewal: a new plan gives every usable housing
+        // token one shared expiry, without shortening a longer existing plan.
+        var proposedExpiry = DateTime.UtcNow.AddDays(plan.ValidDays);
+        var activeExpiries = (await connection.QueryAsync<DateTime>(
+            @"SELECT expires_at_utc
+                FROM plan_purchases
+               WHERE home_id = @homeId AND scope = @scope
+                 AND posts_left > 0 AND expires_at_utc > now()
+               FOR UPDATE",
+            new { homeId, scope = HousingPostingScope }, transaction)).ToList();
+        var currentExpiry = activeExpiries.Count == 0 ? (DateTime?)null : activeExpiries.Max();
+        var expiresAt = currentExpiry is { } existing && existing > proposedExpiry
+            ? existing
+            : proposedExpiry;
+
+        await connection.ExecuteAsync(
+            @"UPDATE plan_purchases SET expires_at_utc = @expiresAt
+               WHERE home_id = @homeId AND scope = @scope
+                 AND posts_left > 0 AND expires_at_utc > now()",
+            new { homeId, scope = HousingPostingScope, expiresAt }, transaction);
+        await connection.ExecuteAsync(
+            @"INSERT INTO plan_purchases
+                  (plan_id, user_id, home_id, scope, posts_left, amount_bdt, expires_at_utc)
+              VALUES (@planId, @userId, @homeId, @scope, @posts, @amount, @expiresAt)",
+            new
+            {
+                planId,
+                userId,
+                homeId,
+                scope = HousingPostingScope,
+                posts = plan.Posts,
+                amount = plan.PriceBdt,
+                expiresAt
+            }, transaction);
+
+        var balance = await ReadHousingPostingBalanceAsync(connection, transaction, homeId);
+        transaction.Commit();
+
+        return (new HousingPlanPurchaseDto
+        {
+            PlanName = plan.Name,
+            PostsAdded = plan.Posts,
+            PostsLeft = balance.PostsLeft,
+            AmountBdt = plan.PriceBdt,
+            ExpiresAtUtc = expiresAt,
+            TransactionId = NewHousingTransactionId()
+        }, null);
+    }
+
+    public HousingPinFeeDto GetPinFee() => new()
+    {
+        AmountBdt = HousingPinFeeBdt,
+        Days = HousingPinDays
+    };
+
+    public async Task<(HousingPinResultDto? Data, string? Error)> PinPostAsync(
+        long userId, long postId, PinHousingPostDto dto)
+    {
+        var number = new string((dto.BkashNumber ?? string.Empty)
+            .Where(c => !char.IsWhiteSpace(c) && c != '-').ToArray());
+        if (!BangladeshiPhone.IsMatch(number))
+        {
+            return (null, "Enter a valid Bangladeshi bKash number, like 01712345678.");
+        }
+        if (!BkashPin.IsMatch(dto.Pin ?? string.Empty))
+        {
+            return (null, "The bKash PIN must be 4 or 5 digits.");
+        }
+
+        using var connection = await _db.OpenAsync();
+        using var transaction = connection.BeginTransaction();
+        var post = await connection.QuerySingleOrDefaultAsync<(long HomeId, short Status, bool IsPinned, DateTime? PinnedUntilUtc)>(
+            @"SELECT p.home_id AS HomeId, p.status AS Status, p.is_pinned AS IsPinned,
+                     p.pinned_until_utc AS PinnedUntilUtc
+                FROM housing_posts p
+               WHERE p.id = @postId
+               FOR UPDATE",
+            new { postId }, transaction);
+
+        if (post == default || !await IsOwnerAsync(connection, userId, post.HomeId, transaction))
+        {
+            return (null, "That listing is not yours to pin.");
+        }
+        if (post.Status != PostActive)
+        {
+            return (null, "Only active Housing listings can be pinned.");
+        }
+
+        var now = DateTime.UtcNow;
+        var baseTime = post.IsPinned && post.PinnedUntilUtc is { } expiry && expiry > now
+            ? expiry
+            : now;
+        var pinnedUntilUtc = baseTime.AddDays(HousingPinDays);
+        var transactionId = "BK" + NewHousingTransactionId();
+
+        await connection.ExecuteAsync(
+            @"UPDATE housing_posts
+                 SET is_pinned = true, pinned_at_utc = @now, pinned_until_utc = @pinnedUntilUtc
+               WHERE id = @postId",
+            new { postId, now, pinnedUntilUtc }, transaction);
+        await connection.ExecuteAsync(
+            @"INSERT INTO housing_pin_payments
+                  (post_id, user_id, amount_bdt, bkash_number, transaction_id, pinned_days, paid_at_utc)
+              VALUES (@postId, @userId, @amount, @number, @transactionId, @days, @now)",
+            new
+            {
+                postId,
+                userId,
+                amount = HousingPinFeeBdt,
+                number,
+                transactionId,
+                days = HousingPinDays,
+                now
+            }, transaction);
+        transaction.Commit();
+
+        return (new HousingPinResultDto
+        {
+            PostId = postId.ToString(),
+            TransactionId = transactionId,
+            AmountBdt = HousingPinFeeBdt,
+            BkashNumber = number,
+            PinnedUntilUtc = pinnedUntilUtc,
+            PaidAtUtc = now
+        }, null);
     }
 
     // ------------------------------------------------------------ browse
@@ -144,7 +362,7 @@ public sealed class HousingService
             args);
 
         var rows = (await connection.QueryAsync<PostRow>(
-            $"{PostSelect} WHERE ({whereSql}) ORDER BY p.created_at_utc DESC OFFSET @offset LIMIT @limit",
+            $"{PostSelect} WHERE ({whereSql}) ORDER BY (CASE WHEN p.is_pinned AND (p.pinned_until_utc IS NULL OR p.pinned_until_utc > now()) THEN 0 ELSE 1 END), p.created_at_utc DESC OFFSET @offset LIMIT @limit",
             args)).ToList();
 
         var images = await LoadImagesAsync(connection, rows.Select(r => r.Id));
@@ -231,6 +449,12 @@ public sealed class HousingService
             return (null, "This house is full - there is no seat to post about.");
         }
 
+        var balance = await ReadHousingPostingBalanceAsync(connection, null, homeId);
+        if (balance.PostsLeft == 0)
+        {
+            return (null, "This house needs an active housing posting package before publishing.");
+        }
+
         var (urls, uploadError) = await StoreImagesAsync(dto.ImageUrls);
         if (uploadError is not null)
         {
@@ -238,6 +462,32 @@ public sealed class HousingService
         }
 
         using var transaction = connection.BeginTransaction();
+        var lockedHomeId = await connection.QuerySingleOrDefaultAsync<long?>(
+            "SELECT id FROM homes WHERE id = @homeId FOR UPDATE",
+            new { homeId }, transaction);
+        if (lockedHomeId is null || !await IsOwnerAsync(connection, userId, homeId, transaction))
+        {
+            return (null, "Only the manager or a co-manager can post for this house.");
+        }
+
+        if (await FreeSeatsAsync(connection, homeId, transaction) == 0)
+        {
+            return (null, "This house is full - there is no seat to post about.");
+        }
+
+        var purchaseId = await connection.QuerySingleOrDefaultAsync<long?>(
+            @"SELECT id
+                FROM plan_purchases
+               WHERE home_id = @homeId AND scope = @scope
+                 AND posts_left > 0 AND expires_at_utc > now()
+               ORDER BY expires_at_utc, purchased_at_utc
+               LIMIT 1 FOR UPDATE",
+            new { homeId, scope = HousingPostingScope }, transaction);
+        if (purchaseId is null)
+        {
+            return (null, "This house needs an active housing posting package before publishing.");
+        }
+
         var postId = await connection.ExecuteScalarAsync<long>(
             @"INSERT INTO housing_posts (home_id, posted_by_user_id, title, description, listing_type_id, monthly_rent_bdt)
               VALUES (@homeId, @userId, @title, @description, @type, @rent)
@@ -255,6 +505,9 @@ public sealed class HousingService
 
         await SaveRequirementsAsync(connection, transaction, postId, dto.Eligibility);
         await SaveImagesAsync(connection, transaction, postId, urls);
+        await connection.ExecuteAsync(
+            "UPDATE plan_purchases SET posts_left = posts_left - 1 WHERE id = @purchaseId",
+            new { purchaseId }, transaction);
         transaction.Commit();
 
         return (postId, null);
@@ -330,7 +583,7 @@ public sealed class HousingService
             $@"{PostSelect}
                JOIN home_members hm ON hm.home_id = p.home_id AND hm.user_id = @userId
                                     AND hm.left_at_utc IS NULL AND hm.role IN (@manager, @coManager)
-               ORDER BY p.created_at_utc DESC",
+               ORDER BY (CASE WHEN p.is_pinned AND (p.pinned_until_utc IS NULL OR p.pinned_until_utc > now()) THEN 0 ELSE 1 END), p.created_at_utc DESC",
             new { userId, manager = HomeService.RoleManager, coManager = HomeService.RoleCoManager })).ToList();
 
         var ids = rows.Select(r => r.Id).ToArray();
@@ -749,12 +1002,21 @@ public sealed class HousingService
             new { userId, bookingId, manager = HomeService.RoleManager, coManager = HomeService.RoleCoManager });
 
     // Owner = manager or co-manager of the post's home.
-    private static Task<bool> IsOwnerAsync(IDbConnection connection, long userId, long homeId) =>
+    private static Task<bool> IsOwnerAsync(
+        IDbConnection connection, long userId, long homeId, IDbTransaction? transaction = null) =>
         connection.ExecuteScalarAsync<bool>(
             @"SELECT EXISTS (SELECT 1 FROM home_members
                              WHERE home_id = @homeId AND user_id = @userId AND left_at_utc IS NULL
                                AND role IN (@manager, @coManager))",
-            new { homeId, userId, manager = HomeService.RoleManager, coManager = HomeService.RoleCoManager });
+            new { homeId, userId, manager = HomeService.RoleManager, coManager = HomeService.RoleCoManager },
+            transaction);
+
+    private static Task<bool> IsActiveHomeMemberAsync(
+        IDbConnection connection, long userId, long homeId, IDbTransaction? transaction = null) =>
+        connection.ExecuteScalarAsync<bool>(
+            @"SELECT EXISTS (SELECT 1 FROM home_members
+                             WHERE home_id = @homeId AND user_id = @userId AND left_at_utc IS NULL)",
+            new { homeId, userId }, transaction);
 
     private static Task<bool> HasHomeAsync(IDbConnection connection, long userId) =>
         connection.ExecuteScalarAsync<bool>(
@@ -800,7 +1062,7 @@ public sealed class HousingService
                WHERE p.id = @postId",
             new { userId, postId });
 
-    private static Task<int> FreeSeatsAsync(IDbConnection connection, long homeId) =>
+    private static Task<int> FreeSeatsAsync(IDbConnection connection, long homeId, IDbTransaction? transaction = null) =>
         connection.ExecuteScalarAsync<int>(
             @"SELECT GREATEST(0, COALESCE((SELECT max_occupants FROM home_capacity WHERE home_id = @homeId), 4) -
                      (SELECT count(*) FROM home_members WHERE home_id = @homeId AND left_at_utc IS NULL) -
@@ -808,7 +1070,37 @@ public sealed class HousingService
                         FROM housing_bookings b
                         JOIN housing_posts p ON p.id = b.post_id
                        WHERE p.home_id = @homeId AND b.status = @accepted))",
-            new { homeId, accepted = BookingAccepted });
+            new { homeId, accepted = BookingAccepted }, transaction);
+
+    private static async Task<HousingPostingBalanceDto> ReadHousingPostingBalanceAsync(
+        IDbConnection connection, IDbTransaction? transaction, long homeId)
+    {
+        var row = await connection.QuerySingleAsync<PostingBalanceRow>(
+            @"SELECT coalesce(sum(posts_left), 0)::int AS PostsLeft,
+                     min(expires_at_utc) AS NextExpiryUtc
+                FROM plan_purchases
+               WHERE home_id = @homeId AND scope = @scope
+                 AND posts_left > 0 AND expires_at_utc > now()",
+            new { homeId, scope = HousingPostingScope }, transaction);
+        return new HousingPostingBalanceDto
+        {
+            HomeId = homeId.ToString(),
+            PostsLeft = row.PostsLeft,
+            NextExpiryUtc = row.NextExpiryUtc
+        };
+    }
+
+    private static string NewHousingTransactionId()
+    {
+        const string alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ0123456789";
+        return string.Create(10, alphabet, static (span, chars) =>
+        {
+            for (var i = 0; i < span.Length; i++)
+            {
+                span[i] = chars[RandomNumberGenerator.GetInt32(chars.Length)];
+            }
+        });
+    }
 
     private static Task SaveRequirementsAsync(IDbConnection connection, IDbTransaction transaction, long postId, EligibilityDto e) =>
         connection.ExecuteAsync(
@@ -936,6 +1228,8 @@ public sealed class HousingService
         Division = r.Division,
         Status = ToPostStatus(r.Status),
         CreatedAtUtc = r.CreatedAtUtc,
+        IsPinned = r.IsPinned,
+        PinnedUntilUtc = r.PinnedUntilUtc,
         ImageUrls = images.TryGetValue(r.Id, out var list) ? list : new List<string>()
     };
 
@@ -958,6 +1252,8 @@ public sealed class HousingService
         Division = r.Division,
         Status = ToPostStatus(r.Status),
         CreatedAtUtc = r.CreatedAtUtc,
+        IsPinned = r.IsPinned,
+        PinnedUntilUtc = r.PinnedUntilUtc,
         IsMine = isMine,
         ImageUrls = images.TryGetValue(r.Id, out var list) ? list : new List<string>(),
         Eligibility = new EligibilityDto
@@ -983,6 +1279,8 @@ public sealed class HousingService
         public decimal MonthlyRent { get; set; }
         public short Status { get; set; }
         public DateTime CreatedAtUtc { get; set; }
+        public bool IsPinned { get; set; }
+        public DateTime? PinnedUntilUtc { get; set; }
         public string AreaName { get; set; } = string.Empty;
         public string Division { get; set; } = string.Empty;
         public int SeatsAvailable { get; set; }
@@ -1029,5 +1327,11 @@ public sealed class HousingService
     {
         public long PostId { get; set; }
         public string Url { get; set; } = string.Empty;
+    }
+
+    private sealed class PostingBalanceRow
+    {
+        public int PostsLeft { get; set; }
+        public DateTime? NextExpiryUtc { get; set; }
     }
 }
