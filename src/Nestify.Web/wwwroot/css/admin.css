@@ -333,6 +333,8 @@
 
 .adm-card__head h2 { margin: 0; font-size: 1.02rem; color: var(--ad-ink); }
 .adm-card__head p { margin: .2rem 0 0; font-size: .84rem; color: var(--ad-muted); }
+.adm-card__actions { display: flex; align-items: flex-end; justify-content: flex-end; gap: .55rem; flex-wrap: wrap; }
+.adm-card__actions .adm-chips { flex: none; }
 
 .adm-grid { display: grid; gap: 1rem; }
 .adm-grid--2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
@@ -452,6 +454,9 @@
 .adm-chart__dot { animation: adPop .5s var(--ad-ease) both; }
 .adm-chart__grid { stroke: var(--ad-line); stroke-width: 1; }
 .adm-chart__tick { font-size: 10px; fill: var(--ad-muted); font-weight: 600; }
+.adm-chart__legend { display: flex; flex-wrap: wrap; gap: .45rem 1rem; margin: .6rem .2rem 0; }
+.adm-chart__legend span { display: inline-flex; align-items: center; gap: .35rem; font-size: .78rem; font-weight: 700; color: var(--ad-muted); }
+.adm-chart__legend i { width: .65rem; height: .65rem; border-radius: 50%; }
 
 .adm-bars { display: flex; align-items: flex-end; gap: clamp(.3rem, 1.6vw, .8rem); height: 190px; }
 .adm-bar { flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; gap: .45rem; min-width: 0; }
@@ -1170,6 +1175,8 @@
 }
 
 @media (max-width: 620px) {
+    .adm-card__head { flex-wrap: wrap; }
+    .adm-card__actions { justify-content: flex-start; }
     .adm-people-summary { grid-template-columns: 1fr; }
     .adm__clock { display: none; }
     .adm-card { padding: 1rem; border-radius: 16px; }

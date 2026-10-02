@@ -71,16 +71,25 @@ public sealed class AdminConsoleService
 
         var revenue = (await connection.QueryAsync<AdminRevenuePointDto>(
             @"SELECT month_start AS MonthUtc,
-                     coalesce(sum(p.amount_bdt), 0) AS Verification
+                     coalesce((SELECT sum(p.amount_bdt)
+                                 FROM verification_payments p
+                                WHERE p.paid_at_utc >= month_start
+                                  AND p.paid_at_utc < month_start + interval '1 month'), 0) AS Verification,
+                     coalesce((SELECT sum(pp.amount_bdt)
+                                 FROM plan_purchases pp
+                                WHERE pp.scope = @marketplaceScope
+                                  AND pp.purchased_at_utc >= month_start
+                                  AND pp.purchased_at_utc < month_start + interval '1 month'), 0) AS MarketplacePostingPlans,
+                     coalesce((SELECT sum(pin.amount_bdt)
+                                 FROM marketplace_pin_payments pin
+                                WHERE pin.paid_at_utc >= month_start
+                                  AND pin.paid_at_utc < month_start + interval '1 month'), 0) AS MarketplacePins
                 FROM generate_series(
                        date_trunc('month', now()) - interval '11 months',
                        date_trunc('month', now()),
                        interval '1 month') AS months(month_start)
-                LEFT JOIN verification_payments p
-                  ON p.paid_at_utc >= month_start
-                 AND p.paid_at_utc < month_start + interval '1 month'
-               GROUP BY month_start
-               ORDER BY month_start")).ToList();
+               ORDER BY month_start",
+            new { marketplaceScope = ScopeMarketplace })).ToList();
 
         var growth = (await connection.QueryAsync<AdminGrowthPointDto>(
             @"SELECT month_start AS MonthUtc,
@@ -97,7 +106,7 @@ public sealed class AdminConsoleService
                ORDER BY month_start",
             new { admin = AccountAdmin, helper = 2 })).ToList();
 
-        return new AdminDashboardDto { Summary = summary, Stats = stats, VerificationRevenue = revenue, Growth = growth };
+        return new AdminDashboardDto { Summary = summary, Stats = stats, Revenue = revenue, Growth = growth };
     }
 
     private async Task<AdminSummaryDto> GetSummaryAsync(IDbConnection connection) =>

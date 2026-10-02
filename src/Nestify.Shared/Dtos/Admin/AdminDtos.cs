@@ -86,14 +86,12 @@ public sealed class AdminSummaryDto
     public int PendingVerifications { get; set; }
 }
 
-// The live data shown on the admin dashboard. Revenue currently contains
-// verification payments only; posting-plan revenue is intentionally not
-// included until those payment flows are enabled.
+// The live data shown on the admin dashboard.
 public sealed class AdminDashboardDto
 {
     public AdminSummaryDto Summary { get; set; } = new();
     public AdminDashboardStatsDto Stats { get; set; } = new();
-    public List<AdminRevenuePointDto> VerificationRevenue { get; set; } = new();
+    public List<AdminRevenuePointDto> Revenue { get; set; } = new();
     public List<AdminGrowthPointDto> Growth { get; set; } = new();
 }
 
@@ -113,6 +111,8 @@ public sealed class AdminRevenuePointDto
 {
     public DateTime MonthUtc { get; set; }
     public decimal Verification { get; set; }
+    public decimal MarketplacePostingPlans { get; set; }
+    public decimal MarketplacePins { get; set; }
 }
 
 public sealed class AdminGrowthPointDto

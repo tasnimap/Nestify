@@ -43,6 +43,15 @@
             @Tick(X(i), H - 6, Labels[i], "middle")
         }
     </svg>
+    @if (Series.Count > 1)
+    {
+        <div class="adm-chart__legend" aria-label="Chart legend">
+            @foreach (var series in Series)
+            {
+                <span><i style="background:@series.Color" aria-hidden="true"></i>@series.Name</span>
+            }
+        </div>
+    }
 </div>
 
 @code {

@@ -9,7 +9,7 @@
     <div>
         <p class="adm-eyebrow">Control room</p>
         <h1>Dashboard</h1>
-        <p>Verification-fee revenue, live platform activity, and the moderation work in progress.</p>
+        <p>Platform revenue, live activity, and the moderation work in progress.</p>
     </div>
     <div class="adm-head__actions">
         <a class="adm-btn adm-btn--ghost" href="admin/audit">
@@ -67,14 +67,24 @@
     <section class="adm-card adm-rise adm-span-2" style="--d:.28s">
         <div class="adm-card__head">
             <div>
-                <h2>Verification-fee revenue</h2>
-                <p>Payments received through verification over the last 12 months.</p>
+                <h2>@RevenueChartTitle</h2>
+                <p>@RevenueChartDescription</p>
             </div>
-            <div class="adm-chips">
-                <span class="adm-chip">Year total @AdminConsoleService.Taka(YearRevenue)</span>
+            <div class="adm-card__actions">
+                <div class="adm-tabs" role="tablist" aria-label="Revenue view">
+                    <button type="button" role="tab" aria-selected="@(_revenueTab == RevenueChartTab.All)"
+                            class="adm-tab @RevenueTabClass(RevenueChartTab.All)" @onclick="() => _revenueTab = RevenueChartTab.All">Overall</button>
+                    <button type="button" role="tab" aria-selected="@(_revenueTab == RevenueChartTab.Verification)"
+                            class="adm-tab @RevenueTabClass(RevenueChartTab.Verification)" @onclick="() => _revenueTab = RevenueChartTab.Verification">Verification</button>
+                    <button type="button" role="tab" aria-selected="@(_revenueTab == RevenueChartTab.Marketplace)"
+                            class="adm-tab @RevenueTabClass(RevenueChartTab.Marketplace)" @onclick="() => _revenueTab = RevenueChartTab.Marketplace">Marketplace</button>
+                </div>
+                <div class="adm-chips">
+                    <span class="adm-chip">Year total @AdminConsoleService.Taka(SelectedYearRevenue)</span>
+                </div>
             </div>
         </div>
-        <AdminLineChart Title="Revenue by month" Prefix="৳" Labels="Months" Series="RevenueSeries" />
+        <AdminLineChart Title="@RevenueChartTitle" Prefix="৳" Labels="Months" Series="RevenueSeries" />
     </section>
 
     @* Posting-plan revenue is intentionally hidden until its payment flow is enabled.
@@ -247,7 +257,7 @@
         var data = await dashboard;
         _summary = data.Summary;
         _stats = data.Stats;
-        _revenue = data.VerificationRevenue;
+        _revenue = data.Revenue;
         _growth = data.Growth;
         _audit = await audit;
         _outcomes = null;
@@ -255,10 +265,46 @@
 
     private List<string> Months => _revenue.Select(r => r.MonthUtc.ToLocalTime().ToString("MMM")).ToList();
 
-    private List<ChartSeries> RevenueSeries => new()
+    private RevenueChartTab _revenueTab = RevenueChartTab.All;
+
+    private List<ChartSeries> RevenueSeries => _revenueTab switch
     {
-        new ChartSeries { Name = "Verification fees", Color = "#6d28d9", Values = _revenue.Select(r => (int)r.Verification).ToList() }
+        RevenueChartTab.Verification => new()
+        {
+            new ChartSeries { Name = "Verification revenue", Color = "#2563eb", Values = _revenue.Select(r => (int)r.Verification).ToList() }
+        },
+        RevenueChartTab.Marketplace => new()
+        {
+            new ChartSeries { Name = "Marketplace revenue", Color = "#f0a338", Values = _revenue.Select(r => (int)(r.MarketplacePostingPlans + r.MarketplacePins)).ToList() }
+        },
+        _ => new()
+        {
+            new ChartSeries { Name = "Total revenue", Color = "#6d28d9", Values = _revenue.Select(r => (int)TotalRevenue(r)).ToList() }
+        }
     };
+
+    private string RevenueChartTitle => _revenueTab switch
+    {
+        RevenueChartTab.Verification => "Verification revenue",
+        RevenueChartTab.Marketplace => "Marketplace revenue",
+        _ => "Revenue overview"
+    };
+
+    private string RevenueChartDescription => _revenueTab switch
+    {
+        RevenueChartTab.Verification => "Verification-fee payments received over the last 12 months.",
+        RevenueChartTab.Marketplace => "Total marketplace revenue from posting-plan purchases and post-pinning payments over the last 12 months.",
+        _ => "Combined verification and marketplace revenue over the last 12 months."
+    };
+
+    private int SelectedYearRevenue => _revenueTab switch
+    {
+        RevenueChartTab.Verification => (int)_revenue.Sum(r => r.Verification),
+        RevenueChartTab.Marketplace => (int)_revenue.Sum(r => r.MarketplacePostingPlans + r.MarketplacePins),
+        _ => YearRevenue
+    };
+
+    private string RevenueTabClass(RevenueChartTab tab) => _revenueTab == tab ? "adm-tab--on" : string.Empty;
 
     /* Keep the future posting-plan revenue split implementation here, but do not render it yet.
     private List<DonutSlice> RevenueSplit => new()
@@ -284,11 +330,14 @@
 
     private int MaxGrowth => Math.Max(1, Growth.Count == 0 ? 0 : Growth.Max(g => g.Users));
 
-    private int MonthRevenue => _revenue.Count == 0 ? 0 : (int)_revenue[^1].Verification;
+    private static decimal TotalRevenue(AdminRevenuePointDto point) =>
+        point.Verification + point.MarketplacePostingPlans + point.MarketplacePins;
 
-    private int LastMonthRevenue => _revenue.Count < 2 ? 0 : (int)_revenue[^2].Verification;
+    private int MonthRevenue => _revenue.Count == 0 ? 0 : (int)TotalRevenue(_revenue[^1]);
 
-    private int YearRevenue => (int)_revenue.Sum(r => r.Verification);
+    private int LastMonthRevenue => _revenue.Count < 2 ? 0 : (int)TotalRevenue(_revenue[^2]);
+
+    private int YearRevenue => (int)_revenue.Sum(TotalRevenue);
 
     private string GrowthPercent =>
         LastMonthRevenue == 0
@@ -304,4 +353,11 @@
 
     private static string Css(double value) =>
         value.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+
+    private enum RevenueChartTab
+    {
+        All,
+        Verification,
+        Marketplace
+    }
 }
