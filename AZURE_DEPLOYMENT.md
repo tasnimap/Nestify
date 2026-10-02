@@ -38,7 +38,7 @@ If a connection string is not supplied, the API falls back to the separate `DB_H
 
 This repository currently uses Dapper and checked-in SQL migrations, not Entity Framework Core. Apply the SQL files in `src/Nestify.Database/migrations/` using a controlled release process and the direct PostgreSQL connection before deploying the application. Do not run schema changes automatically on every application startup.
 
-The workflow contains an opt-in migration step controlled by the repository variable `RUN_DATABASE_MIGRATIONS=true`. Enable it only after adding EF Core packages and migrations to the API project; it runs:
+The workflow contains an opt-in migration step controlled by the repository variable `RUN_DATABASE_MIGRATIONS=true`. If enabled, also create the `AZURE_MIGRATION_CONNECTION_STRING` repository secret with a direct database connection. Enable the step only after adding EF Core packages and migrations to the API project; it runs before publishing:
 
 ```bash
 dotnet ef database update --project src/Nestify.Api/Nestify.Api.csproj \
