@@ -19,3 +19,6 @@ jobs:
   build:
     name: Build and publish API
     runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
