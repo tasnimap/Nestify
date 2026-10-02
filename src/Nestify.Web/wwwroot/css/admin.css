@@ -454,7 +454,30 @@
 .adm-chart__tick { font-size: 10px; fill: var(--ad-muted); font-weight: 600; }
 
 .adm-bars { display: flex; align-items: flex-end; gap: clamp(.3rem, 1.6vw, .8rem); height: 190px; }
-.adm-bar { flex: 1; display: flex; flex-direction: column; align-items: center; gap: .45rem; min-width: 0; }
+.adm-bar { flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; gap: .45rem; min-width: 0; }
+
+.adm-people-summary {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .7rem;
+    margin: 0 0 1rem;
+}
+
+.adm-people-summary > div {
+    display: grid;
+    gap: .15rem;
+    padding: .8rem .9rem;
+    border: 1px solid var(--ad-line);
+    border-radius: 13px;
+    background: linear-gradient(135deg, var(--ad-violet-soft), #fff);
+}
+
+.adm-people-summary > div:last-child {
+    background: linear-gradient(135deg, var(--ad-teal-soft), #fff);
+}
+
+.adm-people-summary span { font-size: .78rem; font-weight: 700; color: var(--ad-muted); }
+.adm-people-summary strong { font-size: 1.35rem; line-height: 1.1; color: var(--ad-ink); font-variant-numeric: tabular-nums; }
 
 .adm-bar__track {
     position: relative;
@@ -1147,6 +1170,7 @@
 }
 
 @media (max-width: 620px) {
+    .adm-people-summary { grid-template-columns: 1fr; }
     .adm__clock { display: none; }
     .adm-card { padding: 1rem; border-radius: 16px; }
     .adm-table__scroll { margin-inline: -1rem; padding-inline: 1rem; }

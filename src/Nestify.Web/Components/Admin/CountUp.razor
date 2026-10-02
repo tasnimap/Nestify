@@ -9,21 +9,32 @@
     [Parameter] public string Format { get; set; } = "N0";
 
     private int _shown;
+    private int _target;
+    private bool _isAnimating;
+
+    protected override void OnParametersSet()
+    {
+        _target = Value;
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!firstRender) return;
+        if (_isAnimating || _shown == _target) return;
 
         const int steps = 26;
+        var start = _shown;
+        var target = _target;
+        _isAnimating = true;
         for (var i = 1; i <= steps; i++)
         {
             var t = i / (double)steps;
-            _shown = (int)Math.Round(Value * (1 - Math.Pow(1 - t, 3)));
+            _shown = start + (int)Math.Round((target - start) * (1 - Math.Pow(1 - t, 3)));
             StateHasChanged();
             await Task.Delay(22);
         }
 
-        _shown = Value;
+        _shown = target;
+        _isAnimating = false;
         StateHasChanged();
     }
 }
