@@ -32,3 +32,9 @@ jobs:
         run: dotnet build --configuration Release --no-restore
       - name: Publish API
         run: dotnet publish ${{ env.API_PROJECT }} -c Release -o ${{ env.PUBLISH_DIRECTORY }} --no-restore
+      - name: Upload published artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nestify-api-publish
+          path: ${{ env.PUBLISH_DIRECTORY }}
+          if-no-files-found: error
