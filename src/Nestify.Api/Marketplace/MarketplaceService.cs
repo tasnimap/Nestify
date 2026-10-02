@@ -212,7 +212,30 @@ public sealed class MarketplaceService
         if (plan is null) return (null, "That posting package is no longer available.");
 
         using var transaction = connection.BeginTransaction();
-        var expiresAt = DateTime.UtcNow.AddDays(plan.ValidDays);
+        // Marketplace credits renew like a mobile recharge: a new package
+        // extends every still-usable credit to one shared expiry date. We use
+        // the later date so a shorter pack can never take days away from a
+        // seller who already has a longer-valid package.
+        var proposedExpiry = DateTime.UtcNow.AddDays(plan.ValidDays);
+        var activeExpiries = (await connection.QueryAsync<DateTime>("""
+            SELECT pp.expires_at_utc
+            FROM plan_purchases pp
+            JOIN post_plans p ON p.id = pp.plan_id
+            WHERE pp.user_id = @userId AND pp.posts_left > 0
+              AND pp.expires_at_utc > now() AND p.scope = @scope
+            FOR UPDATE
+            """, new { userId, scope = 2 }, transaction)).ToList();
+        var currentExpiry = activeExpiries.Count == 0 ? (DateTime?)null : activeExpiries.Max();
+        var expiresAt = currentExpiry is { } existing && existing > proposedExpiry
+            ? existing
+            : proposedExpiry;
+
+        await connection.ExecuteAsync("""
+            UPDATE plan_purchases SET expires_at_utc = @expiresAt
+            WHERE user_id = @userId AND posts_left > 0 AND expires_at_utc > now()
+              AND plan_id IN (SELECT id FROM post_plans WHERE scope = @scope)
+            """, new { userId, expiresAt, scope = 2 }, transaction);
+
         await connection.ExecuteAsync("""
             INSERT INTO plan_purchases (plan_id, user_id, posts_left, expires_at_utc)
             VALUES (@planId, @userId, @posts, @expiresAt)
