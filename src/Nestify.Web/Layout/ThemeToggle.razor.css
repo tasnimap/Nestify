@@ -10,6 +10,11 @@
     cursor: pointer;
 }
 
+.nav__theme-indicator:focus-visible {
+    outline: 3px solid var(--nx-ring);
+    outline-offset: 3px;
+}
+
 .nav__theme-icon {
     position: absolute;
     z-index: 2;

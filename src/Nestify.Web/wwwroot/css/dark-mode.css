@@ -1,21 +1,18 @@
 html[data-theme="dark"] {
     color-scheme: dark;
+    --nx-bg: #17161d;
 }
 
-html[data-theme="dark"] .layout--user {
-    --nx-primary: #6d28d9;
-    --nx-primary-strong: #5b21b6;
+html[data-theme="dark"] .layout--user,
+html[data-theme="dark"] .layout--helper {
+    --nx-primary: #b99aff;
+    --nx-primary-strong: #d4c4ff;
     --nx-primary-soft: #312b41;
     --nx-primary-softer: #211f29;
-
-    --nx-accent: #83c99a;
-    --nx-accent-bright: #a0ddb0;
-    --nx-accent-soft: #203329;
 
     --nx-ink: #f0edf4;
     --nx-body: #d1ccd7;
     --nx-muted: #a7a1b0;
-    --nx-bg: #17161d;
     --nx-bg-alt: #1e1c25;
     --nx-bg-deep: #121118;
     --nx-card: #25232d;
@@ -35,6 +32,18 @@ html[data-theme="dark"] .layout--user {
 
     background: var(--nx-bg);
     color: var(--nx-body);
+}
+
+html[data-theme="dark"] .layout--user {
+    --nx-accent: #83c99a;
+    --nx-accent-bright: #a0ddb0;
+    --nx-accent-soft: #203329;
+}
+
+html[data-theme="dark"] .layout--helper {
+    --nx-accent: #6d28d9;
+    --nx-accent-bright: #b99aff;
+    --nx-accent-soft: #312b41;
 }
 
 html[data-theme="dark"] body {
@@ -396,36 +405,6 @@ html.theme-transitioning .layout--helper .nav__theme-knob {
 }
 
 html[data-theme="dark"] .layout--helper {
-    --nx-primary: #6d28d9;
-    --nx-primary-strong: #5b21b6;
-    --nx-primary-soft: #312b41;
-    --nx-primary-softer: #211f29;
-
-    --nx-accent: #6d28d9;
-    --nx-accent-bright: #8b5cf6;
-    --nx-accent-soft: #312b41;
-
-    --nx-ink: #f0edf4;
-    --nx-body: #d1ccd7;
-    --nx-muted: #a7a1b0;
-    --nx-bg: #17161d;
-    --nx-bg-alt: #1e1c25;
-    --nx-bg-deep: #121118;
-    --nx-card: #25232d;
-    --nx-border: #393641;
-    --nx-border-strong: #4a4655;
-    --nx-line: #393641;
-    --nx-surface-raised: #2b2934;
-    --nx-control-bg: #201e28;
-
-    --nx-danger: #ff9696;
-    --nx-danger-soft: #3b252a;
-    --nx-ring: rgba(192, 170, 255, .5);
-
-    --nx-shadow-sm: 0 2px 8px rgba(4, 3, 8, .2);
-    --nx-shadow-md: 0 14px 34px -14px rgba(4, 3, 8, .42);
-    --nx-shadow-lg: 0 36px 72px -30px rgba(4, 3, 8, .56);
-
     min-height: 100dvh;
     background: var(--nx-bg);
     color: var(--nx-body);
