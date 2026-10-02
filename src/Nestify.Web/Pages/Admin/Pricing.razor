@@ -4,22 +4,20 @@
 @inject IAdminService Admin
 @inject ToastService Toast
 
-<PageTitle>Verification fees — Nestify Admin</PageTitle>
+<PageTitle>Fees &amp; plans — Nestify Admin</PageTitle>
 
 <header class="adm-head adm-rise">
     <div>
         <p class="adm-eyebrow">Money</p>
-        <h1>Verification fees</h1>
-        <p>Set the one-off amount charged when someone applies for verification.</p>
+        <h1>Fees &amp; posting plans</h1>
+        <p>Manage verification fees and the token packages people use to publish posts.</p>
     </div>
-    @* Posting plans are retained for a later release, but are not currently offered.
     <div class="adm-head__actions">
-        <button class="adm-btn adm-btn--primary" type="button" @onclick="() => NewPlan(ModerationScope.Housing)">
+        <button class="adm-btn adm-btn--primary" type="button" @onclick="() => NewPlan(ModerationScope.Marketplace)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
             New plan
         </button>
     </div>
-    *@
 </header>
 
 <section class="adm-card adm-rise" style="--d:.06s;margin-bottom:1rem;">
@@ -63,22 +61,16 @@
     }
 </section>
 
-@* Housing and marketplace posting plans are intentionally hidden until their payment flows are enabled.
 @if (!_loading)
 {
-    <div class="adm-grid adm-grid--2">
-        @foreach (var scope in new[] { ModerationScope.Housing, ModerationScope.Marketplace })
-        {
-            var group = scope;
+    <div class="adm-grid">
+        @{
+            var group = ModerationScope.Marketplace;
             <section class="adm-card adm-rise" style="--d:.12s">
                 <div class="adm-card__head">
                     <div>
-                        <h2>@AdminConsoleService.ScopeLabel(group) plans</h2>
-                        <p>
-                            @(group == ModerationScope.Housing
-                                ? "Bought by home managers with a seat to fill."
-                                : "Bought by bachelors selling their own things.")
-                        </p>
+                        <h2>Marketplace plans</h2>
+                        <p>Bought by people selling their own things.</p>
                     </div>
                     <button class="adm-btn adm-btn--ghost adm-btn--sm" type="button" @onclick="() => NewPlan(group)">Add plan</button>
                 </div>
@@ -94,7 +86,7 @@
                         {
                             var current = plan;
                             <article class="adm-row" style="box-shadow:none;">
-                                <span class="adm-thumb @(group == ModerationScope.Marketplace ? "adm-thumb--teal" : null)" aria-hidden="true">
+                                <span class="adm-thumb adm-thumb--teal" aria-hidden="true">
                                     @current.Posts
                                 </span>
                                 <div class="adm-row__main">
@@ -126,9 +118,7 @@
         }
     </div>
 }
-*@
 
-@* Retained plan editor; intentionally not rendered.
 @if (_draft is not null)
 {
     <div class="adm-modal" role="dialog" aria-modal="true">
@@ -148,13 +138,7 @@
                     <label for="plan-name">Plan name</label>
                     <input id="plan-name" class="adm-input" @bind="_draft.Name" placeholder="Starter" />
                 </div>
-                <div class="adm-field">
-                    <label for="plan-scope">Used for</label>
-                    <select id="plan-scope" class="adm-select" @bind="_draft.Scope">
-                        <option value="@ModerationScope.Housing">Housing posts</option>
-                        <option value="@ModerationScope.Marketplace">Marketplace posts</option>
-                    </select>
-                </div>
+                <p class="adm-note">This package can be used for marketplace item listings.</p>
                 <div class="adm-grid adm-grid--3">
                     <div class="adm-field">
                         <label for="plan-posts">Posts</label>
@@ -188,9 +172,7 @@
         </div>
     </div>
 }
-*@
 
-@* Retained plan deletion dialog; intentionally not rendered.
 @if (_deleting is not null)
 {
     <div class="adm-modal" role="dialog" aria-modal="true">
@@ -219,16 +201,15 @@
         </div>
     </div>
 }
-*@
 
 @code {
     private readonly Dictionary<string, decimal> _amounts = new();
-    /* private AdminPlanDto? _deleting;
+    private AdminPlanDto? _deleting;
     private List<AdminPlanDto> _plans = new();
 
     private SavePlanDto? _draft;
     private string? _editingId;
-    private string? _error; */
+    private string? _error;
 
     private List<AdminFeeDto> _fees = new();
     private bool _loading = true;
@@ -240,9 +221,9 @@
     {
         _loading = true;
         var fees = Admin.GetFeesAsync();
-        // var plans = Admin.GetPlansAsync(); // Posting plans are not currently shown or managed.
+        var plans = Admin.GetPlansAsync();
         _fees = await fees;
-        // _plans = await plans;
+        _plans = await plans;
 
         foreach (var fee in _fees)
         {
@@ -267,7 +248,7 @@
         await LoadAsync();
     }
 
-    /* private void NewPlan(ModerationScope scope)
+    private void NewPlan(ModerationScope scope)
     {
         _editingId = null;
         _error = null;
@@ -345,8 +326,6 @@
         Toast.ShowSuccess(message);
         await LoadAsync();
     }
-
-    */
 
     private static decimal ToAmount(object? value, decimal fallback) =>
         decimal.TryParse(value?.ToString(), System.Globalization.NumberStyles.Number,

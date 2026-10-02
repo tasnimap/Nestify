@@ -1,4 +1,6 @@
 using System.Data;
+using System.Security.Cryptography;
+using System.Text.RegularExpressions;
 using Dapper;
 using Nestify.Api.Data;
 using Nestify.Api.Profiles;
@@ -24,6 +26,10 @@ public sealed class MarketplaceService
     private const short InterestClosed = 6;
 
     private const int MaxImages = 6;
+    public const decimal DefaultPinFeeBdt = 50m;
+    public const int DefaultPinDays = 7;
+    private static readonly Regex BangladeshiPhone = new(@"^(\+?88)?01[3-9]\d{8}$", RegexOptions.Compiled);
+    private static readonly Regex BkashPin = new(@"^\d{4,5}$", RegexOptions.Compiled);
 
     private readonly DbConnectionFactory _db;
     private readonly CloudinaryUploader _uploader;
@@ -32,6 +38,36 @@ public sealed class MarketplaceService
     {
         _db = db;
         _uploader = uploader;
+    }
+
+    public async Task EnsureSchemaCompatibilityAsync()
+    {
+        using var connection = await _db.OpenAsync();
+        await connection.ExecuteAsync(
+            """
+            ALTER TABLE marketplace_listings
+                ADD COLUMN IF NOT EXISTS is_pinned boolean NOT NULL DEFAULT false,
+                ADD COLUMN IF NOT EXISTS pinned_at_utc timestamptz,
+                ADD COLUMN IF NOT EXISTS pinned_until_utc timestamptz;
+
+            CREATE INDEX IF NOT EXISTS ix_marketplace_listings_pinned
+                ON marketplace_listings (is_pinned, pinned_until_utc)
+                WHERE status = 1;
+
+            CREATE TABLE IF NOT EXISTS marketplace_pin_payments (
+                id              bigint         GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                listing_id      bigint         NOT NULL REFERENCES marketplace_listings (id) ON DELETE CASCADE,
+                user_id         bigint         NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+                amount_bdt      numeric(10,2)  NOT NULL,
+                bkash_number    varchar(20)    NOT NULL,
+                transaction_id  varchar(40)    NOT NULL,
+                pinned_days     int            NOT NULL DEFAULT 7,
+                paid_at_utc     timestamptz    NOT NULL DEFAULT now()
+            );
+
+            CREATE INDEX IF NOT EXISTS ix_marketplace_pin_payments_listing
+                ON marketplace_pin_payments (listing_id, paid_at_utc DESC);
+            """);
     }
 
     // ------------------------------------------------------------ browse
@@ -92,11 +128,12 @@ public sealed class MarketplaceService
             args.Add("search", "%" + filter.Search.Trim() + "%");
         }
 
+        var pinnedFirst = "(CASE WHEN l.is_pinned = true AND (l.pinned_until_utc IS NULL OR l.pinned_until_utc > now()) THEN 0 ELSE 1 END), ";
         var orderBy = filter.Sort switch
         {
-            MarketplaceSort.PriceLowToHigh => "l.price_bdt ASC, l.posted_at_utc DESC",
-            MarketplaceSort.PriceHighToLow => "l.price_bdt DESC, l.posted_at_utc DESC",
-            _ => "l.posted_at_utc DESC"
+            MarketplaceSort.PriceLowToHigh => pinnedFirst + "l.price_bdt ASC, l.posted_at_utc DESC",
+            MarketplaceSort.PriceHighToLow => pinnedFirst + "l.price_bdt DESC, l.posted_at_utc DESC",
+            _ => pinnedFirst + "l.posted_at_utc DESC"
         };
 
         var page = Math.Max(1, filter.Page);
@@ -165,6 +202,8 @@ public sealed class MarketplaceService
             Division = row.DivisionName,
             PostedAtUtc = row.PostedAtUtc,
             Status = ToListingStatus(row.Status),
+            IsPinned = row.IsPinned,
+            PinnedUntilUtc = row.PinnedUntilUtc,
             Images = images.TryGetValue(row.Id, out var list) ? list : new List<string>(),
             SellerId = row.SellerUserId.ToString(),
             SellerDisplayName = row.SellerName,
@@ -175,7 +214,138 @@ public sealed class MarketplaceService
         };
     }
 
-    // ------------------------------------------------------ create / edit
+    // ------------------------------------------------------ create / edit / pin
+
+    public async Task<IReadOnlyList<MarketplacePostingPlanDto>> GetPostingPlansAsync()
+    {
+        using var connection = await _db.OpenAsync();
+        var rows = await connection.QueryAsync<PlanRow>("""
+            SELECT id AS Id, name AS Name, posts AS Posts, price_bdt AS PriceBdt, valid_days AS ValidDays
+            FROM post_plans WHERE scope = @scope AND is_active = true AND is_deleted = false ORDER BY price_bdt, posts
+            """, new { scope = 2 });
+        return rows.Select(p => new MarketplacePostingPlanDto { Id = p.Id.ToString(), Name = p.Name, Posts = p.Posts, PriceBdt = p.PriceBdt, ValidDays = p.ValidDays }).ToList();
+    }
+
+    public async Task<MarketplacePostingBalanceDto> GetPostingBalanceAsync(long userId)
+    {
+        using var connection = await _db.OpenAsync();
+        return await ReadPostingBalanceAsync(connection, null, userId);
+    }
+
+    public async Task<(MarketplacePlanPurchaseDto? Data, string? Error)> BuyPostingPlanAsync(long userId, BuyMarketplacePlanDto dto)
+    {
+        if (!long.TryParse(dto.PlanId, out var planId)) return (null, "Choose a posting package.");
+        var number = new string((dto.BkashNumber ?? string.Empty).Where(c => !char.IsWhiteSpace(c) && c != '-').ToArray());
+        if (!BangladeshiPhone.IsMatch(number)) return (null, "Enter a valid Bangladeshi bKash number, like 01712345678.");
+        if (!BkashPin.IsMatch(dto.Pin ?? string.Empty)) return (null, "The bKash PIN must be 4 or 5 digits.");
+
+        using var connection = await _db.OpenAsync();
+        var plan = await connection.QuerySingleOrDefaultAsync<PlanRow>("""
+            SELECT id AS Id, name AS Name, posts AS Posts, price_bdt AS PriceBdt, valid_days AS ValidDays
+            FROM post_plans WHERE id = @planId AND scope = @scope AND is_active = true AND is_deleted = false
+            """, new { planId, scope = 2 });
+        if (plan is null) return (null, "That posting package is no longer available.");
+
+        using var transaction = connection.BeginTransaction();
+        // Marketplace credits renew like a mobile recharge: a new package
+        // extends every still-usable credit to one shared expiry date. We use
+        // the later date so a shorter pack can never take days away from a
+        // seller who already has a longer-valid package.
+        var proposedExpiry = DateTime.UtcNow.AddDays(plan.ValidDays);
+        var activeExpiries = (await connection.QueryAsync<DateTime>("""
+            SELECT pp.expires_at_utc
+            FROM plan_purchases pp
+            WHERE pp.user_id = @userId AND pp.posts_left > 0
+              AND pp.expires_at_utc > now() AND pp.scope = @scope
+            FOR UPDATE
+            """, new { userId, scope = 2 }, transaction)).ToList();
+        var currentExpiry = activeExpiries.Count == 0 ? (DateTime?)null : activeExpiries.Max();
+        var expiresAt = currentExpiry is { } existing && existing > proposedExpiry
+            ? existing
+            : proposedExpiry;
+
+        await connection.ExecuteAsync("""
+            UPDATE plan_purchases SET expires_at_utc = @expiresAt
+            WHERE user_id = @userId AND posts_left > 0 AND expires_at_utc > now() AND scope = @scope
+            """, new { userId, expiresAt, scope = 2 }, transaction);
+
+        await connection.ExecuteAsync("""
+            INSERT INTO plan_purchases (plan_id, user_id, scope, posts_left, expires_at_utc)
+            VALUES (@planId, @userId, @scope, @posts, @expiresAt)
+            """, new { planId, userId, scope = 2, posts = plan.Posts, expiresAt }, transaction);
+        var balance = await ReadPostingBalanceAsync(connection, transaction, userId);
+        transaction.Commit();
+
+        return (new MarketplacePlanPurchaseDto { PlanName = plan.Name, PostsAdded = plan.Posts, PostsLeft = balance.PostsLeft, AmountBdt = plan.PriceBdt, ExpiresAtUtc = expiresAt, TransactionId = NewTransactionId() }, null);
+    }
+
+    public MarketplacePinFeeDto GetPinFee() => new()
+    {
+        AmountBdt = DefaultPinFeeBdt,
+        Days = DefaultPinDays
+    };
+
+    public async Task<(MarketplacePinResultDto? Data, string? Error)> PinListingAsync(long userId, long listingId, PinMarketplaceItemDto dto)
+    {
+        var number = new string((dto.BkashNumber ?? string.Empty).Where(c => !char.IsWhiteSpace(c) && c != '-').ToArray());
+        if (!BangladeshiPhone.IsMatch(number)) return (null, "Enter a valid Bangladeshi bKash number, like 01712345678.");
+        if (!BkashPin.IsMatch(dto.Pin ?? string.Empty)) return (null, "The bKash PIN must be 4 or 5 digits.");
+
+        var days = dto.Days > 0 ? dto.Days : DefaultPinDays;
+        var amount = DefaultPinFeeBdt;
+
+        using var connection = await _db.OpenAsync();
+
+        var listing = await connection.QuerySingleOrDefaultAsync<(long SellerUserId, short Status, bool IsPinned, DateTime? PinnedUntilUtc)>(
+            "SELECT seller_user_id, status, is_pinned, pinned_until_utc FROM marketplace_listings WHERE id = @listingId",
+            new { listingId });
+
+        if (listing == default || listing.SellerUserId != userId)
+        {
+            return (null, "That listing is not yours.");
+        }
+
+        if (listing.Status != ListingActive)
+        {
+            return (null, "Only active listings can be pinned.");
+        }
+
+        using var transaction = connection.BeginTransaction();
+
+        var baseTime = (listing.IsPinned && listing.PinnedUntilUtc is { } existing && existing > DateTime.UtcNow)
+            ? existing
+            : DateTime.UtcNow;
+        var pinnedUntilUtc = baseTime.AddDays(days);
+        var txId = "BK" + NewTransactionId();
+        var now = DateTime.UtcNow;
+
+        await connection.ExecuteAsync(
+            @"UPDATE marketplace_listings
+                 SET is_pinned = true,
+                     pinned_at_utc = @now,
+                     pinned_until_utc = @pinnedUntilUtc
+               WHERE id = @listingId",
+            new { listingId, now, pinnedUntilUtc },
+            transaction);
+
+        await connection.ExecuteAsync(
+            @"INSERT INTO marketplace_pin_payments (listing_id, user_id, amount_bdt, bkash_number, transaction_id, pinned_days, paid_at_utc)
+              VALUES (@listingId, @userId, @amount, @number, @txId, @days, @now)",
+            new { listingId, userId, amount, number, txId, days, now },
+            transaction);
+
+        transaction.Commit();
+
+        return (new MarketplacePinResultDto
+        {
+            ListingId = listingId.ToString(),
+            TransactionId = txId,
+            AmountBdt = amount,
+            BkashNumber = number,
+            PinnedUntilUtc = pinnedUntilUtc,
+            PaidAtUtc = now
+        }, null);
+    }
 
     public async Task<(long? Id, string? Error)> CreateAsync(long userId, CreateMarketplaceItemDto dto)
     {
@@ -193,6 +363,14 @@ public sealed class MarketplaceService
             return (null, "Pick a division, district and upazila.");
         }
 
+        // Give a fast, useful answer before uploading any photos. The same check
+        // is repeated under a row lock below, which is the authoritative guard.
+        var availablePosts = await ReadPostingBalanceAsync(connection, null, userId);
+        if (availablePosts.PostsLeft == 0)
+        {
+            return (null, "You need an active marketplace posting package before publishing.");
+        }
+
         var (urls, uploadError) = await StoreImagesAsync(dto.Images);
         if (uploadError is not null)
         {
@@ -200,6 +378,21 @@ public sealed class MarketplaceService
         }
 
         using var transaction = connection.BeginTransaction();
+
+        // Lock and consume exactly one credit inside the same transaction as the listing.
+        // Expired bundles are never eligible, even if they still have posts_left.
+        var purchaseId = await connection.QuerySingleOrDefaultAsync<long?>("""
+            SELECT id FROM plan_purchases
+            WHERE user_id = @userId AND posts_left > 0 AND expires_at_utc > now()
+              AND scope = @scope
+            ORDER BY expires_at_utc, purchased_at_utc
+            LIMIT 1 FOR UPDATE
+            """, new { userId, scope = 2 }, transaction);
+        if (purchaseId is null)
+        {
+            transaction.Rollback();
+            return (null, "You need an active marketplace posting package before publishing.");
+        }
 
         var id = await connection.ExecuteScalarAsync<long>(
             @"INSERT INTO marketplace_listings
@@ -224,6 +417,7 @@ public sealed class MarketplaceService
             transaction);
 
         await SaveImagesAsync(connection, transaction, id, urls);
+        await connection.ExecuteAsync("UPDATE plan_purchases SET posts_left = posts_left - 1 WHERE id = @purchaseId", new { purchaseId }, transaction);
         transaction.Commit();
         return (id, null);
     }
@@ -311,7 +505,7 @@ public sealed class MarketplaceService
                      WHERE v.listing_id = l.id)                                 AS view_count
                {ListingFrom}
                WHERE l.seller_user_id = @userId AND l.status <> @removed
-               ORDER BY l.posted_at_utc DESC",
+               ORDER BY (CASE WHEN l.is_pinned = true AND (l.pinned_until_utc IS NULL OR l.pinned_until_utc > now()) THEN 0 ELSE 1 END), l.posted_at_utc DESC",
             new { userId, withdrawn = InterestWithdrawn, pending = InterestPending, removed = ListingRemoved })).ToList();
 
         var images = await LoadImagesAsync(connection, rows.Select(r => r.Id));
@@ -513,7 +707,7 @@ public sealed class MarketplaceService
         var changed = await connection.ExecuteAsync(
             @"UPDATE marketplace_buy_interests i
                  SET status = @next, responded_at_utc = now()
-                FROM marketplace_listings l
+                 FROM marketplace_listings l
                WHERE i.id = @interestId AND l.id = i.listing_id
                  AND l.seller_user_id = @userId AND i.status = @pending",
             new { interestId, userId, pending = InterestPending, next = accept ? InterestAccepted : InterestDeclined });
@@ -566,7 +760,7 @@ public sealed class MarketplaceService
         var changed = await connection.ExecuteAsync(
             @"UPDATE marketplace_buy_interests i
                  SET status = @withdrawn, withdrawn_at_utc = now()
-                FROM marketplace_listings l
+                 FROM marketplace_listings l
                WHERE i.id = @interestId AND i.buyer_user_id = @userId AND i.status IN (@pending, @accepted)
                  AND l.id = i.listing_id AND l.status = @active",
             new { interestId, userId, withdrawn = InterestWithdrawn, pending = InterestPending, accepted = InterestAccepted, active = ListingActive });
@@ -626,6 +820,8 @@ public sealed class MarketplaceService
     private const string ListingColumns =
         @"SELECT l.id, l.seller_user_id, l.title, l.description, l.category_id, l.condition_id,
                  l.price_bdt, l.area_name, l.status, l.posted_at_utc,
+                 (l.is_pinned = true AND (l.pinned_until_utc IS NULL OR l.pinned_until_utc > now())) AS is_pinned,
+                 l.pinned_until_utc,
                  dv.name AS division_name,
                  s.full_name AS seller_name, s.created_at_utc AS seller_joined_utc,
                  coalesce(sp.is_verified, false) AS seller_verified";
@@ -791,6 +987,25 @@ public sealed class MarketplaceService
         return result;
     }
 
+    private static async Task<MarketplacePostingBalanceDto> ReadPostingBalanceAsync(IDbConnection connection, IDbTransaction? transaction, long userId)
+    {
+        var row = await connection.QuerySingleAsync<PostingBalanceRow>("""
+            SELECT coalesce(sum(posts_left), 0)::int AS PostsLeft, min(expires_at_utc) AS NextExpiryUtc
+            FROM plan_purchases pp
+            WHERE pp.user_id = @userId AND pp.posts_left > 0 AND pp.expires_at_utc > now() AND pp.scope = @scope
+            """, new { userId, scope = 2 }, transaction);
+        return new MarketplacePostingBalanceDto { PostsLeft = row.PostsLeft, NextExpiryUtc = row.NextExpiryUtc };
+    }
+
+    private static string NewTransactionId()
+    {
+        const string alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ0123456789";
+        return string.Create(10, alphabet, static (span, chars) =>
+        {
+            for (var i = 0; i < span.Length; i++) span[i] = chars[RandomNumberGenerator.GetInt32(chars.Length)];
+        });
+    }
+
     private static MarketplaceItemSummaryDto ToSummary(ListingRow r, Dictionary<long, List<string>> images)
     {
         var list = images.TryGetValue(r.Id, out var found) ? found : new List<string>();
@@ -806,6 +1021,8 @@ public sealed class MarketplaceService
             SellerVerified = r.SellerVerified,
             PostedAtUtc = r.PostedAtUtc,
             Status = ToListingStatus(r.Status),
+            IsPinned = r.IsPinned,
+            PinnedUntilUtc = r.PinnedUntilUtc,
             CoverImage = list.FirstOrDefault() ?? string.Empty,
             Images = list
         };
@@ -839,6 +1056,8 @@ public sealed class MarketplaceService
         public decimal PriceBdt { get; set; }
         public string AreaName { get; set; } = string.Empty;
         public short Status { get; set; }
+        public bool IsPinned { get; set; }
+        public DateTime? PinnedUntilUtc { get; set; }
         public DateTime PostedAtUtc { get; set; }
         public string DivisionName { get; set; } = string.Empty;
         public string SellerName { get; set; } = string.Empty;
@@ -851,6 +1070,21 @@ public sealed class MarketplaceService
         public int InterestCount { get; set; }
         public int PendingInterestCount { get; set; }
         public int ViewCount { get; set; }
+    }
+
+    private sealed class PlanRow
+    {
+        public long Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public int Posts { get; set; }
+        public decimal PriceBdt { get; set; }
+        public int ValidDays { get; set; }
+    }
+
+    private sealed class PostingBalanceRow
+    {
+        public int PostsLeft { get; set; }
+        public DateTime? NextExpiryUtc { get; set; }
     }
 
     private sealed class InterestRow

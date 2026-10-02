@@ -43,6 +43,31 @@ public sealed class MarketplaceService : IMarketplaceService
     public Task<MarketplaceItemDetailDto?> GetItemAsync(string id) =>
         GetOrNullAsync<MarketplaceItemDetailDto>($"api/v1/marketplace/items/{id}");
 
+    public async Task<IReadOnlyList<MarketplacePostingPlanDto>> GetPostingPlansAsync() =>
+        await _httpClient.GetFromJsonAsync<List<MarketplacePostingPlanDto>>("api/v1/marketplace/posting-plans") ?? new List<MarketplacePostingPlanDto>();
+
+    public async Task<MarketplacePostingBalanceDto> GetPostingBalanceAsync() =>
+        await _httpClient.GetFromJsonAsync<MarketplacePostingBalanceDto>("api/v1/marketplace/posting-balance") ?? new MarketplacePostingBalanceDto();
+
+    public async Task<MarketplacePlanPurchaseDto> BuyPostingPlanAsync(BuyMarketplacePlanDto dto)
+    {
+        var response = await _httpClient.PostAsJsonAsync("api/v1/marketplace/posting-plans/purchase", dto);
+        if (!response.IsSuccessStatusCode) throw new ApplicationException(await ReadMessageAsync(response) ?? "The bKash payment did not go through.");
+        return await response.Content.ReadFromJsonAsync<MarketplacePlanPurchaseDto>()
+               ?? throw new ApplicationException("The bKash payment did not go through.");
+    }
+
+    public async Task<MarketplacePinFeeDto> GetPinFeeAsync() =>
+        await _httpClient.GetFromJsonAsync<MarketplacePinFeeDto>("api/v1/marketplace/pin-fee") ?? new MarketplacePinFeeDto();
+
+    public async Task<MarketplacePinResultDto> PinListingAsync(string id, PinMarketplaceItemDto dto)
+    {
+        var response = await _httpClient.PostAsJsonAsync($"api/v1/marketplace/items/{id}/pin", dto);
+        if (!response.IsSuccessStatusCode) throw new ApplicationException(await ReadMessageAsync(response) ?? "The bKash payment did not go through.");
+        return await response.Content.ReadFromJsonAsync<MarketplacePinResultDto>()
+               ?? throw new ApplicationException("The bKash payment did not go through.");
+    }
+
     // ---- Create + edit + mine ----
 
     public async Task<string> CreateItemAsync(CreateMarketplaceItemDto dto)

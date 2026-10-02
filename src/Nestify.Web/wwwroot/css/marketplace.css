@@ -98,6 +98,24 @@
     flex-wrap: wrap;
 }
 
+.mk-credit { border: 1px solid #bbf7d0; background: #f0fdf4; color: #166534; border-radius: var(--mk-notch-sm); padding: .5rem .8rem; text-align: left; cursor: pointer; }
+.mk-credit strong, .mk-credit span { display: block; }
+.mk-credit strong { font-size: .9rem; }
+.mk-credit span { font-size: .72rem; margin-top: .1rem; }
+.mk-checkout-backdrop { position: fixed; top: var(--nx-nav-h); right: 0; bottom: 0; left: 0; z-index: 300; display: block; overflow-y: auto; overscroll-behavior: contain; padding: clamp(1rem, 4vh, 3rem) 1rem; background: rgba(24, 16, 43, .54); -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px); animation: mk-fade var(--mk-fast) ease both; }
+.mk-checkout { position: relative; width: min(700px, 100%); margin: 0 auto; background: #fff; border: 1px solid rgba(255,255,255,.55); border-radius: 22px; padding: clamp(1.25rem, 4vw, 2.25rem); box-shadow: 0 28px 70px rgba(22, 16, 45, .38); animation: mk-modal-in .34s var(--mk-ease) both; }
+.mk-checkout h2 { margin: .25rem 2.5rem .5rem 0; font-size: clamp(1.55rem, 4vw, 2rem); }
+.mk-checkout__intro { color: var(--nx-muted); margin-bottom: 1.25rem; max-width: 58ch; line-height: 1.55; }
+.mk-checkout__close { position: absolute; right: 1rem; top: 1rem; width: 2.35rem; height: 2.35rem; border: 0; border-radius: 999px; background: #f3f4f6; font-size: 1.6rem; line-height: 1; cursor: pointer; color: var(--nx-muted); transition: transform var(--mk-fast), background var(--mk-fast); }.mk-checkout__close:hover { transform: rotate(90deg); background: #e5e7eb; }
+.mk-checkout__balance { display: grid; grid-template-columns: 1fr auto; gap: .1rem 1rem; align-items: center; margin-bottom: 1rem; padding: .9rem 1rem; border: 1px solid #bbf7d0; border-radius: var(--mk-notch-sm); background: linear-gradient(120deg, #f0fdf4, #ecfdf5); color: #166534; }.mk-checkout__balance span, .mk-checkout__balance em { font-size: .8rem; font-style: normal; }.mk-checkout__balance strong { grid-row: span 2; grid-column: 2; font-size: 1.5rem; }.mk-checkout__balance strong small { font-size: .75rem; font-weight: 600; }
+.mk-package-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: .75rem; }
+.mk-package { position: relative; display: grid; gap: .3rem; min-height: 150px; text-align: left; padding: 1rem; cursor: pointer; border: 1px solid #e5e7eb; border-radius: var(--mk-notch-sm); background: #fff; color: var(--nx-ink); transition: transform var(--mk-fast) var(--mk-ease), border-color var(--mk-fast), box-shadow var(--mk-fast), background var(--mk-fast); }
+.mk-package:hover { transform: translateY(-3px); border-color: #c4b5fd; box-shadow: var(--mk-lift); }.mk-package--selected { border: 2px solid var(--nx-primary); background: linear-gradient(145deg, #faf5ff, var(--nx-primary-softer)); box-shadow: var(--mk-lift); }.mk-package--selected::after { content: "Selected"; position: absolute; top: .7rem; right: .7rem; padding: .18rem .45rem; border-radius: 999px; background: var(--nx-primary); color: #fff; font-size: .65rem; font-weight: 700; }
+.mk-package strong { padding-right: 3.6rem; }.mk-package small { color: var(--nx-muted); }.mk-package b { color: var(--nx-accent); margin-top: auto; font-size: 1.12rem; }
+.mk-pay-form { display: grid; gap: .7rem; margin-top: 1.25rem; padding: 1.2rem; border: 1px solid #f3e8ff; border-radius: var(--mk-notch-sm); background: #fdfaff; }.mk-pay-form input { width: 100%; border: 1px solid #d8d4de; border-radius: 10px; padding: .8rem .9rem; font: inherit; transition: border-color var(--mk-fast), box-shadow var(--mk-fast); }.mk-pay-form input:focus { outline: 0; border-color: var(--nx-primary); box-shadow: 0 0 0 3px var(--nx-primary-softer); }
+.mk-pay-form__brand { display: flex; justify-content: space-between; align-items: baseline; color: #d12053; }.mk-pay-form__brand b { font-size: 1.2rem; }.mk-pay-form__brand span { color: var(--nx-muted); font-size: .8rem; }.mk-checkout__error { color: #b91c1c; margin: 0; font-size: .9rem; }
+@media (max-width: 520px) { .mk-checkout-backdrop { padding: .5rem; }.mk-checkout { border-radius: 16px; }.mk-package-grid { grid-template-columns: 1fr; }.mk-package { min-height: 0; }.mk-pay-form__brand { gap: .5rem; flex-wrap: wrap; } }
+
 .mk-back {
     display: inline-flex;
     align-items: center;
@@ -1026,3 +1044,569 @@
 /* Validation list next to the submit button */
 .mk-form__errors { flex-basis: 100%; margin: 0 0 .5rem; padding-left: 1.1rem; font-size: .88rem; color: var(--nx-danger); }
 .mk-form__errors:empty { display: none; }
+
+/* ---------- Pinned Listings and bKash Pin Portal ---------- */
+
+.mk-card--pinned {
+    border: 1.5px solid #f59e0b;
+    box-shadow: 0 6px 20px -4px rgba(245, 158, 11, .28), 0 2px 8px -2px rgba(245, 158, 11, .18);
+    background: linear-gradient(180deg, #fffdf7 0%, var(--nx-card) 35%);
+}
+
+.mk-card--pinned::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3.5px;
+    background: linear-gradient(90deg, #f59e0b, #ec4899, #8b5cf6);
+    z-index: 4;
+}
+
+.mk-card--pinned:hover {
+    border-color: #d97706;
+    box-shadow: 0 20px 42px -14px rgba(245, 158, 11, .42), 0 0 0 1.5px rgba(245, 158, 11, .3);
+}
+
+.mk-pinned-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 5;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 9px 3px 7px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: #ffffff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    box-shadow: 0 2px 10px rgba(217, 119, 6, .45);
+    animation: mk-pop .3s var(--mk-spring) both;
+}
+
+.mk-pinned-badge svg {
+    width: 12px;
+    height: 12px;
+}
+
+.mk-badge--pinned {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #92400e;
+    border: 1px solid #fcd34d;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 700;
+    font-size: 0.76rem;
+    padding: 2px 8px;
+    border-radius: 999px;
+}
+
+.mk-row--pinned {
+    border-color: #fcd34d;
+    background: linear-gradient(90deg, rgba(254, 243, 199, .2), transparent 40%);
+    position: relative;
+}
+
+.mk-row--pinned::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 4px;
+    background: linear-gradient(180deg, #f59e0b, #ec4899);
+    border-top-left-radius: 18px;
+    border-bottom-left-radius: 18px;
+}
+
+.mk-pin-expiry-text {
+    color: #b45309;
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
+.mk-specs__cell--highlight {
+    background: #fffbeb !important;
+    border-color: #fde68a !important;
+}
+
+.mk-specs__cell--highlight .mk-specs__v {
+    color: #b45309 !important;
+    font-weight: 700;
+}
+
+.mk-pin-status-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: .65rem .85rem;
+    border-radius: var(--mk-notch-sm);
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    color: #92400e;
+    font-size: .84rem;
+    margin-bottom: .6rem;
+}
+
+.mk-pin-status-pill__icon {
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+.mk-btn--pin-cta {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: #fff;
+    font-weight: 700;
+    border: none;
+    box-shadow: 0 4px 14px rgba(245, 158, 11, .38);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: transform var(--mk-fast) ease, box-shadow var(--mk-fast) ease;
+}
+
+.mk-btn--pin-cta:hover {
+    background: linear-gradient(135deg, #fbbf24 0%, #b45309 100%);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(245, 158, 11, .5);
+}
+
+.mk-btn--pin-cta-sm {
+    border-color: #fcd34d !important;
+    background: #fffbeb !important;
+    color: #92400e !important;
+    font-weight: 600 !important;
+}
+
+.mk-btn--pin-cta-sm:hover {
+    background: #fef3c7 !important;
+    border-color: #f59e0b !important;
+}
+
+.mk-btn--pinned-badge-btn {
+    border-color: #f59e0b !important;
+    background: linear-gradient(135deg, #fef3c7, #fde68a) !important;
+    color: #78350f !important;
+    font-weight: 700 !important;
+}
+
+.mk-btn--pin {
+    border-color: #fde68a;
+    color: #92400e;
+}
+
+.mk-btn--pin:hover {
+    background: #fffbeb;
+    border-color: #f59e0b;
+}
+
+/* Modal styling for Pinning & bKash */
+
+.mk-pin-modal {
+    max-width: 540px;
+}
+
+.mk-pin-modal__head {
+    background: linear-gradient(135deg, #e2136e 0%, #a50b4f 100%);
+    color: #fff;
+    border-bottom: 0;
+}
+
+.mk-pin-modal__head h2 {
+    color: #fff;
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.mk-pin-modal__head .mk-modal__close {
+    color: rgba(255, 255, 255, .8);
+}
+
+.mk-pin-modal__head .mk-modal__close:hover {
+    background: rgba(255, 255, 255, .18);
+    color: #fff;
+}
+
+.mk-pin-modal__brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.mk-pin-modal__bkash-tag {
+    background: #fff;
+    color: #e2136e;
+    font-size: .8rem;
+    font-weight: 900;
+    padding: .15rem .55rem;
+    border-radius: 6px;
+    letter-spacing: -.01em;
+}
+
+.mk-pin-info {
+    display: grid;
+    gap: 1.15rem;
+}
+
+.mk-pin-info__item {
+    display: flex;
+    gap: .9rem;
+    padding: .85rem;
+    border: 1px solid var(--nx-border);
+    border-radius: var(--mk-notch-sm);
+    background: var(--nx-bg-alt);
+    align-items: center;
+}
+
+.mk-pin-info__thumb {
+    width: 60px;
+    height: 60px;
+    flex: none;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.mk-pin-info__item-body {
+    display: grid;
+    gap: .15rem;
+    min-width: 0;
+}
+
+.mk-pin-info__title {
+    font-weight: 700;
+    color: var(--nx-ink);
+    font-size: .95rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mk-pin-info__price {
+    font-weight: 700;
+    color: var(--nx-accent);
+    font-size: .9rem;
+}
+
+.mk-pin-info__status {
+    font-size: .75rem;
+    color: #b45309;
+    font-weight: 600;
+}
+
+.mk-pin-perks {
+    display: grid;
+    gap: .65rem;
+    padding: .85rem 1rem;
+    border: 1px solid #fef3c7;
+    background: #fffdf5;
+    border-radius: var(--mk-notch-sm);
+}
+
+.mk-pin-perk {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+.mk-pin-perk__icon {
+    font-size: 1.15rem;
+    line-height: 1.2;
+    flex: none;
+}
+
+.mk-pin-perk strong {
+    display: block;
+    font-size: .85rem;
+    color: var(--nx-ink);
+}
+
+.mk-pin-perk p {
+    margin: .1rem 0 0;
+    font-size: .78rem;
+    color: var(--nx-muted);
+    line-height: 1.4;
+}
+
+.mk-pin-pricing {
+    display: flex;
+    flex-direction: column;
+    gap: .2rem;
+    padding: .9rem 1.1rem;
+    background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
+    border: 1px solid #fbcfe8;
+    border-radius: var(--mk-notch-sm);
+}
+
+.mk-pin-pricing__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.mk-pin-pricing__head span {
+    font-weight: 600;
+    color: #9d174d;
+    font-size: .92rem;
+}
+
+.mk-pin-pricing__amount {
+    font-size: 1.35rem;
+    font-weight: 900;
+    color: #be185d;
+}
+
+.mk-pin-pricing__amount small {
+    font-size: .78rem;
+    font-weight: 600;
+}
+
+.mk-pin-pricing__detail {
+    font-size: .76rem;
+    color: #831843;
+}
+
+.mk-bkash-checkout {
+    display: grid;
+    gap: .85rem;
+    border: 1px solid #fbcfe8;
+    border-radius: var(--mk-notch-sm);
+    padding: 1rem;
+    background: #fff;
+    box-shadow: 0 4px 16px rgba(226, 19, 110, .06);
+}
+
+.mk-bkash-checkout__banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #fce7f3;
+    padding-bottom: .6rem;
+}
+
+.mk-bkash-checkout__logo {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+}
+
+.mk-bkash-logo-text {
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: #e2136e;
+    letter-spacing: -.02em;
+}
+
+.mk-bkash-sub {
+    font-size: .78rem;
+    color: var(--nx-muted);
+    font-weight: 600;
+}
+
+.mk-bkash-secure {
+    font-size: .75rem;
+    color: #059669;
+    font-weight: 600;
+    background: #ecfdf5;
+    padding: .15rem .45rem;
+    border-radius: 4px;
+}
+
+.mk-bkash-form {
+    display: grid;
+    gap: .75rem;
+}
+
+.mk-bkash-field {
+    display: grid;
+    gap: .3rem;
+}
+
+.mk-bkash-field label {
+    font-size: .82rem;
+    font-weight: 600;
+    color: var(--nx-ink);
+}
+
+.mk-bkash-input-wrap input {
+    width: 100%;
+    padding: .75rem .9rem;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: .95rem;
+    transition: border-color var(--mk-fast) ease, box-shadow var(--mk-fast) ease;
+    background: #fafafa;
+}
+
+.mk-bkash-input-wrap input:focus {
+    outline: none;
+    border-color: #e2136e;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(226, 19, 110, .14);
+}
+
+.mk-bkash-error {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: .5rem .75rem;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #b91c1c;
+    border-radius: 8px;
+    font-size: .82rem;
+}
+
+.mk-bkash-error svg {
+    width: 1rem;
+    height: 1rem;
+    flex: none;
+}
+
+.mk-bkash-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: .65rem;
+    margin-top: .4rem;
+}
+
+.mk-btn--bkash {
+    background: #e2136e;
+    border-color: #e2136e;
+    color: #fff;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: .7rem 1.2rem;
+    box-shadow: 0 4px 14px rgba(226, 19, 110, .32);
+}
+
+.mk-btn--bkash:hover:not(:disabled) {
+    background: #c50f5f;
+    border-color: #c50f5f;
+    color: #fff;
+    box-shadow: 0 6px 18px rgba(226, 19, 110, .45);
+}
+
+.mk-btn--bkash:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+
+.mk-spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, .35);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: mk-spin .7s linear infinite;
+    display: inline-block;
+}
+
+@keyframes mk-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Receipt state */
+
+.mk-pin-receipt {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 1rem 0;
+    animation: mk-fade .3s ease both;
+}
+
+.mk-pin-receipt__tick {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #fff;
+    display: grid;
+    place-items: center;
+    margin-bottom: .9rem;
+    box-shadow: 0 8px 24px rgba(16, 185, 129, .35);
+    animation: mk-pop .4s var(--mk-spring) both;
+}
+
+.mk-pin-receipt__tick svg {
+    width: 30px;
+    height: 30px;
+}
+
+.mk-pin-receipt__title {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--nx-ink);
+    margin: 0 0 .35rem;
+}
+
+.mk-pin-receipt__subtitle {
+    font-size: .88rem;
+    color: var(--nx-muted);
+    max-width: 38ch;
+    margin: 0 0 1.25rem;
+    line-height: 1.45;
+}
+
+.mk-pin-receipt__card {
+    width: 100%;
+    background: var(--nx-bg-alt);
+    border: 1px solid var(--nx-border);
+    border-radius: var(--mk-notch-sm);
+    padding: 1rem 1.2rem;
+    display: grid;
+    gap: .65rem;
+    text-align: left;
+    margin-bottom: 1.25rem;
+}
+
+.mk-pin-receipt__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: .88rem;
+}
+
+.mk-pin-receipt__row span {
+    color: var(--nx-muted);
+}
+
+.mk-pin-receipt__row strong {
+    color: var(--nx-ink);
+}
+
+.mk-pin-receipt__amount {
+    color: #e2136e !important;
+    font-size: 1rem;
+    font-weight: 800;
+}
+
+.mk-pin-receipt__mono {
+    font-family: monospace;
+    font-weight: 700;
+    color: var(--nx-primary);
+    background: #ede9fe;
+    padding: .15rem .45rem;
+    border-radius: 4px;
+    font-size: .82rem;
+}
+
+.mk-pin-receipt__highlight {
+    color: #b45309 !important;
+    font-weight: 700;
+}
+
+.mk-pin-receipt__actions {
+    width: 100%;
+}

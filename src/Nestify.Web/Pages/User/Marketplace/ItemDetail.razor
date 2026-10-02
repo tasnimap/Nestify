@@ -47,6 +47,15 @@
                         <div class="mk-detail__about-head">
                             <ConditionBadge Condition="_item.Condition" />
                             <span class="mk-badge mk-badge--good">@MarketplaceView.Label(_item.Category)</span>
+                            @if (_item.IsPinned)
+                            {
+                                <span class="mk-badge mk-badge--pinned">
+                                    <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13" aria-hidden="true">
+                                        <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/>
+                                    </svg>
+                                    Pinned Listing
+                                </span>
+                            }
                             @if (_item.Status == ListingStatus.Sold)
                             {
                                 <ListingStatusBadge Status="_item.Status" />
@@ -72,6 +81,13 @@
                                 <div class="mk-specs__k">Listed</div>
                                 <div class="mk-specs__v">@MarketplaceView.RelativeTime(_item.PostedAtUtc)</div>
                             </div>
+                            @if (_item.IsPinned && _item.PinnedUntilUtc is { } pinExpiry)
+                            {
+                                <div class="mk-specs__cell mk-specs__cell--highlight">
+                                    <div class="mk-specs__k">Pinned Until</div>
+                                    <div class="mk-specs__v">@pinExpiry.ToLocalTime().ToString("d MMM yyyy, h:mm tt")</div>
+                                </div>
+                            }
                         </div>
                     </section>
 
@@ -107,6 +123,27 @@
                         {
                             <div class="mk-buybox__owner">
                                 <p class="mk-muted">This is your listing.</p>
+                                
+                                @if (_item.IsPinned && _item.PinnedUntilUtc is { } expiry)
+                                {
+                                    <div class="mk-pin-status-pill">
+                                        <span class="mk-pin-status-pill__icon">📌</span>
+                                        <span>Pinned to top until <strong>@expiry.ToLocalTime().ToString("d MMM, h:mm tt")</strong></span>
+                                    </div>
+                                    <button type="button" class="nx-btn nx-btn--ghost nx-btn--block mk-btn--pin" @onclick="() => _showPinModal = true">
+                                        Extend Pin (৳50 with bKash)
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button type="button" class="nx-btn nx-btn--block mk-btn--pin-cta" @onclick="() => _showPinModal = true">
+                                        <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" aria-hidden="true">
+                                            <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/>
+                                        </svg>
+                                        Pin to Top (৳50 with bKash)
+                                    </button>
+                                }
+
                                 <a class="nx-btn nx-btn--primary nx-btn--block" href="marketplace/items/@_item.Id/interests">
                                     See buyer interest
                                 </a>
@@ -181,6 +218,18 @@
     </div>
 </section>
 
+@if (_showPinModal && _item is not null)
+{
+    <PinListingModal ListingId="@_item.Id"
+                     ListingTitle="@_item.Title"
+                     PriceBdt="@_item.PriceBdt"
+                     CoverImage="@(_item.Images.FirstOrDefault() ?? string.Empty)"
+                     IsCurrentlyPinned="@_item.IsPinned"
+                     CurrentPinnedUntilUtc="@_item.PinnedUntilUtc"
+                     OnClose="() => _showPinModal = false"
+                     OnPinned="OnPinnedSuccess" />
+}
+
 @code {
     [Parameter] public string Id { get; set; } = string.Empty;
 
@@ -195,7 +244,14 @@
     private string _reportReason = "Prohibited item";
     private string _reportDetail = string.Empty;
 
+    private bool _showPinModal;
+
     protected override async Task OnParametersSetAsync()
+    {
+        await LoadItemAsync();
+    }
+
+    private async Task LoadItemAsync()
     {
         _loading = true;
         _item = null;
@@ -207,6 +263,17 @@
         {
             _loading = false;
         }
+    }
+
+    private async Task OnPinnedSuccess(MarketplacePinResultDto receipt)
+    {
+        _showPinModal = false;
+        if (_item is not null)
+        {
+            _item.IsPinned = true;
+            _item.PinnedUntilUtc = receipt.PinnedUntilUtc;
+        }
+        await LoadItemAsync();
     }
 
     private async Task SendInterest()

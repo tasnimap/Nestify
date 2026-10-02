@@ -566,6 +566,9 @@ CREATE TABLE marketplace_listings (
     upazila_id          int            REFERENCES upazilas (id) ON DELETE RESTRICT,
     area_name           varchar(80)    NOT NULL,
     status              smallint       NOT NULL DEFAULT 1,   -- 1 Active, 2 Sold, 3 Removed
+    is_pinned           boolean        NOT NULL DEFAULT false,
+    pinned_at_utc       timestamptz,
+    pinned_until_utc    timestamptz,
     posted_at_utc       timestamptz    NOT NULL DEFAULT now(),
     updated_at_utc      timestamptz    NOT NULL DEFAULT now(),
     sold_at_utc         timestamptz,
@@ -581,12 +584,28 @@ CREATE TABLE marketplace_listings (
 
 CREATE INDEX ix_marketplace_listings_seller    ON marketplace_listings (seller_user_id);
 CREATE INDEX ix_marketplace_listings_browse    ON marketplace_listings (posted_at_utc DESC) WHERE status = 1;
+CREATE INDEX ix_marketplace_listings_pinned    ON marketplace_listings (is_pinned, pinned_until_utc) WHERE status = 1;
 CREATE INDEX ix_marketplace_listings_price     ON marketplace_listings (price_bdt) WHERE status = 1;
 CREATE INDEX ix_marketplace_listings_category  ON marketplace_listings (category_id) WHERE status = 1;
 CREATE INDEX ix_marketplace_listings_condition ON marketplace_listings (condition_id) WHERE status = 1;
 CREATE INDEX ix_marketplace_listings_division  ON marketplace_listings (division_id) WHERE status = 1;
 CREATE INDEX ix_marketplace_listings_district  ON marketplace_listings (district_id) WHERE status = 1;
 CREATE INDEX ix_marketplace_listings_upazila   ON marketplace_listings (upazila_id) WHERE status = 1;
+ 
+ 
+-- bKash payments made to pin / feature marketplace listings to the top of browse.
+CREATE TABLE marketplace_pin_payments (
+    id              bigint         GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    listing_id      bigint         NOT NULL REFERENCES marketplace_listings (id) ON DELETE CASCADE,
+    user_id         bigint         NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    amount_bdt      numeric(10,2)  NOT NULL,
+    bkash_number    varchar(20)    NOT NULL,
+    transaction_id  varchar(40)    NOT NULL,
+    pinned_days     int            NOT NULL DEFAULT 7,
+    paid_at_utc     timestamptz    NOT NULL DEFAULT now()
+);
+
+CREATE INDEX ix_marketplace_pin_payments_listing ON marketplace_pin_payments (listing_id, paid_at_utc DESC);
 
 
 -- Photos of a listing, one row per photo. sort_order 0 is the cover image.
@@ -1016,8 +1035,9 @@ CREATE TABLE post_plans (
     scope          smallint      NOT NULL,   -- 1 Housing, 2 Marketplace
     posts          int           NOT NULL,
     price_bdt      numeric(10,2) NOT NULL,
-    valid_days     int           NOT NULL,
-    is_active      boolean       NOT NULL DEFAULT true,
+      valid_days     int           NOT NULL,
+      is_active      boolean       NOT NULL DEFAULT true,
+      is_deleted     boolean       NOT NULL DEFAULT false,
     created_at_utc timestamptz   NOT NULL DEFAULT now(),
     updated_at_utc timestamptz   NOT NULL DEFAULT now(),
 
@@ -1039,9 +1059,10 @@ INSERT INTO post_plans (name, scope, posts, price_bdt, valid_days) VALUES
 -- One row per plan bought. posts_left goes down as the buyer posts.
 CREATE TABLE plan_purchases (
     id               bigint      GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    plan_id          bigint      NOT NULL REFERENCES post_plans (id) ON DELETE RESTRICT,
-    user_id          bigint      NOT NULL REFERENCES users (id) ON DELETE CASCADE,
-    posts_left       int         NOT NULL,
+      plan_id          bigint      NOT NULL REFERENCES post_plans (id) ON DELETE RESTRICT,
+      user_id          bigint      NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+      scope            smallint    NOT NULL,  -- snapshot: keeps purchased credits independent of plan edits/deletion
+      posts_left       int         NOT NULL,
     purchased_at_utc timestamptz NOT NULL DEFAULT now(),
     expires_at_utc   timestamptz NOT NULL,
 

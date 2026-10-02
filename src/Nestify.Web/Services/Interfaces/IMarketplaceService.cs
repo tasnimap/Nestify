@@ -15,6 +15,14 @@ public interface IMarketplaceService
     Task<MarketplacePageDto<MarketplaceItemSummaryDto>> BrowseAsync(MarketplaceItemFilterDto filter);
     Task<MarketplaceItemDetailDto?> GetItemAsync(string id);
 
+    Task<IReadOnlyList<MarketplacePostingPlanDto>> GetPostingPlansAsync();
+    Task<MarketplacePostingBalanceDto> GetPostingBalanceAsync();
+    Task<MarketplacePlanPurchaseDto> BuyPostingPlanAsync(BuyMarketplacePlanDto dto);
+
+    // ---- Pinning with bKash -----------------------------------------------
+    Task<MarketplacePinFeeDto> GetPinFeeAsync();
+    Task<MarketplacePinResultDto> PinListingAsync(string id, PinMarketplaceItemDto dto);
+
     // ---- Create + edit + mine -----------------------------------------
     Task<string> CreateItemAsync(CreateMarketplaceItemDto dto);
     Task<MarketplaceItemDetailDto?> GetItemForEditAsync(string id);

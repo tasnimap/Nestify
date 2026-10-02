@@ -1,4 +1,4 @@
-﻿// src/Nestify.Shared/Dtos/Marketplace/MarketplaceDtos.cs
+// src/Nestify.Shared/Dtos/Marketplace/MarketplaceDtos.cs
 // M4 — Second-hand marketplace. DTOs + enums only (no EF types).
 // One file per module, per the frontend-phase distribution rules.
 namespace Nestify.Shared.Dtos.Marketplace;
@@ -71,6 +71,8 @@ public sealed class MarketplaceItemSummaryDto
     public bool SellerVerified { get; set; }
     public DateTime PostedAtUtc { get; set; }
     public ListingStatus Status { get; set; } = ListingStatus.Active;
+    public bool IsPinned { get; set; }
+    public DateTime? PinnedUntilUtc { get; set; }
 
     /// <summary>First image. An http(s) URL renders as a photo; anything else renders as a generated tile.</summary>
     public string CoverImage { get; set; } = string.Empty;
@@ -92,6 +94,8 @@ public sealed class MarketplaceItemDetailDto
     public string Division { get; set; } = string.Empty;
     public DateTime PostedAtUtc { get; set; }
     public ListingStatus Status { get; set; } = ListingStatus.Active;
+    public bool IsPinned { get; set; }
+    public DateTime? PinnedUntilUtc { get; set; }
 
     public IReadOnlyList<string> Images { get; set; } = new List<string>();
 
@@ -151,6 +155,41 @@ public sealed class CreateMarketplaceItemDto
     public string Division { get; set; } = string.Empty;
     public string AreaName { get; set; } = string.Empty;
     public IReadOnlyList<string> Images { get; set; } = new List<string>();
+}
+
+/// <summary>A marketplace posting bundle offered to sellers.</summary>
+public sealed class MarketplacePostingPlanDto
+{
+    public string Id { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public int Posts { get; set; }
+    public decimal PriceBdt { get; set; }
+    public int ValidDays { get; set; }
+}
+
+/// <summary>The signed-in seller's usable posting credits across all active bundles.</summary>
+public sealed class MarketplacePostingBalanceDto
+{
+    public int PostsLeft { get; set; }
+    public DateTime? NextExpiryUtc { get; set; }
+}
+
+/// <summary>Checkout request for the demonstration bKash gateway. The PIN is validated, never stored.</summary>
+public sealed class BuyMarketplacePlanDto
+{
+    public string PlanId { get; set; } = string.Empty;
+    public string BkashNumber { get; set; } = string.Empty;
+    public string Pin { get; set; } = string.Empty;
+}
+
+public sealed class MarketplacePlanPurchaseDto
+{
+    public string PlanName { get; set; } = string.Empty;
+    public int PostsAdded { get; set; }
+    public int PostsLeft { get; set; }
+    public decimal AmountBdt { get; set; }
+    public DateTime ExpiresAtUtc { get; set; }
+    public string TransactionId { get; set; } = string.Empty;
 }
 
 /// <summary>Payload for <c>/marketplace/items/{id}/edit</c>. No seller field, no status field.</summary>
@@ -251,4 +290,30 @@ public sealed class ReportListingDto
 {
     public string Reason { get; set; } = string.Empty;
     public string? Details { get; set; }
+}
+
+/// <summary>Request to pin / feature a marketplace listing using bKash payment.</summary>
+public sealed class PinMarketplaceItemDto
+{
+    public string BkashNumber { get; set; } = string.Empty;
+    public string Pin { get; set; } = string.Empty;
+    public int Days { get; set; } = 7;
+}
+
+/// <summary>Receipt returned after pinning a post with bKash.</summary>
+public sealed class MarketplacePinResultDto
+{
+    public string ListingId { get; set; } = string.Empty;
+    public string TransactionId { get; set; } = string.Empty;
+    public decimal AmountBdt { get; set; }
+    public string BkashNumber { get; set; } = string.Empty;
+    public DateTime PinnedUntilUtc { get; set; }
+    public DateTime PaidAtUtc { get; set; }
+}
+
+/// <summary>Pricing details for pinning a marketplace post.</summary>
+public sealed class MarketplacePinFeeDto
+{
+    public decimal AmountBdt { get; set; } = 50m;
+    public int Days { get; set; } = 7;
 }
