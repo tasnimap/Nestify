@@ -49,6 +49,9 @@ jobs:
         with:
           name: nestify-api-publish
           path: ${{ env.PUBLISH_DIRECTORY }}
+      - name: Run optional EF Core migrations
+        if: ${{ vars.RUN_DATABASE_MIGRATIONS == 'true' }}
+        run: dotnet ef database update --project ${{ env.API_PROJECT }} --startup-project ${{ env.API_PROJECT }}
       - name: Log in to Azure with OIDC
         uses: azure/login@v2
         with:
