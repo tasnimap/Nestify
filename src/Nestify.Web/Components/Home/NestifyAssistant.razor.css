@@ -75,6 +75,7 @@
 .hm-assistant__close svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-width: 2; }
 
 .hm-assistant__body { display: flex; min-height: 0; flex-direction: column; padding: 16px; overflow: hidden; background: linear-gradient(180deg, var(--nx-card) 0%, var(--nx-bg-alt) 100%); }
+.hm-assistant__hello { margin: 0 0 5px; color: var(--nx-primary); font-size: .92rem; font-weight: 850; letter-spacing: -.01em; }
 .hm-assistant__welcome { margin: 0; color: var(--nx-muted); font-size: .81rem; line-height: 1.5; }
 .hm-assistant__suggestions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 13px; }
 .hm-assistant__suggestion { min-height: 35px; border: 1px solid rgba(109, 40, 217, .16); border-radius: 999px; padding: 7px 11px; background: var(--nx-primary-softer); color: var(--nx-primary); cursor: pointer; font: inherit; font-size: .72rem; font-weight: 750; transition: background .18s ease, border-color .18s ease, transform .18s ease, box-shadow .18s ease; }
