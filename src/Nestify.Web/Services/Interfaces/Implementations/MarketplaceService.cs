@@ -57,6 +57,17 @@ public sealed class MarketplaceService : IMarketplaceService
                ?? throw new ApplicationException("The bKash payment did not go through.");
     }
 
+    public async Task<MarketplacePinFeeDto> GetPinFeeAsync() =>
+        await _httpClient.GetFromJsonAsync<MarketplacePinFeeDto>("api/v1/marketplace/pin-fee") ?? new MarketplacePinFeeDto();
+
+    public async Task<MarketplacePinResultDto> PinListingAsync(string id, PinMarketplaceItemDto dto)
+    {
+        var response = await _httpClient.PostAsJsonAsync($"api/v1/marketplace/items/{id}/pin", dto);
+        if (!response.IsSuccessStatusCode) throw new ApplicationException(await ReadMessageAsync(response) ?? "The bKash payment did not go through.");
+        return await response.Content.ReadFromJsonAsync<MarketplacePinResultDto>()
+               ?? throw new ApplicationException("The bKash payment did not go through.");
+    }
+
     // ---- Create + edit + mine ----
 
     public async Task<string> CreateItemAsync(CreateMarketplaceItemDto dto)

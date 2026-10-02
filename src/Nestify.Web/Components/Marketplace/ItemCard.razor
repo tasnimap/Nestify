@@ -1,7 +1,7 @@
 @* Browse-grid card. The whole card is a link to the item detail via the title's
    ::before overlay; the seller line stays non-interactive here. *@
 
-<article class="mk-card @(Item.Status == ListingStatus.Sold ? "mk-card--sold" : null)">
+<article class="mk-card @(Item.Status == ListingStatus.Sold ? "mk-card--sold" : null) @(Item.IsPinned ? "mk-card--pinned" : null)">
     <div class="mk-card__media">
         <button type="button" class="mk-card__photo" @onclick="OpenLightbox"
                 aria-label="View photos of @Item.Title">
@@ -13,6 +13,15 @@
             }
         </button>
         <ConditionBadge Condition="Item.Condition" CssClass="mk-badge--on-media" />
+        @if (Item.IsPinned)
+        {
+            <span class="mk-pinned-badge" title="Pinned to top">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/>
+                </svg>
+                <span>Pinned</span>
+            </span>
+        }
     </div>
 
     <div class="mk-card__body">

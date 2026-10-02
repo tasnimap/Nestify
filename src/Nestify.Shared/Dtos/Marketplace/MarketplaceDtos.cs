@@ -1,4 +1,4 @@
-﻿// src/Nestify.Shared/Dtos/Marketplace/MarketplaceDtos.cs
+// src/Nestify.Shared/Dtos/Marketplace/MarketplaceDtos.cs
 // M4 — Second-hand marketplace. DTOs + enums only (no EF types).
 // One file per module, per the frontend-phase distribution rules.
 namespace Nestify.Shared.Dtos.Marketplace;
@@ -71,6 +71,8 @@ public sealed class MarketplaceItemSummaryDto
     public bool SellerVerified { get; set; }
     public DateTime PostedAtUtc { get; set; }
     public ListingStatus Status { get; set; } = ListingStatus.Active;
+    public bool IsPinned { get; set; }
+    public DateTime? PinnedUntilUtc { get; set; }
 
     /// <summary>First image. An http(s) URL renders as a photo; anything else renders as a generated tile.</summary>
     public string CoverImage { get; set; } = string.Empty;
@@ -92,6 +94,8 @@ public sealed class MarketplaceItemDetailDto
     public string Division { get; set; } = string.Empty;
     public DateTime PostedAtUtc { get; set; }
     public ListingStatus Status { get; set; } = ListingStatus.Active;
+    public bool IsPinned { get; set; }
+    public DateTime? PinnedUntilUtc { get; set; }
 
     public IReadOnlyList<string> Images { get; set; } = new List<string>();
 
@@ -286,4 +290,30 @@ public sealed class ReportListingDto
 {
     public string Reason { get; set; } = string.Empty;
     public string? Details { get; set; }
+}
+
+/// <summary>Request to pin / feature a marketplace listing using bKash payment.</summary>
+public sealed class PinMarketplaceItemDto
+{
+    public string BkashNumber { get; set; } = string.Empty;
+    public string Pin { get; set; } = string.Empty;
+    public int Days { get; set; } = 7;
+}
+
+/// <summary>Receipt returned after pinning a post with bKash.</summary>
+public sealed class MarketplacePinResultDto
+{
+    public string ListingId { get; set; } = string.Empty;
+    public string TransactionId { get; set; } = string.Empty;
+    public decimal AmountBdt { get; set; }
+    public string BkashNumber { get; set; } = string.Empty;
+    public DateTime PinnedUntilUtc { get; set; }
+    public DateTime PaidAtUtc { get; set; }
+}
+
+/// <summary>Pricing details for pinning a marketplace post.</summary>
+public sealed class MarketplacePinFeeDto
+{
+    public decimal AmountBdt { get; set; } = 50m;
+    public int Days { get; set; } = 7;
 }

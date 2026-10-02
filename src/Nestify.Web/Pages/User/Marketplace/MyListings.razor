@@ -18,7 +18,7 @@
             <div class="mk-head__titles">
                 <p class="nx-eyebrow">Marketplace</p>
                 <h1>My listings</h1>
-                <p class="mk-head__lead">Everything you've posted, including sold and removed items.</p>
+                <p class="mk-head__lead">Everything you've posted, including sold, active, and pinned items.</p>
             </div>
             <div class="mk-head__actions">
                 <button type="button" class="nx-btn nx-btn--primary" @onclick="OpenPostModal">
@@ -64,7 +64,7 @@
                     @foreach (var row in Filtered)
                     {
                         var it = row.Item;
-                        <article class="mk-row @(it.Status == ListingStatus.Removed ? "mk-row--muted" : null)">
+                        <article class="mk-row @(it.Status == ListingStatus.Removed ? "mk-row--muted" : null) @(it.IsPinned ? "mk-row--pinned" : null)">
                             <div class="mk-row__top">
                                 <div class="mk-row__thumb">
                                     <button type="button" class="mk-row__photo" @onclick="() => OpenPhotos(it)"
@@ -84,11 +84,25 @@
                                         <span class="mk-price mk-price--sm">@Money.Format(it.PriceBdt)</span>
                                         <ListingStatusBadge Status="it.Status" />
                                         <ConditionBadge Condition="it.Condition" />
+                                        @if (it.IsPinned)
+                                        {
+                                            <span class="mk-badge mk-badge--pinned" title="@(it.PinnedUntilUtc is { } exp ? $"Pinned until {exp.ToLocalTime():d MMM, h:mm tt}" : "Pinned")">
+                                                <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12" aria-hidden="true">
+                                                    <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/>
+                                                </svg>
+                                                Pinned
+                                            </span>
+                                        }
                                     </div>
                                     <div class="mk-row__meta">
                                         <span>@it.AreaName</span>
                                         <span class="mk-dot"></span>
                                         <span>Listed @MarketplaceView.RelativeTime(it.PostedAtUtc)</span>
+                                        @if (it.IsPinned && it.PinnedUntilUtc is { } pinUntil)
+                                        {
+                                            <span class="mk-dot"></span>
+                                            <span class="mk-pin-expiry-text">📌 Pinned till @pinUntil.ToLocalTime().ToString("d MMM, h:mm tt")</span>
+                                        }
                                     </div>
                                     <div class="mk-row__stats">
                                         <span class="mk-stat">
@@ -117,6 +131,18 @@
                                 </a>
                                 @if (it.Status == ListingStatus.Active)
                                 {
+                                    @if (it.IsPinned)
+                                    {
+                                        <button type="button" class="nx-btn nx-btn--ghost mk-btn--pinned-badge-btn" @onclick="() => OpenPinModal(it)" title="Click to extend pin duration">
+                                            📌 Extend Pin
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="button" class="nx-btn nx-btn--ghost mk-btn--pin-cta-sm" @onclick="() => OpenPinModal(it)" title="Pin this post to top with bKash">
+                                            📌 Pin to top (৳50)
+                                        </button>
+                                    }
                                     <a class="nx-btn nx-btn--ghost" href="marketplace/items/@it.Id/edit">Edit</a>
                                     <button class="nx-btn nx-btn--ghost" @onclick="() => OpenSoldPicker(it.Id)">Mark sold</button>
                                 }
@@ -146,6 +172,18 @@
 @if (_showPostModal)
 {
     <ItemPostModal OnClose="ClosePostModal" OnCreated="OnItemCreated" />
+}
+
+@if (_pinItem is not null)
+{
+    <PinListingModal ListingId="@_pinItem.Id"
+                     ListingTitle="@_pinItem.Title"
+                     PriceBdt="@_pinItem.PriceBdt"
+                     CoverImage="@_pinItem.CoverImage"
+                     IsCurrentlyPinned="@_pinItem.IsPinned"
+                     CurrentPinnedUntilUtc="@_pinItem.PinnedUntilUtc"
+                     OnClose="ClosePinModal"
+                     OnPinned="OnItemPinned" />
 }
 
 @if (_soldItemId is not null)
@@ -231,6 +269,7 @@
     private bool _loading = true;
     private string? _confirmDelete;
     private MarketplaceItemSummaryDto? _photoItem;
+    private MarketplaceItemSummaryDto? _pinItem;
     private bool _showPostModal;
 
     private void OpenPostModal() => _showPostModal = true;
@@ -241,6 +280,16 @@
     {
         _showPostModal = false;
         return LoadAsync();
+    }
+
+    private void OpenPinModal(MarketplaceItemSummaryDto item) => _pinItem = item;
+
+    private void ClosePinModal() => _pinItem = null;
+
+    private async Task OnItemPinned(MarketplacePinResultDto result)
+    {
+        _pinItem = null;
+        await LoadAsync();
     }
 
     private void OpenPhotos(MarketplaceItemSummaryDto item) => _photoItem = item;

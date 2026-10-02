@@ -33,7 +33,7 @@ public sealed class MarketplaceController : ControllerBase
         return item is null ? NotFound() : Ok(item);
     }
 
-    // ---- Create + edit + mine ----
+    // ---- Create + edit + mine + pin ----
 
     [HttpGet("posting-plans")]
     public async Task<ActionResult<IReadOnlyList<MarketplacePostingPlanDto>>> PostingPlans() =>
@@ -47,6 +47,17 @@ public sealed class MarketplaceController : ControllerBase
     public async Task<ActionResult<MarketplacePlanPurchaseDto>> PurchasePostingPlan(BuyMarketplacePlanDto dto)
     {
         var (data, error) = await _marketplace.BuyPostingPlanAsync(RequireUserId(), dto);
+        return data is null ? BadRequest(new { message = error }) : Ok(data);
+    }
+
+    [HttpGet("pin-fee")]
+    public ActionResult<MarketplacePinFeeDto> GetPinFee() =>
+        Ok(_marketplace.GetPinFee());
+
+    [HttpPost("items/{id:long}/pin")]
+    public async Task<ActionResult<MarketplacePinResultDto>> PinListing(long id, PinMarketplaceItemDto dto)
+    {
+        var (data, error) = await _marketplace.PinListingAsync(RequireUserId(), id, dto);
         return data is null ? BadRequest(new { message = error }) : Ok(data);
     }
 

@@ -199,6 +199,10 @@ using (var scope = app.Services.CreateScope())
     await scope.ServiceProvider
         .GetRequiredService<SettlementService>()
         .EnsureSchemaCompatibilityAsync();
+
+    await scope.ServiceProvider
+        .GetRequiredService<MarketplaceService>()
+        .EnsureSchemaCompatibilityAsync();
 }
 
 app.UseCors(ClientCorsPolicy);

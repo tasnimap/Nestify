@@ -26,6 +26,8 @@ public sealed class MarketplaceService
     private const short InterestClosed = 6;
 
     private const int MaxImages = 6;
+    public const decimal DefaultPinFeeBdt = 50m;
+    public const int DefaultPinDays = 7;
     private static readonly Regex BangladeshiPhone = new(@"^(\+?88)?01[3-9]\d{8}$", RegexOptions.Compiled);
     private static readonly Regex BkashPin = new(@"^\d{4,5}$", RegexOptions.Compiled);
 
@@ -36,6 +38,36 @@ public sealed class MarketplaceService
     {
         _db = db;
         _uploader = uploader;
+    }
+
+    public async Task EnsureSchemaCompatibilityAsync()
+    {
+        using var connection = await _db.OpenAsync();
+        await connection.ExecuteAsync(
+            """
+            ALTER TABLE marketplace_listings
+                ADD COLUMN IF NOT EXISTS is_pinned boolean NOT NULL DEFAULT false,
+                ADD COLUMN IF NOT EXISTS pinned_at_utc timestamptz,
+                ADD COLUMN IF NOT EXISTS pinned_until_utc timestamptz;
+
+            CREATE INDEX IF NOT EXISTS ix_marketplace_listings_pinned
+                ON marketplace_listings (is_pinned, pinned_until_utc)
+                WHERE status = 1;
+
+            CREATE TABLE IF NOT EXISTS marketplace_pin_payments (
+                id              bigint         GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                listing_id      bigint         NOT NULL REFERENCES marketplace_listings (id) ON DELETE CASCADE,
+                user_id         bigint         NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+                amount_bdt      numeric(10,2)  NOT NULL,
+                bkash_number    varchar(20)    NOT NULL,
+                transaction_id  varchar(40)    NOT NULL,
+                pinned_days     int            NOT NULL DEFAULT 7,
+                paid_at_utc     timestamptz    NOT NULL DEFAULT now()
+            );
+
+            CREATE INDEX IF NOT EXISTS ix_marketplace_pin_payments_listing
+                ON marketplace_pin_payments (listing_id, paid_at_utc DESC);
+            """);
     }
 
     // ------------------------------------------------------------ browse
@@ -96,11 +128,12 @@ public sealed class MarketplaceService
             args.Add("search", "%" + filter.Search.Trim() + "%");
         }
 
+        var pinnedFirst = "(CASE WHEN l.is_pinned = true AND (l.pinned_until_utc IS NULL OR l.pinned_until_utc > now()) THEN 0 ELSE 1 END), ";
         var orderBy = filter.Sort switch
         {
-            MarketplaceSort.PriceLowToHigh => "l.price_bdt ASC, l.posted_at_utc DESC",
-            MarketplaceSort.PriceHighToLow => "l.price_bdt DESC, l.posted_at_utc DESC",
-            _ => "l.posted_at_utc DESC"
+            MarketplaceSort.PriceLowToHigh => pinnedFirst + "l.price_bdt ASC, l.posted_at_utc DESC",
+            MarketplaceSort.PriceHighToLow => pinnedFirst + "l.price_bdt DESC, l.posted_at_utc DESC",
+            _ => pinnedFirst + "l.posted_at_utc DESC"
         };
 
         var page = Math.Max(1, filter.Page);
@@ -169,6 +202,8 @@ public sealed class MarketplaceService
             Division = row.DivisionName,
             PostedAtUtc = row.PostedAtUtc,
             Status = ToListingStatus(row.Status),
+            IsPinned = row.IsPinned,
+            PinnedUntilUtc = row.PinnedUntilUtc,
             Images = images.TryGetValue(row.Id, out var list) ? list : new List<string>(),
             SellerId = row.SellerUserId.ToString(),
             SellerDisplayName = row.SellerName,
@@ -179,7 +214,7 @@ public sealed class MarketplaceService
         };
     }
 
-    // ------------------------------------------------------ create / edit
+    // ------------------------------------------------------ create / edit / pin
 
     public async Task<IReadOnlyList<MarketplacePostingPlanDto>> GetPostingPlansAsync()
     {
@@ -242,6 +277,74 @@ public sealed class MarketplaceService
         transaction.Commit();
 
         return (new MarketplacePlanPurchaseDto { PlanName = plan.Name, PostsAdded = plan.Posts, PostsLeft = balance.PostsLeft, AmountBdt = plan.PriceBdt, ExpiresAtUtc = expiresAt, TransactionId = NewTransactionId() }, null);
+    }
+
+    public MarketplacePinFeeDto GetPinFee() => new()
+    {
+        AmountBdt = DefaultPinFeeBdt,
+        Days = DefaultPinDays
+    };
+
+    public async Task<(MarketplacePinResultDto? Data, string? Error)> PinListingAsync(long userId, long listingId, PinMarketplaceItemDto dto)
+    {
+        var number = new string((dto.BkashNumber ?? string.Empty).Where(c => !char.IsWhiteSpace(c) && c != '-').ToArray());
+        if (!BangladeshiPhone.IsMatch(number)) return (null, "Enter a valid Bangladeshi bKash number, like 01712345678.");
+        if (!BkashPin.IsMatch(dto.Pin ?? string.Empty)) return (null, "The bKash PIN must be 4 or 5 digits.");
+
+        var days = dto.Days > 0 ? dto.Days : DefaultPinDays;
+        var amount = DefaultPinFeeBdt;
+
+        using var connection = await _db.OpenAsync();
+
+        var listing = await connection.QuerySingleOrDefaultAsync<(long SellerUserId, short Status, bool IsPinned, DateTime? PinnedUntilUtc)>(
+            "SELECT seller_user_id, status, is_pinned, pinned_until_utc FROM marketplace_listings WHERE id = @listingId",
+            new { listingId });
+
+        if (listing == default || listing.SellerUserId != userId)
+        {
+            return (null, "That listing is not yours.");
+        }
+
+        if (listing.Status != ListingActive)
+        {
+            return (null, "Only active listings can be pinned.");
+        }
+
+        using var transaction = connection.BeginTransaction();
+
+        var baseTime = (listing.IsPinned && listing.PinnedUntilUtc is { } existing && existing > DateTime.UtcNow)
+            ? existing
+            : DateTime.UtcNow;
+        var pinnedUntilUtc = baseTime.AddDays(days);
+        var txId = "BK" + NewTransactionId();
+        var now = DateTime.UtcNow;
+
+        await connection.ExecuteAsync(
+            @"UPDATE marketplace_listings
+                 SET is_pinned = true,
+                     pinned_at_utc = @now,
+                     pinned_until_utc = @pinnedUntilUtc
+               WHERE id = @listingId",
+            new { listingId, now, pinnedUntilUtc },
+            transaction);
+
+        await connection.ExecuteAsync(
+            @"INSERT INTO marketplace_pin_payments (listing_id, user_id, amount_bdt, bkash_number, transaction_id, pinned_days, paid_at_utc)
+              VALUES (@listingId, @userId, @amount, @number, @txId, @days, @now)",
+            new { listingId, userId, amount, number, txId, days, now },
+            transaction);
+
+        transaction.Commit();
+
+        return (new MarketplacePinResultDto
+        {
+            ListingId = listingId.ToString(),
+            TransactionId = txId,
+            AmountBdt = amount,
+            BkashNumber = number,
+            PinnedUntilUtc = pinnedUntilUtc,
+            PaidAtUtc = now
+        }, null);
     }
 
     public async Task<(long? Id, string? Error)> CreateAsync(long userId, CreateMarketplaceItemDto dto)
@@ -402,7 +505,7 @@ public sealed class MarketplaceService
                      WHERE v.listing_id = l.id)                                 AS view_count
                {ListingFrom}
                WHERE l.seller_user_id = @userId AND l.status <> @removed
-               ORDER BY l.posted_at_utc DESC",
+               ORDER BY (CASE WHEN l.is_pinned = true AND (l.pinned_until_utc IS NULL OR l.pinned_until_utc > now()) THEN 0 ELSE 1 END), l.posted_at_utc DESC",
             new { userId, withdrawn = InterestWithdrawn, pending = InterestPending, removed = ListingRemoved })).ToList();
 
         var images = await LoadImagesAsync(connection, rows.Select(r => r.Id));
@@ -604,7 +707,7 @@ public sealed class MarketplaceService
         var changed = await connection.ExecuteAsync(
             @"UPDATE marketplace_buy_interests i
                  SET status = @next, responded_at_utc = now()
-                FROM marketplace_listings l
+                 FROM marketplace_listings l
                WHERE i.id = @interestId AND l.id = i.listing_id
                  AND l.seller_user_id = @userId AND i.status = @pending",
             new { interestId, userId, pending = InterestPending, next = accept ? InterestAccepted : InterestDeclined });
@@ -657,7 +760,7 @@ public sealed class MarketplaceService
         var changed = await connection.ExecuteAsync(
             @"UPDATE marketplace_buy_interests i
                  SET status = @withdrawn, withdrawn_at_utc = now()
-                FROM marketplace_listings l
+                 FROM marketplace_listings l
                WHERE i.id = @interestId AND i.buyer_user_id = @userId AND i.status IN (@pending, @accepted)
                  AND l.id = i.listing_id AND l.status = @active",
             new { interestId, userId, withdrawn = InterestWithdrawn, pending = InterestPending, accepted = InterestAccepted, active = ListingActive });
@@ -717,6 +820,8 @@ public sealed class MarketplaceService
     private const string ListingColumns =
         @"SELECT l.id, l.seller_user_id, l.title, l.description, l.category_id, l.condition_id,
                  l.price_bdt, l.area_name, l.status, l.posted_at_utc,
+                 (l.is_pinned = true AND (l.pinned_until_utc IS NULL OR l.pinned_until_utc > now())) AS is_pinned,
+                 l.pinned_until_utc,
                  dv.name AS division_name,
                  s.full_name AS seller_name, s.created_at_utc AS seller_joined_utc,
                  coalesce(sp.is_verified, false) AS seller_verified";
@@ -916,6 +1021,8 @@ public sealed class MarketplaceService
             SellerVerified = r.SellerVerified,
             PostedAtUtc = r.PostedAtUtc,
             Status = ToListingStatus(r.Status),
+            IsPinned = r.IsPinned,
+            PinnedUntilUtc = r.PinnedUntilUtc,
             CoverImage = list.FirstOrDefault() ?? string.Empty,
             Images = list
         };
@@ -949,6 +1056,8 @@ public sealed class MarketplaceService
         public decimal PriceBdt { get; set; }
         public string AreaName { get; set; } = string.Empty;
         public short Status { get; set; }
+        public bool IsPinned { get; set; }
+        public DateTime? PinnedUntilUtc { get; set; }
         public DateTime PostedAtUtc { get; set; }
         public string DivisionName { get; set; } = string.Empty;
         public string SellerName { get; set; } = string.Empty;
