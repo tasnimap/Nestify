@@ -160,13 +160,17 @@ public sealed class HousingService
             return (null, "That housing posting package is no longer available.");
         }
 
+        // Match Marketplace renewal: a new plan gives every usable housing
+        // token one shared expiry, without shortening a longer existing plan.
         var proposedExpiry = DateTime.UtcNow.AddDays(plan.ValidDays);
-        var currentExpiry = await connection.QuerySingleOrDefaultAsync<DateTime?>(
-            @"SELECT max(expires_at_utc)
+        var activeExpiries = (await connection.QueryAsync<DateTime>(
+            @"SELECT expires_at_utc
                 FROM plan_purchases
                WHERE home_id = @homeId AND scope = @scope
-                 AND posts_left > 0 AND expires_at_utc > now()",
-            new { homeId, scope = HousingPostingScope }, transaction);
+                 AND posts_left > 0 AND expires_at_utc > now()
+               FOR UPDATE",
+            new { homeId, scope = HousingPostingScope }, transaction)).ToList();
+        var currentExpiry = activeExpiries.Count == 0 ? (DateTime?)null : activeExpiries.Max();
         var expiresAt = currentExpiry is { } existing && existing > proposedExpiry
             ? existing
             : proposedExpiry;
