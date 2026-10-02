@@ -23,7 +23,7 @@
     margin-bottom: 0.75rem;
     border-radius: var(--nx-radius-sm);
     border-left: 4px solid;
-    background: #fff;
+    background: var(--nx-card);
     box-shadow: var(--nx-shadow-md);
     pointer-events: auto;
     animation: toast-slide-in 0.3s ease-out;

@@ -58,7 +58,7 @@
     place-items: center;
     width: 2rem; height: 2rem;
     border-radius: 9px 9px 9px 3px;
-    background: #fff;
+    background: var(--nx-card);
     border: 1px solid var(--nx-border);
     color: var(--nx-primary);
     flex: none;
@@ -83,7 +83,7 @@
     width: 12px; height: 12px;
     transform: translate(-50%, -50%);
     border-radius: 50%;
-    background: #fff;
+    background: var(--nx-card);
     border: 3px solid var(--nx-primary);
 }
 

@@ -200,7 +200,7 @@ img { max-width: 100%; display: block; }
     background: var(--nx-primary-soft);
 }
 
-.nx-btn--light { background: #fff; color: var(--nx-primary); }
+.nx-btn--light { background: var(--nx-card); color: var(--nx-primary); }
 .nx-btn--light:hover:not(:disabled) { transform: translateY(-2px); box-shadow: var(--nx-shadow-lg); }
 
 .nx-btn--lg { min-height: 52px; padding: 1rem 1.9rem; font-size: 1rem; }

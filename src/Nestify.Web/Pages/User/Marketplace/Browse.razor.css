@@ -50,7 +50,7 @@
     padding: .6rem .8rem;
     border: 1.5px solid var(--nx-border-strong);
     border-radius: 12px;
-    background: #fff;
+    background: var(--nx-card);
     transition: border-color var(--mk-fast) ease, box-shadow var(--mk-mid) var(--mk-ease);
 }
 .mk-lens__search:focus-within {
@@ -86,7 +86,7 @@
     font: inherit;
     font-size: .88rem;
     font-variant-numeric: tabular-nums;
-    background: #fff;
+    background: var(--nx-card);
     transition: border-color var(--mk-fast) ease, box-shadow var(--mk-mid) var(--mk-ease);
 }
 .mk-lens__price input:focus {
@@ -103,7 +103,7 @@
     border-radius: 11px;
     font: inherit;
     font-size: .9rem;
-    background: #fff;
+    background: var(--nx-card);
     color: var(--nx-ink);
     transition: border-color var(--mk-fast) ease, box-shadow var(--mk-mid) var(--mk-ease);
 }

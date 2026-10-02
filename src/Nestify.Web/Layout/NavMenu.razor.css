@@ -82,7 +82,7 @@
     padding: .3rem .6rem .3rem .35rem;
     border: 1px solid var(--nx-border-strong);
     border-radius: 999px;
-    background: #fff;
+    background: var(--nx-card);
     font: inherit;
     font-weight: 600;
     font-size: .9rem;
@@ -128,7 +128,7 @@
     justify-content: center;
     border: 1px solid var(--nx-border-strong);
     border-radius: 10px;
-    background: #fff;
+    background: var(--nx-card);
     cursor: pointer;
 }
 
@@ -163,7 +163,7 @@
         align-items: stretch;
         gap: 1rem;
         padding: 1.25rem clamp(1.15rem, 4vw, 2.5rem) 1.75rem;
-        background: #fff;
+        background: var(--nx-card);
         border-bottom: 1px solid var(--nx-border);
         box-shadow: var(--nx-shadow-md);
         transform: translateY(-8px);

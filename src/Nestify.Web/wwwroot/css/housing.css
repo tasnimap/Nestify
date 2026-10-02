@@ -186,7 +186,7 @@
     font: inherit;
     font-size: .9rem;
     font-variant-numeric: tabular-nums;
-    background: #fff;
+    background: var(--nx-card);
     color: var(--nx-ink);
     transition: border-color var(--hs-fast) ease, box-shadow var(--hs-mid) var(--hs-ease);
 }
@@ -240,7 +240,7 @@
     padding: .5rem .85rem;
     border-radius: 999px;
     border: 1.5px solid var(--nx-border-strong);
-    background: #fff;
+    background: var(--nx-card);
     color: var(--nx-body);
     font: inherit;
     font-size: .85rem;
@@ -632,7 +632,7 @@
     display: grid;
     place-items: center;
     border-radius: var(--hs-radius);
-    background: #fff;
+    background: var(--nx-card);
     border: 1px solid var(--nx-border);
     color: var(--nx-primary);
     box-shadow: 0 18px 30px -20px rgba(76, 29, 149, .6);
@@ -1527,7 +1527,7 @@
     font: inherit;
     font-size: .92rem;
     resize: vertical;
-    background: #fff;
+    background: var(--nx-card);
     color: var(--nx-ink);
     transition: border-color var(--hs-fast) ease, box-shadow var(--hs-mid) var(--hs-ease);
 }
@@ -1691,7 +1691,7 @@
     height: 42px;
     border-radius: 50%;
     border: 0;
-    background: #fff;
+    background: var(--nx-card);
     color: var(--nx-ink);
     line-height: 1;
     cursor: pointer;

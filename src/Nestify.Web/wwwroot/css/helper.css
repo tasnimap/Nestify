@@ -220,7 +220,7 @@
 
 .dh-item:hover {
     transform: translateX(3px);
-    background: #fff;
+    background: var(--nx-card);
     border-color: var(--nx-border);
 }
 
@@ -326,7 +326,7 @@
     padding: .7rem .9rem;
     border: 1px solid var(--nx-border);
     border-radius: 12px;
-    background: #fff;
+    background: var(--nx-card);
     font: inherit;
     font-size: 16px;
     color: var(--nx-ink);
@@ -350,7 +350,7 @@
     padding: .45rem .95rem;
     border: 1px solid var(--nx-border);
     border-radius: 999px;
-    background: #fff;
+    background: var(--nx-card);
     font: inherit;
     font-size: .85rem;
     font-weight: 650;
@@ -381,7 +381,7 @@
     padding: .7rem .9rem;
     border: 1px solid var(--nx-border);
     border-radius: 12px;
-    background: #fff;
+    background: var(--nx-card);
     font: inherit;
     font-size: 16px;
     color: var(--nx-ink);
@@ -656,7 +656,7 @@
     padding: .65rem .85rem;
     border: 1px solid var(--nx-border);
     border-radius: 12px;
-    background: #fff;
+    background: var(--nx-card);
     font: inherit;
     font-size: 16px;
     color: var(--nx-ink);
@@ -968,7 +968,7 @@
     transition: background .25s var(--dh-ease), border-color .25s var(--dh-ease);
 }
 
-.dh-review:hover { background: #fff; border-color: #d9c9f7; }
+.dh-review:hover { background: var(--nx-card); border-color: #d9c9f7; }
 
 .dh-review__head {
     display: flex;
@@ -1023,7 +1023,7 @@
     overflow-x: auto;
     border: 1px solid var(--nx-border);
     border-radius: 14px;
-    background: #fff;
+    background: var(--nx-card);
     -webkit-overflow-scrolling: touch;
 }
 
@@ -1039,7 +1039,7 @@
     position: sticky;
     left: 0;
     z-index: 2;
-    background: #fff;
+    background: var(--nx-card);
     text-align: left;
     padding: .35rem .55rem;
     box-shadow: 6px 0 8px -8px rgba(28, 24, 48, .35);
@@ -1206,7 +1206,7 @@ button.dh-slot:focus-visible {
     padding: .2rem .6rem;
     border: 1px solid #d9c9f7;
     border-radius: 999px;
-    background: #fff;
+    background: var(--nx-card);
     font: inherit;
     font-size: .76rem;
     font-weight: 700;
@@ -1268,7 +1268,7 @@ button.dh-slot:focus-visible {
     padding: .75rem .9rem;
     border: 1px solid var(--nx-border);
     border-radius: 12px;
-    background: #fff;
+    background: var(--nx-card);
     font: inherit;
     font-size: 16px;
     color: var(--nx-ink);
