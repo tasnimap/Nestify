@@ -18,7 +18,7 @@
 
     --hs-radius: 18px;
     --hs-radius-sm: 13px;
-    --hs-glass: rgba(255, 255, 255, .74);
+    --hs-glass: var(--nx-card);
     --hs-lift: 0 22px 44px -26px rgba(76, 29, 149, .45);
 }
 
@@ -51,7 +51,7 @@
     background:
         radial-gradient(58rem 30rem at 100% -12%, var(--nx-primary-softer), transparent 60%),
         radial-gradient(38rem 24rem at -8% 4%, rgba(15, 122, 55, .06), transparent 62%),
-        linear-gradient(180deg, var(--nx-bg-alt), #fff 26rem);
+        linear-gradient(180deg, var(--nx-bg-alt), var(--nx-bg) 26rem);
     min-height: 100%;
     overflow-x: clip;
 }
@@ -148,7 +148,7 @@
     display: grid;
     gap: 1.15rem;
     padding: 1.25rem;
-    background: linear-gradient(180deg, #fff, var(--nx-primary-softer));
+    background: linear-gradient(180deg, var(--nx-card), var(--nx-primary-softer));
     border: 1px solid var(--nx-border);
     border-left: 3px solid var(--nx-primary);
     border-radius: var(--hs-radius);
@@ -757,7 +757,7 @@
     display: grid;
     gap: .85rem;
     padding: 1.35rem;
-    background: linear-gradient(180deg, #fff, var(--nx-primary-softer));
+    background: linear-gradient(180deg, var(--nx-card), var(--nx-primary-softer));
     border: 1px solid var(--nx-border);
     border-radius: var(--hs-radius);
     box-shadow: var(--nx-shadow-md);
@@ -1353,7 +1353,7 @@
     border: 1px solid var(--nx-accent);
     border-left-width: 4px;
     border-radius: 14px;
-    background: linear-gradient(160deg, #fff, var(--nx-accent-soft) 70%);
+    background: linear-gradient(160deg, var(--nx-card), var(--nx-accent-soft) 70%);
     padding: 1rem 1.15rem;
     display: grid;
     gap: .75rem;

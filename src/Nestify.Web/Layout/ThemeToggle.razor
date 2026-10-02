@@ -2,23 +2,23 @@
 
 <button class="nav__theme-toggle"
         type="button"
-        aria-label="Dark mode"
+        aria-label="@(_isDark ? "Switch to light mode" : "Switch to dark mode")"
         aria-pressed="@_isDark.ToString().ToLowerInvariant()"
         title="@(_isDark ? "Switch to light mode" : "Switch to dark mode")"
         @onclick="ToggleAsync">
-    <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true">
-        @if (_isDark)
-        {
-            <circle cx="12" cy="12" r="4" />
-            <path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42" />
-        }
-        else
-        {
-            <path d="M20.5 15.2A8.5 8.5 0 0 1 8.8 3.5 8.5 8.5 0 1 0 20.5 15.2Z" />
-        }
-    </svg>
-    <span>Dark mode</span>
-    <span class="nav__theme-switch" aria-hidden="true"></span>
+    <span class="nav__theme-switch" aria-hidden="true">
+        <svg class="nav__theme-icon nav__theme-icon--sun" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="3.5" />
+            <path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42" />
+            <circle class="nav__theme-sun-face" cx="12" cy="12" r="1" />
+        </svg>
+        <span class="nav__theme-knob"></span>
+        <svg class="nav__theme-icon nav__theme-icon--moon" viewBox="0 0 24 24">
+            <path d="M20.4 15.3A8.6 8.6 0 0 1 8.7 3.6 8.7 8.7 0 1 0 20.4 15.3Z" />
+            <circle cx="17.3" cy="5.7" r=".8" />
+            <circle cx="20" cy="9" r=".55" />
+        </svg>
+    </span>
 </button>
 
 @code {
