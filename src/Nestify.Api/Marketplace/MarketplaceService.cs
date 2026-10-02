@@ -186,7 +186,7 @@ public sealed class MarketplaceService
         using var connection = await _db.OpenAsync();
         var rows = await connection.QueryAsync<PlanRow>("""
             SELECT id AS Id, name AS Name, posts AS Posts, price_bdt AS PriceBdt, valid_days AS ValidDays
-            FROM post_plans WHERE scope = @scope AND is_active = true ORDER BY price_bdt, posts
+            FROM post_plans WHERE scope = @scope AND is_active = true AND is_deleted = false ORDER BY price_bdt, posts
             """, new { scope = 2 });
         return rows.Select(p => new MarketplacePostingPlanDto { Id = p.Id.ToString(), Name = p.Name, Posts = p.Posts, PriceBdt = p.PriceBdt, ValidDays = p.ValidDays }).ToList();
     }
@@ -207,7 +207,7 @@ public sealed class MarketplaceService
         using var connection = await _db.OpenAsync();
         var plan = await connection.QuerySingleOrDefaultAsync<PlanRow>("""
             SELECT id AS Id, name AS Name, posts AS Posts, price_bdt AS PriceBdt, valid_days AS ValidDays
-            FROM post_plans WHERE id = @planId AND scope = @scope AND is_active = true
+            FROM post_plans WHERE id = @planId AND scope = @scope AND is_active = true AND is_deleted = false
             """, new { planId, scope = 2 });
         if (plan is null) return (null, "That posting package is no longer available.");
 
@@ -220,9 +220,8 @@ public sealed class MarketplaceService
         var activeExpiries = (await connection.QueryAsync<DateTime>("""
             SELECT pp.expires_at_utc
             FROM plan_purchases pp
-            JOIN post_plans p ON p.id = pp.plan_id
             WHERE pp.user_id = @userId AND pp.posts_left > 0
-              AND pp.expires_at_utc > now() AND p.scope = @scope
+              AND pp.expires_at_utc > now() AND pp.scope = @scope
             FOR UPDATE
             """, new { userId, scope = 2 }, transaction)).ToList();
         var currentExpiry = activeExpiries.Count == 0 ? (DateTime?)null : activeExpiries.Max();
@@ -232,14 +231,13 @@ public sealed class MarketplaceService
 
         await connection.ExecuteAsync("""
             UPDATE plan_purchases SET expires_at_utc = @expiresAt
-            WHERE user_id = @userId AND posts_left > 0 AND expires_at_utc > now()
-              AND plan_id IN (SELECT id FROM post_plans WHERE scope = @scope)
+            WHERE user_id = @userId AND posts_left > 0 AND expires_at_utc > now() AND scope = @scope
             """, new { userId, expiresAt, scope = 2 }, transaction);
 
         await connection.ExecuteAsync("""
-            INSERT INTO plan_purchases (plan_id, user_id, posts_left, expires_at_utc)
-            VALUES (@planId, @userId, @posts, @expiresAt)
-            """, new { planId, userId, posts = plan.Posts, expiresAt }, transaction);
+            INSERT INTO plan_purchases (plan_id, user_id, scope, posts_left, expires_at_utc)
+            VALUES (@planId, @userId, @scope, @posts, @expiresAt)
+            """, new { planId, userId, scope = 2, posts = plan.Posts, expiresAt }, transaction);
         var balance = await ReadPostingBalanceAsync(connection, transaction, userId);
         transaction.Commit();
 
@@ -283,7 +281,7 @@ public sealed class MarketplaceService
         var purchaseId = await connection.QuerySingleOrDefaultAsync<long?>("""
             SELECT id FROM plan_purchases
             WHERE user_id = @userId AND posts_left > 0 AND expires_at_utc > now()
-              AND plan_id IN (SELECT id FROM post_plans WHERE scope = @scope)
+              AND scope = @scope
             ORDER BY expires_at_utc, purchased_at_utc
             LIMIT 1 FOR UPDATE
             """, new { userId, scope = 2 }, transaction);
@@ -889,8 +887,7 @@ public sealed class MarketplaceService
         var row = await connection.QuerySingleAsync<PostingBalanceRow>("""
             SELECT coalesce(sum(posts_left), 0)::int AS PostsLeft, min(expires_at_utc) AS NextExpiryUtc
             FROM plan_purchases pp
-            JOIN post_plans p ON p.id = pp.plan_id
-            WHERE pp.user_id = @userId AND pp.posts_left > 0 AND pp.expires_at_utc > now() AND p.scope = @scope
+            WHERE pp.user_id = @userId AND pp.posts_left > 0 AND pp.expires_at_utc > now() AND pp.scope = @scope
             """, new { userId, scope = 2 }, transaction);
         return new MarketplacePostingBalanceDto { PostsLeft = row.PostsLeft, NextExpiryUtc = row.NextExpiryUtc };
     }

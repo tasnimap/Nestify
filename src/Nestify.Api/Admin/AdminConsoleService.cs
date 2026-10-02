@@ -428,6 +428,7 @@ public sealed class AdminConsoleService
             @"SELECT p.id, p.name, p.scope, p.posts, p.price_bdt AS price, p.valid_days, p.is_active,
                      (SELECT count(*)::int FROM plan_purchases pp WHERE pp.plan_id = p.id) AS subscribers
                 FROM post_plans p
+               WHERE p.is_deleted = false
                ORDER BY p.scope, p.price_bdt, p.id");
         return rows.Select(r => new AdminPlanDto
         {
@@ -476,7 +477,7 @@ public sealed class AdminConsoleService
         var changed = await connection.ExecuteAsync(
             @"UPDATE post_plans
                  SET name = @name, scope = @scope, posts = @posts, price_bdt = @price, valid_days = @days, updated_at_utc = now()
-               WHERE id = @planId",
+               WHERE id = @planId AND is_deleted = false",
             new { planId, name = dto.Name.Trim(), scope = (short)dto.Scope, posts = dto.Posts, price = dto.Price, days = dto.ValidDays },
             transaction);
         if (changed == 0)
@@ -495,7 +496,7 @@ public sealed class AdminConsoleService
         using var connection = await _db.OpenAsync();
         using var transaction = connection.BeginTransaction();
         var row = await connection.QuerySingleOrDefaultAsync<(string Name, bool IsActive)>(
-            "UPDATE post_plans SET is_active = NOT is_active, updated_at_utc = now() WHERE id = @planId RETURNING name, is_active",
+            "UPDATE post_plans SET is_active = NOT is_active, updated_at_utc = now() WHERE id = @planId AND is_deleted = false RETURNING name, is_active",
             new { planId }, transaction);
         if (row == default)
         {
@@ -508,12 +509,13 @@ public sealed class AdminConsoleService
         return true;
     }
 
-    // A plan somebody already bought cannot go (plan_purchases points at it); disable it instead.
+    // Purchased plans are soft-deleted: they vanish from every catalog while the
+    // immutable purchase snapshot keeps the buyer's remaining credits valid.
     public async Task<(bool Ok, string Message)> DeletePlanAsync(long adminId, long planId)
     {
         using var connection = await _db.OpenAsync();
         var plan = await connection.QuerySingleOrDefaultAsync<(string Name, short Scope)>(
-            "SELECT name, scope FROM post_plans WHERE id = @planId", new { planId });
+            "SELECT name, scope FROM post_plans WHERE id = @planId AND is_deleted = false", new { planId });
         if (plan == default)
         {
             return (false, "That plan no longer exists.");
@@ -523,7 +525,14 @@ public sealed class AdminConsoleService
             "SELECT EXISTS (SELECT 1 FROM plan_purchases WHERE plan_id = @planId)", new { planId });
         if (bought)
         {
-            return (false, "People have bought this plan, so it cannot be deleted. Disable it instead.");
+            using var softDeleteTransaction = connection.BeginTransaction();
+            await connection.ExecuteAsync(
+                "UPDATE post_plans SET is_deleted = true, is_active = false, updated_at_utc = now() WHERE id = @planId",
+                new { planId }, softDeleteTransaction);
+            await LogAsync(connection, softDeleteTransaction, adminId, "Deleted plan",
+                $"{ScopeLabel((ModerationScope)plan.Scope)} · {plan.Name}", "Removed from sale; existing buyer credits remain valid.", "danger");
+            softDeleteTransaction.Commit();
+            return (true, "Plan deleted. Existing buyer credits remain valid until expiry.");
         }
 
         using var transaction = connection.BeginTransaction();

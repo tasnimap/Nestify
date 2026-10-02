@@ -1016,8 +1016,9 @@ CREATE TABLE post_plans (
     scope          smallint      NOT NULL,   -- 1 Housing, 2 Marketplace
     posts          int           NOT NULL,
     price_bdt      numeric(10,2) NOT NULL,
-    valid_days     int           NOT NULL,
-    is_active      boolean       NOT NULL DEFAULT true,
+      valid_days     int           NOT NULL,
+      is_active      boolean       NOT NULL DEFAULT true,
+      is_deleted     boolean       NOT NULL DEFAULT false,
     created_at_utc timestamptz   NOT NULL DEFAULT now(),
     updated_at_utc timestamptz   NOT NULL DEFAULT now(),
 
@@ -1039,9 +1040,10 @@ INSERT INTO post_plans (name, scope, posts, price_bdt, valid_days) VALUES
 -- One row per plan bought. posts_left goes down as the buyer posts.
 CREATE TABLE plan_purchases (
     id               bigint      GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    plan_id          bigint      NOT NULL REFERENCES post_plans (id) ON DELETE RESTRICT,
-    user_id          bigint      NOT NULL REFERENCES users (id) ON DELETE CASCADE,
-    posts_left       int         NOT NULL,
+      plan_id          bigint      NOT NULL REFERENCES post_plans (id) ON DELETE RESTRICT,
+      user_id          bigint      NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+      scope            smallint    NOT NULL,  -- snapshot: keeps purchased credits independent of plan edits/deletion
+      posts_left       int         NOT NULL,
     purchased_at_utc timestamptz NOT NULL DEFAULT now(),
     expires_at_utc   timestamptz NOT NULL,
 
