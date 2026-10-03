@@ -639,7 +639,7 @@
                 else
                 {
                     <ul class="stl__ledger">
-                        @foreach (var (payment, index) in _ws.Payments.Select((p, i) => (p, i)))
+                        @foreach (var (payment, index) in _ws.Payments.Skip((_paymentPage - 1) * PaymentsPageSize).Take(PaymentsPageSize).Select((p, i) => (p, i)))
                         {
                             <li class="stl__ledger-row" style="--delay: @(index * 40)ms" @key="payment.Id">
                                 <span class="stl__ledger-kind stl__ledger-kind--@(payment.FundType == FundMeal ? "meal" : "shared")">
@@ -657,6 +657,14 @@
                             </li>
                         }
                     </ul>
+                    @if (TotalPaymentPages > 0)
+                    {
+                        <nav style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;" aria-label="@L["Pagination"]">
+                            <button type="button" class="nx-btn nx-btn--ghost" disabled="@(_paymentPage <= 1)" @onclick="() => _paymentPage--">@L["Previous"]</button>
+                            <span style="font-size: 0.875rem; color: var(--color-text-dim);">@L["Page {0} of {1}", _paymentPage, TotalPaymentPages]</span>
+                            <button type="button" class="nx-btn nx-btn--ghost" disabled="@(_paymentPage >= TotalPaymentPages)" @onclick="() => _paymentPage++">@L["Next"]</button>
+                        </nav>
+                    }
                 }
             </section>
 
@@ -968,6 +976,10 @@
     private readonly BillFormModel _billModel = new();
     private readonly PaymentFormModel _paymentModel = new();
 
+    private int _paymentPage = 1;
+    private const int PaymentsPageSize = 15;
+    private int TotalPaymentPages => _ws is null ? 0 : (int)Math.Ceiling((double)_ws.Payments.Count / PaymentsPageSize);
+
     // ---- derived state ----
 
     private bool HasBook => _ws is { BookStatus: > 0 };
@@ -1209,6 +1221,7 @@
 
     private void ResetForms()
     {
+        _paymentPage = 1;
         _billModel.Name = string.Empty;
         _billModel.Amount = null;
 
