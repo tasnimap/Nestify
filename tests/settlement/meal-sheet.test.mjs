@@ -58,5 +58,6 @@ test("meal sheet restores the personal and everyone views", () => {
     assert.match(razor, /member\.UserId == _ws\.CurrentUserId/);
     assert.match(settlementService, /CurrentUserId = userId/);
     assert.match(styles, /\.stl__view-toggle/);
-    assert.match(styles, /\.stl__slot-step:disabled[\s\S]*?opacity: \.8/);
+    assert.match(styles, /\.stl__slot-step:disabled[\s\S]*?opacity: 1/);
+    assert.match(styles, /\.stl__chevron[\s\S]*?border-top: 4px/);
 });
