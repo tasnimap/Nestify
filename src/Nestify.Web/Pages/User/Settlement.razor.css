@@ -803,22 +803,12 @@
     scrollbar-width: thin;
 }
 
-/* one member on screen: let the box hug the single column instead of stretching it */
-.stl__sheet-scroll--narrow {
-    max-width: min(100%, max-content);
-    margin-inline: auto;
-}
-
 .stl__sheet {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
     font-size: .9rem;
 }
-
-.stl__sheet-scroll--narrow .stl__sheet { width: auto; }
-
-.stl__sheet-scroll--narrow .stl__sheet-date { min-width: 7rem; }
 
 .stl__sheet th,
 .stl__sheet td {
@@ -888,35 +878,6 @@
     font-weight: 600;
 }
 
-.stl__view-toggle {
-    display: inline-flex;
-    padding: .2rem;
-    border: 1px solid var(--nx-border);
-    border-radius: 999px;
-    background: var(--nx-bg-alt);
-}
-
-.stl__view-btn {
-    padding: .35rem .85rem;
-    border: 0;
-    border-radius: 999px;
-    background: none;
-    color: var(--nx-muted);
-    font: inherit;
-    font-size: .8rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background .28s ease, color .28s ease, box-shadow .28s ease;
-}
-
-.stl__view-btn:hover { color: var(--nx-primary-strong); }
-
-.stl__view-btn.is-active {
-    background: var(--nx-card);
-    color: var(--nx-primary-strong);
-    box-shadow: var(--nx-shadow-sm);
-}
-
 /* breakfast + lunch + dinner, three horizontal steppers per member per day */
 
 .stl__sheet-member { display: block; }
@@ -952,32 +913,31 @@
 .stl__slot-stepper {
     display: inline-flex;
     align-items: center;
-    padding: .1rem;
-    border: 1px solid var(--nx-border);
-    border-radius: 8px;
-    background: var(--nx-bg-alt);
+    gap: .35rem;
 }
 
 .stl__slot-step {
     display: inline-grid;
-    width: 1.05rem;
-    height: 1.35rem;
+    width: 2.05rem;
+    height: 2.05rem;
     place-items: center;
     padding: 0;
-    border: 0;
-    background: transparent;
-    color: var(--nx-primary-strong);
+    border: 2px solid #d8eefb;
+    border-radius: 10px;
+    background: var(--nx-card);
+    color: #347fcf;
     cursor: pointer;
-    font-size: .48rem;
     line-height: 1;
-    transition: background .2s ease, color .2s ease;
+    transition: background .2s ease, border-color .2s ease, color .2s ease, transform .2s ease;
 }
 
 .stl__slot-step:hover:not(:disabled),
 .stl__slot-step:focus-visible {
-    background: var(--nx-primary-soft);
-    color: var(--nx-primary);
+    border-color: #a8d8f5;
+    background: #f7fcff;
+    color: #2472c1;
     outline: none;
+    transform: translateY(-1px);
 }
 
 .stl__slot-step:disabled {
@@ -986,12 +946,32 @@
     opacity: .45;
 }
 
+.stl__slot-step--up {
+    border-color: #d8eefb;
+    background: #dff2ff;
+}
+
+.stl__slot-step--down {
+    border-color: #d8eefb;
+    background: var(--nx-card);
+}
+
+.stl__chevron {
+    display: block;
+    width: .6rem;
+    height: .6rem;
+    border-top: 3px solid currentColor;
+    border-right: 3px solid currentColor;
+}
+
+.stl__chevron--left { transform: rotate(-135deg); }
+.stl__chevron--right { transform: rotate(45deg); }
+
 .stl__slot-value {
     display: grid;
     min-width: 1.5rem;
-    height: 1.35rem;
+    height: 2.05rem;
     place-items: center;
-    border-inline: 1px solid var(--nx-border);
     color: var(--nx-ink);
     font-size: .78rem;
     font-weight: 800;
