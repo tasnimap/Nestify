@@ -638,6 +638,7 @@
                 }
                 else
                 {
+                    @* Feature: Implemented pagination to display 15 entries per page from the Payments list *@
                     <ul class="stl__ledger">
                         @foreach (var (payment, index) in _ws.Payments.Skip((_paymentPage - 1) * PaymentsPageSize).Take(PaymentsPageSize).Select((p, i) => (p, i)))
                         {
