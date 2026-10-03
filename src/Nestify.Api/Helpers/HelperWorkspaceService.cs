@@ -346,6 +346,15 @@ public sealed class HelperWorkspaceService
             return "Fill in your services, rate and address on your profile before accepting bookings.";
         }
 
+        var wasAvailable = await connection.ExecuteScalarAsync<bool>(
+            "SELECT is_active FROM domestic_helper_profiles WHERE id = @helperId", new { helperId });
+        var previousSlots = (await connection.QueryAsync<(short DayOfWeek, short Hour)>(
+            "SELECT day_of_week AS DayOfWeek, hour AS Hour FROM helper_weekly_availability WHERE helper_profile_id = @helperId",
+            new { helperId })).ToHashSet();
+        var open = dto.Slots.Where(s => s.IsOpen || s.IsBooked)
+            .Select(s => ((short)s.DayOfWeek, (short)s.Hour)).ToHashSet();
+        var availabilityChanged = wasAvailable != dto.IsAvailable || !previousSlots.SetEquals(open);
+
         using var transaction = connection.BeginTransaction();
 
         await connection.ExecuteAsync("UPDATE domestic_helper_profiles SET is_active = @active, updated_at_utc = now() WHERE id = @helperId",
@@ -355,7 +364,6 @@ public sealed class HelperWorkspaceService
 
         // Booked hours stay open no matter what the board says, otherwise an
         // active engagement would sit on an hour she claims to be off.
-        var open = dto.Slots.Where(s => s.IsOpen || s.IsBooked).Select(s => (s.DayOfWeek, s.Hour)).ToHashSet();
         foreach (var (day, hour) in open)
         {
             await connection.ExecuteAsync(
@@ -364,6 +372,20 @@ public sealed class HelperWorkspaceService
         }
 
         transaction.Commit();
+        if (availabilityChanged)
+        {
+            var availabilityEventId = await _notifications.NextEventSourceIdAsync(connection);
+            var householdUsers = await connection.QueryAsync<long>("""
+                SELECT DISTINCT hm.user_id
+                FROM helper_home_placements p
+                JOIN home_members hm ON hm.home_id = p.home_id AND hm.left_at_utc IS NULL
+                WHERE p.helper_profile_id = @helperId AND p.left_on IS NULL
+                """, new { helperId });
+            foreach (var householdUser in householdUsers)
+                await _notifications.CreateAsync(householdUser, NotificationType.GeneralUpdate,
+                    "Helper availability updated", "Your current helper updated her weekly availability.",
+                    NotificationSourceType.HelperAvailability, availabilityEventId, "/home");
+        }
         return null;
     }
 

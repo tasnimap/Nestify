@@ -5,6 +5,8 @@ using Dapper;
 using Nestify.Api.Data;
 using Nestify.Api.Profiles;
 using Nestify.Shared.Dtos.Marketplace;
+using Nestify.Api.Notifications;
+using Nestify.Shared.Dtos.Notifications;
 
 namespace Nestify.Api.Marketplace;
 
@@ -33,11 +35,13 @@ public sealed class MarketplaceService
 
     private readonly DbConnectionFactory _db;
     private readonly CloudinaryUploader _uploader;
+    private readonly NotificationService _notifications;
 
-    public MarketplaceService(DbConnectionFactory db, CloudinaryUploader uploader)
+    public MarketplaceService(DbConnectionFactory db, CloudinaryUploader uploader, NotificationService notifications)
     {
         _db = db;
         _uploader = uploader;
+        _notifications = notifications;
     }
 
     public async Task EnsureSchemaCompatibilityAsync()
@@ -258,6 +262,7 @@ public sealed class MarketplaceService
         if (plan is null) return (null, "That posting package is no longer available.");
 
         using var transaction = connection.BeginTransaction();
+
         // Marketplace credits renew like a mobile recharge: a new package
         // extends every still-usable credit to one shared expiry date. We use
         // the later date so a shorter pack can never take days away from a
@@ -559,6 +564,9 @@ public sealed class MarketplaceService
         }
 
         using var transaction = connection.BeginTransaction();
+        var openInterests = await connection.QueryAsync<(long InterestId, long BuyerUserId)>(
+            "SELECT id AS InterestId, buyer_user_id AS BuyerUserId FROM marketplace_buy_interests WHERE listing_id = @id AND status IN (@pending, @accepted)",
+            new { id, pending = InterestPending, accepted = InterestAccepted }, transaction);
 
         await connection.ExecuteAsync(
             @"UPDATE marketplace_listings
@@ -583,6 +591,14 @@ public sealed class MarketplaceService
             transaction);
 
         transaction.Commit();
+        foreach (var interest in openInterests)
+        {
+            var isBuyer = buyerInterestId == interest.InterestId;
+            await _notifications.CreateAsync(interest.BuyerUserId, NotificationType.GeneralUpdate,
+                isBuyer ? "Listing marked sold" : "Listing no longer available",
+                isBuyer ? "The seller marked this listing as sold to you." : "The listing you contacted the seller about was marked sold.",
+                NotificationSourceType.MarketplaceListing, id, $"/marketplace/items/{id}");
+        }
         return (true, "Marked as sold.");
     }
 
@@ -646,8 +662,8 @@ public sealed class MarketplaceService
 
         using var connection = await _db.OpenAsync();
 
-        var listing = await connection.QuerySingleOrDefaultAsync<(long SellerUserId, short Status)>(
-            "SELECT seller_user_id, status FROM marketplace_listings WHERE id = @listingId", new { listingId });
+        var listing = await connection.QuerySingleOrDefaultAsync<(long SellerUserId, short Status, string Title)>(
+            "SELECT seller_user_id AS SellerUserId, status AS Status, title AS Title FROM marketplace_listings WHERE id = @listingId", new { listingId });
         if (listing == default || listing.Status != ListingActive)
         {
             return (false, "That listing is no longer available.");
@@ -668,9 +684,12 @@ public sealed class MarketplaceService
             return (false, "You already have a request open on this listing.");
         }
 
-        await connection.ExecuteAsync(
-            "INSERT INTO marketplace_buy_interests (listing_id, buyer_user_id, message) VALUES (@listingId, @userId, @message)",
+        var interestId = await connection.ExecuteScalarAsync<long>(
+            "INSERT INTO marketplace_buy_interests (listing_id, buyer_user_id, message) VALUES (@listingId, @userId, @message) RETURNING id",
             new { listingId, userId, message });
+        await _notifications.CreateAsync(listing.SellerUserId, NotificationType.GeneralUpdate,
+            "New marketplace offer", $"A buyer sent an offer on {listing.Title}.",
+            NotificationSourceType.MarketplaceInterest, interestId, $"/marketplace/items/{listingId}/interests");
         return (true, "Request sent.");
     }
 
@@ -715,6 +734,14 @@ public sealed class MarketplaceService
     public async Task<bool> RespondAsync(long userId, long interestId, bool accept)
     {
         using var connection = await _db.OpenAsync();
+        var interest = await connection.QuerySingleOrDefaultAsync<(long BuyerUserId, long ListingId, string Title)>(
+            """
+            SELECT i.buyer_user_id AS BuyerUserId, i.listing_id AS ListingId, l.title AS Title
+                 FROM marketplace_buy_interests i JOIN marketplace_listings l ON l.id = i.listing_id
+                WHERE i.id = @interestId AND l.seller_user_id = @userId AND i.status = @pending
+            """,
+            new { interestId, userId, pending = InterestPending });
+        if (interest == default) return false;
         var changed = await connection.ExecuteAsync(
             @"UPDATE marketplace_buy_interests i
                  SET status = @next, responded_at_utc = now()
@@ -722,6 +749,13 @@ public sealed class MarketplaceService
                WHERE i.id = @interestId AND l.id = i.listing_id
                  AND l.seller_user_id = @userId AND i.status = @pending",
             new { interestId, userId, pending = InterestPending, next = accept ? InterestAccepted : InterestDeclined });
+        if (changed == 1)
+        {
+            await _notifications.CreateAsync(interest.BuyerUserId, NotificationType.GeneralUpdate,
+                accept ? "Marketplace offer accepted" : "Marketplace offer declined",
+                accept ? $"Your offer on {interest.Title} was accepted." : $"Your offer on {interest.Title} was declined.",
+                NotificationSourceType.MarketplaceInterest, interestId, $"/marketplace/items/{interest.ListingId}");
+        }
         return changed == 1;
     }
 

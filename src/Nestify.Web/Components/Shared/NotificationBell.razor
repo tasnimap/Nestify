@@ -2,6 +2,8 @@
 @using Nestify.Web.Services.Interfaces
 @using Microsoft.AspNetCore.Components.Web
 @inject INotificationService NotificationService
+@inject NavigationManager Navigation
+@implements IDisposable
 
 <div class="notification-bell @(showDropdown ? "notification-bell--open" : null)"
      @onkeydown:document="HandleDocumentKeyDown"
@@ -30,11 +32,14 @@
     private bool showDropdown = false;
     private bool loading;
     private string? error;
+    private readonly CancellationTokenSource pollingStop = new();
     private int UnreadCount => feed.UnreadCount;
 
     protected override async Task OnInitializedAsync()
     {
+        Navigation.LocationChanged += OnLocationChanged;
         await RefreshNotificationsAsync();
+        _ = PollNotificationsAsync(pollingStop.Token);
     }
 
     private async Task RefreshNotificationsAsync()
@@ -52,8 +57,28 @@
         finally
         {
             loading = false;
+            StateHasChanged();
         }
     }
+
+    private async Task PollNotificationsAsync(CancellationToken cancellationToken)
+    {
+        using var timer = new PeriodicTimer(TimeSpan.FromSeconds(45));
+        try
+        {
+            while (await timer.WaitForNextTickAsync(cancellationToken))
+            {
+                await InvokeAsync(RefreshNotificationsAsync);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Normal when the layout is disposed.
+        }
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs args)
+        => _ = InvokeAsync(RefreshNotificationsAsync);
 
     private async Task MarkAsReadAsync(long id)
     {
@@ -107,5 +132,12 @@
         {
             CloseDropdown();
         }
+    }
+
+    public void Dispose()
+    {
+        Navigation.LocationChanged -= OnLocationChanged;
+        pollingStop.Cancel();
+        pollingStop.Dispose();
     }
 }

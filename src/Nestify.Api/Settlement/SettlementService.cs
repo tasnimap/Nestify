@@ -2,6 +2,8 @@ using System.Data;
 using Dapper;
 using Nestify.Api.Data;
 using Nestify.Api.Homes;
+using Nestify.Api.Notifications;
+using Nestify.Shared.Dtos.Notifications;
 using Nestify.Shared.Dtos.Settlement;
 
 namespace Nestify.Api.Settlement;
@@ -19,10 +21,12 @@ public sealed class SettlementService
     private static readonly string[] DefaultBills = ["Rent", "Electricity", "Water", "Gas", "Internet"];
 
     private readonly DbConnectionFactory _db;
+    private readonly NotificationService _notifications;
 
-    public SettlementService(DbConnectionFactory db)
+    public SettlementService(DbConnectionFactory db, NotificationService notifications)
     {
         _db = db;
+        _notifications = notifications;
     }
 
     public async Task EnsureSchemaCompatibilityAsync()
@@ -245,6 +249,9 @@ public sealed class SettlementService
             INSERT INTO settlement_members (settlement_run_id, user_id, added_by_user_id)
             VALUES (@runId, @memberId, @userId)
             """, new { runId = book.Id, memberId = request.UserId, userId });
+        await _notifications.CreateAsync(request.UserId, NotificationType.GeneralUpdate,
+            "Added to settlement", $"You were added to the {year:D4}-{month:D2} settlement.",
+            NotificationSourceType.SettlementMember, book.Id, "/settlement");
         return (true, "Member added to the book.");
     }
 
@@ -284,6 +291,10 @@ public sealed class SettlementService
             """,
             new { homeId = membership.HomeId, category = EqualSplit, description,
                 amount = request.Amount, userId, spentOn, year, month });
+
+        await NotifySettlementMembersAsync(connection, membership.HomeId, userId,
+            "New settlement bill", $"{description} was added for {year:D4}-{month:D2}.",
+            NotificationSourceType.SettlementBill, id, "/settlement");
 
         return (await connection.QuerySingleAsync<SettlementBillDto>(
             """
@@ -418,6 +429,10 @@ public sealed class SettlementService
             """,
             new { homeId = membership.HomeId, memberId = request.UserId, amount = request.Amount,
                 paidOn, year, month, fundType = request.FundType, note, recordedBy = userId });
+
+        await _notifications.CreateAsync(request.UserId, NotificationType.GeneralUpdate,
+            "Settlement payment recorded", $"A payment of ৳{request.Amount:N2} was recorded for {year:D4}-{month:D2}.",
+            NotificationSourceType.SettlementPayment, id, "/settlement");
 
         return (await connection.QuerySingleAsync<SettlementPaymentDto>(
             """
@@ -599,7 +614,29 @@ public sealed class SettlementService
         }
 
         transaction.Commit();
+        foreach (var line in result.Lines)
+        {
+            var amountText = Math.Abs(line.NetAmount).ToString("N2");
+            var message = line.NetAmount > 0m
+                ? $"The {year:D4}-{month:D2} settlement is finalized. Your net amount is ৳{amountText} owed."
+                : line.NetAmount < 0m
+                    ? $"The {year:D4}-{month:D2} settlement is finalized. Your net amount is ৳{amountText} receivable."
+                    : $"The {year:D4}-{month:D2} settlement is finalized. Your balance is settled.";
+            await _notifications.CreateAsync(line.UserId, NotificationType.GeneralUpdate,
+                "Settlement finalized", message, NotificationSourceType.SettlementFinalization,
+                book.Id, "/settlement");
+        }
         return (result, null);
+    }
+
+    private async Task NotifySettlementMembersAsync(IDbConnection connection, long homeId, long excludedUserId,
+        string title, string message, NotificationSourceType sourceType, long sourceId, string link)
+    {
+        var recipients = await connection.QueryAsync<long>(
+            "SELECT user_id FROM home_members WHERE home_id = @homeId AND left_at_utc IS NULL AND user_id <> @excludedUserId",
+            new { homeId, excludedUserId });
+        foreach (var recipient in recipients)
+            await _notifications.CreateAsync(recipient, NotificationType.GeneralUpdate, title, message, sourceType, sourceId, link);
     }
 
     private async Task<SettlementWorkspaceDto> LoadWorkspaceAsync(

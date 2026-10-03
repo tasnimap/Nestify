@@ -310,6 +310,8 @@
 .adm__burger svg { width: 1.25rem; height: 1.25rem; }
 
 .adm__bar-right { margin-left: auto; display: flex; align-items: center; gap: .75rem; }
+.adm__bar-right .notification-bell { flex: 0 0 auto; }
+.adm .notification-dropdown { color: #29243a; background: #fff; }
 
 .adm__clock {
     display: inline-flex;
