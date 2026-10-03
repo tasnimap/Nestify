@@ -7,6 +7,7 @@
 @inject AuthenticationStateProvider AuthProvider
 @inject Nestify.Web.Services.Interfaces.IAuthService AuthService
 @inject NavigationManager Navigation
+@inject ToastService Toast
 
 <PageTitle>My profile — Nestify Admin</PageTitle>
 
@@ -17,6 +18,11 @@
         <p>These details come from your row in the Nestify database, not from the browser session.</p>
     </div>
     <div class="adm-head__actions">
+        @if (_profile is not null)
+        {
+            <button class="adm-btn adm-btn--primary" type="button" @onclick="StartEdit">Edit profile</button>
+            <button class="adm-btn adm-btn--ghost" type="button" @onclick="StartPassword">Change password</button>
+        }
         <button class="adm-btn adm-btn--danger" type="button" @onclick="SignOut">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><path d="m16 17 5-5-5-5" /><path d="M21 12H9" /></svg>
             Log out
@@ -127,7 +133,184 @@ else
     </div>
 }
 
+@if (_edit is not null)
+{
+    <div class="adm-modal" role="dialog" aria-modal="true">
+        <div class="adm-modal__box">
+            <div class="adm-modal__head">
+                <div>
+                    <h2>Edit profile</h2>
+                    <p>Update the name and phone on your admin account. Email can't be changed.</p>
+                </div>
+                <button class="adm-icon-btn" type="button" aria-label="Close" @onclick="() => _edit = null">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
+                </button>
+            </div>
+            <div class="adm-form">
+                <div class="adm-field">
+                    <label for="prof-name">Full name</label>
+                    <input id="prof-name" class="adm-input" @bind="_edit.FullName" />
+                </div>
+                <div class="adm-field">
+                    <label for="prof-email">Email</label>
+                    <input id="prof-email" class="adm-input" type="email" value="@_edit.Email" readonly tabindex="-1" style="opacity:.65;cursor:not-allowed;" />
+                </div>
+                <div class="adm-field">
+                    <label for="prof-phone">Phone</label>
+                    <input id="prof-phone" class="adm-input" type="tel" inputmode="tel" @bind="_edit.PhoneNumber" />
+                </div>
+                @if (_editError is not null)
+                {
+                    <p class="adm-badge adm-badge--danger">@_editError</p>
+                }
+            </div>
+            <div class="adm-modal__foot">
+                <button class="adm-btn adm-btn--ghost" type="button" @onclick="() => _edit = null">Cancel</button>
+                <button class="adm-btn adm-btn--primary" type="button" disabled="@_busy" @onclick="SaveEdit">Save changes</button>
+            </div>
+        </div>
+    </div>
+}
+
+@if (_showPassword)
+{
+    <div class="adm-modal" role="dialog" aria-modal="true">
+        <div class="adm-modal__box">
+            <div class="adm-modal__head">
+                <div>
+                    <h2>Change password</h2>
+                    <p>Confirm your current password, then choose a new one.</p>
+                </div>
+                <button class="adm-icon-btn" type="button" aria-label="Close" @onclick="() => _showPassword = false">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
+                </button>
+            </div>
+            <div class="adm-form">
+                <div class="adm-field">
+                    <label for="pw-current">Current password</label>
+                    <div style="position:relative;">
+                        <input id="pw-current" class="adm-input" style="width:100%;padding-right:4.5rem;" type="@(_showCurrent ? "text" : "password")" autocomplete="current-password" @bind="_currentPassword" @bind:event="oninput" />
+                        <button type="button" class="adm-btn adm-btn--ghost adm-btn--sm" style="position:absolute;right:.35rem;top:50%;transform:translateY(-50%);" @onclick="() => _showCurrent = !_showCurrent">@(_showCurrent ? "Hide" : "Show")</button>
+                    </div>
+                </div>
+                <div class="adm-field">
+                    <label for="pw-new">New password</label>
+                    <div style="position:relative;">
+                        <input id="pw-new" class="adm-input" style="width:100%;padding-right:4.5rem;" type="@(_showNew ? "text" : "password")" autocomplete="new-password" @bind="_newPassword" @bind:event="oninput" />
+                        <button type="button" class="adm-btn adm-btn--ghost adm-btn--sm" style="position:absolute;right:.35rem;top:50%;transform:translateY(-50%);" @onclick="() => _showNew = !_showNew">@(_showNew ? "Hide" : "Show")</button>
+                    </div>
+                    <span class="adm-field__hint">At least 8 characters.</span>
+                </div>
+                <div class="adm-field">
+                    <label for="pw-confirm">Confirm new password</label>
+                    <div style="position:relative;">
+                        <input id="pw-confirm" class="adm-input" style="width:100%;padding-right:4.5rem;" type="@(_showConfirm ? "text" : "password")" autocomplete="new-password" @bind="_confirmPassword" @bind:event="oninput" />
+                        <button type="button" class="adm-btn adm-btn--ghost adm-btn--sm" style="position:absolute;right:.35rem;top:50%;transform:translateY(-50%);" @onclick="() => _showConfirm = !_showConfirm">@(_showConfirm ? "Hide" : "Show")</button>
+                    </div>
+                </div>
+                @if (_passwordError is not null)
+                {
+                    <p class="adm-badge adm-badge--danger">@_passwordError</p>
+                }
+            </div>
+            <div class="adm-modal__foot">
+                <button class="adm-btn adm-btn--ghost" type="button" @onclick="() => _showPassword = false">Cancel</button>
+                <button class="adm-btn adm-btn--primary" type="button" disabled="@_busy" @onclick="SavePassword">Update password</button>
+            </div>
+        </div>
+    </div>
+}
+
 @code {
+    private bool _showCurrent;
+    private bool _showNew;
+    private bool _showConfirm;
+    private UpdateAdminProfileDto? _edit;
+    private string? _editError;
+    private bool _showPassword;
+    private string _currentPassword = string.Empty;
+    private string _newPassword = string.Empty;
+    private string _confirmPassword = string.Empty;
+    private string? _passwordError;
+    private bool _busy;
+
+    private void StartEdit()
+    {
+        if (_profile is null) return;
+        _edit = new UpdateAdminProfileDto
+        {
+            FullName = _profile.FullName,
+            Email = _profile.Email,
+            PhoneNumber = _profile.PhoneNumber
+        };
+        _editError = null;
+    }
+
+    private async Task SaveEdit()
+    {
+        if (_edit is null) return;
+        if (_edit.FullName.Trim().Length < 2 || !_edit.Email.Contains('@') || string.IsNullOrWhiteSpace(_edit.PhoneNumber))
+        {
+            _editError = "Name, a valid email and a phone number are required.";
+            return;
+        }
+
+        _busy = true;
+        var (ok, message) = await Profiles.UpdateAsync(_edit);
+        _busy = false;
+        if (!ok)
+        {
+            _editError = message;
+            return;
+        }
+
+        _edit = null;
+        Toast.ShowSuccess("Profile updated.");
+        await Load();
+    }
+
+    private void StartPassword()
+    {
+        _currentPassword = _newPassword = _confirmPassword = string.Empty;
+        _passwordError = null;
+        _showPassword = true;
+    }
+
+    private async Task SavePassword()
+    {
+        if (string.IsNullOrWhiteSpace(_currentPassword))
+        {
+            _passwordError = "Enter your current password.";
+            return;
+        }
+        if (_newPassword.Length < 8)
+        {
+            _passwordError = "The new password needs at least 8 characters.";
+            return;
+        }
+        if (_newPassword != _confirmPassword)
+        {
+            _passwordError = "The new passwords do not match.";
+            return;
+        }
+
+        _busy = true;
+        try
+        {
+            await AuthService.ChangePasswordAsync(_currentPassword, _newPassword);
+            _showPassword = false;
+            Toast.ShowSuccess("Password changed.");
+        }
+        catch (Exception ex)
+        {
+            _passwordError = ex.Message;
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
     private AdminProfileDto? _profile;
     private ClaimsPrincipal? _user;
     private bool _loading = true;

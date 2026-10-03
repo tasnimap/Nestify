@@ -25,4 +25,35 @@ public sealed class AdminProfileClient
             return null;
         }
     }
+
+    public async Task<(bool Ok, string Message)> UpdateAsync(UpdateAdminProfileDto dto)
+    {
+        try
+        {
+            var response = await _http.PutAsJsonAsync("api/v1/admin/me", dto);
+            if (response.IsSuccessStatusCode)
+            {
+                return (true, string.Empty);
+            }
+
+            var message = "Could not update the profile.";
+            try
+            {
+                var body = await response.Content.ReadFromJsonAsync<System.Text.Json.JsonElement>();
+                if (body.TryGetProperty("message", out var text) && !string.IsNullOrWhiteSpace(text.GetString()))
+                {
+                    message = text.GetString()!;
+                }
+            }
+            catch
+            {
+                // Keep the fallback message.
+            }
+            return (false, message);
+        }
+        catch (HttpRequestException)
+        {
+            return (false, "The server could not be reached.");
+        }
+    }
 }

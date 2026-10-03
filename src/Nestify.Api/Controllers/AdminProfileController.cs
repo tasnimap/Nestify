@@ -50,6 +50,27 @@ public sealed class AdminProfileController : ControllerBase
         return profile is null ? NotFound() : Ok(profile);
     }
 
+    [HttpPut]
+    public async Task<IActionResult> UpdateMyProfile(UpdateAdminProfileDto dto)
+    {
+        var name = (dto.FullName ?? string.Empty).Trim();
+        var phone = (dto.PhoneNumber ?? string.Empty).Trim();
+
+        if (name.Length < 2 || phone.Length == 0)
+        {
+            return BadRequest(new { message = "Name and a phone number are required." });
+        }
+
+        var id = RequireUserId();
+        using var connection = await _db.OpenAsync();
+
+        // Email is the sign-in identity and is deliberately not editable here.
+        await connection.ExecuteAsync(
+            "UPDATE users SET full_name = @name, phone_number = @phone WHERE id = @id",
+            new { name, phone, id });
+        return NoContent();
+    }
+
     private long RequireUserId()
     {
         var sub = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value
