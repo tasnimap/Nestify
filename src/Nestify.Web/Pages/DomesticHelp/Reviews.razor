@@ -5,22 +5,23 @@
 @using Nestify.Web.Components
 @using Nestify.Web.Components.Helper
 @inject IHelperService Helpers
+@inject IStringLocalizer<SharedResource> L
 @inject Nestify.Web.Services.ToastService Toast
 
-<PageTitle>My reviews — Nestify</PageTitle>
+<PageTitle>@L["My reviews"] — Nestify</PageTitle>
 
 <div class="dh md">
     <div class="dh__inner">
         <header class="dh-head md-head dh-rise">
             <div>
-                <p class="dh-kicker">Helper workspace</p>
-                <h1>What your clients say</h1>
-                <p>Only bachelors who lived in a home while you worked there can leave a review, so every word here is from someone you worked for.</p>
+                <p class="dh-kicker">@L["HELPER WORKSPACE"]</p>
+                <h1>@L["What your clients say"]</h1>
+                <p>@L["Only clients who shared a home with you during an engagement can leave a review. Every review is from someone you worked with."]</p>
             </div>
             <div class="md-score">
                 <span class="md-score__num">@_data.RatingAverage.ToString("0.0")</span>
                 <RatingStars Value="_data.RatingAverage" ShowCount="false" />
-                <span class="md-score__count">@_data.RatingCount reviews</span>
+                <span class="md-score__count">@L["{0} reviews", _data.RatingCount]</span>
             </div>
         </header>
 
@@ -35,7 +36,7 @@
         {
             <div class="md-reviews">
                 <aside class="dh-panel md-breakdown dh-rise" style="--d:80ms">
-                    <div class="dh-panel__head"><h2>Rating breakdown</h2></div>
+                    <div class="dh-panel__head"><h2>@L["Rating breakdown"]</h2></div>
                     <ul class="md-bars">
                         @for (var star = 5; star >= 1; star--)
                         {
@@ -54,24 +55,24 @@
                     </ul>
 
                     <div class="md-tip">
-                        <strong>Tip</strong>
-                        <span>Replying to reviews shows new clients you listen. Short and warm works best.</span>
+                        <strong>@L["Tip"]</strong>
+                        <span>@L["A thoughtful, concise reply helps new clients see that you listen."]</span>
                     </div>
                 </aside>
 
                 <section class="md-reviews__list">
                     <div class="md-filters dh-rise" style="--d:120ms">
-                        <div class="md-filters__chips" role="group" aria-label="Filter reviews">
-                            <button type="button" class="dh-chip @(_filter is null ? "dh-chip--on" : null)" @onclick="() => SetFilter(null)">All (@_data.RatingCount)</button>
+                        <div class="md-filters__chips" role="group" aria-label='@L["Filter reviews"]'>
+                            <button type="button" class="dh-chip @(_filter is null ? "dh-chip--on" : null)" @onclick="() => SetFilter(null)">@L["All ({0})", _data.RatingCount]</button>
                             <button type="button" class="dh-chip @(_filter == 5 ? "dh-chip--on" : null)" @onclick="() => ToggleFilter(5)">5 ★</button>
                             <button type="button" class="dh-chip @(_filter == 4 ? "dh-chip--on" : null)" @onclick="() => ToggleFilter(4)">4 ★</button>
-                            <button type="button" class="dh-chip @(_filter == 3 ? "dh-chip--on" : null)" @onclick="() => ToggleFilter(3)">3 ★ and below</button>
-                            <button type="button" class="dh-chip @(_unreplied ? "dh-chip--on" : null)" @onclick="ToggleUnreplied">Needs reply</button>
+                            <button type="button" class="dh-chip @(_filter == 3 ? "dh-chip--on" : null)" @onclick="() => ToggleFilter(3)">@L["3 stars and below"]</button>
+                            <button type="button" class="dh-chip @(_unreplied ? "dh-chip--on" : null)" @onclick="ToggleUnreplied">@L["Needs reply"]</button>
                         </div>
-                        <select class="md-select" value="@_sort" @onchange="OnSortChanged" aria-label="Sort reviews">
-                            <option value="new">Newest first</option>
-                            <option value="high">Highest rated</option>
-                            <option value="low">Lowest rated</option>
+                        <select class="md-select" value="@_sort" @onchange="OnSortChanged" aria-label='@L["Sort reviews"]'>
+                            <option value="new">@L["Newest first"]</option>
+                            <option value="high">@L["Highest rated"]</option>
+                            <option value="low">@L["Lowest rated"]</option>
                         </select>
                     </div>
 
@@ -82,8 +83,8 @@
                                 <span class="dh-empty__art" aria-hidden="true">
                                     <svg class="nx-icon" viewBox="0 0 24 24"><path d="M12 3 14.5 9h6l-5 4 2 6-5.5-4-5.5 4 2-6-5-4h6Z" /></svg>
                                 </span>
-                                <h3>@(_data.RatingCount == 0 ? "No reviews yet" : "No reviews match")</h3>
-                                <p>@(_data.RatingCount == 0 ? "Reviews appear here once a client completes an engagement with you and writes one." : "Try a different filter.")</p>
+                                <h3>@L[_data.RatingCount == 0 ? "No reviews yet" : "No reviews match"]</h3>
+                                <p>@L[_data.RatingCount == 0 ? "Reviews will appear here after a client completes an engagement and writes one." : "Try a different filter."]</p>
                             </div>
                         </div>
                     }
@@ -114,19 +115,19 @@
                                     @if (r.Reply is not null && _replying != r.Id)
                                     {
                                         <div class="md-reply">
-                                            <span class="md-reply__label">Your reply</span>
+                                            <span class="md-reply__label">@L["Your reply"]</span>
                                             <p>@r.Reply</p>
-                                            <button type="button" class="md-link" @onclick="() => StartReply(r)">Edit</button>
+                                            <button type="button" class="md-link" @onclick="() => StartReply(r)">@L["Edit"]</button>
                                         </div>
                                     }
                                     else if (_replying == r.Id)
                                     {
                                         <div class="md-reply md-reply--edit">
-                                            <label class="nx-sr-only" for="reply-@r.Id">Reply to @r.ReviewerName</label>
-                                            <textarea id="reply-@r.Id" rows="3" maxlength="500" placeholder="Thank them, or explain what you changed." @bind="_replyText" @bind:event="oninput"></textarea>
+                                            <label class="nx-sr-only" for="reply-@r.Id">@L["Reply to {0}", r.ReviewerName]</label>
+                                            <textarea id="reply-@r.Id" rows="3" maxlength="500" placeholder='@L["Thank them, or explain what you changed."]' @bind="_replyText" @bind:event="oninput"></textarea>
                                             <div class="md-reply__actions">
-                                                <button type="button" class="nx-btn nx-btn--ghost" @onclick="CancelReply">Cancel</button>
-                                                <button type="button" class="nx-btn nx-btn--accent" disabled="@(string.IsNullOrWhiteSpace(_replyText) || _saving)" @onclick="() => SaveReply(r)">@(_saving ? "Posting…" : "Post reply")</button>
+                                                <button type="button" class="nx-btn nx-btn--ghost" @onclick="CancelReply">@L["Cancel"]</button>
+                                                <button type="button" class="nx-btn nx-btn--accent" disabled="@(string.IsNullOrWhiteSpace(_replyText) || _saving)" @onclick="() => SaveReply(r)">@L[_saving ? "Posting…" : "Post reply"]</button>
                                             </div>
                                         </div>
                                     }
@@ -134,7 +135,7 @@
                                     {
                                         <button type="button" class="md-link md-review__replybtn" @onclick="() => StartReply(r)">
                                             <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 17-5-5 5-5" /><path d="M20 18v-2a4 4 0 0 0-4-4H4" /></svg>
-                                            Reply
+                                            @L["Reply"]
                                         </button>
                                     }
                                 </li>
@@ -231,12 +232,12 @@
         {
             await Helpers.ReplyToReviewAsync(r.Id, _replyText);
             _data = await Helpers.GetMyReviewsAsync() ?? _data;
-            Toast.ShowSuccess($"Your reply to {r.ReviewerName} is live.", "Reply posted");
+            Toast.ShowSuccess(L["Your reply to {0} has been posted.", r.ReviewerName], L["Reply posted"]);
             CancelReply();
         }
-        catch (Exception ex)
+        catch
         {
-            Toast.ShowWarning(ex.Message, "Reply");
+            Toast.ShowWarning(L["Could not post your reply. Please try again."], L["Reply"]);
         }
         finally
         {
@@ -244,13 +245,13 @@
         }
     }
 
-    private static string Ago(DateTime utc)
+    private string Ago(DateTime utc)
     {
         var span = DateTime.UtcNow - utc;
-        if (span.TotalDays >= 60) return $"{(int)(span.TotalDays / 30)} months ago";
-        if (span.TotalDays >= 14) return $"{(int)(span.TotalDays / 7)} weeks ago";
-        if (span.TotalDays >= 1) return $"{(int)span.TotalDays}d ago";
-        return "today";
+        if (span.TotalDays >= 60) return L["{0} months ago", (int)(span.TotalDays / 30)];
+        if (span.TotalDays >= 14) return L["{0} weeks ago", (int)(span.TotalDays / 7)];
+        if (span.TotalDays >= 1) return L["{0} days ago", (int)span.TotalDays];
+        return L["today"];
     }
 
     private static string Initials(string name)
