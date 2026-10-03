@@ -407,4 +407,118 @@
   <data name="Could not update your availability. Please try again." xml:space="preserve"><value>Could not update your availability. Please try again.</value></data>
   <data name="there" xml:space="preserve"><value>there</value></data>
   <data name="them" xml:space="preserve"><value>them</value></data>
+  <data name="Enter the join code provided by a manager or co-manager of the home." xml:space="preserve"><value>Enter the join code provided by a manager or co-manager of the home.</value></data>
+  <data name="Transfer the manager role to someone else first." xml:space="preserve"><value>Transfer the manager role to someone else first.</value></data>
+  <data name="Asked {0}" xml:space="preserve"><value>Asked {0}</value></data>
+  <data name="Leave the home at any time" xml:space="preserve"><value>Leave the home at any time</value></data>
+  <data name="Maximum occupants cannot be lower than the {0} people already living here." xml:space="preserve"><value>Maximum occupants cannot be lower than the {0} people already living here.</value></data>
+  <data name="Free seats" xml:space="preserve"><value>Free seats</value></data>
+  <data name="Add members" xml:space="preserve"><value>Add members</value></data>
+  <data name="You" xml:space="preserve"><value>You</value></data>
+  <data name="The request from {0} was rejected." xml:space="preserve"><value>The request from {0} was rejected.</value></data>
+  <data name="You left the home." xml:space="preserve"><value>You left the home.</value></data>
+  <data name="Could not create the home." xml:space="preserve"><value>Could not create the home.</value></data>
+  <data name="Transfer" xml:space="preserve"><value>Transfer</value></data>
+  <data name="This home is full. Increase the maximum occupants first." xml:space="preserve"><value>This home is full. Increase the maximum occupants first.</value></data>
+  <data name="Location on map" xml:space="preserve"><value>Location on map</value></data>
+  <data name="Only a manager or co-manager can edit home details." xml:space="preserve"><value>Only a manager or co-manager can edit home details.</value></data>
+  <data name="Join requests ({0})" xml:space="preserve"><value>Join requests ({0})</value></data>
+  <data name="No Nestify account uses that email." xml:space="preserve"><value>No Nestify account uses that email.</value></data>
+  <data name="Remove regular members" xml:space="preserve"><value>Remove regular members</value></data>
+  <data name="Living here now" xml:space="preserve"><value>Living here now</value></data>
+  <data name="Coordinates" xml:space="preserve"><value>Coordinates</value></data>
+  <data name="{0} was added to the home." xml:space="preserve"><value>{0} was added to the home.</value></data>
+  <data name="Could not load your join request." xml:space="preserve"><value>Could not load your join request.</value></data>
+  <data name="Approve" xml:space="preserve"><value>Approve</value></data>
+  <data name="Make co-manager" xml:space="preserve"><value>Make co-manager</value></data>
+  <data name="Leave home" xml:space="preserve"><value>Leave home</value></data>
+  <data name="{0} is now a member." xml:space="preserve"><value>{0} is now a member.</value></data>
+  <data name="Click the map or drag the pin to set the coordinates." xml:space="preserve"><value>Click the map or drag the pin to set the coordinates.</value></data>
+  <data name="Could not reach the server." xml:space="preserve"><value>Could not reach the server.</value></data>
+  <data name="Remove from home" xml:space="preserve"><value>Remove from home</value></data>
+  <data name="Transfer the manager role before leaving" xml:space="preserve"><value>Transfer the manager role before leaving</value></data>
+  <data name="Maximum occupants" xml:space="preserve"><value>Maximum occupants</value></data>
+  <data name="No home uses that join code." xml:space="preserve"><value>No home uses that join code.</value></data>
+  <data name="Send join request" xml:space="preserve"><value>Send join request</value></data>
+  <data name="House name and address are required." xml:space="preserve"><value>House name and address are required.</value></data>
+  <data name="Promote a member to co-manager" xml:space="preserve"><value>Promote a member to co-manager</value></data>
+  <data name="Could not load your home." xml:space="preserve"><value>Could not load your home.</value></data>
+  <data name="Join request cancelled." xml:space="preserve"><value>Join request cancelled.</value></data>
+  <data name="You are not a member of a home." xml:space="preserve"><value>You are not a member of a home.</value></data>
+  <data name="Waiting for an answer" xml:space="preserve"><value>Waiting for an answer</value></data>
+  <data name="Edit home details" xml:space="preserve"><value>Edit home details</value></data>
+  <data name="Join a home" xml:space="preserve"><value>Join a home</value></data>
+  <data name="Name and email are required." xml:space="preserve"><value>Name and email are required.</value></data>
+  <data name="Have a join code? Enter it to ask the home manager to approve your request." xml:space="preserve"><value>Have a join code? Enter it to ask the home manager to approve your request.</value></data>
+  <data name="Your role" xml:space="preserve"><value>Your role</value></data>
+  <data name="You cannot remove this member." xml:space="preserve"><value>You cannot remove this member.</value></data>
+  <data name="Home name and address are required." xml:space="preserve"><value>Home name and address are required.</value></data>
+  <data name="What each role can do" xml:space="preserve"><value>What each role can do</value></data>
+  <data name="Create a home" xml:space="preserve"><value>Create a home</value></data>
+  <data name="You are not in a home." xml:space="preserve"><value>You are not in a home.</value></data>
+  <data name="You are already in a home." xml:space="preserve"><value>You are already in a home.</value></data>
+  <data name="{0} will become the manager of this home. You will remain a co-manager and may leave afterward." xml:space="preserve"><value>{0} will become the manager of this home. You will remain a co-manager and may leave afterward.</value></data>
+  <data name="Could not load your home" xml:space="preserve"><value>Could not load your home</value></data>
+  <data name="Home name" xml:space="preserve"><value>Home name</value></data>
+  <data name="You cannot promote this member." xml:space="preserve"><value>You cannot promote this member.</value></data>
+  <data name="Max occupants must be at least 1." xml:space="preserve"><value>Max occupants must be at least 1.</value></data>
+  <data name="Home details" xml:space="preserve"><value>Home details</value></data>
+  <data name="Transfer manager role" xml:space="preserve"><value>Transfer manager role</value></data>
+  <data name="View the home details and its members" xml:space="preserve"><value>View the home details and its members</value></data>
+  <data name="Cancel request" xml:space="preserve"><value>Cancel request</value></data>
+  <data name="You asked to join {0} on {1}. The manager or a co-manager must approve your request before you can join." xml:space="preserve"><value>You asked to join {0} on {1}. The manager or a co-manager must approve your request before you can join.</value></data>
+  <data name="You will lose access to this home&apos;s members, meals, and expenses. You can request to join again with its code." xml:space="preserve"><value>You will lose access to this home&apos;s members, meals, and expenses. You can request to join again with its code.</value></data>
+  <data name="Reject" xml:space="preserve"><value>Reject</value></data>
+  <data name="Your account is no longer available. Please sign out and register again." xml:space="preserve"><value>Your account is no longer available. Please sign out and register again.</value></data>
+  <data name="Only the manager can transfer the manager role." xml:space="preserve"><value>Only the manager can transfer the manager role.</value></data>
+  <data name="What can I do?" xml:space="preserve"><value>What can I do?</value></data>
+  <data name="Transfer the manager role to someone else" xml:space="preserve"><value>Transfer the manager role to someone else</value></data>
+  <data name="Maximum occupants must be at least 1." xml:space="preserve"><value>Maximum occupants must be at least 1.</value></data>
+  <data name="Enter the email address used to register the person." xml:space="preserve"><value>Enter the email address used to register the person.</value></data>
+  <data name="Home details updated." xml:space="preserve"><value>Home details updated.</value></data>
+  <data name="Only a manager or co-manager can add members." xml:space="preserve"><value>Only a manager or co-manager can add members.</value></data>
+  <data name="{0} is now a co-manager." xml:space="preserve"><value>{0} is now a co-manager.</value></data>
+  <data name="You have no request waiting." xml:space="preserve"><value>You have no request waiting.</value></data>
+  <data name="You already have a request waiting for an answer." xml:space="preserve"><value>You already have a request waiting for an answer.</value></data>
+  <data name="{0} joined the home." xml:space="preserve"><value>{0} joined the home.</value></data>
+  <data name="You cannot change this member&apos;s role." xml:space="preserve"><value>You cannot change this member&apos;s role.</value></data>
+  <data name="Got it" xml:space="preserve"><value>Got it</value></data>
+  <data name="Enter a join code." xml:space="preserve"><value>Enter a join code.</value></data>
+  <data name="Members ({0})" xml:space="preserve"><value>Members ({0})</value></data>
+  <data name="Set the name and location, then add your housemates. You will be the manager." xml:space="preserve"><value>Set the name and location, then add your housemates. You will be the manager.</value></data>
+  <data name="Member actions" xml:space="preserve"><value>Member actions</value></data>
+  <data name="House details updated." xml:space="preserve"><value>House details updated.</value></data>
+  <data name="You have no home yet" xml:space="preserve"><value>You have no home yet</value></data>
+  <data name="Remove members from the home" xml:space="preserve"><value>Remove members from the home</value></data>
+  <data name="A home is the shared house you run with your housemates — members, roles, and one place on the map." xml:space="preserve"><value>A home is the shared house you run with your housemates — members, roles, and one place on the map.</value></data>
+  <data name="Done." xml:space="preserve"><value>Done.</value></data>
+  <data name="You are {0} of this home." xml:space="preserve"><value>You are {0} of this home.</value></data>
+  <data name="Nobody is waiting to join right now." xml:space="preserve"><value>Nobody is waiting to join right now.</value></data>
+  <data name="Edit the home details" xml:space="preserve"><value>Edit the home details</value></data>
+  <data name="{0} is now the manager." xml:space="preserve"><value>{0} is now the manager.</value></data>
+  <data name="Request sent to {0}. A manager must approve it." xml:space="preserve"><value>Request sent to {0}. A manager must approve it.</value></data>
+  <data name="{0} was removed from the home." xml:space="preserve"><value>{0} was removed from the home.</value></data>
+  <data name="Promote a member to co-manager, or change a co-manager back to member" xml:space="preserve"><value>Promote a member to co-manager, or change a co-manager back to member</value></data>
+  <data name="Make member" xml:space="preserve"><value>Make member</value></data>
+  <data name="Home created. You are the manager." xml:space="preserve"><value>Home created. You are the manager.</value></data>
+  <data name="Leave this home" xml:space="preserve"><value>Leave this home</value></data>
+  <data name="Transfer manager" xml:space="preserve"><value>Transfer manager</value></data>
+  <data name="You cannot do that to yourself." xml:space="preserve"><value>You cannot do that to yourself.</value></data>
+  <data name="That request is no longer waiting." xml:space="preserve"><value>That request is no longer waiting.</value></data>
+  <data name="Member not found." xml:space="preserve"><value>Member not found.</value></data>
+  <data name="Only the manager or a co-manager can answer join requests." xml:space="preserve"><value>Only the manager or a co-manager can answer join requests.</value></data>
+  <data name="Maximum occupants cannot be lower than the {0} occupied or reserved seats." xml:space="preserve"><value>Maximum occupants cannot be lower than the {0} occupied or reserved seats.</value></data>
+  <data name="Manager" xml:space="preserve"><value>Manager</value></data>
+  <data name="Member" xml:space="preserve"><value>Member</value></data>
+  <data name="Your session has ended. Please sign in again." xml:space="preserve"><value>Your session has ended. Please sign in again.</value></data>
+  <data name="Loading your home..." xml:space="preserve"><value>Loading your home...</value></data>
+  <data name="Create home" xml:space="preserve"><value>Create home</value></data>
+  <data name="Co-manager" xml:space="preserve"><value>Co-manager</value></data>
+  <data name="Name" xml:space="preserve"><value>Name</value></data>
+  <data name="Add member" xml:space="preserve"><value>Add member</value></data>
+  <data name="Set the maximum number of people who may live here. Available seats are calculated from the current members." xml:space="preserve"><value>Set the maximum number of people who may live here. Available seats are calculated from the current members.</value></data>
+  <data name="Edit details" xml:space="preserve"><value>Edit details</value></data>
+  <data name="Join code" xml:space="preserve"><value>Join code</value></data>
+  <data name="Save changes" xml:space="preserve"><value>Save changes</value></data>
+  <data name="Location" xml:space="preserve"><value>Location</value></data>
 </root>
