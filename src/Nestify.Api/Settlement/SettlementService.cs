@@ -392,9 +392,9 @@ public sealed class SettlementService
     {
         ValidatePeriod(year, month);
         var note = (request.Note ?? string.Empty).Trim();
-        if (request.UserId <= 0 || request.Amount == 0m || request.FundType is < MealFund or > SharedBills || note.Length is < 1 or > 200)
+        if (request.Amount == 0m || request.FundType is < MealFund or > SharedBills || note.Length is < 1 or > 200)
         {
-            return (null, "A member, non-zero amount, payment type, and note are required.");
+            return (null, "A non-zero amount, payment type, and note are required.");
         }
 
         using var connection = await _db.OpenAsync();
@@ -414,6 +414,11 @@ public sealed class SettlementService
         if (!canRecordForOthers)
         {
             request.UserId = userId;
+        }
+
+        if (request.UserId <= 0)
+        {
+            return (null, "A member is required.");
         }
 
         if (!await IsBookMemberAsync(connection, null, book.Id, request.UserId))

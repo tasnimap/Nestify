@@ -45,6 +45,7 @@ test("members can submit their own payments while managers can choose the payer"
     assert.match(razor, /value="@CurrentMemberName" readonly/);
     assert.match(settlementService, /var canRecordForOthers = membership\.Role is HomeService\.RoleManager or HomeService\.RoleCoManager;/);
     assert.match(settlementService, /request\.UserId = userId;/);
+    assert.match(settlementService, /var note = .*[\s\S]*?using var connection = await _db\.OpenAsync\(\);[\s\S]*?request\.UserId = userId;/);
     assert.match(razor, /@onclick="FinalizePeriod"/);
     assert.match(razor, /_ws is not null && _ws\.CanManage && IsOpen/);
 });
