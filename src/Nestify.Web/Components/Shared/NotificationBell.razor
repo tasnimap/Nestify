@@ -3,6 +3,7 @@
 @using Microsoft.AspNetCore.Components.Web
 @inject INotificationService NotificationService
 @inject NavigationManager Navigation
+@inject IStringLocalizer<SharedResource> L
 @implements IDisposable
 
 <div class="notification-bell @(showDropdown ? "notification-bell--open" : null)"
@@ -10,7 +11,7 @@
      @onpointerdown:document="HandleDocumentPointerDown"
      @onpointerdown:stopPropagation="true">
     <button type="button" class="notification-bell__trigger"
-            aria-label="Notifications@(UnreadCount > 0 ? $", {UnreadCount} unread" : null)"
+            aria-label="@AccessibleLabel"
             aria-haspopup="dialog" aria-expanded="@showDropdown.ToString().ToLowerInvariant()"
             @onclick="ToggleDropdown">
         <svg class="notification-bell__icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -34,6 +35,9 @@
     private string? error;
     private readonly CancellationTokenSource pollingStop = new();
     private int UnreadCount => feed.UnreadCount;
+    private string AccessibleLabel => UnreadCount > 0
+        ? $"{L["Notifications"].Value}, {L["{0} unread", UnreadCount].Value}"
+        : L["Notifications"].Value;
 
     protected override async Task OnInitializedAsync()
     {
@@ -52,7 +56,7 @@
         }
         catch
         {
-            error = "Notifications could not be loaded. Please try again.";
+            error = L["Notifications could not be loaded. Please try again."];
         }
         finally
         {
@@ -90,7 +94,7 @@
         }
         catch
         {
-            error = "The notification could not be marked as read.";
+            error = L["The notification could not be marked as read."];
         }
     }
 
@@ -104,7 +108,7 @@
         }
         catch
         {
-            error = "Notifications could not be marked as read.";
+            error = L["Notifications could not be marked as read."];
         }
     }
 

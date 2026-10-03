@@ -1,10 +1,11 @@
 @inject IJSRuntime JS
+@inject IStringLocalizer<SharedResource> L
 
 <button class="nav__theme-indicator"
         type="button"
-        aria-label="Toggle color theme"
+        aria-label='@L["Toggle color theme"]'
         aria-pressed="false"
-        title="Toggle color theme"
+        title='@L["Toggle color theme"]'
         @onclick="ToggleTheme">
     <span class="nav__theme-switch" aria-hidden="true">
         <svg class="nav__theme-icon nav__theme-icon--sun" viewBox="0 0 24 24">

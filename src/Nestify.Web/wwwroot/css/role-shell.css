@@ -55,6 +55,19 @@
     padding-top: 1.5rem;
 }
 
+html[lang^="bn"] body,
+html[lang^="bn"] button,
+html[lang^="bn"] input,
+html[lang^="bn"] select,
+html[lang^="bn"] textarea {
+    font-family: "Noto Sans Bengali", Inter, system-ui, sans-serif;
+}
+
+html[lang^="bn"] .site-footer__links { gap: .8rem 1.1rem; }
+html[lang^="bn"] .site-footer__legal { line-height: 1.8; }
+html[lang^="bn"] .hnav__link { padding-inline: .55rem; font-size: .84rem; white-space: normal; }
+html[lang^="bn"] .hnav__brand { font-size: 1rem; }
+
 @media (min-width: 800px) {
     .site-footer__inner { grid-template-columns: 1fr auto; align-items: center; column-gap: 2rem; }
     .site-footer__legal { grid-column: 1 / -1; }
@@ -228,7 +241,7 @@
     cursor: pointer;
 }
 
-@media (max-width: 860px) {
+@media (max-width: 1020px) {
     .hnav__toggle { display: inline-flex; }
 
     .hnav__links {
@@ -250,4 +263,10 @@
 
     .hnav__links--open { transform: translateY(0); opacity: 1; pointer-events: auto; }
     .hnav__menu { margin: .5rem 0 0; }
+}
+
+@media (min-width: 1021px) {
+    html[lang^="bn"] .nav__panel { gap: .3rem; }
+    html[lang^="bn"] .nav__panel .nav__link { padding-inline: .35rem; font-size: .82rem; white-space: normal; }
+    html[lang^="bn"] .nav__links { gap: 0; }
 }

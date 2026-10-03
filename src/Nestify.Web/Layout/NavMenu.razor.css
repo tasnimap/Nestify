@@ -152,7 +152,7 @@
 .nav__toggle-bar.is-open::before { transform: translateY(1px) rotate(45deg); }
 .nav__toggle-bar.is-open::after { transform: translateY(-1px) rotate(-45deg); }
 
-@media (max-width: 860px) {
+@media (max-width: 1020px) {
     .nav__toggle { display: inline-flex; }
 
     .nav__panel {

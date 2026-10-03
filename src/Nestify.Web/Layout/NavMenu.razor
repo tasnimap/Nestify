@@ -3,6 +3,7 @@
 @inject Nestify.Web.Services.Interfaces.IAuthService AuthService
 @inject Nestify.Web.Services.Interfaces.IUserProfileService ProfileService
 @inject AuthenticationStateProvider AuthStateProvider
+@inject IStringLocalizer<SharedResource> L
 
 <header class="nav">
     <div class="nx-container nav__inner">
@@ -13,36 +14,36 @@
 
         <button class="nav__toggle"
                 type="button"
-                aria-label="Toggle navigation menu"
+                aria-label="@L["Toggle navigation menu"]"
                 aria-expanded="@_open.ToString().ToLowerInvariant()"
                 aria-controls="primary-nav"
                 @onclick="Toggle">
             <span class="nav__toggle-bar @(_open ? "is-open" : null)"></span>
         </button>
 
-        <nav id="primary-nav" class="nav__panel @(_open ? "nav__panel--open" : null)" aria-label="Primary">
+        <nav id="primary-nav" class="nav__panel @(_open ? "nav__panel--open" : null)" aria-label='@L["Primary"]'>
             <ul class="nav__links">
                 <AuthorizeView>
                     <NotAuthorized>
-                        <li><NavLink class="nav__link" href="" Match="NavLinkMatch.All" @onclick="Close">Home</NavLink></li>
-                        <li><NavLink class="nav__link" href="about" @onclick="Close">About Us</NavLink></li>
+                        <li><NavLink class="nav__link" href="" Match="NavLinkMatch.All" @onclick="Close">@L["Home"]</NavLink></li>
+                        <li><NavLink class="nav__link" href="about" @onclick="Close">@L["About Us"]</NavLink></li>
                     </NotAuthorized>
                     <Authorized>
                         @* Helpers and admins can land here too, and none of the user modules are theirs. *@
                         <AuthorizeView Roles="User" Context="userCtx">
-                            <li><NavLink class="nav__link" href="home" @onclick="Close">My Home</NavLink></li>
-                            <li><NavLink class="nav__link" href="housing" @onclick="Close">Housing</NavLink></li>
-                            <li><NavLink class="nav__link" href="helpers" @onclick="Close">Domestic Help</NavLink></li>
-                            <li><NavLink class="nav__link" href="marketplace" @onclick="Close">Marketplace</NavLink></li>
-                            <li><NavLink class="nav__link" href="settlement" @onclick="Close">Settlement</NavLink></li>
+                            <li><NavLink class="nav__link" href="home" @onclick="Close">@L["My Home"]</NavLink></li>
+                            <li><NavLink class="nav__link" href="housing" @onclick="Close">@L["Housing"]</NavLink></li>
+                            <li><NavLink class="nav__link" href="helpers" @onclick="Close">@L["Domestic Help"]</NavLink></li>
+                            <li><NavLink class="nav__link" href="marketplace" @onclick="Close">@L["Marketplace"]</NavLink></li>
+                            <li><NavLink class="nav__link" href="settlement" @onclick="Close">@L["Settlement"]</NavLink></li>
                         </AuthorizeView>
                         <AuthorizeView Roles="DomesticHelper,DomesticHelp,Maid,Helper" Context="helperCtx">
-                            <li><NavLink class="nav__link" href="helpers/dashboard" @onclick="Close">My Dashboard</NavLink></li>
-                            <li><NavLink class="nav__link" href="helpers/profile" @onclick="Close">My Profile</NavLink></li>
+                            <li><NavLink class="nav__link" href="helpers/dashboard" @onclick="Close">@L["My Dashboard"]</NavLink></li>
+                            <li><NavLink class="nav__link" href="helpers/profile" @onclick="Close">@L["My profile"]</NavLink></li>
                         </AuthorizeView>
                         <AuthorizeView Roles="Admin" Context="adminCtx">
-                            <li><NavLink class="nav__link" href="admin" @onclick="Close">Admin Console</NavLink></li>
-                            <li><NavLink class="nav__link" href="admin/verifications" @onclick="Close">Verifications</NavLink></li>
+                            <li><NavLink class="nav__link" href="admin" @onclick="Close">@L["Admin Console"]</NavLink></li>
+                            <li><NavLink class="nav__link" href="admin/verifications" @onclick="Close">@L["Verifications"]</NavLink></li>
                         </AuthorizeView>
                         <li><NotificationBell /></li>
                     </Authorized>
@@ -50,6 +51,7 @@
             </ul>
 
             <ThemeToggle />
+            <LanguageSwitcher />
 
             <AuthorizeView>
                 <Authorized>
@@ -69,21 +71,21 @@
                                     @Initials(context.User.Identity?.Name)
                                 }
                             </span>
-                            <span class="nav__account-name">@(context.User.Identity?.Name ?? "Profile")</span>
+                            <span class="nav__account-name">@(context.User.Identity?.Name ?? L["Profile"].Value)</span>
                             <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
                         </button>
 
                         @if (_menuOpen)
                         {
                             <div class="role-menu" role="menu">
-                                <p class="role-menu__name">Signed in as @(context.User.Identity?.Name ?? "User")</p>
+                                <p class="role-menu__name">@L["Signed in as {0}", context.User.Identity?.Name ?? L["User"].Value]</p>
                                 <a role="menuitem" href="@RoleRoutes.ProfileFor(context.User)" @onclick="CloseAll">
                                     <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
-                                    View profile
+                                    @L["View profile"]
                                 </a>
                                 <button role="menuitem" class="role-menu__danger" type="button" @onclick="HandleLogout">
                                     <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><path d="m16 17 5-5-5-5" /><path d="M21 12H9" /></svg>
-                                    Log out
+                                    @L["Log out"]
                                 </button>
                             </div>
                         }
@@ -96,7 +98,7 @@
                             <path d="M10 17l5-5-5-5" />
                             <path d="M15 12H3" />
                         </svg>
-                        Log in
+                        @L["Log in"]
                     </a>
                 </NotAuthorized>
             </AuthorizeView>

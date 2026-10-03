@@ -1,0 +1,25 @@
+@inject IJSRuntime JS
+@inject NavigationManager Navigation
+@inject IStringLocalizer<SharedResource> L
+
+<div class="language-switcher" role="group" aria-label='@L["Language"]'>
+    <button type="button" class="language-switcher__option @(IsEnglish ? "is-active" : null)"
+            aria-pressed="@IsEnglish.ToString().ToLowerInvariant()" @onclick="SelectEnglish">EN</button>
+    <span class="language-switcher__divider" aria-hidden="true">|</span>
+    <button type="button" class="language-switcher__option @(IsBangla ? "is-active" : null)"
+            aria-pressed="@IsBangla.ToString().ToLowerInvariant()" @onclick="SelectBangla">বাংলা</button>
+</div>
+
+@code {
+    private bool IsBangla => CultureInfo.CurrentUICulture.Name.StartsWith("bn", StringComparison.OrdinalIgnoreCase);
+    private bool IsEnglish => !IsBangla;
+
+    private Task SelectEnglish() => SelectLanguage("en");
+    private Task SelectBangla() => SelectLanguage("bn");
+
+    private async Task SelectLanguage(string language)
+    {
+        await JS.InvokeVoidAsync("nestifyLanguage.set", language);
+        Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
+    }
+}

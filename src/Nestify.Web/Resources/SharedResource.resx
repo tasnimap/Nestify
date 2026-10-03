@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Home" xml:space="preserve"><value>Home</value></data>
+  <data name="About Us" xml:space="preserve"><value>About Us</value></data>
+  <data name="My Home" xml:space="preserve"><value>My Home</value></data>
+  <data name="Housing" xml:space="preserve"><value>Housing</value></data>
+  <data name="Domestic Help" xml:space="preserve"><value>Domestic Help</value></data>
+  <data name="Marketplace" xml:space="preserve"><value>Marketplace</value></data>
+  <data name="Settlement" xml:space="preserve"><value>Settlement</value></data>
+  <data name="My Dashboard" xml:space="preserve"><value>My Dashboard</value></data>
+  <data name="Admin Console" xml:space="preserve"><value>Admin Console</value></data>
+  <data name="Verifications" xml:space="preserve"><value>Verifications</value></data>
+  <data name="Profile" xml:space="preserve"><value>Profile</value></data>
+  <data name="View profile" xml:space="preserve"><value>View profile</value></data>
+  <data name="Log out" xml:space="preserve"><value>Log out</value></data>
+  <data name="Log in" xml:space="preserve"><value>Log in</value></data>
+  <data name="Helper" xml:space="preserve"><value>Helper</value></data>
+  <data name="Dashboard" xml:space="preserve"><value>Dashboard</value></data>
+  <data name="Availability" xml:space="preserve"><value>Availability</value></data>
+  <data name="Schedule" xml:space="preserve"><value>Schedule</value></data>
+  <data name="Engagements" xml:space="preserve"><value>Engagements</value></data>
+  <data name="Reviews" xml:space="preserve"><value>Reviews</value></data>
+  <data name="My profile" xml:space="preserve"><value>My profile</value></data>
+  <data name="Account" xml:space="preserve"><value>Account</value></data>
+  <data name="Helper sections" xml:space="preserve"><value>Helper sections</value></data>
+  <data name="Hours" xml:space="preserve"><value>Hours</value></data>
+  <data name="Jobs" xml:space="preserve"><value>Jobs</value></data>
+  <data name="Skip to main content" xml:space="preserve"><value>Skip to main content</value></data>
+  <data name="Terms of Use" xml:space="preserve"><value>Terms of Use</value></data>
+  <data name="Privacy Policy" xml:space="preserve"><value>Privacy Policy</value></data>
+  <data name="Bachelor life, unified." xml:space="preserve"><value>Bachelor life, unified.</value></data>
+  <data name="A student project for Bangladeshi bachelors and job holders." xml:space="preserve"><value>A student project for Bangladeshi bachelors and job holders.</value></data>
+  <data name="Toggle navigation menu" xml:space="preserve"><value>Toggle navigation menu</value></data>
+  <data name="Toggle menu" xml:space="preserve"><value>Toggle menu</value></data>
+  <data name="Signed in as {0}" xml:space="preserve"><value>Signed in as {0}</value></data>
+  <data name="Overview" xml:space="preserve"><value>Overview</value></data>
+  <data name="Moderation" xml:space="preserve"><value>Moderation</value></data>
+  <data name="Platform" xml:space="preserve"><value>Platform</value></data>
+  <data name="Housing posts" xml:space="preserve"><value>Housing posts</value></data>
+  <data name="Marketplace posts" xml:space="preserve"><value>Marketplace posts</value></data>
+  <data name="Fees &amp; plans" xml:space="preserve"><value>Fees &amp; plans</value></data>
+  <data name="Admin accounts" xml:space="preserve"><value>Admin accounts</value></data>
+  <data name="Audit log" xml:space="preserve"><value>Audit log</value></data>
+  <data name="Nestify control room" xml:space="preserve"><value>Nestify control room</value></data>
+  <data name="Notifications" xml:space="preserve"><value>Notifications</value></data>
+  <data name="{0} unread" xml:space="preserve"><value>{0} unread</value></data>
+  <data name="Notifications could not be loaded. Please try again." xml:space="preserve"><value>Notifications could not be loaded. Please try again.</value></data>
+  <data name="The notification could not be marked as read." xml:space="preserve"><value>The notification could not be marked as read.</value></data>
+  <data name="Notifications could not be marked as read." xml:space="preserve"><value>Notifications could not be marked as read.</value></data>
+  <data name="Mark all as read" xml:space="preserve"><value>Mark all as read</value></data>
+  <data name="Loading notifications…" xml:space="preserve"><value>Loading notifications…</value></data>
+  <data name="Try again" xml:space="preserve"><value>Try again</value></data>
+  <data name="You're all caught up" xml:space="preserve"><value>You're all caught up</value></data>
+  <data name="Unread" xml:space="preserve"><value>Unread</value></data>
+  <data name="Mark as read" xml:space="preserve"><value>Mark as read</value></data>
+  <data name="Create an account" xml:space="preserve"><value>Create an account</value></data>
+  <data name="Welcome back" xml:space="preserve"><value>Welcome back</value></data>
+  <data name="Log in to your Nestify account." xml:space="preserve"><value>Log in to your Nestify account.</value></data>
+  <data name="Email address" xml:space="preserve"><value>Email address</value></data>
+  <data name="Password" xml:space="preserve"><value>Password</value></data>
+  <data name="Forgot password?" xml:space="preserve"><value>Forgot password?</value></data>
+  <data name="Your password" xml:space="preserve"><value>Your password</value></data>
+  <data name="Hide" xml:space="preserve"><value>Hide</value></data>
+  <data name="Show" xml:space="preserve"><value>Show</value></data>
+  <data name="Keep me signed in" xml:space="preserve"><value>Keep me signed in</value></data>
+  <data name="Signing in..." xml:space="preserve"><value>Signing in...</value></data>
+  <data name="New to Nestify?" xml:space="preserve"><value>New to Nestify?</value></data>
+  <data name="Create account" xml:space="preserve"><value>Create account</value></data>
+  <data name="It takes about a minute." xml:space="preserve"><value>It takes about a minute.</value></data>
+  <data name="Full name" xml:space="preserve"><value>Full name</value></data>
+  <data name="Email" xml:space="preserve"><value>Email</value></data>
+  <data name="Phone" xml:space="preserve"><value>Phone</value></data>
+  <data name="Register as" xml:space="preserve"><value>Register as</value></data>
+  <data name="User" xml:space="preserve"><value>User</value></data>
+  <data name="Min 8 characters" xml:space="preserve"><value>Min 8 characters</value></data>
+  <data name="Confirm password" xml:space="preserve"><value>Confirm password</value></data>
+  <data name="Re-enter password" xml:space="preserve"><value>Re-enter password</value></data>
+  <data name="I agree to the Nestify" xml:space="preserve"><value>I agree to the Nestify</value></data>
+  <data name=" and " xml:space="preserve"><value> and </value></data>
+  <data name="Creating account..." xml:space="preserve"><value>Creating account...</value></data>
+  <data name="Already have an account?" xml:space="preserve"><value>Already have an account?</value></data>
+  <data name="Sign in" xml:space="preserve"><value>Sign in</value></data>
+  <data name="Log in and pick up where you left off — your seat, your khala, your settlements." xml:space="preserve"><value>Log in and pick up where you left off — your seat, your khala, your settlements.</value></data>
+  <data name="New here?" xml:space="preserve"><value>New here?</value></data>
+  <data name="One verified account for housing, domestic help, shared expenses, and the marketplace." xml:space="preserve"><value>One verified account for housing, domestic help, shared expenses, and the marketplace.</value></data>
+  <data name="Save" xml:space="preserve"><value>Save</value></data>
+  <data name="Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Submit" xml:space="preserve"><value>Submit</value></data>
+  <data name="Back" xml:space="preserve"><value>Back</value></data>
+  <data name="Continue" xml:space="preserve"><value>Continue</value></data>
+  <data name="Close" xml:space="preserve"><value>Close</value></data>
+  <data name="Edit" xml:space="preserve"><value>Edit</value></data>
+  <data name="Delete" xml:space="preserve"><value>Delete</value></data>
+  <data name="Search" xml:space="preserve"><value>Search</value></data>
+  <data name="Primary" xml:space="preserve"><value>Primary</value></data>
+  <data name="Footer" xml:space="preserve"><value>Footer</value></data>
+  <data name="Language" xml:space="preserve"><value>Language</value></data>
+  <data name="Toggle color theme" xml:space="preserve"><value>Toggle color theme</value></data>
+  <data name="Toggle admin color theme" xml:space="preserve"><value>Toggle admin color theme</value></data>
+  <data name="just now" xml:space="preserve"><value>just now</value></data>
+  <data name="{0}m ago" xml:space="preserve"><value>{0}m ago</value></data>
+  <data name="{0}h ago" xml:space="preserve"><value>{0}h ago</value></data>
+  <data name="{0}d ago" xml:space="preserve"><value>{0}d ago</value></data>
+  <data name="." xml:space="preserve"><value>.</value></data>
+</root>

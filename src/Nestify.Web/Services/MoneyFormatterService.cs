@@ -15,7 +15,7 @@ public sealed class MoneyFormatterService
     /// </summary>
     public string Format(decimal amount)
     {
-        var formatted = amount.ToString("N2", System.Globalization.CultureInfo.InvariantCulture);
+        var formatted = amount.ToString("N2", System.Globalization.CultureInfo.CurrentCulture);
         return $"{Currency}{formatted}";
     }
 
@@ -26,7 +26,7 @@ public sealed class MoneyFormatterService
     /// </summary>
     public string FormatNumber(decimal amount)
     {
-        return amount.ToString("N2", System.Globalization.CultureInfo.InvariantCulture);
+        return amount.ToString("N2", System.Globalization.CultureInfo.CurrentCulture);
     }
 
     /// <summary>
@@ -46,7 +46,8 @@ public sealed class MoneyFormatterService
             .Replace(",", "")
             .Trim();
 
-        return decimal.TryParse(cleaned, out result);
+        return decimal.TryParse(cleaned, System.Globalization.NumberStyles.Number,
+            System.Globalization.CultureInfo.CurrentCulture, out result);
     }
 
     /// <summary>

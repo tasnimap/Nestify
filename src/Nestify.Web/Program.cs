@@ -1,9 +1,11 @@
 // Program.cs
 using Blazored.LocalStorage;
+using System.Globalization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.JSInterop;
 using Nestify.Web;
 using Nestify.Web.Auth;
 using Nestify.Web.Services;
@@ -23,6 +25,7 @@ if (builder.HostEnvironment.IsDevelopment())
 }
 
 builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<CustomAuthStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(sp =>
@@ -86,4 +89,12 @@ builder.Services.AddScoped<MoneyFormatterService>();
 builder.Services.AddScoped<DateFormatterService>();
 builder.Services.AddScoped<ToastService>();
 
-await builder.Build().RunAsync();
+var host = builder.Build();
+var js = host.Services.GetRequiredService<IJSRuntime>();
+var savedLanguage = await js.InvokeAsync<string?>("nestifyLanguage.get");
+var culture = new CultureInfo(string.Equals(savedLanguage, "bn", StringComparison.OrdinalIgnoreCase) ? "bn-BD" : "en");
+CultureInfo.DefaultThreadCurrentCulture = culture;
+CultureInfo.DefaultThreadCurrentUICulture = culture;
+await js.InvokeVoidAsync("nestifyLanguage.apply", culture.Name);
+
+await host.RunAsync();
