@@ -1,17 +1,20 @@
-<div class="rt-stars" role="@(ReadOnly ? "img" : "group")" aria-label="@AriaLabel" @onmouseleave="ClearPreview">
+<div class="rt-stars" role="@(ReadOnly ? "img" : "radiogroup")" aria-label="@(ReadOnly ? AriaLabel : "Rating")" @onmouseleave="ClearPreview">
     @for (var i = 1; i <= 5; i++)
     {
         var filled = i <= DisplayValue;
         var star = i;
         @if (ReadOnly)
         {
-            <span class="rt-star @(filled ? "rt-star--filled" : null)">★</span>
+            <span class="rt-star @(filled ? "rt-star--filled" : null)" aria-hidden="true">@(filled ? "★" : "☆")</span>
         }
         else
         {
             <button type="button" class="rt-star rt-star--input @(filled ? "rt-star--filled" : null)"
-                    aria-label="Rate @star out of 5" @onmouseenter="() => _hoverValue = star"
-                    @onclick="() => SetValue(star)">★</button>
+                    role="radio" aria-label="@star stars" aria-checked="@(Value == star)"
+                    tabindex="@(star == TabStopValue ? 0 : -1)"
+                    @onmouseenter="() => _hoverValue = star"
+                    @onkeydown="e => HandleKeyDown(e, star)"
+                    @onclick="() => SetValue(star)">@(filled ? "★" : "☆")</button>
         }
     }
     @if (ShowCount && Count is not null)
@@ -29,6 +32,7 @@
 
     private int? _hoverValue;
     private int DisplayValue => Math.Clamp((int)Math.Round(ReadOnly ? Value : _hoverValue ?? Value, MidpointRounding.AwayFromZero), 0, 5);
+    private int TabStopValue => Math.Clamp((int)Math.Round(Value, MidpointRounding.AwayFromZero), 1, 5);
 
     private string AriaLabel => $"{Value:0.0} out of 5 stars" + (Count is { } c ? $", {c} reviews" : "");
 
@@ -38,6 +42,15 @@
         _hoverValue = null;
         return ValueChanged.InvokeAsync(v);
     }
+
+    private Task HandleKeyDown(KeyboardEventArgs e, int currentValue) => e.Key switch
+    {
+        "ArrowRight" or "ArrowUp" => SetValue(Math.Min(5, currentValue + 1)),
+        "ArrowLeft" or "ArrowDown" => SetValue(Math.Max(1, currentValue - 1)),
+        "Home" => SetValue(1),
+        "End" => SetValue(5),
+        _ => Task.CompletedTask
+    };
 
     private void ClearPreview() => _hoverValue = null;
 }

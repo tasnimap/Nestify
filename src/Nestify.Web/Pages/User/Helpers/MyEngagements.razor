@@ -140,7 +140,11 @@
             <section class="dh-panel dh-review-box dh-rise">
                 <div class="dh-panel__head"><h2>Review @_reviewTarget.HelperName</h2></div>
                 <p class="dh-muted">Share your experience with @_reviewTarget.HelperName. Your review will appear on her profile.</p>
-                <RatingStars Value="_reviewRating" ReadOnly="false" ShowCount="false" ValueChanged="v => _reviewRating = v" />
+                <RatingStars Value="_reviewRating" ReadOnly="false" ShowCount="false" ValueChanged="SetReviewRating" />
+                @if (_ratingError is not null)
+                {
+                    <p class="md-msg md-msg--bad" role="alert">@_ratingError</p>
+                }
                 <textarea @bind="_reviewComment" maxlength="500" placeholder="How was your experience?"></textarea>
                 @if (_reviewError is not null)
                 {
@@ -184,9 +188,10 @@
 
     private EngagementDto? _releaseTarget;
     private EngagementDto? _reviewTarget;
-    private int _reviewRating = 5;
+    private int _reviewRating;
     private string _reviewComment = string.Empty;
     private string? _reviewError;
+    private string? _ratingError;
 
     private IEnumerable<(string Title, List<EngagementDto> Engagements)> EngagementSections => new[]
     {
@@ -272,14 +277,27 @@
     private void OpenReview(EngagementDto e)
     {
         _reviewTarget = e;
-        _reviewRating = 5;
+        _reviewRating = 0;
         _reviewComment = string.Empty;
         _reviewError = null;
+        _ratingError = null;
+    }
+
+    private Task SetReviewRating(int rating)
+    {
+        _reviewRating = rating;
+        _ratingError = null;
+        return Task.CompletedTask;
     }
 
     private async Task SubmitReview()
     {
         if (_reviewTarget is null) return;
+        if (_reviewRating == 0)
+        {
+            _ratingError = "Select a rating";
+            return;
+        }
         if (string.IsNullOrWhiteSpace(_reviewComment))
         {
             _reviewError = "Write a line or two about how it went.";

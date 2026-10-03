@@ -861,7 +861,7 @@
 }
 
 .dh-profile__meta .rt-star { color: rgba(255, 255, 255, .32); }
-.dh-profile__meta .rt-star--filled { color: #ffd66b; }
+.dh-profile__meta .rt-star--filled { color: #f5b301; }
 .dh-profile__meta .rt-count { color: rgba(255, 255, 255, .7); }
 
 .dh-profile__dot { width: 4px; height: 4px; border-radius: 50%; background: rgba(255, 255, 255, .5); }
@@ -1261,6 +1261,31 @@ button.dh-slot:focus-visible {
 
 .dh-review-box { display: grid; gap: .8rem; }
 .dh-review-box .rt-star--input { font-size: 1.5rem; }
+
+/* Shared review and rating stars; theme tokens keep them legible in both modes. */
+.rt-stars { display: inline-flex; align-items: center; gap: .12rem; }
+.rt-star {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    color: var(--nx-muted);
+    font: inherit;
+    font-size: 1.05rem;
+    line-height: 1;
+}
+.rt-star--filled { color: #f5b301; }
+.rt-star--input {
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+}
+.rt-star--input:hover,
+.rt-star--input.rt-star--filled { color: #f5b301; }
+.rt-star--input:focus-visible {
+    outline: 2px solid var(--nx-ring);
+    outline-offset: 3px;
+    border-radius: 3px;
+}
 
 .dh-review-box textarea {
     width: 100%;

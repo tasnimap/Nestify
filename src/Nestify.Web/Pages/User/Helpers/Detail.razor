@@ -120,6 +120,10 @@
                                 <h3>Review @FirstName</h3>
                                 <label class="dh-muted">Your rating</label>
                                 <RatingStars Value="_reviewRating" ReadOnly="false" ShowCount="false" ValueChanged="SetReviewRating" />
+                                @if (_ratingError is not null)
+                                {
+                                    <p class="md-msg md-msg--bad" role="alert">@_ratingError</p>
+                                }
                                 <label for="helper-review-comment">Your review</label>
                                 <textarea id="helper-review-comment" rows="4" maxlength="500" @bind="_reviewComment" placeholder="How was your experience?"></textarea>
                                 <small>@_reviewComment.Length / 500</small>
@@ -343,9 +347,10 @@
     private bool _showReviewForm;
     private bool _submittingReview;
     private bool _reviewSuccess;
-    private int _reviewRating = 5;
+    private int _reviewRating;
     private string _reviewComment = string.Empty;
     private string? _reviewError;
+    private string? _ratingError;
     private List<EngagementSlotDto> _slots = new();
     private bool _loading = true;
 
@@ -413,9 +418,10 @@
 
     private void OpenReviewForm()
     {
-        _reviewRating = 5;
+        _reviewRating = 0;
         _reviewComment = string.Empty;
         _reviewError = null;
+        _ratingError = null;
         _reviewSuccess = false;
         _showReviewForm = true;
     }
@@ -423,12 +429,18 @@
     private Task SetReviewRating(int rating)
     {
         _reviewRating = rating;
+        _ratingError = null;
         return Task.CompletedTask;
     }
 
     private async Task SubmitReviewAsync()
     {
         if (_reviewableEngagement is null) return;
+        if (_reviewRating == 0)
+        {
+            _ratingError = "Select a rating";
+            return;
+        }
         var comment = _reviewComment.Trim();
         if (comment.Length == 0)
         {

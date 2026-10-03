@@ -696,7 +696,7 @@
 
 .md-score__num { font-family: var(--nx-display); font-size: 2.6rem; font-weight: 700; line-height: 1; color: #fff; }
 .md-score .rt-star { color: rgba(255, 255, 255, .3); }
-.md-score .rt-star--filled { color: #ffd66b; }
+.md-score .rt-star--filled { color: #f5b301; }
 .md-score__count { font-size: .78rem; color: rgba(255, 255, 255, .78); }
 
 .md-reviews { display: grid; gap: clamp(.85rem, 2vw, 1.25rem); align-items: start; }
@@ -1170,7 +1170,7 @@
 .md-profile__headline { font-size: .95rem; color: rgba(255, 255, 255, .85); max-width: 48ch; }
 .md-profile__meta { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .7rem; font-size: .88rem; }
 .md-profile__meta .rt-star { color: rgba(255, 255, 255, .32); }
-.md-profile__meta .rt-star--filled { color: #ffd66b; }
+.md-profile__meta .rt-star--filled { color: #f5b301; }
 .md-profile__meta .rt-count { color: rgba(255, 255, 255, .7); }
 .md-profile__actions { position: relative; display: flex; flex-wrap: wrap; gap: .5rem; }
 .md-profile__actions .nx-btn--ghost { border-color: rgba(255, 255, 255, .45); color: #fff; }
