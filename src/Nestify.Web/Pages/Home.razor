@@ -1,6 +1,8 @@
 @page "/"
 @inject IStringLocalizer<SharedResource> L
 @inject Nestify.Web.Services.MoneyFormatterService Money
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager NavManager
 
 <PageTitle>Nestify — @L["Bachelor life, unified."]</PageTitle>
 
@@ -326,4 +328,26 @@
 
 @code {
     private static string Number(int value) => value.ToString("N0", System.Globalization.CultureInfo.CurrentCulture);
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated == true)
+        {
+            if (user.IsInRole("Admin"))
+            {
+                NavManager.NavigateTo("admin");
+            }
+            else if (user.IsInRole("DomesticHelper") || user.IsInRole("DomesticHelp") || user.IsInRole("Maid") || user.IsInRole("Helper"))
+            {
+                NavManager.NavigateTo("helpers/dashboard");
+            }
+            else if (user.IsInRole("User"))
+            {
+                NavManager.NavigateTo("home");
+            }
+        }
+    }
 }
