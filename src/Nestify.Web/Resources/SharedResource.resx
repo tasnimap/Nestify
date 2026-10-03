@@ -689,4 +689,202 @@
   <data name="Only the requester on an accepted, active, or completed engagement can review this helper." xml:space="preserve"><value>Only the requester on an accepted, active, or completed engagement can review this helper.</value></data>
   <data name="You&apos;ve already reviewed this engagement." xml:space="preserve"><value>You&apos;ve already reviewed this engagement.</value></data>
   <data name="Only a current manager or co-manager can release an active helper for this home." xml:space="preserve"><value>Only a current manager or co-manager can release an active helper for this home.</value></data>
+  <data name="left" xml:space="preserve"><value>left</value></data>
+  <data name="meal fund ÷ total meals" xml:space="preserve"><value>meal fund ÷ total meals</value></data>
+  <data name="Groceries for the week" xml:space="preserve"><value>Groceries for the week</value></data>
+  <data name="The fewest hand-overs that settle everyone up." xml:space="preserve"><value>The fewest hand-overs that settle everyone up.</value></data>
+  <data name="Collected for bills" xml:space="preserve"><value>Collected for bills</value></data>
+  <data name="Log a payment" xml:space="preserve"><value>Log a payment</value></data>
+  <data name="Meal cost" xml:space="preserve"><value>Meal cost</value></data>
+  <data name="{0} monthly meals and meal cost" xml:space="preserve"><value>{0} monthly meals and meal cost</value></data>
+  <data name="{0}: {1} meals, {2}" xml:space="preserve"><value>{0}: {1} meals, {2}</value></data>
+  <data name="{0} members" xml:space="preserve"><value>{0} members</value></data>
+  <data name="Monthly meals and meal cost line chart" xml:space="preserve"><value>Monthly meals and meal cost line chart</value></data>
+  <data name="Could not record the payment." xml:space="preserve"><value>Could not record the payment.</value></data>
+  <data name="Monthly view" xml:space="preserve"><value>Monthly view</value></data>
+  <data name="Meals saved" xml:space="preserve"><value>Meals saved</value></data>
+  <data name="{0} on {1}" xml:space="preserve"><value>{0} on {1}</value></data>
+  <data name="Member added" xml:space="preserve"><value>Member added</value></data>
+  <data name="House financial summary for {0}" xml:space="preserve"><value>House financial summary for {0}</value></data>
+  <data name="Add a short note so the house knows what this was." xml:space="preserve"><value>Add a short note so the house knows what this was.</value></data>
+  <data name="Still due" xml:space="preserve"><value>Still due</value></data>
+  <data name="Meals, bills, and payments are read-only now. The statement below is the final word." xml:space="preserve"><value>Meals, bills, and payments are read-only now. The statement below is the final word.</value></data>
+  <data name="The book for {0} is open." xml:space="preserve"><value>The book for {0} is open.</value></data>
+  <data name="rent, utilities" xml:space="preserve"><value>rent, utilities</value></data>
+  <data name="{0} total" xml:space="preserve"><value>{0} total</value></data>
+  <data name="Everything here is split equally between all {0} members in this book." xml:space="preserve"><value>Everything here is split equally between all {0} members in this book.</value></data>
+  <data name="People who joined the home after the book was opened are not in it yet. Add them here so they get a meal column and a share of the bills." xml:space="preserve"><value>People who joined the home after the book was opened are not in it yet. Add them here so they get a meal column and a share of the bills.</value></data>
+  <data name="Per meal" xml:space="preserve"><value>Per meal</value></data>
+  <data name="Go to my home" xml:space="preserve"><value>Go to my home</value></data>
+  <data name="The settlement book belongs to the home you live in. Join a home with an invite code, or create one and invite your flatmates, and the book will show up here." xml:space="preserve"><value>The settlement book belongs to the home you live in. Join a home with an invite code, or create one and invite your flatmates, and the book will show up here.</value></data>
+  <data name="Meals" xml:space="preserve"><value>Meals</value></data>
+  <data name="No payments logged for this month yet." xml:space="preserve"><value>No payments logged for this month yet.</value></data>
+  <data name="{0} is now {1}." xml:space="preserve"><value>{0} is now {1}.</value></data>
+  <data name="Date" xml:space="preserve"><value>Date</value></data>
+  <data name="What everyone has paid" xml:space="preserve"><value>What everyone has paid</value></data>
+  <data name="Which columns to show" xml:space="preserve"><value>Which columns to show</value></data>
+  <data name="No bills in this book." xml:space="preserve"><value>No bills in this book.</value></data>
+  <data name="House financial summary" xml:space="preserve"><value>House financial summary</value></data>
+  <data name="Bill not added" xml:space="preserve"><value>Bill not added</value></data>
+  <data name="Shared house account" xml:space="preserve"><value>Shared house account</value></data>
+  <data name="The house owes {0}" xml:space="preserve"><value>The house owes {0}</value></data>
+  <data name="Save payment" xml:space="preserve"><value>Save payment</value></data>
+  <data name="Payments and costs differ by {0}. The book can be finalized once they match." xml:space="preserve"><value>Payments and costs differ by {0}. The book can be finalized once they match.</value></data>
+  <data name="Collection rate" xml:space="preserve"><value>Collection rate</value></data>
+  <data name="Payment purpose" xml:space="preserve"><value>Payment purpose</value></data>
+  <data name="Total" xml:space="preserve"><value>Total</value></data>
+  <data name="{0} was removed from this month." xml:space="preserve"><value>{0} was removed from this month.</value></data>
+  <data name="Month finalized" xml:space="preserve"><value>Month finalized</value></data>
+  <data name="Meals: 0 - {0}" xml:space="preserve"><value>Meals: 0 - {0}</value></data>
+  <data name="{0} entries" xml:space="preserve"><value>{0} entries</value></data>
+  <data name="Cost" xml:space="preserve"><value>Cost</value></data>
+  <data name="The meal sheet is up to date." xml:space="preserve"><value>The meal sheet is up to date.</value></data>
+  <data name="Amount must be greater than ৳0.00." xml:space="preserve"><value>Amount must be greater than ৳0.00.</value></data>
+  <data name="{0} pays {1}" xml:space="preserve"><value>{0} pays {1}</value></data>
+  <data name="Finalize month" xml:space="preserve"><value>Finalize month</value></data>
+  <data name="Give the bill a name." xml:space="preserve"><value>Give the bill a name.</value></data>
+  <data name="Meal sheet" xml:space="preserve"><value>Meal sheet</value></data>
+  <data name="{0} meals" xml:space="preserve"><value>{0} meals</value></data>
+  <data name="Add another bill" xml:space="preserve"><value>Add another bill</value></data>
+  <data name="Remove payment" xml:space="preserve"><value>Remove payment</value></data>
+  <data name="Could not load settlement" xml:space="preserve"><value>Could not load settlement</value></data>
+  <data name="Amount cannot be negative." xml:space="preserve"><value>Amount cannot be negative.</value></data>
+  <data name="Total costs" xml:space="preserve"><value>Total costs</value></data>
+  <data name="How the month adds up across everyone." xml:space="preserve"><value>How the month adds up across everyone.</value></data>
+  <data name="Could not add the bill." xml:space="preserve"><value>Could not add the bill.</value></data>
+  <data name="Surplus held" xml:space="preserve"><value>Surplus held</value></data>
+  <data name="Total meal cost" xml:space="preserve"><value>Total meal cost</value></data>
+  <data name="{0} amount" xml:space="preserve"><value>{0} amount</value></data>
+  <data name="Who paid" xml:space="preserve"><value>Who paid</value></data>
+  <data name="Fully collected" xml:space="preserve"><value>Fully collected</value></data>
+  <data name="Still to collect" xml:space="preserve"><value>Still to collect</value></data>
+  <data name="Red line shows total meals. Blue line shows total meal cost in taka." xml:space="preserve"><value>Red line shows total meals. Blue line shows total meal cost in taka.</value></data>
+  <data name="Everyone" xml:space="preserve"><value>Everyone</value></data>
+  <data name="Breakfast" xml:space="preserve"><value>Breakfast</value></data>
+  <data name="Add a member to this book" xml:space="preserve"><value>Add a member to this book</value></data>
+  <data name="Bill name" xml:space="preserve"><value>Bill name</value></data>
+  <data name="Payment not saved" xml:space="preserve"><value>Payment not saved</value></data>
+  <data name="Only me" xml:space="preserve"><value>Only me</value></data>
+  <data name="Bill updated" xml:space="preserve"><value>Bill updated</value></data>
+  <data name="Payment saved" xml:space="preserve"><value>Payment saved</value></data>
+  <data name="Please enter a valid amount." xml:space="preserve"><value>Please enter a valid amount.</value></data>
+  <data name="Total owed" xml:space="preserve"><value>Total owed</value></data>
+  <data name="{0} will be split equally." xml:space="preserve"><value>{0} will be split equally.</value></data>
+  <data name="{0} each" xml:space="preserve"><value>{0} each</value></data>
+  <data name="See what the house needs, what members have paid, and what remains." xml:space="preserve"><value>See what the house needs, what members have paid, and what remains.</value></data>
+  <data name="Removed {0} from {1}." xml:space="preserve"><value>Removed {0} from {1}.</value></data>
+  <data name="Cost: {0} - {1}" xml:space="preserve"><value>Cost: {0} - {1}</value></data>
+  <data name="House balance" xml:space="preserve"><value>House balance</value></data>
+  <data name="The manager has not opened this month&apos;s book yet." xml:space="preserve"><value>The manager has not opened this month&apos;s book yet.</value></data>
+  <data name="all bill money is in" xml:space="preserve"><value>all bill money is in</value></data>
+  <data name="Who pays whom" xml:space="preserve"><value>Who pays whom</value></data>
+  <data name="bill money not yet paid in" xml:space="preserve"><value>bill money not yet paid in</value></data>
+  <data name="{0} owes the house" xml:space="preserve"><value>{0} owes the house</value></data>
+  <data name="Opening the book takes a snapshot of everyone living in the home right now ({0} members). Meals, bills and payments all start at zero." xml:space="preserve"><value>Opening the book takes a snapshot of everyone living in the home right now ({0} members). Meals, bills and payments all start at zero.</value></data>
+  <data name="Shared bills" xml:space="preserve"><value>Shared bills</value></data>
+  <data name="each" xml:space="preserve"><value>each</value></data>
+  <data name="Add to book" xml:space="preserve"><value>Add to book</value></data>
+  <data name="Payment removed" xml:space="preserve"><value>Payment removed</value></data>
+  <data name="Settlement sections" xml:space="preserve"><value>Settlement sections</value></data>
+  <data name="{0} is finalized" xml:space="preserve"><value>{0} is finalized</value></data>
+  <data name="{0} is now locked." xml:space="preserve"><value>{0} is now locked.</value></data>
+  <data name="Bill removed" xml:space="preserve"><value>Bill removed</value></data>
+  <data name="Open book" xml:space="preserve"><value>Open book</value></data>
+  <data name="Track meals, split the monthly bills, log what everyone has paid, and see exactly who owes the house and who the house owes." xml:space="preserve"><value>Track meals, split the monthly bills, log what everyone has paid, and see exactly who owes the house and who the house owes.</value></data>
+  <data name="Contributed" xml:space="preserve"><value>Contributed</value></data>
+  <data name="Hover a point for the exact monthly total. Each metric uses its own scale." xml:space="preserve"><value>Hover a point for the exact monthly total. Each metric uses its own scale.</value></data>
+  <data name="Bill share each" xml:space="preserve"><value>Bill share each</value></data>
+  <data name="per person" xml:space="preserve"><value>per person</value></data>
+  <data name="Bars are scaled to the largest amount." xml:space="preserve"><value>Bars are scaled to the largest amount.</value></data>
+  <data name="{0} meals this month" xml:space="preserve"><value>{0} meals this month</value></data>
+  <data name="Meal cost by member" xml:space="preserve"><value>Meal cost by member</value></data>
+  <data name="Bills" xml:space="preserve"><value>Bills</value></data>
+  <data name="They are now part of this month&apos;s book." xml:space="preserve"><value>They are now part of this month&apos;s book.</value></data>
+  <data name="{0} meals eaten" xml:space="preserve"><value>{0} meals eaten</value></data>
+  <data name="Add bill" xml:space="preserve"><value>Add bill</value></data>
+  <data name="See how each person&apos;s meal cost has changed across the house books." xml:space="preserve"><value>See how each person&apos;s meal cost has changed across the house books.</value></data>
+  <data name="Cost per meal" xml:space="preserve"><value>Cost per meal</value></data>
+  <data name="Total meals" xml:space="preserve"><value>Total meals</value></data>
+  <data name="Everyone living in the home is already in this month&apos;s book." xml:space="preserve"><value>Everyone living in the home is already in this month&apos;s book.</value></data>
+  <data name="Previous month" xml:space="preserve"><value>Previous month</value></data>
+  <data name="All saved" xml:space="preserve"><value>All saved</value></data>
+  <data name="Building service charge" xml:space="preserve"><value>Building service charge</value></data>
+  <data name="No book for {0}" xml:space="preserve"><value>No book for {0}</value></data>
+  <data name="Collected" xml:space="preserve"><value>Collected</value></data>
+  <data name="Bill added" xml:space="preserve"><value>Bill added</value></data>
+  <data name="The {0} rounding difference goes to {1}, who has the largest meal cost." xml:space="preserve"><value>The {0} rounding difference goes to {1}, who has the largest meal cost.</value></data>
+  <data name="Record money a member handed over this month." xml:space="preserve"><value>Record money a member handed over this month.</value></data>
+  <data name="You can fill in your own column. The manager fills in everyone else&apos;s." xml:space="preserve"><value>You can fill in your own column. The manager fills in everyone else&apos;s.</value></data>
+  <data name="Anything else the house pays for together — it gets split equally too." xml:space="preserve"><value>Anything else the house pays for together — it gets split equally too.</value></data>
+  <data name="Dinner" xml:space="preserve"><value>Dinner</value></data>
+  <data name="Bills to pay" xml:space="preserve"><value>Bills to pay</value></data>
+  <data name="Next month" xml:space="preserve"><value>Next month</value></data>
+  <data name="What was it for" xml:space="preserve"><value>What was it for</value></data>
+  <data name="Could not load that month" xml:space="preserve"><value>Could not load that month</value></data>
+  <data name="Not done" xml:space="preserve"><value>Not done</value></data>
+  <data name="Settled up" xml:space="preserve"><value>Settled up</value></data>
+  <data name="Book opened" xml:space="preserve"><value>Book opened</value></data>
+  <data name="Each payment is either money for meals or money toward the shared bills." xml:space="preserve"><value>Each payment is either money for meals or money toward the shared bills.</value></data>
+  <data name="{0} recorded for {1}." xml:space="preserve"><value>{0} recorded for {1}.</value></data>
+  <data name="Pick who paid." xml:space="preserve"><value>Pick who paid.</value></data>
+  <data name="{0} each · {1} bills" xml:space="preserve"><value>{0} each · {1} bills</value></data>
+  <data name="Bill share" xml:space="preserve"><value>Bill share</value></data>
+  <data name="Total for {0}" xml:space="preserve"><value>Total for {0}</value></data>
+  <data name="Remove bill" xml:space="preserve"><value>Remove bill</value></data>
+  <data name="You are not in a home yet" xml:space="preserve"><value>You are not in a home yet</value></data>
+  <data name="Monthly bills" xml:space="preserve"><value>Monthly bills</value></data>
+  <data name="Member meal cost charts" xml:space="preserve"><value>Member meal cost charts</value></data>
+  <data name="Loading the book…" xml:space="preserve"><value>Loading the book…</value></data>
+  <data name="Lunch" xml:space="preserve"><value>Lunch</value></data>
+  <data name="{0} meals · {1} total cost" xml:space="preserve"><value>{0} meals · {1} total cost</value></data>
+  <data name="Could not load the settlement book" xml:space="preserve"><value>Could not load the settlement book</value></data>
+  <data name="Month locked" xml:space="preserve"><value>Month locked</value></data>
+  <data name="Note" xml:space="preserve"><value>Note</value></data>
+  <data name="Open book for {0}" xml:space="preserve"><value>Open book for {0}</value></data>
+  <data name="Paid on" xml:space="preserve"><value>Paid on</value></data>
+  <data name="Meal related" xml:space="preserve"><value>Meal related</value></data>
+  <data name="Statement" xml:space="preserve"><value>Statement</value></data>
+  <data name="Payments" xml:space="preserve"><value>Payments</value></data>
+  <data name="Shared bills collected" xml:space="preserve"><value>Shared bills collected</value></data>
+  <data name="groceries, bazar" xml:space="preserve"><value>groceries, bazar</value></data>
+  <data name="{0} {1} on {2}" xml:space="preserve"><value>{0} {1} on {2}</value></data>
+  <data name="Meal fund" xml:space="preserve"><value>Meal fund</value></data>
+  <data name="{0}: {1} meals, total cost {2}, at {3} each" xml:space="preserve"><value>{0}: {1} meals, total cost {2}, at {3} each</value></data>
+  <data name="This month&apos;s book is not open." xml:space="preserve"><value>This month&apos;s book is not open.</value></data>
+  <data name="That person is not a member of this home." xml:space="preserve"><value>That person is not a member of this home.</value></data>
+  <data name="Every meal entry must belong to a member of this month&apos;s book." xml:space="preserve"><value>Every meal entry must belong to a member of this month&apos;s book.</value></data>
+  <data name="Rent, electricity, water, gas, and internet bills are fixed and cannot be removed." xml:space="preserve"><value>Rent, electricity, water, gas, and internet bills are fixed and cannot be removed.</value></data>
+  <data name="The book is open." xml:space="preserve"><value>The book is open.</value></data>
+  <data name="The payment date must belong to the selected settlement period." xml:space="preserve"><value>The payment date must belong to the selected settlement period.</value></data>
+  <data name="Meal sheet saved." xml:space="preserve"><value>Meal sheet saved.</value></data>
+  <data name="Payment not found." xml:space="preserve"><value>Payment not found.</value></data>
+  <data name="No meal changes were supplied." xml:space="preserve"><value>No meal changes were supplied.</value></data>
+  <data name="A book already exists for this month." xml:space="preserve"><value>A book already exists for this month.</value></data>
+  <data name="The payer is not in this month&apos;s book." xml:space="preserve"><value>The payer is not in this month&apos;s book.</value></data>
+  <data name="Only a home manager or co-manager can finalize a settlement." xml:space="preserve"><value>Only a home manager or co-manager can finalize a settlement.</value></data>
+  <data name="Bill removed." xml:space="preserve"><value>Bill removed.</value></data>
+  <data name="Only a home manager or co-manager can change bills." xml:space="preserve"><value>Only a home manager or co-manager can change bills.</value></data>
+  <data name="Only a home manager or co-manager can add members to the book." xml:space="preserve"><value>Only a home manager or co-manager can add members to the book.</value></data>
+  <data name="Payment removed." xml:space="preserve"><value>Payment removed.</value></data>
+  <data name="Meal dates and counts must belong to the selected period." xml:space="preserve"><value>Meal dates and counts must belong to the selected period.</value></data>
+  <data name="Only a home manager or co-manager can record payments." xml:space="preserve"><value>Only a home manager or co-manager can record payments.</value></data>
+  <data name="A member, positive amount, payment type, and note are required." xml:space="preserve"><value>A member, positive amount, payment type, and note are required.</value></data>
+  <data name="Only a home manager or co-manager can remove payments." xml:space="preserve"><value>Only a home manager or co-manager can remove payments.</value></data>
+  <data name="Only a home manager or co-manager can remove bills." xml:space="preserve"><value>Only a home manager or co-manager can remove bills.</value></data>
+  <data name="The bill date must belong to the selected settlement period." xml:space="preserve"><value>The bill date must belong to the selected settlement period.</value></data>
+  <data name="Only a home manager or co-manager can open the book." xml:space="preserve"><value>Only a home manager or co-manager can open the book.</value></data>
+  <data name="Only a home manager or co-manager can add bills." xml:space="preserve"><value>Only a home manager or co-manager can add bills.</value></data>
+  <data name="A bill description and a non-negative amount are required." xml:space="preserve"><value>A bill description and a non-negative amount are required.</value></data>
+  <data name="That member is already in the book." xml:space="preserve"><value>That member is already in the book.</value></data>
+  <data name="Finalize the open book before opening another month." xml:space="preserve"><value>Finalize the open book before opening another month.</value></data>
+  <data name="Bill updated." xml:space="preserve"><value>Bill updated.</value></data>
+  <data name="Members can edit only their own meals." xml:space="preserve"><value>Members can edit only their own meals.</value></data>
+  <data name="A bill amount cannot be negative." xml:space="preserve"><value>A bill amount cannot be negative.</value></data>
+  <data name="Payments must equal the month&apos;s costs before finalization." xml:space="preserve"><value>Payments must equal the month&apos;s costs before finalization.</value></data>
+  <data name="Member added to the book." xml:space="preserve"><value>Member added to the book.</value></data>
+  <data name="Bill not found." xml:space="preserve"><value>Bill not found.</value></data>
+  <data name="Invalid settlement period." xml:space="preserve"><value>Invalid settlement period.</value></data>
+  <data name="Dinner short" xml:space="preserve"><value>Dinner short</value></data>
+  <data name="Breakfast short" xml:space="preserve"><value>Breakfast short</value></data>
+  <data name="Lunch short" xml:space="preserve"><value>Lunch short</value></data>
 </root>
