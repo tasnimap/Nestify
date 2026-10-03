@@ -1,4 +1,6 @@
-<div class="rt-stars" role="@(ReadOnly ? "img" : "radiogroup")" aria-label="@(ReadOnly ? AriaLabel : "Rating")" @onmouseleave="ClearPreview">
+@inject IStringLocalizer<SharedResource> L
+
+<div class="rt-stars" role="@(ReadOnly ? "img" : "radiogroup")" aria-label="@GroupLabel" @onmouseleave="ClearPreview">
     @for (var i = 1; i <= 5; i++)
     {
         var filled = i <= DisplayValue;
@@ -10,7 +12,7 @@
         else
         {
             <button type="button" class="rt-star rt-star--input @(filled ? "rt-star--filled" : null)"
-                    role="radio" aria-label="@star stars" aria-checked="@(Value == star)"
+                    role="radio" aria-label='@L["{0} stars", star]' aria-checked="@(Value == star)"
                     tabindex="@(star == TabStopValue ? 0 : -1)"
                     @onmouseenter="() => _hoverValue = star"
                     @onkeydown="e => HandleKeyDown(e, star)"
@@ -34,7 +36,10 @@
     private int DisplayValue => Math.Clamp((int)Math.Round(ReadOnly ? Value : _hoverValue ?? Value, MidpointRounding.AwayFromZero), 0, 5);
     private int TabStopValue => Math.Clamp((int)Math.Round(Value, MidpointRounding.AwayFromZero), 1, 5);
 
-    private string AriaLabel => $"{Value:0.0} out of 5 stars" + (Count is { } c ? $", {c} reviews" : "");
+    private string GroupLabel => ReadOnly ? AriaLabel : L["Rating"].Value;
+    private string AriaLabel => Count is { } c
+        ? L["{0} out of 5 stars, {1} reviews", Value.ToString("0.0"), c]
+        : L["{0} out of 5 stars", Value.ToString("0.0")];
 
     private Task SetValue(int v)
     {
