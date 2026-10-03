@@ -20,4 +20,10 @@ public sealed class SharedResource
     public static string RegisterConfirmRequired => Get("Re-enter your password.");
     public static string RegisterConfirmMatch => Get("The two passwords do not match.");
     public static string RegisterTermsRequired => Get("You need to accept the terms to continue.");
+
+    public static string SettlementBillNameRequired => Get("Give the bill a name.");
+    public static string SettlementAmountNonNegative => Get("Amount cannot be negative.");
+    public static string SettlementPayerRequired => Get("Pick who paid.");
+    public static string SettlementPaymentAmountRequired => Get("Amount must be greater than ৳0.00.");
+    public static string SettlementPaymentNoteRequired => Get("Add a short note so the house knows what this was.");
 }

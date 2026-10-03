@@ -1792,3 +1792,40 @@
     .stl__summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .stl__view-btn { padding: .35rem .6rem; }
 }
+
+/* Bengali labels are longer; let controls wrap and keep wide data views inside
+   their own scroll containers in both theme palettes. */
+html[lang^="bn"] .stl,
+html[lang^="bn"] .stl .stl__wrap,
+html[lang^="bn"] .stl .stl__card,
+html[lang^="bn"] .stl .stl__metric,
+html[lang^="bn"] .stl .stl__statement { min-width: 0; }
+
+html[lang^="bn"] .stl .stl__header,
+html[lang^="bn"] .stl .stl__header-side,
+html[lang^="bn"] .stl .stl__card-actions,
+html[lang^="bn"] .stl .stl__statement-foot { flex-wrap: wrap; }
+
+html[lang^="bn"] .stl .stl__tabs,
+html[lang^="bn"] .stl .stl__member-tabs {
+    max-width: 100%;
+    overflow-x: auto;
+    justify-content: flex-start;
+    scrollbar-width: thin;
+}
+
+html[lang^="bn"] .stl .stl__tab,
+html[lang^="bn"] .stl .stl__member-tab { flex: 0 0 auto; white-space: nowrap; }
+html[lang^="bn"] .stl .stl__tab span { display: inline; }
+html[lang^="bn"] .stl .nx-btn,
+html[lang^="bn"] .stl .stl__view-btn,
+html[lang^="bn"] .stl .stl__segment-btn { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+html[lang^="bn"] .stl .stl__sheet-scroll { max-width: 100%; overflow-x: auto; overscroll-behavior-inline: contain; }
+html[lang^="bn"] .stl .stl__line-chart { max-width: 100%; overflow-x: auto; }
+html[lang^="bn"] .stl .stl__bill-body,
+html[lang^="bn"] .stl .stl__ledger-body,
+html[lang^="bn"] .stl .stl__chart-label { min-width: 0; overflow-wrap: anywhere; }
+
+@media (max-width: 520px) {
+    html[lang^="bn"] .stl .stl__tab { min-width: max-content; padding-inline: .75rem; }
+}

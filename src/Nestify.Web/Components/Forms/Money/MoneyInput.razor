@@ -2,6 +2,7 @@
 @typeparam TValue
 @inherits InputBase<TValue>
 @inject MoneyFormatterService MoneyFormatter
+@inject IStringLocalizer<SharedResource> L
 
 <div class="field">
     @if (!string.IsNullOrEmpty(Label))
@@ -123,7 +124,7 @@
         }
 
         result = default!;
-        validationErrorMessage = "Please enter a valid amount.";
+        validationErrorMessage = L["Please enter a valid amount."];
         return false;
     }
 }

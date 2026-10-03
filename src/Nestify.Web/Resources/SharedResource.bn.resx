@@ -689,4 +689,202 @@
   <data name="Only the requester on an accepted, active, or completed engagement can review this helper." xml:space="preserve"><value>গৃহীত, সক্রিয় বা সম্পন্ন নিয়োগের অনুরোধকারীই কেবল এই সহায়িকার পর্যালোচনা দিতে পারবেন।</value></data>
   <data name="You&apos;ve already reviewed this engagement." xml:space="preserve"><value>আপনি এই নিয়োগের জন্য ইতিমধ্যে পর্যালোচনা দিয়েছেন।</value></data>
   <data name="Only a current manager or co-manager can release an active helper for this home." xml:space="preserve"><value>শুধু বর্তমান ব্যবস্থাপক বা সহ-ব্যবস্থাপক এই বাসার সক্রিয় সহায়িকাকে অব্যাহতি দিতে পারেন।</value></data>
+  <data name="left" xml:space="preserve"><value>বাসা ছেড়েছেন</value></data>
+  <data name="meal fund ÷ total meals" xml:space="preserve"><value>খাবারের তহবিল ÷ মোট খাবার</value></data>
+  <data name="Groceries for the week" xml:space="preserve"><value>এই সপ্তাহের বাজার</value></data>
+  <data name="The fewest hand-overs that settle everyone up." xml:space="preserve"><value>সবার হিসাব মেটাতে যত কম সম্ভব লেনদেন।</value></data>
+  <data name="Collected for bills" xml:space="preserve"><value>বিলের জন্য আদায়</value></data>
+  <data name="Log a payment" xml:space="preserve"><value>পরিশোধ নথিভুক্ত করুন</value></data>
+  <data name="Meal cost" xml:space="preserve"><value>খাবারের খরচ</value></data>
+  <data name="{0} monthly meals and meal cost" xml:space="preserve"><value>{0}-এর মাসভিত্তিক খাবার ও খরচ</value></data>
+  <data name="{0}: {1} meals, {2}" xml:space="preserve"><value>{0}: {1} বেলা, {2}</value></data>
+  <data name="{0} members" xml:space="preserve"><value>{0} জন সদস্য</value></data>
+  <data name="Monthly meals and meal cost line chart" xml:space="preserve"><value>মাসভিত্তিক খাবার ও খরচের রেখাচিত্র</value></data>
+  <data name="Could not record the payment." xml:space="preserve"><value>পরিশোধ নথিভুক্ত করা যায়নি।</value></data>
+  <data name="Monthly view" xml:space="preserve"><value>মাসভিত্তিক সারাংশ</value></data>
+  <data name="Meals saved" xml:space="preserve"><value>খাবারের হিসাব সংরক্ষিত হয়েছে</value></data>
+  <data name="{0} on {1}" xml:space="preserve"><value>{0}, {1}-এ</value></data>
+  <data name="Member added" xml:space="preserve"><value>সদস্য যোগ হয়েছে</value></data>
+  <data name="House financial summary for {0}" xml:space="preserve"><value>{0}-এর বাসার আর্থিক সারাংশ</value></data>
+  <data name="Add a short note so the house knows what this was." xml:space="preserve"><value>এটি কীসের পরিশোধ, তা বোঝাতে সংক্ষিপ্ত নোট লিখুন।</value></data>
+  <data name="Still due" xml:space="preserve"><value>এখনো বাকি</value></data>
+  <data name="Meals, bills, and payments are read-only now. The statement below is the final word." xml:space="preserve"><value>এখন খাবার, বিল ও পরিশোধের তথ্য শুধু দেখা যাবে। নিচের বিবরণই চূড়ান্ত হিসাব।</value></data>
+  <data name="The book for {0} is open." xml:space="preserve"><value>{0}-এর হিসাব খোলা হয়েছে।</value></data>
+  <data name="rent, utilities" xml:space="preserve"><value>ভাড়া ও পরিষেবা বিল</value></data>
+  <data name="{0} total" xml:space="preserve"><value>মোট {0}</value></data>
+  <data name="Everything here is split equally between all {0} members in this book." xml:space="preserve"><value>এই হিসাবের {0} জন সদস্যের মধ্যে সব খরচ সমানভাবে ভাগ হবে।</value></data>
+  <data name="People who joined the home after the book was opened are not in it yet. Add them here so they get a meal column and a share of the bills." xml:space="preserve"><value>হিসাব খোলার পর যাঁরা বাসায় যোগ দিয়েছেন, তাঁরা এখনো এতে অন্তর্ভুক্ত নন। তাঁদের খাবারের কলাম ও বিলের অংশ যোগ করতে এখানে সদস্য হিসেবে যুক্ত করুন।</value></data>
+  <data name="Per meal" xml:space="preserve"><value>প্রতি বেলায়</value></data>
+  <data name="Go to my home" xml:space="preserve"><value>আমার বাসায় যান</value></data>
+  <data name="The settlement book belongs to the home you live in. Join a home with an invite code, or create one and invite your flatmates, and the book will show up here." xml:space="preserve"><value>এই হিসাবটি আপনার বাসার জন্য। আমন্ত্রণ কোড দিয়ে কোনো বাসায় যোগ দিন, অথবা নতুন বাসা তৈরি করে সহবাসীদের আমন্ত্রণ জানান—তাহলেই এখানে হিসাব দেখতে পাবেন।</value></data>
+  <data name="Meals" xml:space="preserve"><value>খাবার</value></data>
+  <data name="No payments logged for this month yet." xml:space="preserve"><value>এই মাসে এখনো কোনো পরিশোধ নথিভুক্ত হয়নি।</value></data>
+  <data name="{0} is now {1}." xml:space="preserve"><value>{0}-এর নতুন পরিমাণ {1}।</value></data>
+  <data name="Date" xml:space="preserve"><value>তারিখ</value></data>
+  <data name="What everyone has paid" xml:space="preserve"><value>সবার পরিশোধের হিসাব</value></data>
+  <data name="Which columns to show" xml:space="preserve"><value>কোন কলাম দেখানো হবে</value></data>
+  <data name="No bills in this book." xml:space="preserve"><value>এই হিসাবে কোনো বিল নেই।</value></data>
+  <data name="House financial summary" xml:space="preserve"><value>বাসার আর্থিক সারাংশ</value></data>
+  <data name="Bill not added" xml:space="preserve"><value>বিল যোগ হয়নি</value></data>
+  <data name="Shared house account" xml:space="preserve"><value>বাসার সম্মিলিত হিসাব</value></data>
+  <data name="The house owes {0}" xml:space="preserve"><value>বাসার কাছে {0}-এর পাওনা আছে</value></data>
+  <data name="Save payment" xml:space="preserve"><value>পরিশোধ সংরক্ষণ করুন</value></data>
+  <data name="Payments and costs differ by {0}. The book can be finalized once they match." xml:space="preserve"><value>পরিশোধ ও খরচের মধ্যে {0} পার্থক্য আছে। দুই অঙ্ক সমান হলে হিসাব চূড়ান্ত করা যাবে।</value></data>
+  <data name="Collection rate" xml:space="preserve"><value>আদায়ের হার</value></data>
+  <data name="Payment purpose" xml:space="preserve"><value>পরিশোধের কারণ</value></data>
+  <data name="Total" xml:space="preserve"><value>মোট</value></data>
+  <data name="{0} was removed from this month." xml:space="preserve"><value>এই মাসের হিসাব থেকে {0} সরানো হয়েছে।</value></data>
+  <data name="Month finalized" xml:space="preserve"><value>মাসের হিসাব চূড়ান্ত হয়েছে</value></data>
+  <data name="Meals: 0 - {0}" xml:space="preserve"><value>খাবার: ০ – {0}</value></data>
+  <data name="{0} entries" xml:space="preserve"><value>{0}টি এন্ট্রি</value></data>
+  <data name="Cost" xml:space="preserve"><value>খরচ</value></data>
+  <data name="The meal sheet is up to date." xml:space="preserve"><value>খাবারের হিসাব হালনাগাদ হয়েছে।</value></data>
+  <data name="Amount must be greater than ৳0.00." xml:space="preserve"><value>পরিমাণ ৳০.০০-এর বেশি হতে হবে।</value></data>
+  <data name="{0} pays {1}" xml:space="preserve"><value>{0}, {1}-কে দেবেন</value></data>
+  <data name="Finalize month" xml:space="preserve"><value>মাসের হিসাব চূড়ান্ত করুন</value></data>
+  <data name="Give the bill a name." xml:space="preserve"><value>বিলের একটি নাম লিখুন।</value></data>
+  <data name="Meal sheet" xml:space="preserve"><value>খাবারের হিসাব</value></data>
+  <data name="{0} meals" xml:space="preserve"><value>{0} বেলা</value></data>
+  <data name="Add another bill" xml:space="preserve"><value>আরেকটি বিল যোগ করুন</value></data>
+  <data name="Remove payment" xml:space="preserve"><value>পরিশোধ সরান</value></data>
+  <data name="Could not load settlement" xml:space="preserve"><value>হিসাব আনা যায়নি</value></data>
+  <data name="Amount cannot be negative." xml:space="preserve"><value>পরিমাণ ঋণাত্মক হতে পারে না।</value></data>
+  <data name="Total costs" xml:space="preserve"><value>মোট খরচ</value></data>
+  <data name="How the month adds up across everyone." xml:space="preserve"><value>এই মাসে সবার হিসাব মিলিয়ে সারাংশ।</value></data>
+  <data name="Could not add the bill." xml:space="preserve"><value>বিল যোগ করা যায়নি।</value></data>
+  <data name="Surplus held" xml:space="preserve"><value>উদ্বৃত্ত জমা আছে</value></data>
+  <data name="Total meal cost" xml:space="preserve"><value>মোট খাবারের খরচ</value></data>
+  <data name="{0} amount" xml:space="preserve"><value>{0}-এর পরিমাণ</value></data>
+  <data name="Who paid" xml:space="preserve"><value>কে পরিশোধ করেছেন</value></data>
+  <data name="Fully collected" xml:space="preserve"><value>সম্পূর্ণ আদায় হয়েছে</value></data>
+  <data name="Still to collect" xml:space="preserve"><value>এখনো আদায় বাকি</value></data>
+  <data name="Red line shows total meals. Blue line shows total meal cost in taka." xml:space="preserve"><value>লাল রেখায় মোট খাবারের সংখ্যা এবং নীল রেখায় টাকায় মোট খাবারের খরচ দেখানো হয়েছে।</value></data>
+  <data name="Everyone" xml:space="preserve"><value>সবাই</value></data>
+  <data name="Breakfast" xml:space="preserve"><value>সকালের খাবার</value></data>
+  <data name="Add a member to this book" xml:space="preserve"><value>এই হিসাবে সদস্য যোগ করুন</value></data>
+  <data name="Bill name" xml:space="preserve"><value>বিলের নাম</value></data>
+  <data name="Payment not saved" xml:space="preserve"><value>পরিশোধ সংরক্ষিত হয়নি</value></data>
+  <data name="Only me" xml:space="preserve"><value>শুধু আমারটি</value></data>
+  <data name="Bill updated" xml:space="preserve"><value>বিল হালনাগাদ হয়েছে</value></data>
+  <data name="Payment saved" xml:space="preserve"><value>পরিশোধ সংরক্ষিত হয়েছে</value></data>
+  <data name="Please enter a valid amount." xml:space="preserve"><value>সঠিক পরিমাণ লিখুন।</value></data>
+  <data name="Total owed" xml:space="preserve"><value>মোট দেনা</value></data>
+  <data name="{0} will be split equally." xml:space="preserve"><value>{0} সমানভাবে ভাগ হবে।</value></data>
+  <data name="{0} each" xml:space="preserve"><value>প্রতি জনে {0}</value></data>
+  <data name="See what the house needs, what members have paid, and what remains." xml:space="preserve"><value>বাসার মোট খরচ, সদস্যদের পরিশোধ এবং বাকি অর্থের হিসাব দেখুন।</value></data>
+  <data name="Removed {0} from {1}." xml:space="preserve"><value>{1}-এর হিসাব থেকে {0} সরানো হয়েছে।</value></data>
+  <data name="Cost: {0} - {1}" xml:space="preserve"><value>খরচ: {0} – {1}</value></data>
+  <data name="House balance" xml:space="preserve"><value>বাসার ব্যালান্স</value></data>
+  <data name="The manager has not opened this month&apos;s book yet." xml:space="preserve"><value>ব্যবস্থাপক এখনো এই মাসের হিসাব খোলেননি।</value></data>
+  <data name="all bill money is in" xml:space="preserve"><value>বিলের সব টাকা জমা হয়েছে</value></data>
+  <data name="Who pays whom" xml:space="preserve"><value>কে কাকে দেবেন</value></data>
+  <data name="bill money not yet paid in" xml:space="preserve"><value>বিলের টাকা এখনো পুরো জমা হয়নি</value></data>
+  <data name="{0} owes the house" xml:space="preserve"><value>{0}-এর কাছে বাসার পাওনা আছে</value></data>
+  <data name="Opening the book takes a snapshot of everyone living in the home right now ({0} members). Meals, bills and payments all start at zero." xml:space="preserve"><value>হিসাব খোলার সময় বাসায় থাকা {0} জনের তালিকা তৈরি হবে। খাবার, বিল ও পরিশোধের হিসাব শূন্য থেকে শুরু হবে।</value></data>
+  <data name="Shared bills" xml:space="preserve"><value>সম্মিলিত বিল</value></data>
+  <data name="each" xml:space="preserve"><value>প্রতি জনে</value></data>
+  <data name="Add to book" xml:space="preserve"><value>হিসাবে যোগ করুন</value></data>
+  <data name="Payment removed" xml:space="preserve"><value>পরিশোধ সরানো হয়েছে</value></data>
+  <data name="Settlement sections" xml:space="preserve"><value>হিসাবের বিভাগ</value></data>
+  <data name="{0} is finalized" xml:space="preserve"><value>{0}-এর হিসাব চূড়ান্ত হয়েছে</value></data>
+  <data name="{0} is now locked." xml:space="preserve"><value>{0}-এর হিসাব এখন বন্ধ।</value></data>
+  <data name="Bill removed" xml:space="preserve"><value>বিল সরানো হয়েছে</value></data>
+  <data name="Open book" xml:space="preserve"><value>হিসাব খোলা</value></data>
+  <data name="Track meals, split the monthly bills, log what everyone has paid, and see exactly who owes the house and who the house owes." xml:space="preserve"><value>খাবারের হিসাব রাখুন, মাসিক বিল ভাগ করুন, সবার পরিশোধ নথিভুক্ত করুন এবং দেখুন কে বাসার কাছে দেনা, আর বাসা কার কাছে পাওনাদার।</value></data>
+  <data name="Contributed" xml:space="preserve"><value>পরিশোধ করেছেন</value></data>
+  <data name="Hover a point for the exact monthly total. Each metric uses its own scale." xml:space="preserve"><value>মাসের সঠিক হিসাব দেখতে বিন্দুর ওপর রাখুন। প্রতিটি পরিমাপের স্কেল আলাদা।</value></data>
+  <data name="Bill share each" xml:space="preserve"><value>প্রতি জনের বিলের অংশ</value></data>
+  <data name="per person" xml:space="preserve"><value>প্রতি জনে</value></data>
+  <data name="Bars are scaled to the largest amount." xml:space="preserve"><value>বারগুলো সর্বোচ্চ অঙ্কের অনুপাতে দেখানো হয়েছে।</value></data>
+  <data name="{0} meals this month" xml:space="preserve"><value>এই মাসে {0} বেলা</value></data>
+  <data name="Meal cost by member" xml:space="preserve"><value>সদস্যভিত্তিক খাবারের খরচ</value></data>
+  <data name="Bills" xml:space="preserve"><value>বিল</value></data>
+  <data name="They are now part of this month&apos;s book." xml:space="preserve"><value>তিনি এই মাসের হিসাবে যুক্ত হয়েছেন।</value></data>
+  <data name="{0} meals eaten" xml:space="preserve"><value>মোট {0} বেলার খাবার</value></data>
+  <data name="Add bill" xml:space="preserve"><value>বিল যোগ করুন</value></data>
+  <data name="See how each person&apos;s meal cost has changed across the house books." xml:space="preserve"><value>বাসার বিভিন্ন মাসের হিসাবে প্রত্যেক সদস্যের খাবারের খরচ কীভাবে বদলেছে দেখুন।</value></data>
+  <data name="Cost per meal" xml:space="preserve"><value>প্রতি বেলার খরচ</value></data>
+  <data name="Total meals" xml:space="preserve"><value>মোট খাবার</value></data>
+  <data name="Everyone living in the home is already in this month&apos;s book." xml:space="preserve"><value>বাসার সব সদস্যই এই মাসের হিসাবে আছেন।</value></data>
+  <data name="Previous month" xml:space="preserve"><value>আগের মাস</value></data>
+  <data name="All saved" xml:space="preserve"><value>সব সংরক্ষিত</value></data>
+  <data name="Building service charge" xml:space="preserve"><value>বাড়ির সেবা-চার্জ</value></data>
+  <data name="No book for {0}" xml:space="preserve"><value>{0}-এর কোনো হিসাব নেই</value></data>
+  <data name="Collected" xml:space="preserve"><value>আদায় হয়েছে</value></data>
+  <data name="Bill added" xml:space="preserve"><value>বিল যোগ হয়েছে</value></data>
+  <data name="The {0} rounding difference goes to {1}, who has the largest meal cost." xml:space="preserve"><value>গোলকরণজনিত {0} পার্থক্য {1}-এর হিসাবে যোগ হবে, কারণ তাঁর খাবারের খরচ সবচেয়ে বেশি।</value></data>
+  <data name="Record money a member handed over this month." xml:space="preserve"><value>এই মাসে কোনো সদস্য যে টাকা দিয়েছেন, তা নথিভুক্ত করুন।</value></data>
+  <data name="You can fill in your own column. The manager fills in everyone else&apos;s." xml:space="preserve"><value>আপনি নিজের কলামের তথ্য দিতে পারবেন। অন্য সবার তথ্য ব্যবস্থাপক দেবেন।</value></data>
+  <data name="Anything else the house pays for together — it gets split equally too." xml:space="preserve"><value>বাসার অন্য যে খরচ সবাই মিলে দেন, সেটিও সমানভাবে ভাগ হবে।</value></data>
+  <data name="Dinner" xml:space="preserve"><value>রাতের খাবার</value></data>
+  <data name="Bills to pay" xml:space="preserve"><value>পরিশোধযোগ্য বিল</value></data>
+  <data name="Next month" xml:space="preserve"><value>পরের মাস</value></data>
+  <data name="What was it for" xml:space="preserve"><value>কিসের জন্য পরিশোধ</value></data>
+  <data name="Could not load that month" xml:space="preserve"><value>ওই মাসের হিসাব আনা যায়নি</value></data>
+  <data name="Not done" xml:space="preserve"><value>সম্পন্ন হয়নি</value></data>
+  <data name="Settled up" xml:space="preserve"><value>হিসাব সমান</value></data>
+  <data name="Book opened" xml:space="preserve"><value>হিসাব খোলা হয়েছে</value></data>
+  <data name="Each payment is either money for meals or money toward the shared bills." xml:space="preserve"><value>প্রতিটি পরিশোধ খাবারের খরচ অথবা সম্মিলিত বিলের জন্য।</value></data>
+  <data name="{0} recorded for {1}." xml:space="preserve"><value>{1}-এর জন্য {0} নথিভুক্ত হয়েছে।</value></data>
+  <data name="Pick who paid." xml:space="preserve"><value>কে পরিশোধ করেছেন তা বেছে নিন।</value></data>
+  <data name="{0} each · {1} bills" xml:space="preserve"><value>প্রতি জনে {0} · মোট {1}টি বিল</value></data>
+  <data name="Bill share" xml:space="preserve"><value>বিলের অংশ</value></data>
+  <data name="Total for {0}" xml:space="preserve"><value>{0}-এর মোট</value></data>
+  <data name="Remove bill" xml:space="preserve"><value>বিল সরান</value></data>
+  <data name="You are not in a home yet" xml:space="preserve"><value>আপনি এখনো কোনো বাসায় যুক্ত নন</value></data>
+  <data name="Monthly bills" xml:space="preserve"><value>মাসিক বিল</value></data>
+  <data name="Member meal cost charts" xml:space="preserve"><value>সদস্যভিত্তিক খাবারের খরচের চার্ট</value></data>
+  <data name="Loading the book…" xml:space="preserve"><value>হিসাব আনা হচ্ছে…</value></data>
+  <data name="Lunch" xml:space="preserve"><value>দুপুরের খাবার</value></data>
+  <data name="{0} meals · {1} total cost" xml:space="preserve"><value>{0} বেলা · মোট খরচ {1}</value></data>
+  <data name="Could not load the settlement book" xml:space="preserve"><value>হিসাবের খাতা আনা যায়নি</value></data>
+  <data name="Month locked" xml:space="preserve"><value>মাসের হিসাব বন্ধ</value></data>
+  <data name="Note" xml:space="preserve"><value>নোট</value></data>
+  <data name="Open book for {0}" xml:space="preserve"><value>{0}-এর হিসাব খুলুন</value></data>
+  <data name="Paid on" xml:space="preserve"><value>পরিশোধের তারিখ</value></data>
+  <data name="Meal related" xml:space="preserve"><value>খাবারের খরচ</value></data>
+  <data name="Statement" xml:space="preserve"><value>বিবরণী</value></data>
+  <data name="Payments" xml:space="preserve"><value>পরিশোধ</value></data>
+  <data name="Shared bills collected" xml:space="preserve"><value>সম্মিলিত বিলের জন্য আদায়</value></data>
+  <data name="groceries, bazar" xml:space="preserve"><value>বাজার ও খাবার কেনাকাটা</value></data>
+  <data name="{0} {1} on {2}" xml:space="preserve"><value>{0} {1}, {2}-এ</value></data>
+  <data name="Meal fund" xml:space="preserve"><value>খাবারের তহবিল</value></data>
+  <data name="{0}: {1} meals, total cost {2}, at {3} each" xml:space="preserve"><value>{0}: {1} বেলা, মোট খরচ {2}, প্রতি বেলায় {3}</value></data>
+  <data name="This month&apos;s book is not open." xml:space="preserve"><value>এই মাসের হিসাব খোলা নেই।</value></data>
+  <data name="That person is not a member of this home." xml:space="preserve"><value>এই ব্যক্তি বাসার সদস্য নন।</value></data>
+  <data name="Every meal entry must belong to a member of this month&apos;s book." xml:space="preserve"><value>প্রতিটি খাবারের তথ্য এই মাসের হিসাবের কোনো সদস্যের হতে হবে।</value></data>
+  <data name="Rent, electricity, water, gas, and internet bills are fixed and cannot be removed." xml:space="preserve"><value>ভাড়া, বিদ্যুৎ, পানি, গ্যাস ও ইন্টারনেট বিল নির্ধারিত—এগুলো সরানো যাবে না।</value></data>
+  <data name="The book is open." xml:space="preserve"><value>হিসাব খোলা হয়েছে।</value></data>
+  <data name="The payment date must belong to the selected settlement period." xml:space="preserve"><value>পরিশোধের তারিখ নির্বাচিত হিসাবের মাসের মধ্যে হতে হবে।</value></data>
+  <data name="Meal sheet saved." xml:space="preserve"><value>খাবারের হিসাব সংরক্ষিত হয়েছে।</value></data>
+  <data name="Payment not found." xml:space="preserve"><value>পরিশোধের তথ্য পাওয়া যায়নি।</value></data>
+  <data name="No meal changes were supplied." xml:space="preserve"><value>খাবারের কোনো পরিবর্তন দেওয়া হয়নি।</value></data>
+  <data name="A book already exists for this month." xml:space="preserve"><value>এই মাসের হিসাব ইতিমধ্যে খোলা হয়েছে।</value></data>
+  <data name="The payer is not in this month&apos;s book." xml:space="preserve"><value>যিনি পরিশোধ করেছেন, তিনি এই মাসের হিসাবে নেই।</value></data>
+  <data name="Only a home manager or co-manager can finalize a settlement." xml:space="preserve"><value>শুধু বাসার ব্যবস্থাপক বা সহ-ব্যবস্থাপক হিসাব চূড়ান্ত করতে পারেন।</value></data>
+  <data name="Bill removed." xml:space="preserve"><value>বিল সরানো হয়েছে।</value></data>
+  <data name="Only a home manager or co-manager can change bills." xml:space="preserve"><value>শুধু বাসার ব্যবস্থাপক বা সহ-ব্যবস্থাপক বিল পরিবর্তন করতে পারেন।</value></data>
+  <data name="Only a home manager or co-manager can add members to the book." xml:space="preserve"><value>শুধু বাসার ব্যবস্থাপক বা সহ-ব্যবস্থাপক হিসাবে সদস্য যোগ করতে পারেন।</value></data>
+  <data name="Payment removed." xml:space="preserve"><value>পরিশোধের তথ্য সরানো হয়েছে।</value></data>
+  <data name="Meal dates and counts must belong to the selected period." xml:space="preserve"><value>খাবারের তারিখ ও সংখ্যা নির্বাচিত হিসাবের মাসের মধ্যে হতে হবে।</value></data>
+  <data name="Only a home manager or co-manager can record payments." xml:space="preserve"><value>শুধু বাসার ব্যবস্থাপক বা সহ-ব্যবস্থাপক পরিশোধ নথিভুক্ত করতে পারেন।</value></data>
+  <data name="A member, positive amount, payment type, and note are required." xml:space="preserve"><value>সদস্য, শূন্যের বেশি পরিমাণ, পরিশোধের ধরন এবং নোট দিতে হবে।</value></data>
+  <data name="Only a home manager or co-manager can remove payments." xml:space="preserve"><value>শুধু বাসার ব্যবস্থাপক বা সহ-ব্যবস্থাপক পরিশোধের তথ্য সরাতে পারেন।</value></data>
+  <data name="Only a home manager or co-manager can remove bills." xml:space="preserve"><value>শুধু বাসার ব্যবস্থাপক বা সহ-ব্যবস্থাপক বিল সরাতে পারেন।</value></data>
+  <data name="The bill date must belong to the selected settlement period." xml:space="preserve"><value>বিলের তারিখ নির্বাচিত হিসাবের মাসের মধ্যে হতে হবে।</value></data>
+  <data name="Only a home manager or co-manager can open the book." xml:space="preserve"><value>শুধু বাসার ব্যবস্থাপক বা সহ-ব্যবস্থাপক হিসাব খুলতে পারেন।</value></data>
+  <data name="Only a home manager or co-manager can add bills." xml:space="preserve"><value>শুধু বাসার ব্যবস্থাপক বা সহ-ব্যবস্থাপক বিল যোগ করতে পারেন।</value></data>
+  <data name="A bill description and a non-negative amount are required." xml:space="preserve"><value>বিলের বিবরণ এবং শূন্য বা তার বেশি পরিমাণ দিতে হবে।</value></data>
+  <data name="That member is already in the book." xml:space="preserve"><value>এই সদস্যকে হিসাবে আগেই যুক্ত করা হয়েছে।</value></data>
+  <data name="Finalize the open book before opening another month." xml:space="preserve"><value>নতুন মাসের হিসাব খোলার আগে চলমান হিসাব চূড়ান্ত করুন।</value></data>
+  <data name="Bill updated." xml:space="preserve"><value>বিল হালনাগাদ হয়েছে।</value></data>
+  <data name="Members can edit only their own meals." xml:space="preserve"><value>সদস্যরা শুধু নিজেদের খাবারের তথ্য পরিবর্তন করতে পারবেন।</value></data>
+  <data name="A bill amount cannot be negative." xml:space="preserve"><value>বিলের পরিমাণ ঋণাত্মক হতে পারে না।</value></data>
+  <data name="Payments must equal the month&apos;s costs before finalization." xml:space="preserve"><value>হিসাব চূড়ান্ত করার আগে পরিশোধের মোট অঙ্ক মাসের মোট খরচের সমান হতে হবে।</value></data>
+  <data name="Member added to the book." xml:space="preserve"><value>সদস্যকে হিসাবে যোগ করা হয়েছে।</value></data>
+  <data name="Bill not found." xml:space="preserve"><value>বিলটি পাওয়া যায়নি।</value></data>
+  <data name="Invalid settlement period." xml:space="preserve"><value>নির্বাচিত হিসাবের মাসটি বৈধ নয়।</value></data>
+  <data name="Dinner short" xml:space="preserve"><value>রা</value></data>
+  <data name="Breakfast short" xml:space="preserve"><value>সা</value></data>
+  <data name="Lunch short" xml:space="preserve"><value>দু</value></data>
 </root>
