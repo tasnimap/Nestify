@@ -65,8 +65,9 @@ html[lang^="bn"] textarea {
 
 html[lang^="bn"] .site-footer__links { gap: .8rem 1.1rem; }
 html[lang^="bn"] .site-footer__legal { line-height: 1.8; }
-html[lang^="bn"] .hnav__link { padding-inline: .55rem; font-size: .84rem; white-space: normal; }
+html[lang^="bn"] .hnav__link { padding-inline: .35rem; font-size: .78rem; white-space: nowrap; }
 html[lang^="bn"] .hnav__brand { font-size: 1rem; }
+html[lang^="bn"] .hnav__menu-trigger > span:not(.hnav__avatar) { max-width: 8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 @media (min-width: 800px) {
     .site-footer__inner { grid-template-columns: 1fr auto; align-items: center; column-gap: 2rem; }
@@ -241,7 +242,7 @@ html[lang^="bn"] .hnav__brand { font-size: 1rem; }
     cursor: pointer;
 }
 
-@media (max-width: 1020px) {
+@media (max-width: 1180px) {
     .hnav__toggle { display: inline-flex; }
 
     .hnav__links {
@@ -265,8 +266,10 @@ html[lang^="bn"] .hnav__brand { font-size: 1rem; }
     .hnav__menu { margin: .5rem 0 0; }
 }
 
-@media (min-width: 1021px) {
+@media (min-width: 1181px) {
     html[lang^="bn"] .nav__panel { gap: .3rem; }
     html[lang^="bn"] .nav__panel .nav__link { padding-inline: .35rem; font-size: .82rem; white-space: normal; }
     html[lang^="bn"] .nav__links { gap: 0; }
+    html[lang^="bn"] .hnav__links { gap: .08rem; }
+    html[lang^="bn"] .hnav__link { gap: .25rem; padding: .45rem .32rem; font-size: .78rem; white-space: nowrap; }
 }

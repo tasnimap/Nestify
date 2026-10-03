@@ -1868,3 +1868,29 @@
     .md-schedule .md-week__row { grid-template-columns: 3.4rem minmax(0, 1fr) 2.3rem; gap: .35rem; }
     .md-schedule .md-week__axis { margin-left: 3.75rem; margin-right: 2.7rem; font-size: .58rem; }
 }
+
+/* Keep longer Bengali helper labels inside their cards without shrinking text. */
+html[lang^="bn"] .dh.md,
+html[lang^="bn"] .dh.md .dh__inner,
+html[lang^="bn"] .dh.md .dh-panel,
+html[lang^="bn"] .dh.md .md-request__who,
+html[lang^="bn"] .dh.md .md-visit__who,
+html[lang^="bn"] .dh.md .md-review__who { min-width: 0; }
+
+html[lang^="bn"] .dh.md .md-head > div,
+html[lang^="bn"] .dh.md .dh-item__main,
+html[lang^="bn"] .dh.md .md-request__who,
+html[lang^="bn"] .dh.md .md-visit__who,
+html[lang^="bn"] .dh.md .md-review__who { overflow-wrap: anywhere; }
+
+html[lang^="bn"] .dh.md .md-tabs {
+    max-width: 100%;
+    overflow-x: auto;
+    justify-content: flex-start;
+    scrollbar-width: thin;
+}
+
+html[lang^="bn"] .dh.md .md-tab { flex: 0 0 auto; white-space: nowrap; }
+html[lang^="bn"] .dh.md .nx-btn,
+html[lang^="bn"] .dh.md .dh-chip { max-width: 100%; white-space: normal; }
+html[lang^="bn"] .dh.md .md-grid-wrap { max-width: 100%; }
