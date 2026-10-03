@@ -19,8 +19,8 @@
             </svg>
         </span>
         <span class="mk-up__zone-text">
-            <strong>@(_full ? "Photo limit reached" : "Add photos")</strong>
-            <span class="mk-muted">JPG, PNG or WebP · up to @MaxSizeMb MB each · @MaxImages max</span>
+            <strong>@(_full ? L["Photo limit reached"] : L["Add photos"])</strong>
+            <span class="mk-muted">@L["JPG, PNG or WebP · up to {0} MB each · {1} max", MaxSizeMb, MaxImages]</span>
         </span>
     </label>
 
@@ -34,7 +34,7 @@
                     <span class="mk-up__name" title="@entry.Name">@entry.Name</span>
                     <span class="mk-up__size">@entry.SizeLabel</span>
                     <button type="button" class="mk-up__remove" @onclick="() => Remove(entry)"
-                            aria-label="@($"Remove {entry.Name}")">
+                            aria-label="@L["Remove {0}", entry.Name]">
                         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6 18 18M6 18 18 6" /></svg>
                     </button>
                 </li>
@@ -44,7 +44,7 @@
 
     <p class="mk-up__note">
         <svg viewBox="0 0 24 24" aria-hidden="true" class="nx-icon"><circle cx="12" cy="12" r="9" /><path d="M12 8h.01M11 12h1v4h1" /></svg>
-        These checks are a preview. Your photos are checked again on our side when the listing goes live.
+        @L["These checks are a preview. Your photos are checked again on our side when the listing goes live."]
     </p>
 </div>
 
@@ -69,8 +69,8 @@
         for (var i = 0; i < Value.Count; i++)
         {
             var seed = Value[i];
-            var name = seed.StartsWith("tile:") ? seed[5..].Replace('-', ' ') : $"Photo {i + 1}";
-            _items.Add(new Entry(seed, name, "saved"));
+            var name = seed.StartsWith("tile:") ? seed[5..].Replace('-', ' ') : L["Photo {0}", i + 1].Value;
+            _items.Add(new Entry(seed, name, L["Saved"].Value));
         }
     }
 
@@ -94,7 +94,8 @@
 
         if (rejected > 0)
         {
-            Toast.ShowWarning($"{rejected} file(s) skipped — wrong type or over {MaxSizeMb} MB.", "Some photos not added");
+            Toast.ShowWarning(L["{0} file(s) skipped — wrong type or over {1} MB.", rejected, MaxSizeMb].Value,
+                L["Some photos not added"].Value);
         }
 
         await PushAsync();

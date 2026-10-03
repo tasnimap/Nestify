@@ -5,7 +5,7 @@
 <div class="mk-gallery">
     <div class="mk-gallery__main">
         <button type="button" class="mk-gallery__open" @onclick="OpenLightbox"
-                aria-label="View photos full size">
+                aria-label="@L["View photos full size"]">
             <MediaTile Seed="@Current" Label="@Title"
                        Alt="@($"{Title} — photo {_index + 1} of {_count}")"
                        CssClass="mk-gallery__frame" />
@@ -14,11 +14,11 @@
         @if (_count > 1)
         {
             <button type="button" class="mk-gallery__nav mk-gallery__nav--prev"
-                    @onclick="Prev" aria-label="Previous photo">
+                    @onclick="Prev" aria-label="@L["Previous photo"]">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
             </button>
             <button type="button" class="mk-gallery__nav mk-gallery__nav--next"
-                    @onclick="Next" aria-label="Next photo">
+                    @onclick="Next" aria-label="@L["Next photo"]">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6" /></svg>
             </button>
             <span class="mk-gallery__count">@(_index + 1) / @_count</span>

@@ -21,8 +21,8 @@
                 <span class="mk-crumbs__sep">/</span>
                 <span>@L["Not available"]</span>
             </nav>
-            <MarketplaceEmpty Title="You can't edit this listing"
-                              Message="It doesn't exist, or it isn't one of yours.">
+            <MarketplaceEmpty Title="@L["You can't edit this listing"]"
+                              Message="@L["It doesn't exist, or it isn't one of yours."]">
                 <a class="nx-btn nx-btn--primary" href="marketplace/mine">@L["Go to my listings"]</a>
             </MarketplaceEmpty>
         }
@@ -88,18 +88,18 @@
             var ok = await Marketplace.UpdateItemAsync(Id, _model.ToUpdateDto());
             if (ok)
             {
-                Toast.ShowSuccess("Your listing has been updated.", "Changes saved");
+                Toast.ShowSuccess(L["Your listing has been updated."].Value, L["Changes saved"].Value);
                 Nav.NavigateTo($"marketplace/items/{Id}");
             }
             else
             {
-                Toast.ShowError("Couldn't save those changes.", "Something went wrong");
+                Toast.ShowError(L["Couldn't save those changes."].Value, L["Something went wrong"].Value);
                 _busy = false;
             }
         }
         catch
         {
-            Toast.ShowError("Couldn't save those changes.", "Something went wrong");
+            Toast.ShowError(L["Couldn't save those changes."].Value, L["Something went wrong"].Value);
             _busy = false;
         }
     }

@@ -1228,4 +1228,201 @@
   <data name="Arrange a public place and daytime handover. Nestify never handles payment." xml:space="preserve"><value>জনসমাগমপূর্ণ স্থানে দিনের বেলায় পণ্য হস্তান্তরের ব্যবস্থা করুন। Nestify কখনো পেমেন্ট পরিচালনা করে না।</value></data>
   <data name="Price ↓" xml:space="preserve"><value>দাম ↓</value></data>
   <data name="These checks are a preview. Your photos are checked again on our side when the listing goes live." xml:space="preserve"><value>এটি প্রাথমিক যাচাই। বিজ্ঞাপন প্রকাশের সময় ছবিগুলো আবার পরীক্ষা করা হবে।</value></data>
+  <data name="Where do you study?" xml:space="preserve"><value>আপনি কোথায় পড়াশোনা করেন?</value></data>
+  <data name="Where do you work?" xml:space="preserve"><value>আপনি কোথায় কাজ করেন?</value></data>
+  <data name="Change photo" xml:space="preserve"><value>ছবি পরিবর্তন</value></data>
+  <data name="Reach me" xml:space="preserve"><value>যোগাযোগের তথ্য</value></data>
+  <data name="{0} / {1} days" xml:space="preserve"><value>{0} / {1} দিন</value></data>
+  <data name="None pending" xml:space="preserve"><value>কিছু অপেক্ষমাণ নেই</value></data>
+  <data name="Student" xml:space="preserve"><value>শিক্ষার্থী</value></data>
+  <data name="{0} ({1} yrs)" xml:space="preserve"><value>{0} ({1} বছর)</value></data>
+  <data name="Student — College" xml:space="preserve"><value>কলেজ শিক্ষার্থী</value></data>
+  <data name="Settlement paid" xml:space="preserve"><value>পরিশোধিত হিসাব</value></data>
+  <data name="No active settlement" xml:space="preserve"><value>কোনো সক্রিয় হিসাব নেই</value></data>
+  <data name="Occupation not set" xml:space="preserve"><value>পেশা উল্লেখ করা হয়নি</value></data>
+  <data name="Meals logged" xml:space="preserve"><value>নথিভুক্ত খাবার</value></data>
+  <data name="Student — {0}" xml:space="preserve"><value>শিক্ষার্থী — {0}</value></data>
+  <data name="Non-smoker" xml:space="preserve"><value>ধূমপান করেন না</value></data>
+  <data name="Online" xml:space="preserve"><value>অনলাইন</value></data>
+  <data name="Student — University" xml:space="preserve"><value>বিশ্ববিদ্যালয়ের শিক্ষার্থী</value></data>
+  <data name="Not chosen" xml:space="preserve"><value>নির্বাচন করা হয়নি</value></data>
+  <data name="Cancelling..." xml:space="preserve"><value>বাতিল হচ্ছে…</value></data>
+  <data name="Not added" xml:space="preserve"><value>যোগ করা হয়নি</value></data>
+  <data name="Because you are a job holder, your employee ID is needed too." xml:space="preserve"><value>চাকরিজীবী হওয়ায় আপনার কর্মচারী পরিচয়পত্রও প্রয়োজন।</value></data>
+  <data name="Employee ID" xml:space="preserve"><value>কর্মচারী পরিচয়পত্র</value></data>
+  <data name="Workplace name" xml:space="preserve"><value>কর্মস্থলের নাম</value></data>
+  <data name="Drinking" xml:space="preserve"><value>মদ্যপান</value></data>
+  <data name="Student — High school" xml:space="preserve"><value>মাধ্যমিক শিক্ষার্থী</value></data>
+  <data name="Meal participation" xml:space="preserve"><value>খাবারে অংশগ্রহণ</value></data>
+  <data name="School, college or university name" xml:space="preserve"><value>বিদ্যালয়, কলেজ বা বিশ্ববিদ্যালয়ের নাম</value></data>
+  <data name="{0} pending" xml:space="preserve"><value>{0}টি অপেক্ষমাণ</value></data>
+  <data name="We could not load your profile." xml:space="preserve"><value>আপনার প্রোফাইল লোড করা যায়নি।</value></data>
+  <data name="Active bookings" xml:space="preserve"><value>চলমান বুকিং</value></data>
+  <data name="Date of birth" xml:space="preserve"><value>জন্মতারিখ</value></data>
+  <data name="Job holder" xml:space="preserve"><value>চাকরিজীবী</value></data>
+  <data name="Unemployed" xml:space="preserve"><value>বেকার</value></data>
+  <data name="Student ID" xml:space="preserve"><value>শিক্ষার্থী পরিচয়পত্র</value></data>
+  <data name="Not specified" xml:space="preserve"><value>উল্লেখ করা হয়নি</value></data>
+  <data name="Workplace" xml:space="preserve"><value>কর্মস্থল</value></data>
+  <data name="Profile completeness" xml:space="preserve"><value>প্রোফাইল সম্পূর্ণতা</value></data>
+  <data name="Smoking" xml:space="preserve"><value>ধূমপান</value></data>
+  <data name="Uploading..." xml:space="preserve"><value>আপলোড হচ্ছে…</value></data>
+  <data name="Address not set" xml:space="preserve"><value>ঠিকানা উল্লেখ করা হয়নি</value></data>
+  <data name="This month at a glance" xml:space="preserve"><value>এই মাসের সারাংশ</value></data>
+  <data name="Upload the front of your current school, college or university ID." xml:space="preserve"><value>আপনার বর্তমান বিদ্যালয়, কলেজ বা বিশ্ববিদ্যালয়ের পরিচয়পত্রের সামনের দিকের ছবি দিন।</value></data>
+  <data name="Upload your employee ID or a workplace ID that shows your name." xml:space="preserve"><value>আপনার নাম দেখা যায় এমন কর্মচারী পরিচয়পত্র বা কর্মস্থলের পরিচয়পত্রের ছবি দিন।</value></data>
+  <data name="Smoker" xml:space="preserve"><value>ধূমপায়ী</value></data>
+  <data name="Cancel application" xml:space="preserve"><value>আবেদন বাতিল করুন</value></data>
+  <data name="Bachelor account" xml:space="preserve"><value>ব্যাচেলর অ্যাকাউন্ট</value></data>
+  <data name="Personal details" xml:space="preserve"><value>ব্যক্তিগত তথ্য</value></data>
+  <data name="Female" xml:space="preserve"><value>নারী</value></data>
+  <data name="Settlement contribution" xml:space="preserve"><value>হিসাবের অবদান</value></data>
+  <data name="Because you are a student, your student ID is needed too." xml:space="preserve"><value>শিক্ষার্থী হওয়ায় আপনার শিক্ষার্থী পরিচয়পত্রও প্রয়োজন।</value></data>
+  <data name="this month" xml:space="preserve"><value>এই মাসে</value></data>
+  <data name="Male" xml:space="preserve"><value>পুরুষ</value></data>
+  <data name="Non-drinker" xml:space="preserve"><value>মদ্যপান করেন না</value></data>
+  <data name="Loading your profile..." xml:space="preserve"><value>প্রোফাইল লোড হচ্ছে…</value></data>
+  <data name="We could not find your account." xml:space="preserve"><value>আপনার অ্যাকাউন্টটি খুঁজে পাওয়া যায়নি।</value></data>
+  <data name="Market interests" xml:space="preserve"><value>বাজারে আগ্রহ</value></data>
+  <data name="Drinker" xml:space="preserve"><value>মদ্যপান করেন</value></data>
+  <data name="School / university" xml:space="preserve"><value>বিদ্যালয় / বিশ্ববিদ্যালয়</value></data>
+  <data name="Instagram profile link" xml:space="preserve"><value>Instagram প্রোফাইল লিংক</value></data>
+  <data name="Identity document" xml:space="preserve"><value>পরিচয়পত্র</value></data>
+  <data name="Verify your account" xml:space="preserve"><value>আপনার অ্যাকাউন্ট যাচাই করুন</value></data>
+  <data name="New password must be different from the current one." xml:space="preserve"><value>নতুন পাসওয়ার্ডটি বর্তমান পাসওয়ার্ড থেকে আলাদা হতে হবে।</value></data>
+  <data name="Your verification application has been sent. An admin will review it soon." xml:space="preserve"><value>আপনার যাচাইকরণের আবেদন পাঠানো হয়েছে। প্রশাসক শিগগিরই এটি পর্যালোচনা করবেন।</value></data>
+  <data name="Identity document photo" xml:space="preserve"><value>পরিচয়পত্রের ছবি</value></data>
+  <data name="Prefer not to say" xml:space="preserve"><value>উল্লেখ করতে চাই না</value></data>
+  <data name="Your full name" xml:space="preserve"><value>আপনার পূর্ণ নাম</value></data>
+  <data name="Send application again" xml:space="preserve"><value>আবেদন আবার পাঠান</value></data>
+  <data name="WhatsApp number" xml:space="preserve"><value>WhatsApp নম্বর</value></data>
+  <data name="Upload a clear photo of your NID or birth certificate. " xml:space="preserve"><value>আপনার জাতীয় পরিচয়পত্র বা জন্মনিবন্ধনের স্পষ্ট ছবি আপলোড করুন। </value></data>
+  <data name="Photo selected" xml:space="preserve"><value>ছবি নির্বাচন করা হয়েছে</value></data>
+  <data name="Phone number" xml:space="preserve"><value>ফোন নম্বর</value></data>
+  <data name="Birth certificate" xml:space="preserve"><value>জন্মনিবন্ধন সনদ</value></data>
+  <data name="Selected " xml:space="preserve"><value>নির্বাচিত </value></data>
+  <data name="The bKash PIN must be 4 or 5 digits." xml:space="preserve"><value>bKash পিন ৪ বা ৫ সংখ্যার হতে হবে।</value></data>
+  <data name="Facebook profile link" xml:space="preserve"><value>Facebook প্রোফাইল লিংক</value></data>
+  <data name="Choose your identity document and its photo to continue." xml:space="preserve"><value>এগিয়ে যেতে পরিচয়পত্র এবং তার ছবি নির্বাচন করুন।</value></data>
+  <data name="Add a photo of your {0} to continue." xml:space="preserve"><value>এগিয়ে যেতে আপনার {0}-এর ছবি যোগ করুন।</value></data>
+  <data name="Select your occupation" xml:space="preserve"><value>পেশা নির্বাচন করুন</value></data>
+  <data name="e.g. 01712345678" xml:space="preserve"><value>যেমন 01712345678</value></data>
+  <data name="New password must be at least 8 characters." xml:space="preserve"><value>নতুন পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে।</value></data>
+  <data name="New password and confirmation do not match." xml:space="preserve"><value>নতুন পাসওয়ার্ড ও নিশ্চিতকরণ এক নয়।</value></data>
+  <data name="Choose a document" xml:space="preserve"><value>নথি নির্বাচন করুন</value></data>
+  <data name="Updating…" xml:space="preserve"><value>হালনাগাদ হচ্ছে…</value></data>
+  <data name="Selected identity document preview" xml:space="preserve"><value>নির্বাচিত পরিচয়পত্রের পূর্বরূপ</value></data>
+  <data name=" photo" xml:space="preserve"><value> ছবির পূর্বরূপ</value></data>
+  <data name="paid from" xml:space="preserve"><value>থেকে পরিশোধ করা হয়েছে</value></data>
+  <data name="Choose a clear document photo" xml:space="preserve"><value>নথির স্পষ্ট ছবি বেছে নিন</value></data>
+  <data name="Account verification fee" xml:space="preserve"><value>অ্যাকাউন্ট যাচাইকরণ ফি</value></data>
+  <data name="An admin will review the documents before the verified badge is added to your account." xml:space="preserve"><value>যাচাইকৃত ব্যাজ দেওয়ার আগে প্রশাসক নথিগুলো পর্যালোচনা করবেন।</value></data>
+  <data name="Enter a valid number like 01712345678." xml:space="preserve"><value>01712345678-এর মতো সঠিক নম্বর লিখুন।</value></data>
+  <data name="Update password" xml:space="preserve"><value>পাসওয়ার্ড হালনাগাদ করুন</value></data>
+  <data name="X profile link" xml:space="preserve"><value>X প্রোফাইল লিংক</value></data>
+  <data name="This is a practice payment portal. Any Bangladeshi mobile number and any 4-5 digit PIN will be accepted." xml:space="preserve"><value>এটি পরীক্ষামূলক পেমেন্ট পোর্টাল। বাংলাদেশের যেকোনো মোবাইল নম্বর ও ৪–৫ সংখ্যার পিন গ্রহণ করা হবে।</value></data>
+  <data name="What it is, how long you&apos;ve used it, any wear, and what&apos;s included." xml:space="preserve"><value>পণ্যটি কী, কত দিন ব্যবহার করেছেন, কোথাও ক্ষয় আছে কি না এবং কী কী সঙ্গে থাকছে—লিখুন।</value></data>
+  <data name="Buyer contact — shared with you" xml:space="preserve"><value>ক্রেতার যোগাযোগ—আপনার সঙ্গে শেয়ার করা হয়েছে</value></data>
+  <data name="No requests yet" xml:space="preserve"><value>এখনও কোনো অনুরোধ নেই</value></data>
+  <data name="{0} post tokens" xml:space="preserve"><value>{0}টি বিজ্ঞাপন টোকেন</value></data>
+  <data name="View photos full size" xml:space="preserve"><value>ছবি পূর্ণ আকারে দেখুন</value></data>
+  <data name="Pinned to top" xml:space="preserve"><value>শীর্ষে পিন করা</value></data>
+  <data name="Identity verified by Nestify" xml:space="preserve"><value>Nestify কর্তৃক পরিচয় যাচাইকৃত</value></data>
+  <data name="Next expiry: {0}" xml:space="preserve"><value>পরবর্তী মেয়াদ শেষ: {0}</value></data>
+  <data name="Add a clear photo" xml:space="preserve"><value>স্পষ্ট ছবি যোগ করুন</value></data>
+  <data name="Buy posting tokens" xml:space="preserve"><value>বিজ্ঞাপন দেওয়ার টোকেন কিনুন</value></data>
+  <data name="View photos of" xml:space="preserve"><value>ছবি দেখুন</value></data>
+  <data name="Show photo {0}" xml:space="preserve"><value>ছবি {0} দেখুন</value></data>
+  <data name="This person has not completed verification" xml:space="preserve"><value>এই ব্যক্তির যাচাইকরণ সম্পন্ন হয়নি</value></data>
+  <data name="Change profile picture" xml:space="preserve"><value>প্রোফাইলের ছবি পরিবর্তন</value></data>
+  <data name="{0} posts" xml:space="preserve"><value>{0} পোস্ট</value></data>
+  <data name="Filter listings" xml:space="preserve"><value>বিজ্ঞাপন ফিল্টার করুন</value></data>
+  <data name="table, cycle, Miyako…" xml:space="preserve"><value>টেবিল, সাইকেল, Miyako…</value></data>
+  <data name="Seller contact — shared with you" xml:space="preserve"><value>বিক্রেতার যোগাযোগ—আপনার সঙ্গে শেয়ার করা হয়েছে</value></data>
+  <data name="{0} paid from {1}" xml:space="preserve"><value>{1} নম্বর থেকে {0} পরিশোধ করা হয়েছে</value></data>
+  <data name="{0}w ago" xml:space="preserve"><value>{0} সপ্তাহ আগে</value></data>
+  <data name="Pin Listing to Top" xml:space="preserve"><value>বিজ্ঞাপনটি শীর্ষে পিন করুন</value></data>
+  <data name="{0} photo" xml:space="preserve"><value>{0}-এর ছবি</value></data>
+  <data name="{0}mo ago" xml:space="preserve"><value>{0} মাস আগে</value></data>
+  <data name="Currently active until {0}" xml:space="preserve"><value>এই তারিখ পর্যন্ত সক্রিয়: {0}</value></data>
+  <data name="Member for {0} yr" xml:space="preserve"><value>সদস্য হয়েছেন {0} বছর</value></data>
+  <data name="Profile could not be saved. Please try again." xml:space="preserve"><value>প্রোফাইল সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।</value></data>
+  <data name="Hide password" xml:space="preserve"><value>পাসওয়ার্ড লুকান</value></data>
+  <data name="{0}y ago" xml:space="preserve"><value>{0} বছর আগে</value></data>
+  <data name="Listing pinned for {0} days! Transaction ID: {1}" xml:space="preserve"><value>বিজ্ঞাপনটি {0} দিনের জন্য পিন করা হয়েছে। লেনদেন নম্বর: {1}</value></data>
+  <data name="Selected {0} preview" xml:space="preserve"><value>নির্বাচিত {0}-এর পূর্বরূপ</value></data>
+  <data name="Upload a clear photo of your NID or birth certificate." xml:space="preserve"><value>জাতীয় পরিচয়পত্র বা জন্মনিবন্ধনের স্পষ্ট ছবি আপলোড করুন।</value></data>
+  <data name="Payment could not be completed. Please try again." xml:space="preserve"><value>পেমেন্ট সম্পন্ন করা যায়নি। আবার চেষ্টা করুন।</value></data>
+  <data name="Post Pinned" xml:space="preserve"><value>বিজ্ঞাপন পিন হয়েছে</value></data>
+  <data name="Choose a clear {0} photo" xml:space="preserve"><value>{0}-এর স্পষ্ট ছবি বেছে নিন</value></data>
+  <data name="01XXXXXXXXX" xml:space="preserve"><value>01XXXXXXXXX</value></data>
+  <data name="Member for {0} yrs" xml:space="preserve"><value>সদস্য হয়েছেন {0} বছর</value></data>
+  <data name="Duration: {0} days priority spotlight" xml:space="preserve"><value>অগ্রাধিকারভিত্তিক প্রচারের মেয়াদ: {0} দিন</value></data>
+  <data name="Photo upload failed. Please try again." xml:space="preserve"><value>ছবি আপলোড করা যায়নি। আবার চেষ্টা করুন।</value></data>
+  <data name="Your verification request could not be cancelled. Please try again." xml:space="preserve"><value>যাচাইকরণের অনুরোধ বাতিল করা যায়নি। আবার চেষ্টা করুন।</value></data>
+  <data name="Profile photo of {0}" xml:space="preserve"><value>Profile photo of {0}</value></data>
+  <data name="Password could not be updated. Please try again." xml:space="preserve"><value>পাসওয়ার্ড হালনাগাদ করা যায়নি। আবার চেষ্টা করুন।</value></data>
+  <data name="Member for {0} mo" xml:space="preserve"><value>সদস্য হয়েছেন {0} মাস</value></data>
+  <data name="Show password" xml:space="preserve"><value>পাসওয়ার্ড দেখান</value></data>
+  <data name="Could not prepare the documents. Please choose the files again." xml:space="preserve"><value>নথি প্রস্তুত করা যায়নি। ফাইলগুলো আবার বেছে নিন।</value></data>
+  <data name="টেবিল, সাইকেল, Miyako…" xml:space="preserve"><value>টেবিল, সাইকেল, Miyako…</value></data>
+  <data name="Your application could not be sent. Please try again." xml:space="preserve"><value>আপনার আবেদন পাঠানো যায়নি। আবার চেষ্টা করুন।</value></data>
+  <data name="Listing removed. It no longer appears in the marketplace." xml:space="preserve"><value>বিজ্ঞাপনটি সরানো হয়েছে। এটি আর বাজারে দেখা যাবে না।</value></data>
+  <data name="Your item is live. Buyers can send you requests now." xml:space="preserve"><value>আপনার পণ্যটি এখন বাজারে আছে। ক্রেতারা এখন অনুরোধ পাঠাতে পারবেন।</value></data>
+  <data name="Some photos not added" xml:space="preserve"><value>কিছু ছবি যোগ করা যায়নি</value></data>
+  <data name="Listing marked as sold. The buyer has been told, and the other requests are closed." xml:space="preserve"><value>বিজ্ঞাপনটি বিক্রি হয়েছে বলে চিহ্নিত করা হয়েছে। ক্রেতাকে জানানো হয়েছে এবং অন্য অনুরোধগুলো বন্ধ।</value></data>
+  <data name="Request declined." xml:space="preserve"><value>অনুরোধ প্রত্যাখ্যান করা হয়েছে।</value></data>
+  <data name="Something went wrong" xml:space="preserve"><value>কিছু একটা সমস্যা হয়েছে</value></data>
+  <data name="Couldn&apos;t publish the listing. Please try again." xml:space="preserve"><value>বিজ্ঞাপনটি প্রকাশ করা যায়নি। আবার চেষ্টা করুন।</value></data>
+  <data name="Couldn&apos;t save those changes." xml:space="preserve"><value>পরিবর্তনগুলো সংরক্ষণ করা যায়নি।</value></data>
+  <data name="Listing published" xml:space="preserve"><value>বিজ্ঞাপন প্রকাশিত হয়েছে</value></data>
+  <data name="Listing marked as sold." xml:space="preserve"><value>বিজ্ঞাপনটি বিক্রি হয়েছে বলে চিহ্নিত করা হয়েছে।</value></data>
+  <data name="That request has already been answered." xml:space="preserve"><value>এই অনুরোধের উত্তর আগেই দেওয়া হয়েছে।</value></data>
+  <data name="{0} file(s) skipped — wrong type or over {1} MB." xml:space="preserve"><value>ভুল ধরন বা {1} MB-এর বেশি হওয়ায় {0}টি ফাইল বাদ গেছে।</value></data>
+  <data name="Updated" xml:space="preserve"><value>হালনাগাদ হয়েছে</value></data>
+  <data name="Pay ৳{0} and add {1} posts" xml:space="preserve"><value>৳{0} পরিশোধ করে {1}টি পোস্ট যোগ করুন</value></data>
+  <data name="Not updated" xml:space="preserve"><value>হালনাগাদ হয়নি</value></data>
+  <data name="JPG, PNG or WebP · up to {0} MB each · {1} max" xml:space="preserve"><value>JPG, PNG অথবা WebP · প্রতিটি সর্বোচ্চ {0} MB · সর্বোচ্চ {1}টি</value></data>
+  <data name="Solid wood study table with drawer" xml:space="preserve"><value>ড্রয়ারসহ শক্ত কাঠের পড়ার টেবিল</value></data>
+  <data name="Couldn&apos;t mark it sold. Reload and try again." xml:space="preserve"><value>বিক্রি হয়েছে বলে চিহ্নিত করা যায়নি। আবার লোড করে চেষ্টা করুন।</value></data>
+  <data name="Buyer accepted" xml:space="preserve"><value>ক্রেতা গৃহীত হয়েছে</value></data>
+  <data name="No change" xml:space="preserve"><value>কোনো পরিবর্তন হয়নি</value></data>
+  <data name="Accepted. Your contact details are now visible to this buyer." xml:space="preserve"><value>গৃহীত হয়েছে। এই ক্রেতা এখন আপনার যোগাযোগের তথ্য দেখতে পারবেন।</value></data>
+  <data name="Pinned to top until {0}" xml:space="preserve"><value>শীর্ষে পিন থাকবে: {0}</value></data>
+  <data name="You&apos;ve sent the seller a buy request. Track it on" xml:space="preserve"><value>আপনি বিক্রেতার কাছে কেনার অনুরোধ পাঠিয়েছেন। এর অবস্থা দেখুন</value></data>
+  <data name="You haven&apos;t listed anything yet" xml:space="preserve"><value>আপনি এখনও কোনো বিজ্ঞাপন দেননি</value></data>
+  <data name="Sell a piece of furniture, a book bundle or an appliance you&apos;ve replaced." xml:space="preserve"><value>অপ্রয়োজনীয় আসবাব, বইয়ের সেট বা বদলে ফেলা গৃহস্থালি যন্ত্র বিক্রি করুন।</value></data>
+  <data name="Your item is featured with priority ranking at the top of Marketplace browse results." xml:space="preserve"><value>আপনার পণ্যটি বাজারের তালিকায় অগ্রাধিকার পেয়ে সবার আগে দেখানো হবে।</value></data>
+  <data name="Either the listing doesn&apos;t exist or it isn&apos;t one of yours." xml:space="preserve"><value>বিজ্ঞাপনটি নেই অথবা এটি আপনার বিজ্ঞাপন নয়।</value></data>
+  <data name="Requests you&apos;ve sent to sellers. Their contact details appear here once they accept." xml:space="preserve"><value>বিক্রেতাদের কাছে পাঠানো অনুরোধগুলো এখানে দেখুন। তাঁরা গ্রহণ করলে যোগাযোগের তথ্য এখানে দেখা যাবে।</value></data>
+  <data name="{0} — {1} awaiting your reply. Accepting one shares your contact details with that buyer." xml:space="preserve"><value>{0} — {1}টি উত্তরের অপেক্ষায়। একটি অনুরোধ গ্রহণ করলে সেই ক্রেতা আপনার যোগাযোগের তথ্য পাবেন।</value></data>
+  <data name="Pinned till {0}" xml:space="preserve"><value>পিন থাকবে {0} পর্যন্ত</value></data>
+  <data name="Could not pin this listing. Please try again." xml:space="preserve"><value>বিজ্ঞাপনটি পিন করা যায়নি। আবার চেষ্টা করুন।</value></data>
+  <data name="Pick the accepted request you sold the item to. That buyer is told; other requests close and cannot be withdrawn." xml:space="preserve"><value>যে গৃহীত অনুরোধের ক্রেতার কাছে পণ্যটি বিক্রি করেছেন, সেটি বেছে নিন। তাঁকে জানানো হবে; অন্য অনুরোধগুলো বন্ধ হবে এবং আর প্রত্যাহার করা যাবে না।</value></data>
+  <data name="Pin to top (৳50)" xml:space="preserve"><value>শীর্ষে পিন করুন (৳৫০)</value></data>
+  <data name="Buyers see this as the collection area. City thanas are listed with the upazilas of their district." xml:space="preserve"><value>ক্রেতারা এটিকে পণ্য সংগ্রহের এলাকা হিসেবে দেখবেন। শহরের থানাগুলো সংশ্লিষ্ট জেলার উপজেলার সঙ্গে তালিকাভুক্ত থাকে।</value></data>
+  <data name="You haven&apos;t sent any buy requests" xml:space="preserve"><value>আপনি এখনও কোনো কেনার অনুরোধ পাঠাননি</value></data>
+  <data name="Pin this post to top with bKash" xml:space="preserve"><value>bKash দিয়ে এই বিজ্ঞাপনটি শীর্ষে পিন করুন</value></data>
+  <data name="This buyer list isn&apos;t available" xml:space="preserve"><value>ক্রেতাদের এই তালিকাটি পাওয়া যাচ্ছে না</value></data>
+  <data name="No {0} listings" xml:space="preserve"><value>কোনো {0} বিজ্ঞাপন নেই</value></data>
+  <data name="Enter a valid 11-digit Bangladeshi bKash phone number (e.g. 01712345678)." xml:space="preserve"><value>বাংলাদেশি bKash-এর সঠিক ১১ সংখ্যার ফোন নম্বর লিখুন (যেমন 01712345678)।</value></data>
+  <data name=" to {0} · {1}" xml:space="preserve"><value>{0}-কে · {1}</value></data>
+  <data name="When a buyer sends a request it shows up here with their message." xml:space="preserve"><value>ক্রেতা অনুরোধ পাঠালে বার্তাসহ এখানে দেখা যাবে।</value></data>
+  <data name="Click to extend pin duration" xml:space="preserve"><value>পিনের মেয়াদ বাড়াতে ক্লিক করুন</value></data>
+  <data name="Find something in the marketplace and send the seller a message to get started." xml:space="preserve"><value>বাজার থেকে পছন্দের কিছু খুঁজে বিক্রেতাকে বার্তা পাঠিয়ে শুরু করুন।</value></data>
+  <data name="to {0} · {1}" xml:space="preserve"><value>{0}-কে · {1}</value></data>
+  <data name="Give the item a title." xml:space="preserve"><value>পণ্যের একটি শিরোনাম লিখুন।</value></data>
+  <data name="Title should be 4–80 characters." xml:space="preserve"><value>শিরোনাম ৪ থেকে ৮০ অক্ষরের মধ্যে হতে হবে।</value></data>
+  <data name="Add a description so buyers know what they&apos;re getting." xml:space="preserve"><value>ক্রেতারা কী পাবেন তা বোঝাতে একটি বিবরণ লিখুন।</value></data>
+  <data name="Enter a price between ৳1 and ৳10,00,000." xml:space="preserve"><value>৳১ থেকে ৳১০,০০,০০০-এর মধ্যে একটি মূল্য লিখুন।</value></data>
+  <data name="Pick a division." xml:space="preserve"><value>একটি বিভাগ নির্বাচন করুন।</value></data>
+  <data name="Add the area where the buyer would collect it." xml:space="preserve"><value>ক্রেতা যেখান থেকে পণ্য সংগ্রহ করবেন সেই এলাকার নাম লিখুন।</value></data>
+  <data name="Keep the area under 80 characters." xml:space="preserve"><value>এলাকার নাম ৮০ অক্ষরের মধ্যে রাখুন।</value></data>
+  <data name="You have not accepted any request on this listing." xml:space="preserve"><value>এই বিজ্ঞাপনে আপনি এখনো কোনো অনুরোধ গ্রহণ করেননি।</value></data>
+  <data name="None of these buyers took it." xml:space="preserve"><value>এই ক্রেতাদের কেউ পণ্যটি নেননি।</value></data>
+  <data name="Could not submit your report. Please try again." xml:space="preserve"><value>প্রতিবেদনটি পাঠানো যায়নি। আবার চেষ্টা করুন।</value></data>
+  <data name="Photo {0}" xml:space="preserve"><value>ছবি {0}</value></data>
+  <data name="Saved" xml:space="preserve"><value>সংরক্ষিত</value></data>
+  <data name="WhatsApp" xml:space="preserve"><value>হোয়াটসঅ্যাপ</value></data>
+  <data name="Could not load posting packages. Please try again." xml:space="preserve"><value>পোস্টিং প্যাকেজ আনা যায়নি। আবার চেষ্টা করুন।</value></data>
 </root>

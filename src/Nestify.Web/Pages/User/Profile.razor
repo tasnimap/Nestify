@@ -5,16 +5,18 @@
 @using Microsoft.AspNetCore.Components.Forms
 @inject IUserProfileService ProfileService
 @inject IAuthService AuthService
+@inject Microsoft.Extensions.Localization.IStringLocalizer<SharedResource> L
+@inject Nestify.Web.Services.MoneyFormatterService Money
 
-<PageTitle>My Profile - Nestify</PageTitle>
+<PageTitle>@L["My Profile"] - Nestify</PageTitle>
 
 @if (_loading)
 {
-    <p class="up-msg">Loading your profile...</p>
+    <p class="up-msg">@L["Loading your profile..."]</p>
 }
 else if (_profile is null)
 {
-    <p class="up-msg up-msg--bad">@(_loadError ?? "We could not load your profile.")</p>
+    <p class="up-msg up-msg--bad">@(_loadError ?? L["We could not load your profile."].Value)</p>
 }
 else
 {
@@ -28,17 +30,17 @@ else
         <div class="up-shell">
             <header class="up-card up-head" style="--d: 0ms">
                 <div class="up-photo-wrap">
-                    <button type="button" class="up-photo" @onclick="OpenPhoto" title="View photo"
-                            aria-label="View profile photo">
-                        <img src="@PhotoUrl" alt="Profile photo of @_profile.FullName" />
+                    <button type="button" class="up-photo" @onclick="OpenPhoto" title="@L["View photo"]"
+                            aria-label="@L["View profile photo"]">
+                        <img src="@PhotoUrl" alt="@L["Profile photo of {0}", _profile.FullName]" />
                         <span class="up-photo__ring"></span>
-                        <span class="up-photo__dot" title="Online"></span>
-                        <span class="up-photo__hint">View</span>
+                        <span class="up-photo__dot" title="@L["Online"]"></span>
+                        <span class="up-photo__hint">@L["View"]</span>
                     </button>
 
                     <label class="up-photo__change">
                         <InputFile OnChange="PickPicture" accept="image/*" class="up-photo__file" disabled="@_uploading" />
-                        <span>@(_uploading ? "Uploading..." : "Change photo")</span>
+                        <span>@(_uploading ? L["Uploading..."] : L["Change photo"])</span>
                     </label>
 
                     @if (_photoError is not null)
@@ -53,24 +55,24 @@ else
                     <p class="up-head__meta">@DisplayOccupation &middot; @DisplayAddress</p>
                     <div class="up-chips">
                         @if (_profile.VerificationState == VerificationState.Verified)
-                        { <span class="up-chip up-chip--verified">Verified</span> }
+                        { <span class="up-chip up-chip--verified">@L["Verified"]</span> }
                         else if (_profile.VerificationState == VerificationState.Pending)
                         {
-                            <span class="up-chip up-chip--wait">Verification pending</span>
+                            <span class="up-chip up-chip--wait">@L["Verification pending"]</span>
                             <button type="button" class="up-chip up-chip--cancel" disabled="@_cancellingVerification" @onclick="CancelVerification">
-                                @(_cancellingVerification ? "Cancelling..." : "Cancel application")
+                                @(_cancellingVerification ? L["Cancelling..."] : L["Cancel application"])
                             </button>
                         }
                         else
-                        { <button type="button" class="up-chip up-chip--apply" @onclick="OpenVerification">Apply for verification</button> }
+                        { <button type="button" class="up-chip up-chip--apply" @onclick="OpenVerification">@L["Apply for verification"]</button> }
                         <span class="up-chip">@DisplayRole</span>
-                        <span class="up-chip">Joined @JoinedOn</span>
+                        <span class="up-chip">@L["Joined {0}", JoinedOn]</span>
                     </div>
                 </div>
 
                 <div class="up-head__actions">
-                    <button type="button" class="up-btn up-btn--solid" @onclick="OpenEdit">Edit profile</button>
-                    <button type="button" class="up-btn" @onclick="OpenPassword">Change password</button>
+                    <button type="button" class="up-btn up-btn--solid" @onclick="OpenEdit">@L["Edit profile"]</button>
+                    <button type="button" class="up-btn" @onclick="OpenPassword">@L["Change password"]</button>
                 </div>
             </header>
 
@@ -87,25 +89,25 @@ else
 
             <div class="up-grid">
                 <section class="up-card up-panel" style="--d: 400ms">
-                    <h2>Personal details</h2>
+                    <h2>@L["Personal details"]</h2>
                     <dl class="up-details">
-                        <div><dt>Full name</dt><dd>@_profile.FullName</dd></div>
-                        <div><dt>Email</dt><dd>@_profile.Email</dd></div>
-                        <div><dt>Phone</dt><dd>@_profile.PhoneNumber</dd></div>
-                        <div><dt>WhatsApp</dt><dd>@Or(_profile.WhatsappNumber, "Not added")</dd></div>
-                        <div><dt>Gender</dt><dd>@DisplayGender</dd></div>
-                        <div><dt>Date of birth</dt><dd>@DisplayDateOfBirth</dd></div>
-                        <div><dt>Occupation</dt><dd>@PersonalOccupation</dd></div>
+                        <div><dt>@L["Full name"]</dt><dd>@_profile.FullName</dd></div>
+                        <div><dt>@L["Email"]</dt><dd>@_profile.Email</dd></div>
+                        <div><dt>@L["Phone"]</dt><dd>@_profile.PhoneNumber</dd></div>
+                        <div><dt>@L["WhatsApp"]</dt><dd>@Or(_profile.WhatsappNumber, L["Not added"].Value)</dd></div>
+                        <div><dt>@L["Gender"]</dt><dd>@DisplayGender</dd></div>
+                        <div><dt>@L["Date of birth"]</dt><dd>@DisplayDateOfBirth</dd></div>
+                        <div><dt>@L["Occupation"]</dt><dd>@PersonalOccupation</dd></div>
                         @if (!string.IsNullOrWhiteSpace(_profile.OrganizationName))
-                        { <div><dt>@(_profile.Occupation == "Job holder" ? "Workplace" : "School / university")</dt><dd>@_profile.OrganizationName</dd></div> }
-                        <div><dt>Smoking</dt><dd>@DisplaySmoker</dd></div>
-                        <div><dt>Drinking</dt><dd>@DisplayDrinker</dd></div>
-                        <div class="up-details__wide"><dt>Address</dt><dd>@DisplayAddress</dd></div>
+                        { <div><dt>@(_profile.Occupation == "Job holder" ? L["Workplace"] : L["School / university"])</dt><dd>@_profile.OrganizationName</dd></div> }
+                        <div><dt>@L["Smoking"]</dt><dd>@DisplaySmoker</dd></div>
+                        <div><dt>@L["Drinking"]</dt><dd>@DisplayDrinker</dd></div>
+                        <div class="up-details__wide"><dt>@L["Address"]</dt><dd>@DisplayAddress</dd></div>
                     </dl>
                 </section>
 
                 <section class="up-card up-panel" style="--d: 470ms">
-                    <h2>Reach me</h2>
+                    <h2>@L["Reach me"]</h2>
                     <div class="up-socials">
                         @foreach (var (link, i) in Socials.Select((s, i) => (s, i)))
                         {
@@ -123,7 +125,7 @@ else
                 </section>
 
                 <section class="up-card up-panel up-panel--wide" style="--d: 630ms">
-                    <h2>This month at a glance</h2>
+                    <h2>@L["This month at a glance"]</h2>
                     <div class="up-bars">
                         @foreach (var (bar, i) in Monthly.Select((b, i) => (b, i)))
                         {
@@ -144,9 +146,9 @@ else
     {
         <div class="up-overlay up-overlay--dark" @onclick="ClosePhoto">
             <figure class="up-lightbox" @onclick:stopPropagation="true">
-                <img src="@PhotoUrl" alt="Profile photo of @_profile.FullName" />
+                <img src="@PhotoUrl" alt="@L["Profile photo of {0}", _profile.FullName]" />
                 <figcaption>@_profile.FullName</figcaption>
-                <button type="button" class="up-lightbox__close" @onclick="ClosePhoto" aria-label="Close">&times;</button>
+                <button type="button" class="up-lightbox__close" @onclick="ClosePhoto" aria-label="@L["Close"]">&times;</button>
             </figure>
         </div>
     }
@@ -156,44 +158,44 @@ else
         <div class="up-overlay" @onclick="CloseEdit">
             <div class="up-modal" @onclick:stopPropagation="true">
                 <header class="up-modal__head">
-                    <h2>Edit profile</h2>
-                    <button type="button" class="up-modal__close" @onclick="CloseEdit" aria-label="Close">&times;</button>
+                    <h2>@L["Edit profile"]</h2>
+                    <button type="button" class="up-modal__close" @onclick="CloseEdit" aria-label="@L["Close"]">&times;</button>
                 </header>
 
                 <div class="up-modal__body">
                     <div class="up-field">
-                        <label for="ed-fullname">Full name</label>
-                        <input id="ed-fullname" @bind="_draft.FullName" placeholder="Your full name" />
+                        <label for="ed-fullname">@L["Full name"]</label>
+                        <input id="ed-fullname" @bind="_draft.FullName" placeholder="@L["Your full name"]" />
                     </div>
                     <div class="up-field">
-                        <label for="ed-phone">Phone number</label>
-                        <input id="ed-phone" @bind="_draft.PhoneNumber" placeholder="e.g. 01712345678" />
+                        <label for="ed-phone">@L["Phone number"]</label>
+                        <input id="ed-phone" @bind="_draft.PhoneNumber" placeholder="@L["e.g. 01712345678"]" />
                     </div>
                     <div class="up-field">
-                        <label for="ed-occupation">Occupation</label>
+                        <label for="ed-occupation">@L["Occupation"]</label>
                         <select id="ed-occupation" @bind="_draft.Occupation">
-                            <option value="">Select your occupation</option>
+                            <option value="">@L["Select your occupation"]</option>
                             @if (!string.IsNullOrWhiteSpace(_draft.Occupation) && !IsStandardOccupation(_draft.Occupation))
                             {
                                 <option value="@_draft.Occupation">@_draft.Occupation</option>
                             }
-                            <option value="Student — High school">Student — High school</option>
-                            <option value="Student — College">Student — College</option>
-                            <option value="Student — University">Student — University</option>
-                            <option value="Unemployed">Unemployed</option>
-                            <option value="Job holder">Job holder</option>
+                            <option value="Student — High school">@L["Student — High school"]</option>
+                            <option value="Student — College">@L["Student — College"]</option>
+                            <option value="Student — University">@L["Student — University"]</option>
+                            <option value="Unemployed">@L["Unemployed"]</option>
+                            <option value="Job holder">@L["Job holder"]</option>
                         </select>
                     </div>
                     <div class="up-field">
-                        <label for="ed-gender">Gender</label>
+                        <label for="ed-gender">@L["Gender"]</label>
                         <select id="ed-gender" @bind="GenderSelection">
-                            <option value="">Prefer not to say</option>
-                            <option value="@ProfileGender.Male">Male</option>
-                            <option value="@ProfileGender.Female">Female</option>
+                            <option value="">@L["Prefer not to say"]</option>
+                            <option value="@ProfileGender.Male">@L["Male"]</option>
+                            <option value="@ProfileGender.Female">@L["Female"]</option>
                         </select>
                     </div>
                     <div class="up-field">
-                        <label for="ed-dob">Date of birth</label>
+                        <label for="ed-dob">@L["Date of birth"]</label>
                         <input id="ed-dob" type="date" @bind="_draft.DateOfBirth" max="@DateOnly.FromDateTime(DateTime.Today).ToString("yyyy-MM-dd")" />
                     </div>
                     @if (NeedsOrganization)
@@ -204,39 +206,39 @@ else
                         </div>
                     }
                     <div class="up-field">
-                        <label for="ed-wa">WhatsApp number</label>
+                        <label for="ed-wa">@L["WhatsApp number"]</label>
                         <input id="ed-wa" @bind="_draft.WhatsappNumber" />
                     </div>
                     <div class="up-field up-field--wide">
-                        <label for="ed-address">Address</label>
+                        <label for="ed-address">@L["Address"]</label>
                         <input id="ed-address" @bind="_draft.Address" />
                     </div>
                     <div class="up-field">
-                        <label for="ed-smoker">Smoking</label>
+                        <label for="ed-smoker">@L["Smoking"]</label>
                         <select id="ed-smoker" @bind="SmokerSelection">
-                            <option value="">Not chosen</option>
-                            <option value="false">Non-smoker</option>
-                            <option value="true">Smoker</option>
+                            <option value="">@L["Not chosen"]</option>
+                            <option value="false">@L["Non-smoker"]</option>
+                            <option value="true">@L["Smoker"]</option>
                         </select>
                     </div>
                     <div class="up-field">
-                        <label for="ed-drinker">Drinking</label>
+                        <label for="ed-drinker">@L["Drinking"]</label>
                         <select id="ed-drinker" @bind="DrinkerSelection">
-                            <option value="">Not chosen</option>
-                            <option value="false">Non-drinker</option>
-                            <option value="true">Drinker</option>
+                            <option value="">@L["Not chosen"]</option>
+                            <option value="false">@L["Non-drinker"]</option>
+                            <option value="true">@L["Drinker"]</option>
                         </select>
                     </div>
                     <div class="up-field">
-                        <label for="ed-fb">Facebook profile link</label>
+                        <label for="ed-fb">@L["Facebook profile link"]</label>
                         <input id="ed-fb" @bind="_draft.FacebookUrl" />
                     </div>
                     <div class="up-field">
-                        <label for="ed-x">X profile link</label>
+                        <label for="ed-x">@L["X profile link"]</label>
                         <input id="ed-x" @bind="_draft.XUrl" />
                     </div>
                     <div class="up-field">
-                        <label for="ed-ig">Instagram profile link</label>
+                        <label for="ed-ig">@L["Instagram profile link"]</label>
                         <input id="ed-ig" @bind="_draft.InstagramUrl" />
                     </div>
 
@@ -247,9 +249,9 @@ else
                 </div>
 
                 <footer class="up-modal__foot">
-                    <button type="button" class="up-btn" @onclick="CloseEdit">Cancel</button>
+                    <button type="button" class="up-btn" @onclick="CloseEdit">@L["Cancel"]</button>
                     <button type="button" class="up-btn up-btn--solid" disabled="@_saving" @onclick="SaveEdit">
-                        @(_saving ? "Saving..." : "Save changes")
+                        @(_saving ? L["Saving..."] : L["Save changes"])
                     </button>
                 </footer>
             </div>
@@ -262,59 +264,59 @@ else
             <div class="up-modal up-modal--sm" @onclick:stopPropagation="true">
                 @if (_verificationStep == VerificationStep.Documents)
                 {
-                    <header class="up-modal__head"><h2>Verify your account</h2><button type="button" class="up-modal__close" @onclick="CloseVerification" aria-label="Close">&times;</button></header>
+                    <header class="up-modal__head"><h2>@L["Verify your account"]</h2><button type="button" class="up-modal__close" @onclick="CloseVerification" aria-label="@L["Close"]">&times;</button></header>
                     <div class="up-modal__body up-modal__body--stack">
-                        <p class="up-verification-copy">Upload a clear photo of your NID or birth certificate. @SecondDocumentCopy An admin will review the documents before the verified badge is added to your account.</p>
+                        <p class="up-verification-copy">@L["Upload a clear photo of your NID or birth certificate."] @SecondDocumentCopy @L["An admin will review the documents before the verified badge is added to your account."]</p>
                         <div class="up-field">
-                            <label for="verification-document">Identity document</label>
+                            <label for="verification-document">@L["Identity document"]</label>
                             <select id="verification-document" @bind="_identityDocumentType">
-                                <option value="">Choose a document</option>
-                                <option value="National ID (NID)">National ID (NID)</option>
-                                <option value="Birth certificate">Birth certificate</option>
+                                <option value="">@L["Choose a document"]</option>
+                                <option value="National ID (NID)">@L["National ID (NID)"]</option>
+                                <option value="Birth certificate">@L["Birth certificate"]</option>
                             </select>
                         </div>
                         <div class="up-field">
-                            <label for="verification-file">@(string.IsNullOrWhiteSpace(_identityDocumentType) ? "Identity document photo" : $"{_identityDocumentType} photo")</label>
+                            <label for="verification-file">@(string.IsNullOrWhiteSpace(_identityDocumentType) ? L["Identity document photo"] : L["{0} photo", L[_identityDocumentType]])</label>
                             <div class="up-document-picker">
                                 <InputFile id="verification-file" OnChange="PickIdentityDocument" accept="image/*" class="up-document-picker__input" />
                                 @if (_identityPreviewUrl is not null)
                                 {
                                     <div class="up-document-preview">
-                                        <img src="@_identityPreviewUrl" alt="Selected identity document preview" />
+                                        <img src="@_identityPreviewUrl" alt="@L["Selected identity document preview"]" />
                                         <div>
-                                            <span class="up-document-preview__status">Photo selected</span>
+                                            <span class="up-document-preview__status">@L["Photo selected"]</span>
                                             <small class="up-file-name">@_identityFile?.Name</small>
-                                            <label for="verification-file" class="up-document-preview__change"><span>Replace photo</span></label>
+                                            <label for="verification-file" class="up-document-preview__change"><span>@L["Replace photo"]</span></label>
                                         </div>
                                     </div>
                                 }
                                 else
                                 {
-                                    <label for="verification-file" class="up-document-picker__choose"><span>Choose a clear document photo</span></label>
+                                    <label for="verification-file" class="up-document-picker__choose"><span>@L["Choose a clear document photo"]</span></label>
                                 }
                             </div>
                         </div>
                         @if (SecondDocumentLabel is not null)
                         {
                             <div class="up-field">
-                                <label for="verification-second-file">@SecondDocumentLabel photo</label>
+                            <label for="verification-second-file">@L["{0} photo", SecondDocumentLabel]</label>
                                 <p class="up-verification-hint">@SecondDocumentHint</p>
                                 <div class="up-document-picker">
                                     <InputFile id="verification-second-file" OnChange="PickOccupationDocument" accept="image/*" class="up-document-picker__input" />
                                     @if (_occupationPreviewUrl is not null)
                                     {
                                         <div class="up-document-preview">
-                                            <img src="@_occupationPreviewUrl" alt="Selected @SecondDocumentLabel preview" />
+                                            <img src="@_occupationPreviewUrl" alt="@L["Selected {0} preview", SecondDocumentLabel]" />
                                             <div>
-                                                <span class="up-document-preview__status">Photo selected</span>
+                                                <span class="up-document-preview__status">@L["Photo selected"]</span>
                                                 <small class="up-file-name">@_occupationFile?.Name</small>
-                                                <label for="verification-second-file" class="up-document-preview__change"><span>Replace photo</span></label>
+                                                <label for="verification-second-file" class="up-document-preview__change"><span>@L["Replace photo"]</span></label>
                                             </div>
                                         </div>
                                     }
                                     else
                                     {
-                                        <label for="verification-second-file" class="up-document-picker__choose"><span>Choose a clear @SecondDocumentLabel photo</span></label>
+                                        <label for="verification-second-file" class="up-document-picker__choose"><span>@L["Choose a clear {0} photo", SecondDocumentLabel]</span></label>
                                     }
                                 </div>
                             </div>
@@ -322,55 +324,55 @@ else
                         @if (_verificationError is not null) { <p class="up-msg up-msg--bad">@_verificationError</p> }
                     </div>
                     <footer class="up-modal__foot">
-                        <button type="button" class="up-btn" @onclick="CloseVerification">Cancel</button>
-                        <button type="button" class="up-btn up-btn--solid" @onclick="GoToPayment">Continue to payment</button>
+                        <button type="button" class="up-btn" @onclick="CloseVerification">@L["Cancel"]</button>
+                        <button type="button" class="up-btn up-btn--solid" @onclick="GoToPayment">@L["Continue to payment"]</button>
                     </footer>
                 }
                 else if (_verificationStep == VerificationStep.Payment)
                 {
                     <header class="up-modal__head up-bkash__head">
-                        <div class="up-bkash__brand"><span class="up-bkash__logo">bKash</span><span>Payment</span></div>
-                        <button type="button" class="up-modal__close" @onclick="CloseVerification" aria-label="Close">&times;</button>
+                        <div class="up-bkash__brand"><span class="up-bkash__logo">bKash</span><span>@L["Payment"]</span></div>
+                        <button type="button" class="up-modal__close" @onclick="CloseVerification" aria-label="@L["Close"]">&times;</button>
                     </header>
                     <div class="up-modal__body up-modal__body--stack">
                         <div class="up-bkash__summary">
-                            <div><span>Merchant</span><b>Nestify</b></div>
-                            <div><span>Purpose</span><b>Account verification fee</b></div>
-                            <div><span>Amount</span><b class="up-bkash__amount">৳@_verificationFee.ToString("N0")</b></div>
+                            <div><span>@L["Merchant"]</span><b>Nestify</b></div>
+                            <div><span>@L["Purpose"]</span><b>@L["Account verification fee"]</b></div>
+                            <div><span>@L["Amount"]</span><b class="up-bkash__amount">৳@_verificationFee.ToString("N0")</b></div>
                         </div>
                         <div class="up-field">
-                            <label for="bkash-number">Your bKash account number</label>
-                            <input id="bkash-number" inputmode="numeric" placeholder="01XXXXXXXXX" maxlength="14" @bind="_bkashNumber" />
+                            <label for="bkash-number">@L["Your bKash account number"]</label>
+                            <input id="bkash-number" inputmode="numeric" placeholder="@L["01XXXXXXXXX"]" maxlength="14" @bind="_bkashNumber" />
                         </div>
                         <div class="up-field">
-                            <label for="bkash-pin">bKash PIN</label>
-                            <input id="bkash-pin" type="password" inputmode="numeric" placeholder="4 or 5 digits" maxlength="5" @bind="_bkashPin" />
+                            <label for="bkash-pin">@L["bKash PIN"]</label>
+                            <input id="bkash-pin" type="password" inputmode="numeric" placeholder="@L["4 or 5 digits"]" maxlength="5" @bind="_bkashPin" />
                         </div>
-                        <p class="up-verification-copy">This is a practice payment portal. Any Bangladeshi mobile number and any 4-5 digit PIN will be accepted.</p>
+                        <p class="up-verification-copy">@L["This is a practice payment portal. Any Bangladeshi mobile number and any 4-5 digit PIN will be accepted."]</p>
                         @if (_verificationError is not null) { <p class="up-msg up-msg--bad">@_verificationError</p> }
                     </div>
                     <footer class="up-modal__foot">
-                        <button type="button" class="up-btn" disabled="@_paying" @onclick="BackToDocuments">Back</button>
-                        <button type="button" class="up-btn up-btn--bkash" disabled="@_paying" @onclick="PayAndSubmit">@(_paying ? "Processing..." : $"Pay ৳{_verificationFee:N0}")</button>
+                        <button type="button" class="up-btn" disabled="@_paying" @onclick="BackToDocuments">@L["Back"]</button>
+                        <button type="button" class="up-btn up-btn--bkash" disabled="@_paying" @onclick="PayAndSubmit">@(_paying ? L["Processing..."] : L["Pay ৳{0}", Money.FormatNumber(_verificationFee)])</button>
                     </footer>
                 }
                 else
                 {
                     var payment = _payment!;
-                    <header class="up-modal__head"><h2>Payment successful</h2><button type="button" class="up-modal__close" @onclick="CloseVerification" aria-label="Close">&times;</button></header>
+                    <header class="up-modal__head"><h2>@L["Payment successful"]</h2><button type="button" class="up-modal__close" @onclick="CloseVerification" aria-label="@L["Close"]">&times;</button></header>
                     <div class="up-modal__body up-modal__body--stack">
                         <div class="up-bkash__done">
                             <span class="up-bkash__tick" aria-hidden="true">&#10003;</span>
-                            <p class="up-bkash__done-title">৳@payment.AmountBdt.ToString("N0") paid from @payment.BkashNumber</p>
-                            <p class="up-verification-copy">Transaction ID <b>@payment.TransactionId</b> &middot; @payment.PaidAtUtc.ToLocalTime().ToString("d MMM yyyy, h:mm tt")</p>
+                            <p class="up-bkash__done-title">@L["{0} paid from {1}", Money.Format(payment.AmountBdt), payment.BkashNumber]</p>
+                            <p class="up-verification-copy">@L["Transaction ID"] <b>@payment.TransactionId</b> &middot; @payment.PaidAtUtc.ToLocalTime().ToString("d MMM yyyy, h:mm tt", System.Globalization.CultureInfo.CurrentCulture)</p>
                         </div>
                         @if (_applicationSent)
                         {
-                            <p class="up-msg up-msg--good">Your verification application has been sent. An admin will review it soon.</p>
+                            <p class="up-msg up-msg--good">@L["Your verification application has been sent. An admin will review it soon."]</p>
                         }
                         else if (_submittingVerification)
                         {
-                            <p class="up-verification-copy">Sending your application...</p>
+                            <p class="up-verification-copy">@L["Sending your application..."]</p>
                         }
                         else if (_verificationError is not null)
                         {
@@ -380,12 +382,12 @@ else
                     <footer class="up-modal__foot">
                         @if (_applicationSent)
                         {
-                            <button type="button" class="up-btn up-btn--solid" @onclick="CloseVerification">Done</button>
+                            <button type="button" class="up-btn up-btn--solid" @onclick="CloseVerification">@L["Done"]</button>
                         }
                         else
                         {
-                            <button type="button" class="up-btn" @onclick="CloseVerification">Close</button>
-                            <button type="button" class="up-btn up-btn--solid" disabled="@_submittingVerification" @onclick="SendApplication">@(_submittingVerification ? "Sending..." : "Send application again")</button>
+                            <button type="button" class="up-btn" @onclick="CloseVerification">@L["Close"]</button>
+                            <button type="button" class="up-btn up-btn--solid" disabled="@_submittingVerification" @onclick="SendApplication">@(_submittingVerification ? L["Sending..."] : L["Send application again"])</button>
                         }
                     </footer>
                 }
@@ -398,38 +400,38 @@ else
         <div class="up-overlay" @onclick="ClosePassword">
             <div class="up-modal up-modal--sm" @onclick:stopPropagation="true">
                 <header class="up-modal__head">
-                    <h2>Change password</h2>
-                    <button type="button" class="up-modal__close" @onclick="ClosePassword" aria-label="Close">&times;</button>
+                    <h2>@L["Change password"]</h2>
+                    <button type="button" class="up-modal__close" @onclick="ClosePassword" aria-label="@L["Close"]">&times;</button>
                 </header>
 
                 <div class="up-modal__body up-modal__body--stack">
                     <div class="up-field">
-                        <label for="pw-current">Current password</label>
+                        <label for="pw-current">@L["Current password"]</label>
                         <div class="up-pw">
                             <input id="pw-current" type="@PasswordType(_showCurrent)" @bind="_currentPassword" />
                             <button type="button" class="up-pw__toggle" @onclick="() => _showCurrent = !_showCurrent"
-                                    aria-label="@(_showCurrent ? "Hide" : "Show") password">
-                                @(_showCurrent ? "Hide" : "Show")
+                                    aria-label="@(_showCurrent ? L["Hide password"] : L["Show password"])">
+                                @(_showCurrent ? L["Hide"] : L["Show"])
                             </button>
                         </div>
                     </div>
                     <div class="up-field">
-                        <label for="pw-new">New password</label>
+                        <label for="pw-new">@L["New password"]</label>
                         <div class="up-pw">
                             <input id="pw-new" type="@PasswordType(_showNew)" @bind="_newPassword" />
                             <button type="button" class="up-pw__toggle" @onclick="() => _showNew = !_showNew"
-                                    aria-label="@(_showNew ? "Hide" : "Show") password">
-                                @(_showNew ? "Hide" : "Show")
+                                    aria-label="@(_showNew ? L["Hide password"] : L["Show password"])">
+                                @(_showNew ? L["Hide"] : L["Show"])
                             </button>
                         </div>
                     </div>
                     <div class="up-field">
-                        <label for="pw-confirm">Confirm new password</label>
+                        <label for="pw-confirm">@L["Confirm new password"]</label>
                         <div class="up-pw">
                             <input id="pw-confirm" type="@PasswordType(_showConfirm)" @bind="_confirmPassword" />
                             <button type="button" class="up-pw__toggle" @onclick="() => _showConfirm = !_showConfirm"
-                                    aria-label="@(_showConfirm ? "Hide" : "Show") password">
-                                @(_showConfirm ? "Hide" : "Show")
+                                    aria-label="@(_showConfirm ? L["Hide password"] : L["Show password"])">
+                                @(_showConfirm ? L["Hide"] : L["Show"])
                             </button>
                         </div>
                     </div>
@@ -445,9 +447,9 @@ else
                 </div>
 
                 <footer class="up-modal__foot">
-                    <button type="button" class="up-btn" @onclick="ClosePassword">Cancel</button>
+                    <button type="button" class="up-btn" @onclick="ClosePassword">@L["Cancel"]</button>
                     <button type="button" class="up-btn up-btn--solid" @onclick="SavePassword" disabled="@_savingPassword">
-                        @(_savingPassword ? "Updating…" : "Update password")
+                        @(_savingPassword ? L["Updating…"] : L["Update password"])
                     </button>
                 </footer>
             </div>
@@ -515,7 +517,7 @@ else
         ? UserProfileDto.DefaultPictureUrl
         : _profile!.ProfilePictureUrl;
 
-    private string JoinedOn => _profile?.CreatedAtUtc.ToString("MMM yyyy") ?? string.Empty;
+    private string JoinedOn => _profile?.CreatedAtUtc.ToLocalTime().ToString("MMM yyyy", System.Globalization.CultureInfo.CurrentCulture) ?? string.Empty;
 
     private string DisplayOccupation
     {
@@ -525,14 +527,17 @@ else
             if (occupation?.StartsWith("Student", StringComparison.Ordinal) == true &&
                 !string.IsNullOrWhiteSpace(_profile?.OrganizationName))
             {
-                return $"Student — {_profile.OrganizationName}";
+                return L["Student — {0}", _profile.OrganizationName];
             }
 
-            return Or(occupation, "Occupation not set");
+            if (string.IsNullOrWhiteSpace(occupation)) return L["Occupation not set"];
+            return occupation is "Job holder" or "Unemployed" or "Student — High school" or "Student — College" or "Student — University"
+                ? L[occupation]
+                : occupation;
         }
     }
     private string PersonalOccupation => _profile?.Occupation?.StartsWith("Student", StringComparison.Ordinal) == true
-        ? "Student"
+        ? L["Student"].Value
         : DisplayOccupation;
     private bool NeedsOrganization =>
         _draft.Occupation?.StartsWith("Student", StringComparison.Ordinal) == true ||
@@ -540,31 +545,31 @@ else
         !string.IsNullOrWhiteSpace(_draft.OrganizationName);
     private static bool IsStandardOccupation(string? occ) =>
         occ is "Student — High school" or "Student — College" or "Student — University" or "Unemployed" or "Job holder";
-    private string OrganizationLabel => _draft.Occupation == "Job holder" ? "Workplace name" : "School, college or university name";
-    private string OrganizationPlaceholder => _draft.Occupation == "Job holder" ? "Where do you work?" : "Where do you study?";
+    private string OrganizationLabel => _draft.Occupation == "Job holder" ? L["Workplace name"] : L["School, college or university name"];
+    private string OrganizationPlaceholder => _draft.Occupation == "Job holder" ? L["Where do you work?"] : L["Where do you study?"];
     // Which extra document the application needs, decided by the profile's occupation.
     private bool IsStudent => _profile?.Occupation?.StartsWith("Student", StringComparison.Ordinal) == true;
     private bool IsJobHolder => _profile?.Occupation == "Job holder";
-    private string? SecondDocumentLabel => IsStudent ? "Student ID" : IsJobHolder ? "Employee ID" : null;
+    private string? SecondDocumentLabel => IsStudent ? L["Student ID"].Value : IsJobHolder ? L["Employee ID"].Value : null;
     private string SecondDocumentCopy => IsStudent
-        ? "Because you are a student, your student ID is needed too."
-        : IsJobHolder ? "Because you are a job holder, your employee ID is needed too." : string.Empty;
+        ? L["Because you are a student, your student ID is needed too."]
+        : IsJobHolder ? L["Because you are a job holder, your employee ID is needed too."] : string.Empty;
     private string SecondDocumentHint => IsStudent
-        ? "Upload the front of your current school, college or university ID."
-        : "Upload your employee ID or a workplace ID that shows your name.";
+        ? L["Upload the front of your current school, college or university ID."]
+        : L["Upload your employee ID or a workplace ID that shows your name."];
 
-    private string DisplayAddress => Or(_profile?.Address, "Address not set");
+    private string DisplayAddress => Or(_profile?.Address, L["Address not set"].Value);
 
     private string DisplayGender => _profile?.Gender switch
     {
-        ProfileGender.Male => "Male",
-        ProfileGender.Female => "Female",
-        _ => "Not specified"
+        ProfileGender.Male => L["Male"],
+        ProfileGender.Female => L["Female"],
+        _ => L["Not specified"]
     };
 
     private string DisplayDateOfBirth => _profile?.DateOfBirth is { } dob
-        ? $"{dob:dd MMM yyyy} ({CalculateAge(dob)} yrs)"
-        : "Not set";
+        ? L["{0} ({1} yrs)", dob.ToString("dd MMM yyyy", System.Globalization.CultureInfo.CurrentCulture), CalculateAge(dob)]
+        : L["Not set"].Value;
 
     private static int CalculateAge(DateOnly dob)
     {
@@ -576,24 +581,24 @@ else
 
     private string AccountKicker => !string.IsNullOrWhiteSpace(_profile?.HomeName)
         ? _profile.HomeName
-        : "Bachelor account";
+        : L["Bachelor account"].Value;
 
     private string DisplayRole => !string.IsNullOrWhiteSpace(_profile?.Role)
-        ? _profile.Role
-        : "Member";
+        ? L[_profile.Role]
+        : L["Member"].Value;
 
     private string DisplaySmoker => _profile?.IsSmoker switch
     {
-        true => "Smoker",
-        false => "Non-smoker",
-        _ => "Not chosen"
+        true => L["Smoker"],
+        false => L["Non-smoker"],
+        _ => L["Not chosen"]
     };
 
     private string DisplayDrinker => _profile?.IsDrinker switch
     {
-        true => "Drinker",
-        false => "Non-drinker",
-        _ => "Not chosen"
+        true => L["Drinker"],
+        false => L["Non-drinker"],
+        _ => L["Not chosen"]
     };
 
     private string GenderSelection
@@ -650,19 +655,19 @@ else
 
     private IReadOnlyList<Stat> Stats =>
     [
-        new(_profile?.Activity.ActiveBookingCount.ToString() ?? "0", "Active bookings", BookingTrend),
-        new((_profile?.Activity.CurrentMonthMeals ?? 0).ToString("0.#"), "Meals logged", "this month"),
-        new($"Tk {(_profile?.Activity.CurrentMonthSettlementPaid ?? 0):N0}", "Settlement paid", SettlementTrend),
-        new(_profile?.Activity.ActiveMarketplaceInterestCount.ToString() ?? "0", "Market interests", InterestTrend)
+        new((_profile?.Activity.ActiveBookingCount ?? 0).ToString("N0", System.Globalization.CultureInfo.CurrentCulture), L["Active bookings"], BookingTrend),
+        new((_profile?.Activity.CurrentMonthMeals ?? 0).ToString("0.#", System.Globalization.CultureInfo.CurrentCulture), L["Meals logged"], L["this month"]),
+        new(Money.Format(_profile?.Activity.CurrentMonthSettlementPaid ?? 0), L["Settlement paid"], SettlementTrend),
+        new((_profile?.Activity.ActiveMarketplaceInterestCount ?? 0).ToString("N0", System.Globalization.CultureInfo.CurrentCulture), L["Market interests"], InterestTrend)
     ];
 
     private string BookingTrend => _profile?.Activity.PendingBookingCount is > 0
-        ? $"{_profile.Activity.PendingBookingCount} pending"
-        : "None pending";
-    private string SettlementTrend => _profile?.Activity.HasCurrentSettlement == true ? "this month" : "No active settlement";
+        ? L["{0} pending", _profile.Activity.PendingBookingCount]
+        : L["None pending"].Value;
+    private string SettlementTrend => _profile?.Activity.HasCurrentSettlement == true ? L["this month"] : L["No active settlement"];
     private string InterestTrend => _profile?.Activity.PendingMarketplaceInterestCount is > 0
-        ? $"{_profile.Activity.PendingMarketplaceInterestCount} pending"
-        : "None pending";
+        ? L["{0} pending", _profile.Activity.PendingMarketplaceInterestCount]
+        : L["None pending"].Value;
 
     // Only the links the user has actually filled in are shown.
     private List<Social> Socials
@@ -675,7 +680,7 @@ else
                 return links;
             }
 
-            links.Add(new Social("mail", "Email", _profile.Email, $"mailto:{_profile.Email}", IconMail));
+            links.Add(new Social("mail", L["Email"].Value, _profile.Email, $"mailto:{_profile.Email}", IconMail));
 
             if (!string.IsNullOrWhiteSpace(_profile.WhatsappNumber))
             {
@@ -719,9 +724,9 @@ else
 
             return
             [
-                new("Meal participation", hasSettlement ? $"{activity!.CurrentMonthMealDays} / {daysElapsed} days" : "No active settlement", mealPercent),
-                new("Settlement contribution", hasSettlement ? $"Tk {activity!.CurrentMonthSettlementPaid:N0} / {activity.CurrentMonthSettlementDue:N0}" : "No active settlement", settlementPercent),
-                new("Profile completeness", $"{activity?.CompletenessPercent ?? 0}%", activity?.CompletenessPercent ?? 0)
+                new(L["Meal participation"], hasSettlement ? L["{0} / {1} days", activity!.CurrentMonthMealDays, daysElapsed] : L["No active settlement"], mealPercent),
+                new(L["Settlement contribution"], hasSettlement ? $"{Money.Format(activity!.CurrentMonthSettlementPaid)} / {Money.Format(activity.CurrentMonthSettlementDue)}" : L["No active settlement"].Value, settlementPercent),
+                new(L["Profile completeness"], $"{(activity?.CompletenessPercent ?? 0).ToString("N0", System.Globalization.CultureInfo.CurrentCulture)}%", activity?.CompletenessPercent ?? 0)
             ];
         }
     }
@@ -733,12 +738,12 @@ else
             _profile = await ProfileService.GetMyProfileAsync();
             if (_profile is null)
             {
-                _loadError = "We could not find your account.";
+                _loadError = L["We could not find your account."];
             }
         }
-        catch (Exception ex)
+        catch
         {
-            _loadError = ex.Message;
+            _loadError = L["We could not load your profile."].Value;
         }
 
         _loading = false;
@@ -765,9 +770,9 @@ else
                 _profile = updated;
             }
         }
-        catch (Exception ex)
+        catch
         {
-            _photoError = ex.Message;
+            _photoError = L["Photo upload failed. Please try again."].Value;
         }
         finally
         {
@@ -840,13 +845,13 @@ else
     {
         if (string.IsNullOrWhiteSpace(_identityDocumentType) || _identityFile is null)
         {
-            _verificationError = "Choose your identity document and its photo to continue.";
+            _verificationError = L["Choose your identity document and its photo to continue."];
             return;
         }
 
         if (SecondDocumentLabel is not null && _occupationFile is null)
         {
-            _verificationError = $"Add a photo of your {SecondDocumentLabel} to continue.";
+            _verificationError = L["Add a photo of your {0} to continue.", SecondDocumentLabel];
             return;
         }
 
@@ -885,9 +890,9 @@ else
                 _occupationName = null;
             }
         }
-        catch (Exception ex)
+        catch
         {
-            _verificationError = ex.Message;
+            _verificationError = L["Could not prepare the documents. Please choose the files again."].Value;
             return;
         }
 
@@ -914,13 +919,13 @@ else
         var number = _bkashNumber.Trim();
         if (!LooksLikeBangladeshiNumber(number))
         {
-            _verificationError = "Enter a valid number like 01712345678.";
+            _verificationError = L["Enter a valid number like 01712345678."];
             return;
         }
 
         if (_bkashPin.Length is < 4 or > 5 || !_bkashPin.All(char.IsDigit))
         {
-            _verificationError = "The bKash PIN must be 4 or 5 digits.";
+            _verificationError = L["The bKash PIN must be 4 or 5 digits."];
             return;
         }
 
@@ -932,9 +937,9 @@ else
             _bkashPin = string.Empty;
             _verificationStep = VerificationStep.Done;
         }
-        catch (Exception ex)
+        catch
         {
-            _verificationError = ex.Message;
+            _verificationError = L["Payment could not be completed. Please try again."].Value;
             return;
         }
         finally
@@ -964,7 +969,7 @@ else
             if (updated is not null) _profile = updated;
             _applicationSent = true;
         }
-        catch (Exception ex) { _verificationError = ex.Message; }
+        catch { _verificationError = L["Your application could not be sent. Please try again."].Value; }
         finally { _submittingVerification = false; }
     }
 
@@ -976,9 +981,9 @@ else
             var updated = await ProfileService.CancelVerificationAsync();
             if (updated is not null) _profile = updated;
         }
-        catch (Exception ex)
+        catch
         {
-            _verificationError = ex.Message;
+            _verificationError = L["Your verification request could not be cancelled. Please try again."].Value;
         }
         finally
         {
@@ -1029,9 +1034,9 @@ else
 
             _showEdit = false;
         }
-        catch (Exception ex)
+        catch
         {
-            _editError = ex.Message;
+            _editError = L["Profile could not be saved. Please try again."].Value;
         }
         finally
         {
@@ -1055,25 +1060,25 @@ else
 
         if (string.IsNullOrWhiteSpace(_currentPassword))
         {
-            _passwordError = "Enter your current password.";
+            _passwordError = L["Enter your current password."];
             return;
         }
 
         if (_newPassword.Length < 8)
         {
-            _passwordError = "New password must be at least 8 characters.";
+            _passwordError = L["New password must be at least 8 characters."];
             return;
         }
 
         if (_newPassword != _confirmPassword)
         {
-            _passwordError = "New password and confirmation do not match.";
+            _passwordError = L["New password and confirmation do not match."];
             return;
         }
 
         if (_newPassword == _currentPassword)
         {
-            _passwordError = "New password must be different from the current one.";
+            _passwordError = L["New password must be different from the current one."];
             return;
         }
 
@@ -1082,12 +1087,12 @@ else
         try
         {
             await AuthService.ChangePasswordAsync(_currentPassword, _newPassword);
-            _passwordDone = "Password updated.";
+            _passwordDone = L["Password updated."];
             _currentPassword = _newPassword = _confirmPassword = string.Empty;
         }
-        catch (Exception ex)
+        catch
         {
-            _passwordError = ex.Message;
+            _passwordError = L["Password could not be updated. Please try again."].Value;
         }
         finally
         {

@@ -5,7 +5,7 @@
 
 @if (Verified)
 {
-    <span class="mk-verified @CssClass" title="Identity verified by Nestify">
+    <span class="mk-verified @CssClass" title="@L["Identity verified by Nestify"]">
         <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M12 2 4 5v6c0 5 3.4 8.9 8 10 4.6-1.1 8-5 8-10V5l-8-3Z" />
             <path d="m8.5 12 2.4 2.4L15.5 10" fill="none" stroke="#fff" stroke-width="2.2"
@@ -16,7 +16,7 @@
 }
 else if (ShowUnverified)
 {
-    <span class="mk-verified mk-verified--off @CssClass" title="This person has not completed verification">
+    <span class="mk-verified mk-verified--off @CssClass" title="@L["This person has not completed verification"]">
         <svg viewBox="0 0 24 24" aria-hidden="true" style="fill:var(--nx-muted)">
             <path d="M12 2 4 5v6c0 5 3.4 8.9 8 10 4.6-1.1 8-5 8-10V5l-8-3Z" opacity=".5" />
         </svg>

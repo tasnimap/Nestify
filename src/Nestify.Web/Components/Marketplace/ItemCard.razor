@@ -5,9 +5,9 @@
 <article class="mk-card @(Item.Status == ListingStatus.Sold ? "mk-card--sold" : null) @(Item.IsPinned ? "mk-card--pinned" : null)">
     <div class="mk-card__media">
         <button type="button" class="mk-card__photo" @onclick="OpenLightbox"
-                aria-label="View photos of @Item.Title">
+                aria-label="@L["View photos of {0}", Item.Title]">
             <MediaTile Seed="@Item.CoverImage" Label="@Item.Title"
-                       Tag="@MarketplaceView.CategoryTag(Item.Category)" Alt="@Item.Title" />
+                       Tag="@L[MarketplaceView.CategoryTag(Item.Category)]" Alt="@Item.Title" />
             @if (Photos.Count > 1)
             {
                 <span class="mk-card__photo-count">+@(Photos.Count - 1) photos</span>
@@ -16,7 +16,7 @@
         <ConditionBadge Condition="Item.Condition" CssClass="mk-badge--on-media" />
         @if (Item.IsPinned)
         {
-            <span class="mk-pinned-badge" title="Pinned to top">
+            <span class="mk-pinned-badge" title="@L["Pinned to top"]">
                 <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/>
                 </svg>
@@ -38,7 +38,7 @@
             </svg>
             <span>@Item.AreaName</span>
             <span class="mk-dot"></span>
-            <span class="mk-nowrap">@MarketplaceView.RelativeTime(Item.PostedAtUtc)</span>
+            <span class="mk-nowrap">@MarketplaceView.RelativeTime(Item.PostedAtUtc, L)</span>
         </div>
 
         <div class="mk-card__price-row">
@@ -52,7 +52,7 @@
             </span>
             @if (Item.SellerVerified)
             {
-                <span class="mk-verified" title="Identity verified by Nestify">
+                <span class="mk-verified" title="@L["Identity verified by Nestify"]">
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M12 2 4 5v6c0 5 3.4 8.9 8 10 4.6-1.1 8-5 8-10V5l-8-3Z" />
                         <path d="m8.5 12 2.4 2.4L15.5 10" fill="none" stroke="#fff" stroke-width="2.2"

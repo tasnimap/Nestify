@@ -6,7 +6,7 @@
 @inject Nestify.Web.Services.ToastService Toast
 @inject NavigationManager Nav
 
-<PageTitle>@(_item?.Title ?? "Listing") — Nestify</PageTitle>
+<PageTitle>@(_item?.Title ?? L["Listing"].Value) — Nestify</PageTitle>
 
 <section class="nx-section mk-page">
     <div class="nx-container mk-wrap">
@@ -25,8 +25,8 @@
                 <span class="mk-crumbs__sep">/</span>
                 <span>@L["Not available"]</span>
             </nav>
-            <MarketplaceEmpty Title="This listing isn't available"
-                              Message="It may have been sold, taken down, or the link is wrong.">
+            <MarketplaceEmpty Title="@L["This listing isn't available"]"
+                              Message="@L["It may have been sold, taken down, or the link is wrong."]">
                 <a class="nx-btn nx-btn--primary" href="marketplace">@L["Back to marketplace"]</a>
             </MarketplaceEmpty>
         }
@@ -54,7 +54,7 @@
                                     <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13" aria-hidden="true">
                                         <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/>
                                     </svg>
-                                    Pinned Listing
+                                    @L["Pinned Listing"]
                                 </span>
                             }
                             @if (_item.Status == ListingStatus.Sold)
@@ -80,13 +80,13 @@
                             </div>
                             <div class="mk-specs__cell">
                                 <div class="mk-specs__k">@L["Listed"]</div>
-                                <div class="mk-specs__v">@MarketplaceView.RelativeTime(_item.PostedAtUtc)</div>
+                                <div class="mk-specs__v">@MarketplaceView.RelativeTime(_item.PostedAtUtc, L)</div>
                             </div>
                             @if (_item.IsPinned && _item.PinnedUntilUtc is { } pinExpiry)
                             {
                                 <div class="mk-specs__cell mk-specs__cell--highlight">
                                     <div class="mk-specs__k">@L["Pinned Until"]</div>
-                                    <div class="mk-specs__v">@pinExpiry.ToLocalTime().ToString("d MMM yyyy, h:mm tt")</div>
+                                    <div class="mk-specs__v">@pinExpiry.ToLocalTime().ToString("d MMM yyyy, h:mm tt", System.Globalization.CultureInfo.CurrentCulture)</div>
                                 </div>
                             }
                         </div>
@@ -99,7 +99,7 @@
                                 @_item.SellerDisplayName
                                 <VerifiedBadge Verified="_item.SellerVerified" ShowUnverified="true" CssClass="mk-verified--lg" />
                             </div>
-                            <p class="mk-muted">@MarketplaceView.MemberSince(_item.SellerJoinedUtc) · @_item.Division</p>
+                            <p class="mk-muted">@MarketplaceView.MemberSince(_item.SellerJoinedUtc, L) · @_item.Division</p>
                         </div>
                     </section>
                 </div>
@@ -129,10 +129,10 @@
                                 {
                                     <div class="mk-pin-status-pill">
                                         <span class="mk-pin-status-pill__icon">📌</span>
-                                        <span>Pinned to top until <strong>@expiry.ToLocalTime().ToString("d MMM, h:mm tt")</strong></span>
+                                        <span>@L["Pinned to top until {0}", expiry.ToLocalTime().ToString("d MMM, h:mm tt", System.Globalization.CultureInfo.CurrentCulture)]</span>
                                     </div>
                                     <button type="button" class="nx-btn nx-btn--ghost nx-btn--block mk-btn--pin" @onclick="() => _showPinModal = true">
-                                        Extend Pin (৳50 with bKash)
+                                        @L["Extend Pin (৳50 with bKash)"]
                                     </button>
                                 }
                                 else
@@ -141,12 +141,12 @@
                                         <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" aria-hidden="true">
                                             <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/>
                                         </svg>
-                                        Pin to Top (৳50 with bKash)
+                                        @L["Pin to Top (৳50 with bKash)"]
                                     </button>
                                 }
 
                                 <a class="nx-btn nx-btn--primary nx-btn--block" href="marketplace/items/@_item.Id/interests">
-                                    See buyer interest
+                                    @L["See buyer interest"]
                                 </a>
                                 <a class="nx-btn nx-btn--ghost nx-btn--block" href="marketplace/items/@_item.Id/edit">@L["Edit listing"]</a>
                             </div>
@@ -154,7 +154,7 @@
                         else if (_item.HasActiveInterest)
                         {
                             <div class="mk-buybox__notice mk-buybox__notice--ok">
-                                You've sent the seller a buy request. Track it on
+                                @L["You've sent the seller a buy request. Track it on"]
                                 <a href="buy-interests/mine">@L["your buy requests"]</a>.
                             </div>
                         }
@@ -163,13 +163,13 @@
                             <div class="mk-buybox__form">
                                 <label for="mk-interest-msg">@L["Message to the seller"]</label>
                                 <textarea id="mk-interest-msg" rows="3" maxlength="400"
-                                          placeholder="Say when you can pick it up and ask anything you need to."
+                                          placeholder="@L["Say when you can pick it up and ask anything you need to."]"
                                           @bind="_interestMessage" @bind:event="oninput"></textarea>
                                 <div class="mk-buybox__form-actions">
                                     <button class="nx-btn nx-btn--ghost" @onclick="() => _showInterestForm = false" disabled="@_sending">@L["Cancel"]</button>
                                     <button class="nx-btn nx-btn--accent" @onclick="SendInterest"
                                             disabled="@(_sending || string.IsNullOrWhiteSpace(_interestMessage))">
-                                        @(_sending ? "Sending…" : "Send request")
+                                        @(_sending ? L["Sending…"] : L["Send request"])
                                     </button>
                                 </div>
                             </div>
@@ -177,7 +177,7 @@
                         else
                         {
                             <button class="nx-btn nx-btn--accent nx-btn--block nx-btn--lg" @onclick="() => _showInterestForm = true">
-                                Buy this item
+                                @L["Buy this item"]
                             </button>
                         }
 
@@ -186,7 +186,7 @@
                                  stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M4 22V4a1 1 0 0 1 1-1h11l-2 4 2 4H5" />
                             </svg>
-                            Report this listing
+                            @L["Report this listing"]
                         </button>
 
                         @if (_showReport)
@@ -194,13 +194,13 @@
                             <div class="mk-buybox__form">
                                 <label for="mk-report-reason">@L["Reason"]</label>
                                 <select id="mk-report-reason" @bind="_reportReason">
-                                    <option>@L["Prohibited item"]</option>
-                                    <option>@L["Misleading description"]</option>
-                                    <option>@L["Suspected scam"]</option>
-                                    <option>@L["Wrong category"]</option>
-                                    <option>@L["Other"]</option>
+                                    <option value="Prohibited item">@L["Prohibited item"]</option>
+                                    <option value="Misleading description">@L["Misleading description"]</option>
+                                    <option value="Suspected scam">@L["Suspected scam"]</option>
+                                    <option value="Wrong category">@L["Wrong category"]</option>
+                                    <option value="Other">@L["Other"]</option>
                                 </select>
-                                <textarea rows="2" maxlength="300" placeholder="Add any detail (optional)"
+                                <textarea rows="2" maxlength="300" placeholder="@L["Add any detail (optional)"]"
                                           @bind="_reportDetail"></textarea>
                                 <div class="mk-buybox__form-actions">
                                     <button class="nx-btn nx-btn--ghost" @onclick="() => _showReport = false">@L["Cancel"]</button>
@@ -210,7 +210,7 @@
                         }
 
                         <p class="mk-buybox__safe">
-                            Contact details are shared only after the seller accepts. Meet in a public place.
+                            @L["Contact details are shared only after the seller accepts. Meet in a public place."]
                         </p>
                     </div>
                 </aside>
@@ -289,11 +289,11 @@
                 _item.HasActiveInterest = true;
                 _showInterestForm = false;
                 _interestMessage = string.Empty;
-                Toast.ShowSuccess("The seller can now see your request and message.", "Buy request sent");
+                Toast.ShowSuccess(L["The seller can now see your request and message."].Value, L["Buy request sent"].Value);
             }
             else
             {
-                Toast.ShowWarning("Couldn't send that request — you may already have one open.", "Not sent");
+                Toast.ShowWarning(L["Couldn't send that request — you may already have one open."].Value, L["Not sent"].Value);
             }
         }
         finally
@@ -310,11 +310,11 @@
         {
             _showReport = false;
             _reportDetail = string.Empty;
-            Toast.ShowInfo("Thanks — our team will review this listing.", "Report submitted");
+            Toast.ShowInfo(L["Thanks — our team will review this listing."].Value, L["Report submitted"].Value);
         }
         else
         {
-            Toast.ShowWarning(message, "Report not sent");
+            Toast.ShowWarning(L["Could not submit your report. Please try again."].Value, L["Report not sent"].Value);
         }
     }
 }

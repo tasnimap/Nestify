@@ -8,9 +8,9 @@
         <header class="mk-modal__header mk-pin-modal__head">
             <div class="mk-pin-modal__brand">
                 <span class="mk-pin-modal__bkash-tag">bKash</span>
-                <h2>@(IsCurrentlyPinned ? "Extend Pinned Listing" : "Pin Listing to Top")</h2>
+                <h2>@(IsCurrentlyPinned ? L["Extend Pinned Listing"] : L["Pin Listing to Top"])</h2>
             </div>
-            <button type="button" class="mk-modal__close" @onclick="Cancel" aria-label="Close" disabled="@_busy">
+            <button type="button" class="mk-modal__close" @onclick="Cancel" aria-label="@L["Close"]" disabled="@_busy">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                     <path d="M18 6 6 18M6 6l12 12" />
                 </svg>
@@ -28,9 +28,7 @@
                     </div>
 
                     <h3 class="mk-pin-receipt__title">@L["Listing Pinned Successfully!"]</h3>
-                    <p class="mk-pin-receipt__subtitle">
-                        Your item is featured with priority ranking at the top of Marketplace browse results.
-                    </p>
+                    <p class="mk-pin-receipt__subtitle">@L["Your item is featured with priority ranking at the top of Marketplace browse results."]</p>
 
                     <div class="mk-pin-receipt__card">
                         <div class="mk-pin-receipt__row">
@@ -39,7 +37,7 @@
                         </div>
                         <div class="mk-pin-receipt__row">
                             <span>@L["Amount Paid"]</span>
-                            <strong class="mk-pin-receipt__amount">৳@_receipt.AmountBdt.ToString("N0") BDT</strong>
+                            <strong class="mk-pin-receipt__amount">@Money.Format(_receipt.AmountBdt)</strong>
                         </div>
                         <div class="mk-pin-receipt__row">
                             <span>@L["bKash Number"]</span>
@@ -51,13 +49,13 @@
                         </div>
                         <div class="mk-pin-receipt__row">
                             <span>@L["Pinned Until"]</span>
-                            <strong class="mk-pin-receipt__highlight">@_receipt.PinnedUntilUtc.ToLocalTime().ToString("d MMMM yyyy, h:mm tt")</strong>
+                            <strong class="mk-pin-receipt__highlight">@_receipt.PinnedUntilUtc.ToLocalTime().ToString("d MMMM yyyy, h:mm tt", System.Globalization.CultureInfo.CurrentCulture)</strong>
                         </div>
                     </div>
 
                     <div class="mk-pin-receipt__actions">
                         <button type="button" class="nx-btn nx-btn--primary nx-btn--block" @onclick="CloseReceipt">
-                            Done
+                            @L["Done"]
                         </button>
                     </div>
                 </div>
@@ -74,7 +72,7 @@
                             <span class="mk-pin-info__price">@Money.Format(PriceBdt)</span>
                             @if (IsCurrentlyPinned && CurrentPinnedUntilUtc is { } curExpiry)
                             {
-                                <span class="mk-pin-info__status">Currently active until @curExpiry.ToLocalTime().ToString("d MMM, h:mm tt")</span>
+                                <span class="mk-pin-info__status">@L["Currently active until {0}", curExpiry.ToLocalTime().ToString("d MMM, h:mm tt", System.Globalization.CultureInfo.CurrentCulture)]</span>
                             }
                         </div>
                     </div>
@@ -97,7 +95,7 @@
                         <div class="mk-pin-perk">
                             <div class="mk-pin-perk__icon">⚡</div>
                             <div>
-                                <strong>@_fee.Days Days Boost</strong>
+                                <strong>@L["{0} days boost", _fee.Days]</strong>
                                 <p>@L["Accelerates buyer inquiries and helps close sales up to 3x faster."]</p>
                             </div>
                         </div>
@@ -106,9 +104,9 @@
                     <div class="mk-pin-pricing">
                         <div class="mk-pin-pricing__head">
                             <span>@L["Promotion Fee"]</span>
-                            <strong class="mk-pin-pricing__amount">৳@_fee.AmountBdt.ToString("N0") <small>BDT</small></strong>
+                            <strong class="mk-pin-pricing__amount">@Money.Format(_fee.AmountBdt)</strong>
                         </div>
-                        <span class="mk-pin-pricing__detail">Duration: @_fee.Days days priority spotlight</span>
+                        <span class="mk-pin-pricing__detail">@L["Duration: {0} days priority spotlight", _fee.Days]</span>
                     </div>
 
                     <form class="mk-bkash-checkout" @onsubmit="SubmitPayment" @onsubmit:preventDefault="true">
@@ -117,7 +115,7 @@
                                 <span class="mk-bkash-logo-text">bKash</span>
                                 <span class="mk-bkash-sub">@L["Payment Gateway"]</span>
                             </div>
-                            <span class="mk-bkash-secure">🔒 Secure Demo</span>
+                            <span class="mk-bkash-secure">🔒 @L["Secure Demo"]</span>
                         </div>
 
                         <div class="mk-bkash-form">
@@ -152,7 +150,7 @@
 
                             <div class="mk-bkash-actions">
                                 <button type="button" class="nx-btn nx-btn--ghost" @onclick="Cancel" disabled="@_busy">
-                                    Cancel
+                                    @L["Cancel"]
                                 </button>
                                 <button type="submit" class="nx-btn mk-btn--bkash" disabled="@(_busy || string.IsNullOrWhiteSpace(_bkashNumber) || string.IsNullOrWhiteSpace(_bkashPin))">
                                     @if (_busy)
@@ -162,7 +160,7 @@
                                     }
                                     else
                                     {
-                                        <span>Confirm ৳@_fee.AmountBdt.ToString("N0") bKash Pay</span>
+                                        <span>@L["Confirm ৳{0} bKash Pay", Money.FormatNumber(_fee.AmountBdt)]</span>
                                     }
                                 </button>
                             </div>
@@ -210,13 +208,13 @@
         var cleanNumber = new string((_bkashNumber ?? string.Empty).Where(c => !char.IsWhiteSpace(c) && c != '-').ToArray());
         if (string.IsNullOrWhiteSpace(cleanNumber) || cleanNumber.Length < 11)
         {
-            _error = "Enter a valid 11-digit Bangladeshi bKash phone number (e.g. 01712345678).";
+            _error = L["Enter a valid 11-digit Bangladeshi bKash phone number (e.g. 01712345678)."];
             return;
         }
 
         if (string.IsNullOrWhiteSpace(_bkashPin) || _bkashPin.Length < 4)
         {
-            _error = "Enter your 4 or 5 digit bKash PIN.";
+            _error = L["Enter your 4 or 5 digit bKash PIN."];
             return;
         }
 
@@ -231,12 +229,12 @@
             });
 
             _receipt = result;
-            Toast.ShowSuccess($"Listing pinned for {_fee.Days} days! Transaction ID: {result.TransactionId}", "Post Pinned");
+            Toast.ShowSuccess(L["Listing pinned for {0} days! Transaction ID: {1}", _fee.Days, result.TransactionId].Value, L["Post Pinned"].Value);
             await OnPinned.InvokeAsync(result);
         }
-        catch (Exception ex)
+        catch
         {
-            _error = ex.Message;
+            _error = L["Could not pin this listing. Please try again."].Value;
         }
         finally
         {

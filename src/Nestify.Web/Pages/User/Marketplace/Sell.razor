@@ -43,12 +43,12 @@
         try
         {
             var id = await Marketplace.CreateItemAsync(_model.ToCreateDto());
-            Toast.ShowSuccess("Your item is live. Buyers can send you requests now.", "Listing published");
+            Toast.ShowSuccess(L["Your item is live. Buyers can send you requests now."].Value, L["Listing published"].Value);
             Nav.NavigateTo($"marketplace/items/{id}");
         }
         catch
         {
-            Toast.ShowError("Couldn't publish the listing. Please try again.", "Something went wrong");
+            Toast.ShowError(L["Couldn't publish the listing. Please try again."].Value, L["Something went wrong"].Value);
             _busy = false;
         }
     }

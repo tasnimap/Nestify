@@ -1026,6 +1026,51 @@
     }
 }
 
+/* Keep longer Bangla labels from forcing horizontal overflow in either theme. */
+.up-head,
+.up-head__text,
+.up-head__actions,
+.up-stats,
+.up-stat,
+.up-panel,
+.up-details > div,
+.up-modal,
+.up-field {
+    min-width: 0;
+}
+
+.up-head__meta,
+.up-chip,
+.up-stat span,
+.up-stat__trend,
+.up-details dt,
+.up-panel h2,
+.up-verification-copy,
+.up-verification-hint,
+.up-document-picker__choose {
+    overflow-wrap: anywhere;
+}
+
+.up-head__actions .up-btn,
+.up-modal__foot .up-btn {
+    white-space: normal;
+}
+
+@media (max-width: 560px) {
+    .up-head__actions {
+        grid-auto-flow: row;
+        width: 100%;
+    }
+
+    .up-head__actions .up-btn {
+        width: 100%;
+    }
+
+    .up-modal__foot {
+        flex-wrap: wrap;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .up-card,
     .up-social,

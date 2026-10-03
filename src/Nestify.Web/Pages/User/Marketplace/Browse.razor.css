@@ -187,3 +187,40 @@
     .mk-results__bar .mk-seg::-webkit-scrollbar { display: none; }
     .mk-results__bar .mk-seg__opt { padding-inline: .65rem; }
 }
+/* Bangla labels can be wider than their English equivalents; keep controls within the page. */
+.mk-head__titles,
+.mk-head__actions,
+.mk-results,
+.mk-lens,
+.mk-checkout,
+.mk-package,
+.mk-buybox,
+.mk-card {
+    min-width: 0;
+}
+
+.mk-head__actions,
+.mk-results__bar,
+.mk-pager,
+.mk-package {
+    flex-wrap: wrap;
+}
+
+.mk-chip,
+.mk-seg__opt,
+.mk-lens__label,
+.mk-checkout__intro,
+.mk-checkout__error {
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 560px) {
+    .mk-head__actions > *,
+    .mk-pager > * {
+        max-width: 100%;
+    }
+
+    .mk-results__bar {
+        align-items: flex-start;
+    }
+}

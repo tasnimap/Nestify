@@ -2,6 +2,7 @@
 // Presentation helpers shared by the M4 components and pages: enum labels,
 // relative time, and the deterministic look of the generated image tiles.
 using System.Globalization;
+using Microsoft.Extensions.Localization;
 using Nestify.Shared.Dtos.Marketplace;
 
 namespace Nestify.Web.Components.Marketplace;
@@ -139,23 +140,23 @@ public static class MarketplaceView
         }
     }
 
-    public static string RelativeTime(DateTime utc)
+    public static string RelativeTime(DateTime utc, IStringLocalizer<SharedResource> localizer)
     {
         var delta = DateTime.UtcNow - utc;
-        if (delta < TimeSpan.FromMinutes(1)) return "just now";
-        if (delta < TimeSpan.FromHours(1)) return $"{(int)delta.TotalMinutes}m ago";
-        if (delta < TimeSpan.FromDays(1)) return $"{(int)delta.TotalHours}h ago";
-        if (delta < TimeSpan.FromDays(7)) return $"{(int)delta.TotalDays}d ago";
-        if (delta < TimeSpan.FromDays(30)) return $"{(int)(delta.TotalDays / 7)}w ago";
-        if (delta < TimeSpan.FromDays(365)) return $"{(int)(delta.TotalDays / 30)}mo ago";
-        return $"{(int)(delta.TotalDays / 365)}y ago";
+        if (delta < TimeSpan.FromMinutes(1)) return localizer["just now"];
+        if (delta < TimeSpan.FromHours(1)) return localizer["{0}m ago", (int)delta.TotalMinutes];
+        if (delta < TimeSpan.FromDays(1)) return localizer["{0}h ago", (int)delta.TotalHours];
+        if (delta < TimeSpan.FromDays(7)) return localizer["{0}d ago", (int)delta.TotalDays];
+        if (delta < TimeSpan.FromDays(30)) return localizer["{0}w ago", (int)(delta.TotalDays / 7)];
+        if (delta < TimeSpan.FromDays(365)) return localizer["{0}mo ago", (int)(delta.TotalDays / 30)];
+        return localizer["{0}y ago", (int)(delta.TotalDays / 365)];
     }
 
-    public static string MemberSince(DateTime utc)
+    public static string MemberSince(DateTime utc, IStringLocalizer<SharedResource> localizer)
     {
         var months = (int)Math.Max(1, Math.Round((DateTime.UtcNow - utc).TotalDays / 30));
-        if (months < 12) return $"Member for {months} mo";
+        if (months < 12) return localizer["Member for {0} mo", months];
         var years = months / 12;
-        return $"Member for {years} yr{(years > 1 ? "s" : "")}";
+        return years > 1 ? localizer["Member for {0} yrs", years] : localizer["Member for {0} yr", years];
     }
 }

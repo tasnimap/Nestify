@@ -24,7 +24,7 @@
             <div class="mk-head__actions">
                 <button type="button" class="nx-btn nx-btn--primary" @onclick="OpenPostModal">
                     <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
-                    Post an item
+                    @L["Post an item"]
                 </button>
             </div>
         </header>
@@ -38,8 +38,8 @@
         }
         else if (_rows.Count == 0)
         {
-            <MarketplaceEmpty Title="You haven't listed anything yet"
-                              Message="Sell a piece of furniture, a book bundle or an appliance you've replaced.">
+            <MarketplaceEmpty Title="@L["You haven't listed anything yet"]"
+                              Message="@L["Sell a piece of furniture, a book bundle or an appliance you've replaced."]">
                 <button type="button" class="nx-btn nx-btn--primary" @onclick="OpenPostModal">@L["Post your first item"]</button>
             </MarketplaceEmpty>
         }
@@ -50,14 +50,14 @@
                 {
                     <button type="button" role="tab" class="mk-tab @(_tab == tab ? "mk-tab--active" : null)"
                             @onclick="() => _tab = tab">
-                        @tab.Label <span class="mk-muted">@Count(tab.Status)</span>
+                        @L[tab.Label] <span class="mk-muted">@Count(tab.Status)</span>
                     </button>
                 }
             </div>
 
             @if (Filtered.Count == 0)
             {
-                <MarketplaceEmpty Title="@($"No {_tab.Label.ToLower()} listings")" />
+                <MarketplaceEmpty Title="@L["No {0} listings", L[_tab.Label]]" />
             }
             else
             {
@@ -69,7 +69,7 @@
                             <div class="mk-row__top">
                                 <div class="mk-row__thumb">
                                     <button type="button" class="mk-row__photo" @onclick="() => OpenPhotos(it)"
-                                            aria-label="View photos of @it.Title">
+                                            aria-label="@L["View photos of {0}", it.Title]">
                                         <MediaTile Seed="@it.CoverImage" Label="@it.Title" />
                                         @if (it.Images.Count > 1)
                                         {
@@ -87,36 +87,36 @@
                                         <ConditionBadge Condition="it.Condition" />
                                         @if (it.IsPinned)
                                         {
-                                            <span class="mk-badge mk-badge--pinned" title="@(it.PinnedUntilUtc is { } exp ? $"Pinned until {exp.ToLocalTime():d MMM, h:mm tt}" : "Pinned")">
+                                            <span class="mk-badge mk-badge--pinned" title="@(it.PinnedUntilUtc is { } exp ? L["Pinned until {0}", exp.ToLocalTime().ToString("d MMM, h:mm tt", System.Globalization.CultureInfo.CurrentCulture)] : L["Pinned"].Value)">
                                                 <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12" aria-hidden="true">
                                                     <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/>
                                                 </svg>
-                                                Pinned
+                                                @L["Pinned"]
                                             </span>
                                         }
                                     </div>
                                     <div class="mk-row__meta">
                                         <span>@it.AreaName</span>
                                         <span class="mk-dot"></span>
-                                        <span>Listed @MarketplaceView.RelativeTime(it.PostedAtUtc)</span>
+                                        <span>@L["Listed"] @MarketplaceView.RelativeTime(it.PostedAtUtc, L)</span>
                                         @if (it.IsPinned && it.PinnedUntilUtc is { } pinUntil)
                                         {
                                             <span class="mk-dot"></span>
-                                            <span class="mk-pin-expiry-text">📌 Pinned till @pinUntil.ToLocalTime().ToString("d MMM, h:mm tt")</span>
+                                            <span class="mk-pin-expiry-text">📌 @L["Pinned till {0}", pinUntil.ToLocalTime().ToString("d MMM, h:mm tt", System.Globalization.CultureInfo.CurrentCulture)]</span>
                                         }
                                     </div>
                                     <div class="mk-row__stats">
                                         <span class="mk-stat">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12Z" /><circle cx="12" cy="12" r="3" /></svg>
-                                            <strong>@row.ViewCount</strong> views
+                                            <strong>@row.ViewCount</strong> @L["views"]
                                         </span>
                                         <span class="mk-stat">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z" /></svg>
-                                            <strong>@row.InterestCount</strong> interested
+                                            <strong>@row.InterestCount</strong> @L["interested"]
                                         </span>
                                         @if (row.PendingInterestCount > 0)
                                         {
-                                            <span class="mk-stat"><strong>@row.PendingInterestCount</strong> awaiting reply</span>
+                                            <span class="mk-stat"><strong>@row.PendingInterestCount</strong> @L["awaiting reply"]</span>
                                         }
                                     </div>
                                 </div>
@@ -124,7 +124,7 @@
 
                             <div class="mk-row__actions">
                                 <a class="nx-btn nx-btn--primary" href="marketplace/items/@it.Id/interests">
-                                    Buyer interest
+                                    @L["Buyer interest"]
                                     @if (row.PendingInterestCount > 0)
                                     {
                                         <span class="mk-count-pill">@row.PendingInterestCount</span>
@@ -134,14 +134,14 @@
                                 {
                                     @if (it.IsPinned)
                                     {
-                                        <button type="button" class="nx-btn nx-btn--ghost mk-btn--pinned-badge-btn" @onclick="() => OpenPinModal(it)" title="Click to extend pin duration">
-                                            📌 Extend Pin
+                                        <button type="button" class="nx-btn nx-btn--ghost mk-btn--pinned-badge-btn" @onclick="() => OpenPinModal(it)" title="@L["Click to extend pin duration"]">
+                                            📌 @L["Extend Pin"]
                                         </button>
                                     }
                                     else
                                     {
-                                        <button type="button" class="nx-btn nx-btn--ghost mk-btn--pin-cta-sm" @onclick="() => OpenPinModal(it)" title="Pin this post to top with bKash">
-                                            📌 Pin to top (৳50)
+                                        <button type="button" class="nx-btn nx-btn--ghost mk-btn--pin-cta-sm" @onclick="() => OpenPinModal(it)" title="@L["Pin this post to top with bKash"]">
+                                            📌 @L["Pin to top (৳50)"]
                                         </button>
                                     }
                                     <a class="nx-btn nx-btn--ghost" href="marketplace/items/@it.Id/edit">@L["Edit"]</a>
@@ -193,7 +193,7 @@
         <div class="mk-modal" @onclick:stopPropagation="true">
             <header class="mk-modal__header">
                 <h2>@L["Who bought it?"]</h2>
-                <button type="button" class="mk-modal__close" @onclick="CloseSoldPicker" aria-label="Close">
+                <button type="button" class="mk-modal__close" @onclick="CloseSoldPicker" aria-label="@L["Close"]">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                         <path d="M18 6 6 18M6 6l12 12" />
                     </svg>
@@ -208,8 +208,7 @@
                 else
                 {
                     <p class="mk-muted">
-                        Pick the accepted request you sold the item to. That buyer is told they got it;
-                        every other request is closed and nobody can withdraw after this.
+                        @L["Pick the accepted request you sold the item to. That buyer is told; other requests close and cannot be withdrawn."]
                     </p>
 
                     <div class="mk-sold-options">
@@ -233,7 +232,7 @@
                                    @onchange="() => _soldPick = null" />
                             <span class="mk-sold-option__body">
                                 <strong>@L["Sold outside Nestify"]</strong>
-                                <span class="mk-muted">@(_soldOptions.Count == 0 ? "You have not accepted any request on this listing." : "None of these buyers took it.")</span>
+                                <span class="mk-muted">@(_soldOptions.Count == 0 ? L["You have not accepted any request on this listing."] : L["None of these buyers took it."])</span>
                             </span>
                         </label>
                     </div>
@@ -359,14 +358,14 @@
             if (await Marketplace.MarkSoldAsync(_soldItemId, _soldPick))
             {
                 Toast.ShowSuccess(_soldPick is null
-                    ? "Listing marked as sold."
-                    : "Listing marked as sold. The buyer has been told, and the other requests are closed.", "Updated");
+                    ? L["Listing marked as sold."].Value
+                    : L["Listing marked as sold. The buyer has been told, and the other requests are closed."].Value, L["Updated"].Value);
                 _soldItemId = null;
                 await LoadAsync();
             }
             else
             {
-                Toast.ShowWarning("Couldn't mark it sold. Reload and try again.", "Not updated");
+                Toast.ShowWarning(L["Couldn't mark it sold. Reload and try again."].Value, L["Not updated"].Value);
             }
         }
         finally
@@ -380,7 +379,7 @@
         _confirmDelete = null;
         if (await Marketplace.DeleteItemAsync(id))
         {
-            Toast.ShowInfo("Listing removed. It no longer appears in the marketplace.", "Removed");
+            Toast.ShowInfo(L["Listing removed. It no longer appears in the marketplace."].Value, L["Removed"].Value);
             await LoadAsync();
         }
     }

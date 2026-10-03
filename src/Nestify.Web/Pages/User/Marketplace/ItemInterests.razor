@@ -20,8 +20,8 @@
                 <span class="mk-crumbs__sep">/</span>
                 <span>@L["Not available"]</span>
             </nav>
-            <MarketplaceEmpty Title="This buyer list isn't available"
-                              Message="Either the listing doesn't exist or it isn't one of yours.">
+            <MarketplaceEmpty Title="@L["This buyer list isn't available"]"
+                              Message="@L["Either the listing doesn't exist or it isn't one of yours."]">
                 <a class="nx-btn nx-btn--primary" href="marketplace/mine">@L["My listings"]</a>
             </MarketplaceEmpty>
         }
@@ -39,17 +39,14 @@
                 <div class="mk-head__titles">
                     <p class="nx-eyebrow">@L["Marketplace"]</p>
                     <h1>@L["Buyer interest"]</h1>
-                    <p class="mk-head__lead">
-                        @_item.Title — @_pendingCount awaiting your reply.
-                        Accepting one shares your contact details with that buyer.
-                    </p>
+                    <p class="mk-head__lead">@L["{0} — {1} awaiting your reply. Accepting one shares your contact details with that buyer.", _item.Title, _pendingCount]</p>
                 </div>
             </header>
 
             @if (_interests.Count == 0)
             {
-                <MarketplaceEmpty Title="No requests yet"
-                                  Message="When a buyer sends a request it shows up here with their message." />
+                <MarketplaceEmpty Title="@L["No requests yet"]"
+                                  Message="@L["When a buyer sends a request it shows up here with their message."]" />
             }
             else
             {
@@ -66,7 +63,7 @@
                                     <div class="mk-row__badges">
                                         <VerifiedBadge Verified="interest.BuyerVerified" ShowUnverified="true" />
                                         <InterestStatusBadge Status="interest.Status" />
-                                        <span class="mk-muted">@MarketplaceView.RelativeTime(interest.CreatedAtUtc)</span>
+                                        <span class="mk-muted">@MarketplaceView.RelativeTime(interest.CreatedAtUtc, L)</span>
                                     </div>
                                     <p class="mk-row__msg mk-plain">@interest.Message</p>
 
@@ -84,7 +81,7 @@
                                     <button class="nx-btn nx-btn--ghost mk-danger-btn" disabled="@_busy"
                                             @onclick="() => Respond(interest.Id, false)">@L["Decline"]</button>
                                     <button class="nx-btn nx-btn--accent" disabled="@_busy"
-                                            @onclick="() => Respond(interest.Id, true)">Accept &amp; share contact</button>
+                                            @onclick="() => Respond(interest.Id, true)">@L["Accept & share contact"]</button>
                                 </div>
                             }
                         </article>
@@ -131,12 +128,12 @@
             {
                 _interests = (await Marketplace.GetItemInterestsAsync(Id)).ToList();
                 Toast.ShowSuccess(
-                    accept ? "Accepted. Your contact details are now visible to this buyer." : "Request declined.",
-                    accept ? "Buyer accepted" : "Declined");
+                    accept ? L["Accepted. Your contact details are now visible to this buyer."].Value : L["Request declined."].Value,
+                    accept ? L["Buyer accepted"].Value : L["Declined"].Value);
             }
             else
             {
-                Toast.ShowWarning("That request has already been answered.", "No change");
+                Toast.ShowWarning(L["That request has already been answered."].Value, L["No change"].Value);
             }
         }
         finally
