@@ -53,7 +53,9 @@ test("meal sheet restores the personal and everyone views", () => {
     assert.match(razor, /@L\["Only me"\]/);
     assert.match(razor, /@L\["Everyone"\]/);
     assert.match(razor, /private bool _onlyMyColumn;/);
-    assert.match(razor, /Members\.Where\(m => m\.IsMe\)/);
+    assert.match(razor, /Members\.Where\(m => m\.UserId == _ws\?\.CurrentUserId\)/);
+    assert.match(razor, /member\.UserId == _ws\.CurrentUserId/);
+    assert.match(settlementService, /CurrentUserId = userId/);
     assert.match(styles, /\.stl__view-toggle/);
     assert.match(styles, /\.stl__slot-step:disabled[\s\S]*?opacity: \.8/);
 });

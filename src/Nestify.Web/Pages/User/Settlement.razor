@@ -994,14 +994,14 @@
     private bool _onlyMyColumn;
 
     private IEnumerable<SettlementMemberDto> VisibleMembers => _onlyMyColumn
-        ? Members.Where(m => m.IsMe)
+        ? Members.Where(m => m.UserId == _ws?.CurrentUserId)
         : Members;
 
-    private string CurrentMemberName => Members.FirstOrDefault(m => m.IsMe)?.Name ?? L["Member"].Value;
+    private string CurrentMemberName => Members.FirstOrDefault(m => m.UserId == _ws?.CurrentUserId)?.Name ?? L["Member"].Value;
     private bool CanChoosePaymentMember => _ws?.CanManage == true;
 
     private bool CanEditColumn(SettlementMemberDto member) =>
-        IsOpen && (_ws!.CanManage || member.IsMe);
+        IsOpen && (_ws!.CanManage || member.UserId == _ws.CurrentUserId);
 
     // Months you can step through: from the earliest book (or today) up to today, or
     // one month past the latest finalized book so the manager can open the next one.

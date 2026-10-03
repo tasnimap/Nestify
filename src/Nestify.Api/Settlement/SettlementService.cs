@@ -669,6 +669,7 @@ public sealed class SettlementService
                 Month = month,
                 BookStatus = BookNone,
                 CanManage = canManage,
+                CurrentUserId = userId,
                 AddableMembers = activeMembers,
                 Result = new SettlementResultDto()
             };
@@ -733,6 +734,7 @@ public sealed class SettlementService
             BookStatus = book.Status,
             IsFinalized = book.Status == BookFinalized,
             CanManage = canManage,
+            CurrentUserId = userId,
             BillsTotal = result.BillsTotal,
             MealFundTotal = result.MealFund,
             SharedFundTotal = sharedFund,

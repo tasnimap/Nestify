@@ -8,6 +8,7 @@ public sealed class SettlementWorkspaceDto
     public short BookStatus { get; set; }
     public bool IsFinalized { get; set; }
     public bool CanManage { get; set; }
+    public long CurrentUserId { get; set; }
     public decimal BillsTotal { get; set; }
     public decimal MealFundTotal { get; set; }
     public decimal SharedFundTotal { get; set; }
