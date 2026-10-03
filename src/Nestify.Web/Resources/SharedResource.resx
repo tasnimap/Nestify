@@ -1111,4 +1111,121 @@
   <data name="Describe the place so seekers know what they're getting." xml:space="preserve"><value>Describe the place so seekers know what they're getting.</value></data>
   <data name="Description should be at least 20 characters." xml:space="preserve"><value>Description should be at least 20 characters.</value></data>
   <data name="Enter a rent between ৳0 and ৳10,00,000." xml:space="preserve"><value>Enter a rent between ৳0 and ৳10,00,000.</value></data>
+  <data name="Electronics" xml:space="preserve"><value>Electronics</value></data>
+  <data name="Buyer interest" xml:space="preserve"><value>Buyer interest</value></data>
+  <data name="Browse the marketplace" xml:space="preserve"><value>Browse the marketplace</value></data>
+  <data name="Removed" xml:space="preserve"><value>Removed</value></data>
+  <data name="My buy requests" xml:space="preserve"><value>My buy requests</value></data>
+  <data name="Bedding" xml:space="preserve"><value>Bedding</value></data>
+  <data name="Newest" xml:space="preserve"><value>Newest</value></data>
+  <data name="Post your first item" xml:space="preserve"><value>Post your first item</value></data>
+  <data name="Sold outside Nestify" xml:space="preserve"><value>Sold outside Nestify</value></data>
+  <data name="All districts" xml:space="preserve"><value>All districts</value></data>
+  <data name="Suspected scam" xml:space="preserve"><value>Suspected scam</value></data>
+  <data name="This listing isn&apos;t available" xml:space="preserve"><value>This listing isn&apos;t available</value></data>
+  <data name="Like new" xml:space="preserve"><value>Like new</value></data>
+  <data name="Remove" xml:space="preserve"><value>Remove</value></data>
+  <data name="Category" xml:space="preserve"><value>Category</value></data>
+  <data name="Min" xml:space="preserve"><value>Min</value></data>
+  <data name="Mark as sold" xml:space="preserve"><value>Mark as sold</value></data>
+  <data name="Maximum price" xml:space="preserve"><value>Maximum price</value></data>
+  <data name="views" xml:space="preserve"><value>views</value></data>
+  <data name="Accept &amp; share contact" xml:space="preserve"><value>Accept &amp; share contact</value></data>
+  <data name="Kitchen" xml:space="preserve"><value>Kitchen</value></data>
+  <data name="Post an item" xml:space="preserve"><value>Post an item</value></data>
+  <data name="Furniture" xml:space="preserve"><value>Furniture</value></data>
+  <data name="All Bangladesh" xml:space="preserve"><value>All Bangladesh</value></data>
+  <data name="Good" xml:space="preserve"><value>Good</value></data>
+  <data name="This item has been marked sold." xml:space="preserve"><value>This item has been marked sold.</value></data>
+  <data name="Price range (৳)" xml:space="preserve"><value>Price range (৳)</value></data>
+  <data name="Post an item for sale" xml:space="preserve"><value>Post an item for sale</value></data>
+  <data name="items" xml:space="preserve"><value>items</value></data>
+  <data name="Who bought it?" xml:space="preserve"><value>Who bought it?</value></data>
+  <data name="New" xml:space="preserve"><value>New</value></data>
+  <data name="Fair" xml:space="preserve"><value>Fair</value></data>
+  <data name="Price: high to low" xml:space="preserve"><value>Price: high to low</value></data>
+  <data name="awaiting reply" xml:space="preserve"><value>awaiting reply</value></data>
+  <data name="Report this listing" xml:space="preserve"><value>Report this listing</value></data>
+  <data name="Message to the seller" xml:space="preserve"><value>Message to the seller</value></data>
+  <data name="Books" xml:space="preserve"><value>Books</value></data>
+  <data name="Price: low to high" xml:space="preserve"><value>Price: low to high</value></data>
+  <data name="Back to marketplace" xml:space="preserve"><value>Back to marketplace</value></data>
+  <data name="Max" xml:space="preserve"><value>Max</value></data>
+  <data name="Condition" xml:space="preserve"><value>Condition</value></data>
+  <data name="Sold" xml:space="preserve"><value>Sold</value></data>
+  <data name="Wrong category" xml:space="preserve"><value>Wrong category</value></data>
+  <data name="Listed" xml:space="preserve"><value>Listed</value></data>
+  <data name="Appliance" xml:space="preserve"><value>Appliance</value></data>
+  <data name="Preferred handover" xml:space="preserve"><value>Preferred handover</value></data>
+  <data name="This is your listing." xml:space="preserve"><value>This is your listing.</value></data>
+  <data name="Misleading description" xml:space="preserve"><value>Misleading description</value></data>
+  <data name="All upazilas" xml:space="preserve"><value>All upazilas</value></data>
+  <data name="It may have been sold, taken down, or the link is wrong." xml:space="preserve"><value>It may have been sold, taken down, or the link is wrong.</value></data>
+  <data name="Remove this listing?" xml:space="preserve"><value>Remove this listing?</value></data>
+  <data name="Buy this item" xml:space="preserve"><value>Buy this item</value></data>
+  <data name="Prohibited item" xml:space="preserve"><value>Prohibited item</value></data>
+  <data name="Mark sold" xml:space="preserve"><value>Mark sold</value></data>
+  <data name="Minimum price" xml:space="preserve"><value>Minimum price</value></data>
+  <data name="Not verified" xml:space="preserve"><value>Not verified</value></data>
+  <data name="interested" xml:space="preserve"><value>interested</value></data>
+  <data name="item" xml:space="preserve"><value>item</value></data>
+  <data name="Report not sent" xml:space="preserve"><value>Report not sent</value></data>
+  <data name="The seller can now see your request and message." xml:space="preserve"><value>The seller can now see your request and message.</value></data>
+  <data name="Say when you can pick it up and ask anything you need to." xml:space="preserve"><value>Say when you can pick it up and ask anything you need to.</value></data>
+  <data name="Each published item uses one token. Buying any package renews every active marketplace token to one shared expiry date, just like a mobile recharge." xml:space="preserve"><value>Each published item uses one token. Buying any package renews every active marketplace token to one shared expiry date, just like a mobile recharge.</value></data>
+  <data name="Pin to Top (৳50 with bKash)" xml:space="preserve"><value>Pin to Top (৳50 with bKash)</value></data>
+  <data name="See buyer interest" xml:space="preserve"><value>See buyer interest</value></data>
+  <data name="Pinned Listing" xml:space="preserve"><value>Pinned Listing</value></data>
+  <data name="Not sent" xml:space="preserve"><value>Not sent</value></data>
+  <data name="Second-hand things, between people you can place." xml:space="preserve"><value>Second-hand things, between people you can place.</value></data>
+  <data name="My listings — Nestify" xml:space="preserve"><value>My listings — Nestify</value></data>
+  <data name="Pinned to top until" xml:space="preserve"><value>Pinned to top until</value></data>
+  <data name="No active listing fits this combination yet. Widen the price range or clear a filter." xml:space="preserve"><value>No active listing fits this combination yet. Widen the price range or clear a filter.</value></data>
+  <data name="Keep your listings moving" xml:space="preserve"><value>Keep your listings moving</value></data>
+  <data name="Couldn&apos;t send that request — you may already have one open." xml:space="preserve"><value>Couldn&apos;t send that request — you may already have one open.</value></data>
+  <data name="Buy request sent" xml:space="preserve"><value>Buy request sent</value></data>
+  <data name="Edit listing — Nestify" xml:space="preserve"><value>Edit listing — Nestify</value></data>
+  <data name="Something went wrong reaching the marketplace. Try again in a moment." xml:space="preserve"><value>Something went wrong reaching the marketplace. Try again in a moment.</value></data>
+  <data name="Extend Pin (৳50 with bKash)" xml:space="preserve"><value>Extend Pin (৳50 with bKash)</value></data>
+  <data name="My buy requests — Nestify" xml:space="preserve"><value>My buy requests — Nestify</value></data>
+  <data name="your buy requests" xml:space="preserve"><value>your buy requests</value></data>
+  <data name="Post an item — Nestify" xml:space="preserve"><value>Post an item — Nestify</value></data>
+  <data name="Report submitted" xml:space="preserve"><value>Report submitted</value></data>
+  <data name="Contact details are shared only after the seller accepts. Meet in a public place." xml:space="preserve"><value>Contact details are shared only after the seller accepts. Meet in a public place.</value></data>
+  <data name="Buyer interest — Nestify" xml:space="preserve"><value>Buyer interest — Nestify</value></data>
+  <data name="Marketplace posting tokens" xml:space="preserve"><value>Marketplace posting tokens</value></data>
+  <data name="Thanks — our team will review this listing." xml:space="preserve"><value>Thanks — our team will review this listing.</value></data>
+  <data name="Furniture, books and appliances from other verified bachelors in your division. Every seller carries the same identity check you do." xml:space="preserve"><value>Furniture, books and appliances from other verified bachelors in your division. Every seller carries the same identity check you do.</value></data>
+  <data name="Changes go live straight away. Price, condition and photos are the ones buyers act on." xml:space="preserve"><value>Changes go live straight away. Price, condition and photos are the ones buyers act on.</value></data>
+  <data name="Accelerates buyer inquiries and helps close sales up to 3x faster." xml:space="preserve"><value>Accelerates buyer inquiries and helps close sales up to 3x faster.</value></data>
+  <data name="Go to my listings" xml:space="preserve"><value>Go to my listings</value></data>
+  <data name="Golden Pinned Badge" xml:space="preserve"><value>Golden Pinned Badge</value></data>
+  <data name="Top of Browse &amp; Search" xml:space="preserve"><value>Top of Browse &amp; Search</value></data>
+  <data name="Loading buy requests…" xml:space="preserve"><value>Loading buy requests…</value></data>
+  <data name="Price (৳)" xml:space="preserve"><value>Price (৳)</value></data>
+  <data name="Select an upazila…" xml:space="preserve"><value>Select an upazila…</value></data>
+  <data name="Everything you&apos;ve posted, including sold, active, and pinned items." xml:space="preserve"><value>Everything you&apos;ve posted, including sold, active, and pinned items.</value></data>
+  <data name="Appears first before standard listings for maximum buyer discovery." xml:space="preserve"><value>Appears first before standard listings for maximum buyer discovery.</value></data>
+  <data name="Select a division…" xml:space="preserve"><value>Select a division…</value></data>
+  <data name="This item was sold to another buyer, so your request is closed." xml:space="preserve"><value>This item was sold to another buyer, so your request is closed.</value></data>
+  <data name="Listed @MarketplaceView.RelativeTime(it.PostedAtUtc)" xml:space="preserve"><value>Listed @MarketplaceView.RelativeTime(it.PostedAtUtc)</value></data>
+  <data name="Confirm ৳" xml:space="preserve"><value>Confirm ৳</value></data>
+  <data name="Not published yet" xml:space="preserve"><value>Not published yet</value></data>
+  <data name="Select a district…" xml:space="preserve"><value>Select a district…</value></data>
+  <data name="Fix the highlighted fields first — the title and description have minimum lengths." xml:space="preserve"><value>Fix the highlighted fields first — the title and description have minimum lengths.</value></data>
+  <data name="Buyer&apos;s view" xml:space="preserve"><value>Buyer&apos;s view</value></data>
+  <data name="Updates as you type." xml:space="preserve"><value>Updates as you type.</value></data>
+  <data name="Successfully purchased. The seller marked this item as sold to you — arrange the handover with them below." xml:space="preserve"><value>Successfully purchased. The seller marked this item as sold to you — arrange the handover with them below.</value></data>
+  <data name="Distinctive badge highlights your item across all category feeds." xml:space="preserve"><value>Distinctive badge highlights your item across all category feeds.</value></data>
+  <data name="Price ↑" xml:space="preserve"><value>Price ↑</value></data>
+  <data name="JPG, PNG or WebP · up to" xml:space="preserve"><value>JPG, PNG or WebP · up to</value></data>
+  <data name="Appliances" xml:space="preserve"><value>Appliances</value></data>
+  <data name="Successfully purchased" xml:space="preserve"><value>Successfully purchased</value></data>
+  <data name="Awaiting seller" xml:space="preserve"><value>Awaiting seller</value></data>
+  <data name="Add photos" xml:space="preserve"><value>Add photos</value></data>
+  <data name="Photo limit reached" xml:space="preserve"><value>Photo limit reached</value></data>
+  <data name="Sold to someone else" xml:space="preserve"><value>Sold to someone else</value></data>
+  <data name="Arrange a public place and daytime handover. Nestify never handles payment." xml:space="preserve"><value>Arrange a public place and daytime handover. Nestify never handles payment.</value></data>
+  <data name="Price ↓" xml:space="preserve"><value>Price ↓</value></data>
+  <data name="These checks are a preview. Your photos are checked again on our side when the listing goes live." xml:space="preserve"><value>These checks are a preview. Your photos are checked again on our side when the listing goes live.</value></data>
 </root>

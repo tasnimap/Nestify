@@ -1,3 +1,4 @@
+@inject Microsoft.Extensions.Localization.IStringLocalizer<SharedResource> L
 @* Browse-grid card. The whole card is a link to the item detail via the title's
    ::before overlay; the seller line stays non-interactive here. *@
 
@@ -19,7 +20,7 @@
                 <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/>
                 </svg>
-                <span>Pinned</span>
+                <span>@L["Pinned"]</span>
             </span>
         }
     </div>
@@ -57,7 +58,7 @@
                         <path d="m8.5 12 2.4 2.4L15.5 10" fill="none" stroke="#fff" stroke-width="2.2"
                               stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
-                    <span>Verified</span>
+                    <span>@L["Verified"]</span>
                 </span>
             }
         </div>

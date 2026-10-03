@@ -1,32 +1,32 @@
 @page "/marketplace"
 @attribute [Authorize(Roles = "User")]
 @inject IMarketplaceService Marketplace
+@inject Microsoft.Extensions.Localization.IStringLocalizer<SharedResource> L
 @using Nestify.Shared.Dtos.Area
 @inject IAreaService Areas
 
-<PageTitle>Marketplace — Nestify</PageTitle>
+<PageTitle>@L["Marketplace"] — Nestify</PageTitle>
 
 <section class="nx-section mk-page">
     <div class="nx-container mk-wrap">
         <header class="mk-head">
             <div class="mk-head__titles">
-                <p class="nx-eyebrow">M4 · Marketplace</p>
-                <h1>Second-hand things, <span class="nx-display-accent">between people you can place.</span></h1>
+                <p class="nx-eyebrow">M4 · @L["Marketplace"]</p>
+                <h1>@L["Second-hand things, between people you can place."]</h1>
                 <p class="mk-head__lead">
-                    Furniture, books and appliances from other verified bachelors in your division.
-                    Every seller carries the same identity check you do.
+                    @L["Furniture, books and appliances from other verified bachelors in your division. Every seller carries the same identity check you do."]
                 </p>
             </div>
             <div class="mk-head__actions">
-                <a class="nx-btn nx-btn--ghost" href="buy-interests/mine">My buy requests</a>
-                <a class="nx-btn nx-btn--ghost" href="marketplace/mine">My listings</a>
+                <a class="nx-btn nx-btn--ghost" href="buy-interests/mine">@L["My buy requests"]</a>
+                <a class="nx-btn nx-btn--ghost" href="marketplace/mine">@L["My listings"]</a>
                 <button type="button" class="mk-credit" @onclick="OpenPackages">
-                    <strong>@_postingBalance.PostsLeft posts</strong>
-                    <span>@(_postingBalance.NextExpiryUtc is { } expiry ? $"expires {expiry.ToLocalTime():d MMM}" : "buy posting tokens")</span>
+                    <strong>@L["{0} posts", _postingBalance.PostsLeft]</strong>
+                    <span>@(_postingBalance.NextExpiryUtc is { } expiry ? L["Expires {0}", expiry.ToLocalTime().ToString("d MMM")] : L["Buy posting tokens"])</span>
                 </button>
                 <button type="button" class="nx-btn nx-btn--primary" @onclick="OpenPostModal">
                     <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
-                    Post an item
+                    @L["Post an item"]
                 </button>
             </div>
         </header>
@@ -35,22 +35,22 @@
         {
             <div class="mk-checkout-backdrop" role="presentation" @onclick="ClosePackages">
                 <section class="mk-checkout" role="dialog" aria-modal="true" aria-labelledby="posting-package-title" @onclick:stopPropagation="true">
-                    <button class="mk-checkout__close" type="button" aria-label="Close" @onclick="ClosePackages">×</button>
-                    <p class="nx-eyebrow">Marketplace posting tokens</p>
-                    <h2 id="posting-package-title">Keep your listings moving</h2>
-                    <p class="mk-checkout__intro">Each published item uses one token. Buying any package renews every active marketplace token to one shared expiry date, just like a mobile recharge.</p>
+                    <button class="mk-checkout__close" type="button" aria-label="@L["Close"]" @onclick="ClosePackages">×</button>
+                    <p class="nx-eyebrow">@L["Marketplace posting tokens"]</p>
+                    <h2 id="posting-package-title">@L["Keep your listings moving"]</h2>
+                    <p class="mk-checkout__intro">@L["Each published item uses one token. Buying any package renews every active marketplace token to one shared expiry date, just like a mobile recharge."]</p>
 
                     <div class="mk-checkout__balance">
-                        <span>Available to publish</span>
-                        <strong>@_postingBalance.PostsLeft <small>posts</small></strong>
-                        <em>@(_postingBalance.NextExpiryUtc is { } nextExpiry ? $"Next expiry: {nextExpiry.ToLocalTime():d MMM yyyy}" : "Choose a package to get started")</em>
+                        <span>@L["Available to publish"]</span>
+                        <strong>@_postingBalance.PostsLeft <small>@L["posts"]</small></strong>
+                        <em>@(_postingBalance.NextExpiryUtc is { } nextExpiry ? L["Next expiry: {0}", nextExpiry.ToLocalTime().ToString("d MMM yyyy")] : L["Choose a package to get started"])</em>
                     </div>
 
                     <div class="mk-package-grid">
                         @foreach (var plan in _postingPlans)
                         {
                             <button type="button" aria-pressed="@(_selectedPlan?.Id == plan.Id)" class="mk-package @(_selectedPlan?.Id == plan.Id ? "mk-package--selected" : null)" @onclick="() => _selectedPlan = plan">
-                                <strong>@plan.Name</strong><span>@plan.Posts post tokens</span><small>Expires after @plan.ValidDays days</small><b>৳@plan.PriceBdt.ToString("N0")</b>
+                                <strong>@plan.Name</strong><span>@L["{0} post tokens", plan.Posts]</span><small>@L["Expires after {0} days", plan.ValidDays]</small><b>৳@plan.PriceBdt.ToString("N0")</b>
                             </button>
                         }
                     </div>
@@ -58,12 +58,12 @@
                     @if (_selectedPlan is not null)
                     {
                         <div class="mk-pay-form">
-                            <div class="mk-pay-form__brand"><b>bKash</b><span>Secure practice checkout</span></div>
-                            <input type="tel" placeholder="bKash number (e.g. 01712345678)" @bind="_bkashNumber" />
-                            <input type="password" inputmode="numeric" maxlength="5" placeholder="bKash PIN" @bind="_bkashPin" />
+                            <div class="mk-pay-form__brand"><b>bKash</b><span>@L["Secure practice checkout"]</span></div>
+                            <input type="tel" placeholder="@L["bKash number (e.g. 01712345678)"]" @bind="_bkashNumber" />
+                            <input type="password" inputmode="numeric" maxlength="5" placeholder="@L["bKash PIN"]" @bind="_bkashPin" />
                             @if (!string.IsNullOrWhiteSpace(_checkoutError)) { <p class="mk-checkout__error">@_checkoutError</p> }
                             <button type="button" class="nx-btn nx-btn--primary" disabled="@_checkingOut" @onclick="CheckoutAsync">
-                                @(_checkingOut ? "Processing…" : $"Pay ৳{_selectedPlan.PriceBdt:N0} and add {_selectedPlan.Posts} posts")
+                                @(_checkingOut ? L["Processing…"] : L["Pay ৳{0} and add {1} posts", _selectedPlan.PriceBdt.ToString("N0"), _selectedPlan.Posts])
                             </button>
                         </div>
                     }
@@ -74,58 +74,58 @@
         <div class="mk-browse">
             <aside class="mk-lens" aria-label="Filter listings">
                 <div class="mk-lens__row">
-                    <label class="mk-lens__label" for="mk-search">Search</label>
+                    <label class="mk-lens__label" for="mk-search">@L["Search"]</label>
                     <div class="mk-lens__search">
                         <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor"
                              stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>
-                        <input id="mk-search" type="search" placeholder="table, cycle, Miyako…"
+                        <input id="mk-search" type="search" placeholder="@L["table, cycle, Miyako…"]"
                                value="@_filter.Search"
                                @onchange="OnSearchChange" />
                     </div>
                 </div>
 
                 <div class="mk-lens__row">
-                    <span class="mk-lens__label">Category</span>
+                    <span class="mk-lens__label">@L["Category"]</span>
                     <div class="mk-chips">
                         <button type="button" class="mk-chip @(_filter.Category is null ? "mk-chip--active" : null)"
-                                @onclick="() => SetCategory(null)">All</button>
+                                @onclick="() => SetCategory(null)">@L["All"]</button>
                         @foreach (var c in _categories)
                         {
                             <button type="button" class="mk-chip @(_filter.Category == c ? "mk-chip--active" : null)"
-                                    @onclick="() => SetCategory(c)">@MarketplaceView.Label(c)</button>
+                                    @onclick="() => SetCategory(c)">@L[MarketplaceView.Label(c)]</button>
                         }
                     </div>
                 </div>
 
                 <div class="mk-lens__row">
-                    <span class="mk-lens__label">Condition</span>
+                    <span class="mk-lens__label">@L["Condition"]</span>
                     <div class="mk-seg mk-seg--wrap">
                         <button type="button" class="mk-seg__opt @(_filter.Condition is null ? "mk-seg__opt--active" : null)"
-                                @onclick="() => SetCondition(null)">Any</button>
+                                @onclick="() => SetCondition(null)">@L["Any"]</button>
                         @foreach (var cond in _conditions)
                         {
                             <button type="button" class="mk-seg__opt @(_filter.Condition == cond ? "mk-seg__opt--active" : null)"
-                                    @onclick="() => SetCondition(cond)">@MarketplaceView.Label(cond)</button>
+                                    @onclick="() => SetCondition(cond)">@L[MarketplaceView.Label(cond)]</button>
                         }
                     </div>
                 </div>
 
                 <div class="mk-lens__row">
-                    <span class="mk-lens__label">Price range (৳)</span>
+                    <span class="mk-lens__label">@L["Price range (৳)"]</span>
                     <div class="mk-lens__price" @key="_priceBoxKey">
-                        <input type="number" min="0" step="100" placeholder="Min" inputmode="numeric"
-                               value="@_filter.MinPrice" @onchange="OnMinPrice" aria-label="Minimum price" />
+                        <input type="number" min="0" step="100" placeholder="@L["Min"]" inputmode="numeric"
+                               value="@_filter.MinPrice" @onchange="OnMinPrice" aria-label="@L["Minimum price"]" />
                         <span class="mk-lens__dash">–</span>
-                        <input type="number" min="0" step="100" placeholder="Max" inputmode="numeric"
-                               value="@_filter.MaxPrice" @onchange="OnMaxPrice" aria-label="Maximum price" />
+                        <input type="number" min="0" step="100" placeholder="@L["Max"]" inputmode="numeric"
+                               value="@_filter.MaxPrice" @onchange="OnMaxPrice" aria-label="@L["Maximum price"]" />
                     </div>
                 </div>
 
                 <div class="mk-lens__row">
-                    <label class="mk-lens__label" for="mk-division">Division</label>
+                    <label class="mk-lens__label" for="mk-division">@L["Division"]</label>
                     <select id="mk-division" class="mk-lens__select"
                             value="@(_divisionId?.ToString() ?? string.Empty)" @onchange="OnDivision">
-                        <option value="">All Bangladesh</option>
+                        <option value="">@L["All Bangladesh"]</option>
                         @foreach (var d in _divisions)
                         {
                             <option value="@d.Id">@d.Name</option>
@@ -136,10 +136,10 @@
                 @if (_divisionId is not null)
                 {
                     <div class="mk-lens__row">
-                        <label class="mk-lens__label" for="mk-district">District</label>
+                        <label class="mk-lens__label" for="mk-district">@L["District"]</label>
                         <select id="mk-district" class="mk-lens__select"
                                 value="@(_districtId?.ToString() ?? string.Empty)" @onchange="OnDistrict">
-                            <option value="">All districts</option>
+                            <option value="">@L["All districts"]</option>
                             @foreach (var d in _districts)
                             {
                                 <option value="@d.Id">@d.Name</option>
@@ -151,10 +151,10 @@
                 @if (_districtId is not null)
                 {
                     <div class="mk-lens__row">
-                        <label class="mk-lens__label" for="mk-upazila">Upazila / thana</label>
+                        <label class="mk-lens__label" for="mk-upazila">@L["Upazila / thana"]</label>
                         <select id="mk-upazila" class="mk-lens__select"
                                 value="@(_upazilaId?.ToString() ?? string.Empty)" @onchange="OnUpazila">
-                            <option value="">All upazilas</option>
+                            <option value="">@L["All upazilas"]</option>
                             @foreach (var u in _upazilas)
                             {
                                 <option value="@u.Id">@u.Name</option>
@@ -167,7 +167,7 @@
                 {
                     <button type="button" class="mk-lens__clear" @onclick="ClearFilters">
                         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6 18 18M6 18 18 6" /></svg>
-                        Clear all filters
+                        @L["Clear all filters"]
                     </button>
                 }
             </aside>
@@ -177,18 +177,18 @@
                     <p class="mk-results__count">
                         @if (_loading)
                         {
-                            <span>Loading listings…</span>
+                            <span>@L["Loading listings…"]</span>
                         }
                         else if (_page is not null)
                         {
-                            <span><strong>@_page.TotalCount</strong> @(_page.TotalCount == 1 ? "item" : "items")</span>
+                            <span><strong>@_page.TotalCount</strong> @(_page.TotalCount == 1 ? L["item"] : L["items"])</span>
                         }
                     </p>
                     <div class="mk-seg">
                         @foreach (var s in _sorts)
                         {
                             <button type="button" class="mk-seg__opt @(_filter.Sort == s ? "mk-seg__opt--active" : null)"
-                                    @onclick="() => SetSort(s)">@MarketplaceView.ShortLabel(s)</button>
+                                    @onclick="() => SetSort(s)">@L[MarketplaceView.ShortLabel(s)]</button>
                         }
                     </div>
                 </div>
@@ -204,18 +204,18 @@
                 }
                 else if (_error)
                 {
-                    <MarketplaceEmpty Title="Couldn't load listings"
-                                      Message="Something went wrong reaching the marketplace. Try again in a moment.">
-                        <button class="nx-btn nx-btn--primary" @onclick="LoadAsync">Retry</button>
+                    <MarketplaceEmpty Title="@L["Couldn't load listings"]"
+                                      Message="@L["Something went wrong reaching the marketplace. Try again in a moment."]">
+                        <button class="nx-btn nx-btn--primary" @onclick="LoadAsync">@L["Retry"]</button>
                     </MarketplaceEmpty>
                 }
                 else if (_page is null || _page.Items.Count == 0)
                 {
-                    <MarketplaceEmpty Title="Nothing matches those filters"
-                                      Message="No active listing fits this combination yet. Widen the price range or clear a filter.">
+                    <MarketplaceEmpty Title="@L["Nothing matches those filters"]"
+                                      Message="@L["No active listing fits this combination yet. Widen the price range or clear a filter."]">
                         @if (HasActiveFilters)
                         {
-                            <button class="nx-btn nx-btn--ghost" @onclick="ClearFilters">Clear filters</button>
+                            <button class="nx-btn nx-btn--ghost" @onclick="ClearFilters">@L["Clear filters"]</button>
                         }
                     </MarketplaceEmpty>
                 }
@@ -231,9 +231,9 @@
                     @if (_page.TotalPages > 1)
                     {
                         <nav class="mk-pager" aria-label="Pagination">
-                            <button class="nx-btn nx-btn--ghost" disabled="@(!_page.HasPrevious)" @onclick="PrevPage">Previous</button>
-                            <span class="mk-pager__pages">Page @_page.Page of @_page.TotalPages</span>
-                            <button class="nx-btn nx-btn--ghost" disabled="@(!_page.HasNext)" @onclick="NextPage">Next</button>
+                            <button class="nx-btn nx-btn--ghost" disabled="@(!_page.HasPrevious)" @onclick="PrevPage">@L["Previous"]</button>
+                            <span class="mk-pager__pages">@L["Page {0} of {1}", _page.Page, _page.TotalPages]</span>
+                            <button class="nx-btn nx-btn--ghost" disabled="@(!_page.HasNext)" @onclick="NextPage">@L["Next"]</button>
                         </nav>
                     }
                 }

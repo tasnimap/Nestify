@@ -1111,4 +1111,121 @@
   <data name="Describe the place so seekers know what they're getting." xml:space="preserve"><value>আগ্রহীরা কী পাবেন তা বুঝতে পারে—এমনভাবে জায়গাটির বিবরণ দিন।</value></data>
   <data name="Description should be at least 20 characters." xml:space="preserve"><value>বিবরণ কমপক্ষে ২০ অক্ষরের হতে হবে।</value></data>
   <data name="Enter a rent between ৳0 and ৳10,00,000." xml:space="preserve"><value>৳০ থেকে ৳১০,০০,০০০-এর মধ্যে ভাড়া লিখুন।</value></data>
+  <data name="Electronics" xml:space="preserve"><value>ইলেকট্রনিকস</value></data>
+  <data name="Buyer interest" xml:space="preserve"><value>ক্রেতার আগ্রহ</value></data>
+  <data name="Browse the marketplace" xml:space="preserve"><value>বাজার ঘুরে দেখুন</value></data>
+  <data name="Removed" xml:space="preserve"><value>সরানো হয়েছে</value></data>
+  <data name="My buy requests" xml:space="preserve"><value>আমার কেনার অনুরোধ</value></data>
+  <data name="Bedding" xml:space="preserve"><value>বিছানার সামগ্রী</value></data>
+  <data name="Newest" xml:space="preserve"><value>নতুন আগে</value></data>
+  <data name="Post your first item" xml:space="preserve"><value>আপনার প্রথম পণ্যটি দিন</value></data>
+  <data name="Sold outside Nestify" xml:space="preserve"><value>Nestify-এর বাইরে বিক্রি হয়েছে</value></data>
+  <data name="All districts" xml:space="preserve"><value>সব জেলা</value></data>
+  <data name="Suspected scam" xml:space="preserve"><value>প্রতারণার সন্দেহ</value></data>
+  <data name="This listing isn&apos;t available" xml:space="preserve"><value>এই বিজ্ঞাপনটি পাওয়া যাচ্ছে না</value></data>
+  <data name="Like new" xml:space="preserve"><value>প্রায় নতুন</value></data>
+  <data name="Remove" xml:space="preserve"><value>সরান</value></data>
+  <data name="Category" xml:space="preserve"><value>বিভাগ</value></data>
+  <data name="Min" xml:space="preserve"><value>সর্বনিম্ন</value></data>
+  <data name="Mark as sold" xml:space="preserve"><value>বিক্রি হয়েছে চিহ্নিত করুন</value></data>
+  <data name="Maximum price" xml:space="preserve"><value>সর্বোচ্চ দাম</value></data>
+  <data name="views" xml:space="preserve"><value>বার দেখা হয়েছে</value></data>
+  <data name="Accept &amp; share contact" xml:space="preserve"><value>গ্রহণ করুন ও যোগাযোগের তথ্য জানান</value></data>
+  <data name="Kitchen" xml:space="preserve"><value>রান্নাঘরের সামগ্রী</value></data>
+  <data name="Post an item" xml:space="preserve"><value>পণ্য বিক্রির বিজ্ঞাপন দিন</value></data>
+  <data name="Furniture" xml:space="preserve"><value>আসবাবপত্র</value></data>
+  <data name="All Bangladesh" xml:space="preserve"><value>সারা বাংলাদেশ</value></data>
+  <data name="Good" xml:space="preserve"><value>ভালো</value></data>
+  <data name="This item has been marked sold." xml:space="preserve"><value>এই পণ্যটি বিক্রি হয়েছে বলে চিহ্নিত করা হয়েছে।</value></data>
+  <data name="Price range (৳)" xml:space="preserve"><value>দামের সীমা (৳)</value></data>
+  <data name="Post an item for sale" xml:space="preserve"><value>পণ্য বিক্রির বিজ্ঞাপন দিন</value></data>
+  <data name="items" xml:space="preserve"><value>টি পণ্য</value></data>
+  <data name="Who bought it?" xml:space="preserve"><value>কে পণ্যটি কিনেছেন?</value></data>
+  <data name="New" xml:space="preserve"><value>নতুন</value></data>
+  <data name="Fair" xml:space="preserve"><value>মোটামুটি</value></data>
+  <data name="Price: high to low" xml:space="preserve"><value>বেশি দাম আগে</value></data>
+  <data name="awaiting reply" xml:space="preserve"><value>জনের উত্তরের অপেক্ষায়</value></data>
+  <data name="Report this listing" xml:space="preserve"><value>এই বিজ্ঞাপন সম্পর্কে অভিযোগ</value></data>
+  <data name="Message to the seller" xml:space="preserve"><value>বিক্রেতাকে বার্তা</value></data>
+  <data name="Books" xml:space="preserve"><value>বই</value></data>
+  <data name="Price: low to high" xml:space="preserve"><value>কম দাম আগে</value></data>
+  <data name="Back to marketplace" xml:space="preserve"><value>বাজারে ফিরে যান</value></data>
+  <data name="Max" xml:space="preserve"><value>সর্বোচ্চ</value></data>
+  <data name="Condition" xml:space="preserve"><value>অবস্থা</value></data>
+  <data name="Sold" xml:space="preserve"><value>বিক্রি হয়েছে</value></data>
+  <data name="Wrong category" xml:space="preserve"><value>ভুল বিভাগ</value></data>
+  <data name="Listed" xml:space="preserve"><value>প্রকাশিত</value></data>
+  <data name="Appliance" xml:space="preserve"><value>গৃহস্থালি যন্ত্র</value></data>
+  <data name="Preferred handover" xml:space="preserve"><value>পণ্য হস্তান্তরের পছন্দ</value></data>
+  <data name="This is your listing." xml:space="preserve"><value>এটি আপনার বিজ্ঞাপন।</value></data>
+  <data name="Misleading description" xml:space="preserve"><value>বিভ্রান্তিকর বিবরণ</value></data>
+  <data name="All upazilas" xml:space="preserve"><value>সব উপজেলা</value></data>
+  <data name="It may have been sold, taken down, or the link is wrong." xml:space="preserve"><value>পণ্যটি বিক্রি হয়ে থাকতে পারে, বিজ্ঞাপন সরানো হতে পারে, অথবা লিংকটি ভুল।</value></data>
+  <data name="Remove this listing?" xml:space="preserve"><value>এই বিজ্ঞাপনটি সরাবেন?</value></data>
+  <data name="Buy this item" xml:space="preserve"><value>পণ্যটি কিনুন</value></data>
+  <data name="Prohibited item" xml:space="preserve"><value>নিষিদ্ধ পণ্য</value></data>
+  <data name="Mark sold" xml:space="preserve"><value>বিক্রি হয়েছে চিহ্নিত করুন</value></data>
+  <data name="Minimum price" xml:space="preserve"><value>সর্বনিম্ন দাম</value></data>
+  <data name="Not verified" xml:space="preserve"><value>যাচাই করা হয়নি</value></data>
+  <data name="interested" xml:space="preserve"><value>জন আগ্রহী</value></data>
+  <data name="item" xml:space="preserve"><value>টি পণ্য</value></data>
+  <data name="Report not sent" xml:space="preserve"><value>অভিযোগ পাঠানো যায়নি</value></data>
+  <data name="The seller can now see your request and message." xml:space="preserve"><value>বিক্রেতা এখন আপনার অনুরোধ ও বার্তা দেখতে পারবেন।</value></data>
+  <data name="Say when you can pick it up and ask anything you need to." xml:space="preserve"><value>কখন পণ্যটি নিতে পারবেন জানান এবং প্রয়োজনীয় প্রশ্ন করুন।</value></data>
+  <data name="Each published item uses one token. Buying any package renews every active marketplace token to one shared expiry date, just like a mobile recharge." xml:space="preserve"><value>প্রতিটি বিজ্ঞাপন প্রকাশে একটি টোকেন লাগে। যেকোনো প্যাকেজ কিনলে সব সক্রিয় টোকেনের মেয়াদ একই নতুন তারিখ পর্যন্ত বাড়বে।</value></data>
+  <data name="Pin to Top (৳50 with bKash)" xml:space="preserve"><value>শীর্ষে পিন করুন (bKash-এ ৳৫০)</value></data>
+  <data name="See buyer interest" xml:space="preserve"><value>ক্রেতার আগ্রহ দেখুন</value></data>
+  <data name="Pinned Listing" xml:space="preserve"><value>পিন করা বিজ্ঞাপন</value></data>
+  <data name="Not sent" xml:space="preserve"><value>পাঠানো হয়নি</value></data>
+  <data name="Second-hand things, between people you can place." xml:space="preserve"><value>ব্যবহৃত পণ্য—পরিচিত পরিবেশে, পরিচিত মানুষের কাছ থেকে</value></data>
+  <data name="My listings — Nestify" xml:space="preserve"><value>আমার বিজ্ঞাপন — Nestify</value></data>
+  <data name="Pinned to top until" xml:space="preserve"><value>শীর্ষে পিন থাকবে</value></data>
+  <data name="No active listing fits this combination yet. Widen the price range or clear a filter." xml:space="preserve"><value>এই সমন্বয়ে কোনো সক্রিয় বিজ্ঞাপন নেই। দামের সীমা বাড়ান অথবা ফিল্টার সরান।</value></data>
+  <data name="Keep your listings moving" xml:space="preserve"><value>আপনার বিজ্ঞাপন সচল রাখুন</value></data>
+  <data name="Couldn&apos;t send that request — you may already have one open." xml:space="preserve"><value>অনুরোধ পাঠানো যায়নি—আপনার একটি চলমান অনুরোধ থাকতে পারে।</value></data>
+  <data name="Buy request sent" xml:space="preserve"><value>কেনার অনুরোধ পাঠানো হয়েছে</value></data>
+  <data name="Edit listing — Nestify" xml:space="preserve"><value>বিজ্ঞাপন সম্পাদনা — Nestify</value></data>
+  <data name="Something went wrong reaching the marketplace. Try again in a moment." xml:space="preserve"><value>বাজারে সংযোগে সমস্যা হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।</value></data>
+  <data name="Extend Pin (৳50 with bKash)" xml:space="preserve"><value>পিনের মেয়াদ বাড়ান (bKash-এ ৳৫০)</value></data>
+  <data name="My buy requests — Nestify" xml:space="preserve"><value>আমার কেনার অনুরোধ — Nestify</value></data>
+  <data name="your buy requests" xml:space="preserve"><value>আপনার কেনার অনুরোধ</value></data>
+  <data name="Post an item — Nestify" xml:space="preserve"><value>পণ্য বিক্রির বিজ্ঞাপন — Nestify</value></data>
+  <data name="Report submitted" xml:space="preserve"><value>অভিযোগ পাঠানো হয়েছে</value></data>
+  <data name="Contact details are shared only after the seller accepts. Meet in a public place." xml:space="preserve"><value>বিক্রেতা গ্রহণ করার পরই যোগাযোগের তথ্য দেখা যাবে। জনসমাগমপূর্ণ স্থানে দেখা করুন।</value></data>
+  <data name="Buyer interest — Nestify" xml:space="preserve"><value>ক্রেতার আগ্রহ — Nestify</value></data>
+  <data name="Marketplace posting tokens" xml:space="preserve"><value>বাজারে বিজ্ঞাপন দেওয়ার টোকেন</value></data>
+  <data name="Thanks — our team will review this listing." xml:space="preserve"><value>ধন্যবাদ—আমাদের দল বিজ্ঞাপনটি পর্যালোচনা করবে।</value></data>
+  <data name="Furniture, books and appliances from other verified bachelors in your division. Every seller carries the same identity check you do." xml:space="preserve"><value>আপনার বিভাগের যাচাইকৃত ব্যবহারকারীদের কাছ থেকে আসবাব, বই ও গৃহস্থালি পণ্য কিনুন। প্রতিটি বিক্রেতার পরিচয় আপনার মতোই যাচাই করা।</value></data>
+  <data name="Changes go live straight away. Price, condition and photos are the ones buyers act on." xml:space="preserve"><value>পরিবর্তন সংরক্ষণের সঙ্গে সঙ্গে প্রকাশিত হবে। দাম, পণ্যের অবস্থা ও ছবি ক্রেতাদের সিদ্ধান্তে সহায়তা করবে।</value></data>
+  <data name="Accelerates buyer inquiries and helps close sales up to 3x faster." xml:space="preserve"><value>ক্রেতাদের আগ্রহ বাড়িয়ে দ্রুত বিক্রিতে সহায়তা করে।</value></data>
+  <data name="Go to my listings" xml:space="preserve"><value>আমার বিজ্ঞাপনে যান</value></data>
+  <data name="Golden Pinned Badge" xml:space="preserve"><value>সোনালি পিন ব্যাজ</value></data>
+  <data name="Top of Browse &amp; Search" xml:space="preserve"><value>অনুসন্ধানে সবার আগে</value></data>
+  <data name="Loading buy requests…" xml:space="preserve"><value>কেনার অনুরোধ লোড হচ্ছে…</value></data>
+  <data name="Price (৳)" xml:space="preserve"><value>দাম (৳)</value></data>
+  <data name="Select an upazila…" xml:space="preserve"><value>উপজেলা নির্বাচন করুন…</value></data>
+  <data name="Everything you&apos;ve posted, including sold, active, and pinned items." xml:space="preserve"><value>আপনার দেওয়া সব বিজ্ঞাপন—সক্রিয়, বিক্রি হওয়া ও পিন করা পণ্যসহ।</value></data>
+  <data name="Appears first before standard listings for maximum buyer discovery." xml:space="preserve"><value>ক্রেতাদের নজরে আসতে সাধারণ বিজ্ঞাপনের আগে এটি দেখানো হবে।</value></data>
+  <data name="Select a division…" xml:space="preserve"><value>বিভাগ নির্বাচন করুন…</value></data>
+  <data name="This item was sold to another buyer, so your request is closed." xml:space="preserve"><value>পণ্যটি অন্য ক্রেতার কাছে বিক্রি হয়েছে, তাই আপনার অনুরোধ বন্ধ করা হয়েছে।</value></data>
+  <data name="Listed @MarketplaceView.RelativeTime(it.PostedAtUtc)" xml:space="preserve"><value>প্রকাশিত @MarketplaceView.RelativeTime(it.PostedAtUtc)</value></data>
+  <data name="Confirm ৳" xml:space="preserve"><value>৳ পরিশোধ নিশ্চিত করুন</value></data>
+  <data name="Not published yet" xml:space="preserve"><value>এখনও প্রকাশিত হয়নি</value></data>
+  <data name="Select a district…" xml:space="preserve"><value>জেলা নির্বাচন করুন…</value></data>
+  <data name="Fix the highlighted fields first — the title and description have minimum lengths." xml:space="preserve"><value>চিহ্নিত ঘরগুলো ঠিক করুন—শিরোনাম ও বিবরণের ন্যূনতম দৈর্ঘ্য থাকতে হবে।</value></data>
+  <data name="Buyer&apos;s view" xml:space="preserve"><value>ক্রেতার কাছে যেমন দেখাবে</value></data>
+  <data name="Updates as you type." xml:space="preserve"><value>লেখার সঙ্গে সঙ্গে পূর্বরূপ বদলাবে।</value></data>
+  <data name="Successfully purchased. The seller marked this item as sold to you — arrange the handover with them below." xml:space="preserve"><value>সফলভাবে কেনা হয়েছে। বিক্রেতা পণ্যটি আপনার কাছে বিক্রি হয়েছে বলে চিহ্নিত করেছেন—নিচে তাঁর সঙ্গে হস্তান্তরের ব্যবস্থা করুন।</value></data>
+  <data name="Distinctive badge highlights your item across all category feeds." xml:space="preserve"><value>সব বিভাগের তালিকায় এই বিশেষ ব্যাজ আপনার পণ্যকে আলাদা করে দেখাবে।</value></data>
+  <data name="Price ↑" xml:space="preserve"><value>দাম ↑</value></data>
+  <data name="JPG, PNG or WebP · up to" xml:space="preserve"><value>JPG, PNG অথবা WebP · সর্বোচ্চ</value></data>
+  <data name="Appliances" xml:space="preserve"><value>গৃহস্থালি যন্ত্র</value></data>
+  <data name="Successfully purchased" xml:space="preserve"><value>সফলভাবে কেনা হয়েছে</value></data>
+  <data name="Awaiting seller" xml:space="preserve"><value>বিক্রেতার উত্তরের অপেক্ষায়</value></data>
+  <data name="Add photos" xml:space="preserve"><value>ছবি যোগ করুন</value></data>
+  <data name="Photo limit reached" xml:space="preserve"><value>ছবির সর্বোচ্চ সংখ্যা পূর্ণ</value></data>
+  <data name="Sold to someone else" xml:space="preserve"><value>অন্য ক্রেতার কাছে বিক্রি হয়েছে</value></data>
+  <data name="Arrange a public place and daytime handover. Nestify never handles payment." xml:space="preserve"><value>জনসমাগমপূর্ণ স্থানে দিনের বেলায় পণ্য হস্তান্তরের ব্যবস্থা করুন। Nestify কখনো পেমেন্ট পরিচালনা করে না।</value></data>
+  <data name="Price ↓" xml:space="preserve"><value>দাম ↓</value></data>
+  <data name="These checks are a preview. Your photos are checked again on our side when the listing goes live." xml:space="preserve"><value>এটি প্রাথমিক যাচাই। বিজ্ঞাপন প্রকাশের সময় ছবিগুলো আবার পরীক্ষা করা হবে।</value></data>
 </root>

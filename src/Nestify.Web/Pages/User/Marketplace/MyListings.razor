@@ -1,24 +1,25 @@
+@inject Microsoft.Extensions.Localization.IStringLocalizer<SharedResource> L
 @page "/marketplace/mine"
 @attribute [Authorize(Roles = "User")]
 @inject IMarketplaceService Marketplace
 @inject Nestify.Web.Services.MoneyFormatterService Money
 @inject Nestify.Web.Services.ToastService Toast
 
-<PageTitle>My listings — Nestify</PageTitle>
+<PageTitle>@L["My listings — Nestify"]</PageTitle>
 
 <section class="nx-section mk-page">
     <div class="nx-container mk-wrap mk-wrap--narrow">
         <nav class="mk-crumbs">
-            <a href="marketplace">Marketplace</a>
+            <a href="marketplace">@L["Marketplace"]</a>
             <span class="mk-crumbs__sep">/</span>
-            <span>My listings</span>
+            <span>@L["My listings"]</span>
         </nav>
 
         <header class="mk-head">
             <div class="mk-head__titles">
-                <p class="nx-eyebrow">Marketplace</p>
-                <h1>My listings</h1>
-                <p class="mk-head__lead">Everything you've posted, including sold, active, and pinned items.</p>
+                <p class="nx-eyebrow">@L["Marketplace"]</p>
+                <h1>@L["My listings"]</h1>
+                <p class="mk-head__lead">@L["Everything you've posted, including sold, active, and pinned items."]</p>
             </div>
             <div class="mk-head__actions">
                 <button type="button" class="nx-btn nx-btn--primary" @onclick="OpenPostModal">
@@ -39,7 +40,7 @@
         {
             <MarketplaceEmpty Title="You haven't listed anything yet"
                               Message="Sell a piece of furniture, a book bundle or an appliance you've replaced.">
-                <button type="button" class="nx-btn nx-btn--primary" @onclick="OpenPostModal">Post your first item</button>
+                <button type="button" class="nx-btn nx-btn--primary" @onclick="OpenPostModal">@L["Post your first item"]</button>
             </MarketplaceEmpty>
         }
         else
@@ -143,21 +144,21 @@
                                             📌 Pin to top (৳50)
                                         </button>
                                     }
-                                    <a class="nx-btn nx-btn--ghost" href="marketplace/items/@it.Id/edit">Edit</a>
-                                    <button class="nx-btn nx-btn--ghost" @onclick="() => OpenSoldPicker(it.Id)">Mark sold</button>
+                                    <a class="nx-btn nx-btn--ghost" href="marketplace/items/@it.Id/edit">@L["Edit"]</a>
+                                    <button class="nx-btn nx-btn--ghost" @onclick="() => OpenSoldPicker(it.Id)">@L["Mark sold"]</button>
                                 }
                                 <span class="mk-row__actions-spacer"></span>
                                 @if (it.Status != ListingStatus.Removed)
                                 {
                                     @if (_confirmDelete == it.Id)
                                     {
-                                        <span class="mk-muted mk-nowrap">Remove this listing?</span>
-                                        <button class="nx-btn nx-btn--ghost" @onclick="() => _confirmDelete = null">Cancel</button>
-                                        <button class="nx-btn nx-btn--ghost mk-danger-btn" @onclick="() => Delete(it.Id)">Remove</button>
+                                        <span class="mk-muted mk-nowrap">@L["Remove this listing?"]</span>
+                                        <button class="nx-btn nx-btn--ghost" @onclick="() => _confirmDelete = null">@L["Cancel"]</button>
+                                        <button class="nx-btn nx-btn--ghost mk-danger-btn" @onclick="() => Delete(it.Id)">@L["Remove"]</button>
                                     }
                                     else
                                     {
-                                        <button class="nx-btn nx-btn--ghost mk-danger-btn" @onclick="() => _confirmDelete = it.Id">Remove</button>
+                                        <button class="nx-btn nx-btn--ghost mk-danger-btn" @onclick="() => _confirmDelete = it.Id">@L["Remove"]</button>
                                     }
                                 }
                             </div>
@@ -191,7 +192,7 @@
     <div class="mk-modal-overlay" @onclick="CloseSoldPicker">
         <div class="mk-modal" @onclick:stopPropagation="true">
             <header class="mk-modal__header">
-                <h2>Who bought it?</h2>
+                <h2>@L["Who bought it?"]</h2>
                 <button type="button" class="mk-modal__close" @onclick="CloseSoldPicker" aria-label="Close">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                         <path d="M18 6 6 18M6 6l12 12" />
@@ -202,7 +203,7 @@
             <div class="mk-modal__body">
                 @if (_soldLoading)
                 {
-                    <p class="mk-muted">Loading buy requests…</p>
+                    <p class="mk-muted">@L["Loading buy requests…"]</p>
                 }
                 else
                 {
@@ -231,7 +232,7 @@
                                    checked="@(_soldPick is null)"
                                    @onchange="() => _soldPick = null" />
                             <span class="mk-sold-option__body">
-                                <strong>Sold outside Nestify</strong>
+                                <strong>@L["Sold outside Nestify"]</strong>
                                 <span class="mk-muted">@(_soldOptions.Count == 0 ? "You have not accepted any request on this listing." : "None of these buyers took it.")</span>
                             </span>
                         </label>
@@ -239,8 +240,8 @@
 
                     <div class="mk-row__actions">
                         <span class="mk-row__actions-spacer"></span>
-                        <button type="button" class="nx-btn nx-btn--ghost" @onclick="CloseSoldPicker" disabled="@_soldBusy">Cancel</button>
-                        <button type="button" class="nx-btn nx-btn--primary" @onclick="ConfirmSold" disabled="@_soldBusy">Mark as sold</button>
+                        <button type="button" class="nx-btn nx-btn--ghost" @onclick="CloseSoldPicker" disabled="@_soldBusy">@L["Cancel"]</button>
+                        <button type="button" class="nx-btn nx-btn--primary" @onclick="ConfirmSold" disabled="@_soldBusy">@L["Mark as sold"]</button>
                     </div>
                 }
             </div>

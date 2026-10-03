@@ -1,5 +1,6 @@
+@inject Microsoft.Extensions.Localization.IStringLocalizer<SharedResource> L
 <span class="mk-badge mk-badge--@MarketplaceView.ConditionModifier(Condition) @CssClass">
-    @MarketplaceView.Label(Condition)
+    @L[MarketplaceView.Label(Condition)]
 </span>
 
 @code {

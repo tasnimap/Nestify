@@ -1,23 +1,24 @@
+@inject Microsoft.Extensions.Localization.IStringLocalizer<SharedResource> L
 @page "/marketplace/sell"
 @attribute [Authorize(Roles = "User")]
 @inject IMarketplaceService Marketplace
 @inject NavigationManager Nav
 @inject Nestify.Web.Services.ToastService Toast
 
-<PageTitle>Post an item — Nestify</PageTitle>
+<PageTitle>@L["Post an item — Nestify"]</PageTitle>
 
 <section class="nx-section mk-page">
     <div class="nx-container mk-wrap mk-wrap--narrow">
         <nav class="mk-crumbs">
-            <a href="marketplace">Marketplace</a>
+            <a href="marketplace">@L["Marketplace"]</a>
             <span class="mk-crumbs__sep">/</span>
-            <span>Post an item</span>
+            <span>@L["Post an item"]</span>
         </nav>
 
         <header class="mk-head">
             <div class="mk-head__titles">
-                <p class="nx-eyebrow">Marketplace</p>
-                <h1>Post an item for sale</h1>
+                <p class="nx-eyebrow">@L["Marketplace"]</p>
+                <h1>@L["Post an item for sale"]</h1>
                 <p class="mk-head__lead">
                     Verified to verified. A couple of honest photos and a plain, specific description
                     is what gets a reply.

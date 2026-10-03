@@ -1,3 +1,4 @@
+@inject Microsoft.Extensions.Localization.IStringLocalizer<SharedResource> L
 @* Inline "Verified" marker for a person. Renders nothing when the person is not
    verified unless ShowUnverified is set. Verification here is a trust signal
    surfaced in the UI only — the server owns the real check. *@
@@ -19,7 +20,7 @@ else if (ShowUnverified)
         <svg viewBox="0 0 24 24" aria-hidden="true" style="fill:var(--nx-muted)">
             <path d="M12 2 4 5v6c0 5 3.4 8.9 8 10 4.6-1.1 8-5 8-10V5l-8-3Z" opacity=".5" />
         </svg>
-        <span>Not verified</span>
+        <span>@L["Not verified"]</span>
     </span>
 }
 
