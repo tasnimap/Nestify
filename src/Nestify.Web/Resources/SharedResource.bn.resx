@@ -407,4 +407,118 @@
   <data name="12 AM" xml:space="preserve"><value>রাত ১২টা</value></data>
   <data name="{0}, {1} — {2}" xml:space="preserve"><value>{0}, {1} — {2}</value></data>
   <data name="them" xml:space="preserve"><value>তাকে</value></data>
+  <data name="Enter the join code provided by a manager or co-manager of the home." xml:space="preserve"><value>বাসার ম্যানেজার বা সহ-ম্যানেজারের দেওয়া যোগদানের কোড লিখুন।</value></data>
+  <data name="Transfer the manager role to someone else first." xml:space="preserve"><value>বাসা ছাড়ার আগে ম্যানেজারের দায়িত্ব অন্য কাউকে দিন।</value></data>
+  <data name="Asked {0}" xml:space="preserve"><value>{0} তারিখে অনুরোধ করেছেন</value></data>
+  <data name="Leave the home at any time" xml:space="preserve"><value>যেকোনো সময় বাসা ছাড়ুন</value></data>
+  <data name="Maximum occupants cannot be lower than the {0} people already living here." xml:space="preserve"><value>ইতিমধ্যে {0} জন বাস করছেন; সর্বোচ্চ বাসিন্দার সংখ্যা এর চেয়ে কম হতে পারে না।</value></data>
+  <data name="Free seats" xml:space="preserve"><value>খালি আসন</value></data>
+  <data name="Add members" xml:space="preserve"><value>সদস্য যোগ করুন</value></data>
+  <data name="You" xml:space="preserve"><value>আপনি</value></data>
+  <data name="The request from {0} was rejected." xml:space="preserve"><value>{0}-এর যোগদানের অনুরোধ প্রত্যাখ্যান করা হয়েছে।</value></data>
+  <data name="You left the home." xml:space="preserve"><value>আপনি বাসা ছেড়েছেন।</value></data>
+  <data name="Could not create the home." xml:space="preserve"><value>বাসা তৈরি করা যায়নি।</value></data>
+  <data name="Transfer" xml:space="preserve"><value>হস্তান্তর করুন</value></data>
+  <data name="This home is full. Increase the maximum occupants first." xml:space="preserve"><value>এই বাসায় আর আসন খালি নেই। আগে সর্বোচ্চ বাসিন্দার সংখ্যা বাড়ান।</value></data>
+  <data name="Location on map" xml:space="preserve"><value>মানচিত্রে অবস্থান</value></data>
+  <data name="Only a manager or co-manager can edit home details." xml:space="preserve"><value>শুধু ম্যানেজার বা সহ-ম্যানেজার বাসার বিবরণ সম্পাদনা করতে পারেন।</value></data>
+  <data name="Join requests ({0})" xml:space="preserve"><value>যোগদানের অনুরোধ ({0})</value></data>
+  <data name="No Nestify account uses that email." xml:space="preserve"><value>এই ইমেইল ঠিকানায় কোনো Nestify অ্যাকাউন্ট নেই।</value></data>
+  <data name="Remove regular members" xml:space="preserve"><value>সাধারণ সদস্যদের সরান</value></data>
+  <data name="Living here now" xml:space="preserve"><value>বর্তমান বাসিন্দা</value></data>
+  <data name="Coordinates" xml:space="preserve"><value>স্থানাঙ্ক</value></data>
+  <data name="{0} was added to the home." xml:space="preserve"><value>{0}-কে বাসায় যোগ করা হয়েছে।</value></data>
+  <data name="Could not load your join request." xml:space="preserve"><value>আপনার যোগদানের অনুরোধ লোড করা যায়নি।</value></data>
+  <data name="Approve" xml:space="preserve"><value>অনুমোদন করুন</value></data>
+  <data name="Make co-manager" xml:space="preserve"><value>সহ-ম্যানেজার করুন</value></data>
+  <data name="Leave home" xml:space="preserve"><value>বাসা ছেড়ে যান</value></data>
+  <data name="{0} is now a member." xml:space="preserve"><value>{0}-কে সদস্যের দায়িত্ব দেওয়া হয়েছে।</value></data>
+  <data name="Click the map or drag the pin to set the coordinates." xml:space="preserve"><value>মানচিত্রে ক্লিক করুন অথবা পিন টেনে অবস্থান নির্ধারণ করুন।</value></data>
+  <data name="Could not reach the server." xml:space="preserve"><value>সার্ভারের সঙ্গে সংযোগ করা যায়নি।</value></data>
+  <data name="Remove from home" xml:space="preserve"><value>বাসা থেকে সরান</value></data>
+  <data name="Transfer the manager role before leaving" xml:space="preserve"><value>বাসা ছাড়ার আগে ম্যানেজারের দায়িত্ব হস্তান্তর করুন</value></data>
+  <data name="Maximum occupants" xml:space="preserve"><value>সর্বোচ্চ বাসিন্দা</value></data>
+  <data name="No home uses that join code." xml:space="preserve"><value>এই যোগদানের কোডে কোনো বাসা পাওয়া যায়নি।</value></data>
+  <data name="Send join request" xml:space="preserve"><value>যোগদানের অনুরোধ পাঠান</value></data>
+  <data name="House name and address are required." xml:space="preserve"><value>বাসার নাম ও ঠিকানা লিখতে হবে।</value></data>
+  <data name="Promote a member to co-manager" xml:space="preserve"><value>কোনো সদস্যকে সহ-ম্যানেজার করুন</value></data>
+  <data name="Could not load your home." xml:space="preserve"><value>আপনার বাসার তথ্য লোড করা যায়নি।</value></data>
+  <data name="Join request cancelled." xml:space="preserve"><value>যোগদানের অনুরোধ বাতিল করা হয়েছে।</value></data>
+  <data name="You are not a member of a home." xml:space="preserve"><value>আপনি কোনো বাসার সদস্য নন।</value></data>
+  <data name="Waiting for an answer" xml:space="preserve"><value>উত্তরের অপেক্ষায়</value></data>
+  <data name="Edit home details" xml:space="preserve"><value>বাসার বিবরণ সম্পাদনা</value></data>
+  <data name="Join a home" xml:space="preserve"><value>বাসায় যোগ দিন</value></data>
+  <data name="Name and email are required." xml:space="preserve"><value>নাম ও ইমেইল লিখতে হবে।</value></data>
+  <data name="Have a join code? Enter it to ask the home manager to approve your request." xml:space="preserve"><value>যোগদানের কোড পেয়েছেন? অনুরোধ পাঠাতে কোডটি লিখুন; বাসার ম্যানেজার অনুমোদন দেবেন।</value></data>
+  <data name="Your role" xml:space="preserve"><value>আপনার দায়িত্ব</value></data>
+  <data name="You cannot remove this member." xml:space="preserve"><value>এই সদস্যকে সরানো সম্ভব নয়।</value></data>
+  <data name="Home name and address are required." xml:space="preserve"><value>বাসার নাম ও ঠিকানা লিখতে হবে।</value></data>
+  <data name="What each role can do" xml:space="preserve"><value>প্রতিটি দায়িত্বে কী করা যায়</value></data>
+  <data name="Create a home" xml:space="preserve"><value>বাসা তৈরি করুন</value></data>
+  <data name="You are not in a home." xml:space="preserve"><value>আপনি কোনো বাসার সদস্য নন।</value></data>
+  <data name="You are already in a home." xml:space="preserve"><value>আপনি ইতিমধ্যে একটি বাসার সদস্য।</value></data>
+  <data name="{0} will become the manager of this home. You will remain a co-manager and may leave afterward." xml:space="preserve"><value>{0} এই বাসার ম্যানেজার হবেন। আপনি সহ-ম্যানেজার থাকবেন এবং পরে চাইলে বাসা ছাড়তে পারবেন।</value></data>
+  <data name="Could not load your home" xml:space="preserve"><value>আপনার বাসার তথ্য লোড করা যায়নি</value></data>
+  <data name="Home name" xml:space="preserve"><value>বাসার নাম</value></data>
+  <data name="You cannot promote this member." xml:space="preserve"><value>এই সদস্যকে পদোন্নতি দেওয়া সম্ভব নয়।</value></data>
+  <data name="Max occupants must be at least 1." xml:space="preserve"><value>সর্বোচ্চ বাসিন্দার সংখ্যা অন্তত ১ হতে হবে।</value></data>
+  <data name="Home details" xml:space="preserve"><value>বাসার বিবরণ</value></data>
+  <data name="Transfer manager role" xml:space="preserve"><value>ম্যানেজারের দায়িত্ব হস্তান্তর</value></data>
+  <data name="View the home details and its members" xml:space="preserve"><value>বাসার বিবরণ ও সদস্যদের দেখুন</value></data>
+  <data name="Cancel request" xml:space="preserve"><value>অনুরোধ বাতিল করুন</value></data>
+  <data name="You asked to join {0} on {1}. The manager or a co-manager must approve your request before you can join." xml:space="preserve"><value>{1} তারিখে আপনি {0}-এ যোগ দেওয়ার অনুরোধ করেছেন। যোগ দেওয়ার আগে ম্যানেজার বা সহ-ম্যানেজারের অনুমোদন প্রয়োজন।</value></data>
+  <data name="You will lose access to this home&apos;s members, meals, and expenses. You can request to join again with its code." xml:space="preserve"><value>বাসা ছাড়লে সদস্যদের তথ্য, খাবার ও খরচের হিসাব আর দেখতে পারবেন না। কোড ব্যবহার করে আবার যোগদানের অনুরোধ করা যাবে।</value></data>
+  <data name="Reject" xml:space="preserve"><value>প্রত্যাখ্যান করুন</value></data>
+  <data name="Your account is no longer available. Please sign out and register again." xml:space="preserve"><value>আপনার অ্যাকাউন্ট আর সক্রিয় নেই। সাইন আউট করে আবার নিবন্ধন করুন।</value></data>
+  <data name="Only the manager can transfer the manager role." xml:space="preserve"><value>শুধু ম্যানেজার এই দায়িত্ব হস্তান্তর করতে পারেন।</value></data>
+  <data name="What can I do?" xml:space="preserve"><value>আমি কী করতে পারি?</value></data>
+  <data name="Transfer the manager role to someone else" xml:space="preserve"><value>ম্যানেজারের দায়িত্ব অন্য কাউকে দিন</value></data>
+  <data name="Maximum occupants must be at least 1." xml:space="preserve"><value>সর্বোচ্চ বাসিন্দার সংখ্যা অন্তত ১ হতে হবে।</value></data>
+  <data name="Enter the email address used to register the person." xml:space="preserve"><value>সদস্যের নিবন্ধিত ইমেইল ঠিকানাটি লিখুন।</value></data>
+  <data name="Home details updated." xml:space="preserve"><value>বাসার বিবরণ হালনাগাদ হয়েছে।</value></data>
+  <data name="Only a manager or co-manager can add members." xml:space="preserve"><value>শুধু ম্যানেজার বা সহ-ম্যানেজার সদস্য যোগ করতে পারেন।</value></data>
+  <data name="{0} is now a co-manager." xml:space="preserve"><value>{0} এখন সহ-ম্যানেজার।</value></data>
+  <data name="You have no request waiting." xml:space="preserve"><value>আপনার কোনো অনুরোধ অপেক্ষমাণ নেই।</value></data>
+  <data name="You already have a request waiting for an answer." xml:space="preserve"><value>আপনার একটি অনুরোধের উত্তর এখনো আসেনি।</value></data>
+  <data name="{0} joined the home." xml:space="preserve"><value>{0} বাসায় যোগ দিয়েছেন।</value></data>
+  <data name="You cannot change this member&apos;s role." xml:space="preserve"><value>এই সদস্যের দায়িত্ব পরিবর্তন করা সম্ভব নয়।</value></data>
+  <data name="Got it" xml:space="preserve"><value>বুঝেছি</value></data>
+  <data name="Enter a join code." xml:space="preserve"><value>যোগদানের কোড লিখুন।</value></data>
+  <data name="Members ({0})" xml:space="preserve"><value>সদস্য ({0})</value></data>
+  <data name="Set the name and location, then add your housemates. You will be the manager." xml:space="preserve"><value>বাসার নাম ও অবস্থান নির্ধারণ করে সহবাসীদের যোগ করুন। আপনি ম্যানেজারের দায়িত্ব পাবেন।</value></data>
+  <data name="Member actions" xml:space="preserve"><value>সদস্যের জন্য কার্যক্রম</value></data>
+  <data name="House details updated." xml:space="preserve"><value>বাসার বিবরণ হালনাগাদ হয়েছে।</value></data>
+  <data name="You have no home yet" xml:space="preserve"><value>আপনার এখনো কোনো বাসা নেই</value></data>
+  <data name="Remove members from the home" xml:space="preserve"><value>বাসা থেকে সদস্য সরান</value></data>
+  <data name="A home is the shared house you run with your housemates — members, roles, and one place on the map." xml:space="preserve"><value>একটি বাসা হলো আপনার ও সহবাসীদের যৌথ ঠিকানা—এখানে সদস্য, দায়িত্ব এবং মানচিত্রে একটি নির্দিষ্ট অবস্থান থাকে।</value></data>
+  <data name="Done." xml:space="preserve"><value>সম্পন্ন হয়েছে।</value></data>
+  <data name="You are {0} of this home." xml:space="preserve"><value>এই বাসায় আপনার দায়িত্ব: {0}।</value></data>
+  <data name="Nobody is waiting to join right now." xml:space="preserve"><value>এই মুহূর্তে কেউ যোগদানের অপেক্ষায় নেই।</value></data>
+  <data name="Edit the home details" xml:space="preserve"><value>বাসার বিবরণ সম্পাদনা করুন</value></data>
+  <data name="{0} is now the manager." xml:space="preserve"><value>{0} এখন ম্যানেজার।</value></data>
+  <data name="Request sent to {0}. A manager must approve it." xml:space="preserve"><value>{0}-এর কাছে অনুরোধ পাঠানো হয়েছে। ম্যানেজারের অনুমোদন প্রয়োজন।</value></data>
+  <data name="{0} was removed from the home." xml:space="preserve"><value>{0}-কে বাসা থেকে সরানো হয়েছে।</value></data>
+  <data name="Promote a member to co-manager, or change a co-manager back to member" xml:space="preserve"><value>কোনো সদস্যকে সহ-ম্যানেজার করুন অথবা সহ-ম্যানেজারকে সাধারণ সদস্যে পরিবর্তন করুন</value></data>
+  <data name="Make member" xml:space="preserve"><value>সদস্যের দায়িত্ব দিন</value></data>
+  <data name="Home created. You are the manager." xml:space="preserve"><value>বাসা তৈরি হয়েছে। আপনি ম্যানেজারের দায়িত্ব পেয়েছেন।</value></data>
+  <data name="Leave this home" xml:space="preserve"><value>এই বাসা ছেড়ে যান</value></data>
+  <data name="Transfer manager" xml:space="preserve"><value>ম্যানেজারের দায়িত্ব হস্তান্তর</value></data>
+  <data name="You cannot do that to yourself." xml:space="preserve"><value>নিজের অ্যাকাউন্টে এই কাজটি করা যাবে না।</value></data>
+  <data name="That request is no longer waiting." xml:space="preserve"><value>এই অনুরোধটির আর উত্তর অপেক্ষমাণ নেই।</value></data>
+  <data name="Member not found." xml:space="preserve"><value>সদস্যকে খুঁজে পাওয়া যায়নি।</value></data>
+  <data name="Only the manager or a co-manager can answer join requests." xml:space="preserve"><value>শুধু ম্যানেজার বা সহ-ম্যানেজার যোগদানের অনুরোধের উত্তর দিতে পারেন।</value></data>
+  <data name="Maximum occupants cannot be lower than the {0} occupied or reserved seats." xml:space="preserve"><value>{0}টি আসন ইতিমধ্যে ব্যবহৃত বা সংরক্ষিত; সর্বোচ্চ বাসিন্দার সংখ্যা এর চেয়ে কম হতে পারে না।</value></data>
+  <data name="Manager" xml:space="preserve"><value>ম্যানেজার</value></data>
+  <data name="Member" xml:space="preserve"><value>সদস্য</value></data>
+  <data name="Your session has ended. Please sign in again." xml:space="preserve"><value>আপনার সেশন শেষ হয়েছে। আবার সাইন ইন করুন।</value></data>
+  <data name="Loading your home..." xml:space="preserve"><value>আপনার বাসার তথ্য লোড হচ্ছে...</value></data>
+  <data name="Create home" xml:space="preserve"><value>বাসা তৈরি করুন</value></data>
+  <data name="Co-manager" xml:space="preserve"><value>সহ-ম্যানেজার</value></data>
+  <data name="Name" xml:space="preserve"><value>নাম</value></data>
+  <data name="Add member" xml:space="preserve"><value>সদস্য যোগ করুন</value></data>
+  <data name="Set the maximum number of people who may live here. Available seats are calculated from the current members." xml:space="preserve"><value>বাসায় সর্বোচ্চ কতজন থাকতে পারবেন তা নির্ধারণ করুন। বর্তমান সদস্যসংখ্যা থেকে খালি আসন হিসাব করা হবে।</value></data>
+  <data name="Edit details" xml:space="preserve"><value>বিবরণ সম্পাদনা</value></data>
+  <data name="Join code" xml:space="preserve"><value>যোগদানের কোড</value></data>
+  <data name="Save changes" xml:space="preserve"><value>পরিবর্তন সংরক্ষণ করুন</value></data>
+  <data name="Location" xml:space="preserve"><value>অবস্থান</value></data>
 </root>
