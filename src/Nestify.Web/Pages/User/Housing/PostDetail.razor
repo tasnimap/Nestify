@@ -1,17 +1,17 @@
+@inject IStringLocalizer<SharedResource> L
 @page "/housing/{Id}"
 @attribute [Authorize(Roles = "User")]
 @inject IHousingService Housing
 @inject Nestify.Web.Services.ToastService Toast
 @inject Nestify.Web.Services.MoneyFormatterService Money
-
-<PageTitle>@(_post?.Title ?? "Housing") — Nestify</PageTitle>
+<PageTitle>@(_post?.Title ?? L["Housing"]) — Nestify</PageTitle>
 
 <section class="nx-section hs-page">
     <div class="nx-container hs-wrap hs-wrap--detail">
         <nav class="hs-crumbs" aria-label="Breadcrumb">
-            <a href="housing">Housing</a>
+            <a href="housing">@L["Housing"]</a>
             <span class="hs-crumbs__sep">/</span>
-            <span>@(_post?.Title ?? "Listing")</span>
+            <span>@(_post?.Title ?? L["Listing"])</span>
         </nav>
 
         @if (_loading)
@@ -23,9 +23,9 @@
             @* Not-found covers both a bad id and an id the viewer isn't eligible for (§5.3).
                Never render "you don't match this post" — this is the only state either way. *@
             <div class="hs-empty hs-empty--page">
-                <h2>This post is not available</h2>
-                <p>It may have been closed, removed, or the link may be out of date.</p>
-                <a class="nx-btn nx-btn--primary" href="housing">Back to Housing</a>
+                <h2>@L["This post is not available"]</h2>
+                <p>@L["It may have been closed, removed, or the link may be out of date."]</p>
+                <a class="nx-btn nx-btn--primary" href="housing">@L["Back to Housing"]</a>
             </div>
         }
         else
@@ -34,15 +34,15 @@
               <div class="hs-detail__main">
                 <header class="hs-detail__head">
                     <div class="hs-detail__badges">
-                        <span class="hs-chip hs-chip--type">@HousingView.Label(_post.ListingType)</span>
+                        <span class="hs-chip hs-chip--type">@L[HousingView.Label(_post.ListingType)]</span>
                         <span class="hs-badge hs-badge--@HousingView.StatusModifier(_post.Status)">
-                            @HousingView.Label(_post.Status)
+                            @L[HousingView.Label(_post.Status)]
                         </span>
                         @if (_post.IsPinned)
                         {
                             <span class="mk-badge--pinned"
-                                  title="@(_post.PinnedUntilUtc is { } expiry ? $"Pinned until {expiry.ToLocalTime():d MMM, h:mm tt}" : "Pinned")">
-                                📌 Pinned
+                                  title="@(_post.PinnedUntilUtc is { } expiry ? L["Pinned until {0}", expiry.ToLocalTime().ToString("g")] : L["Pinned"].Value)">
+                                📌 @L["Pinned"]
                             </span>
                         }
                     </div>
@@ -55,7 +55,7 @@
                         </svg>
                         <span>@_post.AreaName, @_post.Division</span>
                         <span class="hs-dot"></span>
-                        <span>Posted @HousingView.RelativeTime(_post.CreatedAtUtc)</span>
+                        <span>@L["Posted"] @_post.CreatedAtUtc.ToLocalTime().ToString("g")</span>
                     </div>
                 </header>
 
@@ -66,8 +66,8 @@
                         {
                             var idx = i;
                             <button type="button" class="hs-gallery__thumb" @onclick="() => OpenLightbox(idx)"
-                                    aria-label="View photo @(idx + 1)">
-                                <img src="@_post.ImageUrls[idx]" alt="House photo @(idx + 1)" />
+                                    aria-label="@L["View photo {0}", idx + 1]">
+                                <img src="@_post.ImageUrls[idx]" alt="@L["House photo {0}", idx + 1]" />
                             </button>
                         }
                     </div>
@@ -76,16 +76,16 @@
                 <div class="hs-detail__stats">
                     <div class="hs-stat">
                         <span class="hs-stat__value">@Money.Format(_post.MonthlyRent)</span>
-                        <span class="hs-stat__label">per month</span>
+                        <span class="hs-stat__label">@L["per month"]</span>
                     </div>
                     <div class="hs-stat">
                         <span class="hs-stat__value">@_post.SeatsAvailable</span>
-                        <span class="hs-stat__label">@(_post.SeatsAvailable == 1 ? "seat available" : "seats available")</span>
+                        <span class="hs-stat__label">@_post.SeatsAvailable @L["seats available"]</span>
                     </div>
                 </div>
 
                 <section class="hs-detail__section">
-                    <h2>About this listing</h2>
+                    <h2>@L["About this listing"]</h2>
                     @* Plain text only — never MarkupString (§11.5.2). *@
                     <p class="hs-detail__description">@_post.Description</p>
                 </section>
@@ -93,11 +93,11 @@
                 @if (!_post.Eligibility.IsEmpty)
                 {
                     <section class="hs-detail__section">
-                        <h2>Who can apply</h2>
+                        <h2>@L["Who can apply"]</h2>
                         <div class="hs-chips">
                             @foreach (var chip in HousingView.EligibilityChips(_post.Eligibility))
                             {
-                                <span class="hs-chip">@chip</span>
+                                <span class="hs-chip">@EligibilityLabel(chip)</span>
                             }
                         </div>
                     </section>
@@ -111,10 +111,10 @@
                 <div class="hs-actionbox">
                     <div class="hs-actionbox__price">
                         <span class="hs-price hs-price--lg">@Money.Format(_post.MonthlyRent)</span>
-                        <span class="hs-price__unit">per month</span>
+                        <span class="hs-price__unit">@L["per month"]</span>
                     </div>
                     <p class="hs-actionbox__seats">
-                        @_post.SeatsAvailable @(_post.SeatsAvailable == 1 ? "seat available" : "seats available")
+                        @_post.SeatsAvailable @L["seats available"]
                     </p>
 
                     <div class="hs-detail__actions">
@@ -127,15 +127,15 @@
                         }
                         @if (_requestSent)
                         {
-                            <a class="nx-btn nx-btn--ghost" href="bookings/mine">View my requests</a>
+                            <a class="nx-btn nx-btn--ghost" href="bookings/mine">@L["View my requests"]</a>
                         }
                         @if (_post.IsMine)
                         {
-                            <a class="nx-btn nx-btn--ghost" href="housing/@_post.Id/edit">Edit listing</a>
+                            <a class="nx-btn nx-btn--ghost" href="housing/@_post.Id/edit">@L["Edit listing"]</a>
                             @if (_post.Status == PostStatus.Active)
                             {
                                 <button class="nx-btn nx-btn--ghost hs-pin-btn" @onclick="OpenPinModal">
-                                    📌 @(_post.IsPinned ? "Extend pin" : "Pin listing")
+                                    📌 @L[_post.IsPinned ? "Extend pin" : "Pin listing"]
                                 </button>
                             }
                         }
@@ -145,7 +145,7 @@
                                 <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true">
                                     <path d="M12 9v4M12 17h.01M10.3 3.9 2.6 17a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" />
                                 </svg>
-                                Report
+                                @L["Report"]
                             </button>
                         }
                     </div>
@@ -153,24 +153,24 @@
                     @if (_showReport)
                     {
                         <div class="hs-actionbox__report">
-                            <label class="field__label" for="hs-report-reason">Reason</label>
+                            <label class="field__label" for="hs-report-reason">@L["Reason"]</label>
                             <select id="hs-report-reason" class="field__input" @bind="_reportReason">
                                 @foreach (var reason in ReportReasons)
                                 {
-                                    <option value="@reason">@reason</option>
+                                    <option value="@reason">@L[reason]</option>
                                 }
                             </select>
                             <textarea class="field__input" rows="2" maxlength="300" placeholder="Add any detail (optional)"
                                       @bind="_reportDetail"></textarea>
                             <div class="hs-detail__actions">
-                                <button class="nx-btn nx-btn--primary" disabled="@_reportSubmitting" @onclick="SubmitReport">Submit report</button>
-                                <button class="nx-btn nx-btn--ghost" @onclick="() => _showReport = false">Cancel</button>
+                                <button class="nx-btn nx-btn--primary" disabled="@_reportSubmitting" @onclick="SubmitReport">@L["Submit report"]</button>
+                                <button class="nx-btn nx-btn--ghost" @onclick="() => _showReport = false">@L["Cancel"]</button>
                             </div>
                         </div>
                     }
 
                     <p class="hs-actionbox__safe">
-                        Contact details are shared only after the manager accepts your request.
+                        @L["Contact details are shared only after the manager accepts your request."]
                     </p>
                 </div>
               </aside>
@@ -184,7 +184,7 @@
     <div class="hs-modal-overlay" @onclick="CloseBookingModal">
         <div class="hs-modal" @onclick:stopPropagation="true">
             <header class="hs-modal__header">
-                <h2>Send booking request</h2>
+                <h2>@L["Send booking request"]</h2>
                 <button type="button" class="hs-modal__close" @onclick="CloseBookingModal" aria-label="Close">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                         <path d="M18 6 6 18M6 6l12 12" />
@@ -192,11 +192,11 @@
                 </button>
             </header>
             <div class="hs-modal__body">
-                <p>Tell the manager a bit about yourself. They can see your note before deciding.</p>
+                <p>@L["Tell the manager a bit about yourself. They can see your note before deciding."]</p>
                 <div class="field">
-                    <label for="booking-message" class="field__label">Your message (optional)</label>
+                    <label for="booking-message" class="field__label">@L["Your message (optional)"]</label>
                     <textarea id="booking-message" class="field__textarea" @bind="_bookingMessage" @bind:event="oninput"
-                              placeholder="Tell the manager about yourself..." rows="4"
+                              placeholder="@L["Tell the manager about yourself..."]" rows="4"
                               maxlength="500" aria-describedby="booking-message-help"
                               disabled="@_bookingSubmitting"></textarea>
                     <p id="booking-message-help" class="field__helper">@_bookingMessage.Length / 500 characters</p>
@@ -207,9 +207,9 @@
                 </div>
             </div>
             <footer class="hs-modal__footer">
-                <button type="button" class="nx-btn nx-btn--ghost" @onclick="CloseBookingModal" disabled="@_bookingSubmitting">Cancel</button>
+                <button type="button" class="nx-btn nx-btn--ghost" @onclick="CloseBookingModal" disabled="@_bookingSubmitting">@L["Cancel"]</button>
                 <button type="button" class="nx-btn nx-btn--primary" @onclick="SubmitBookingRequest" disabled="@_bookingSubmitting">
-                    @(_bookingSubmitting ? "Sending..." : "Send request")
+                    @(_bookingSubmitting ? L["Sending..."] : L["Send request"])
                 </button>
             </footer>
         </div>
@@ -259,25 +259,44 @@
         SeatsAvailable: > 0
     } && !_requestSent;
 
-    private string BookLabel => _requestSent ? "Request sent" : _post?.Status switch
+    private string BookLabel
     {
-        PostStatus.Closed => "Listing closed",
-        PostStatus.Filled => "House is full",
-        _ when _post?.IsMine == true => "Your listing",
-        _ when _post?.ViewerHasHome == true => "Already in a home",
-        _ when _post?.SeatsAvailable <= 0 => "No seats available",
-        _ => "Book this listing"
-    };
+        get
+        {
+            if (_requestSent) return L["Request sent"].Value;
+            var key = _post?.Status switch
+            {
+                PostStatus.Closed => "Listing closed",
+                PostStatus.Filled => "House is full",
+                _ when _post?.IsMine == true => "Your listing",
+                _ when _post?.ViewerHasHome == true => "Already in a home",
+                _ when _post?.SeatsAvailable <= 0 => "No seats available",
+                _ => "Book this listing"
+            };
+            return L[key].Value;
+        }
+    }
 
     private string? BookingUnavailableMessage => _post switch
     {
-        { IsMine: true } => "This is one of your listings.",
-        { ViewerHasHome: true } => "You already live in a home, so you can't book a seat here.",
-        { Status: PostStatus.Active, SeatsAvailable: <= 0 } => "All available seats have been taken.",
-        { Status: PostStatus.Closed } => "This listing is closed to new requests.",
-        { Status: PostStatus.Filled } => "This home is full right now.",
+        { IsMine: true } => L["This is one of your listings."].Value,
+        { ViewerHasHome: true } => L["You already live in a home, so you can't book a seat here."].Value,
+        { Status: PostStatus.Active, SeatsAvailable: <= 0 } => L["All available seats have been taken."].Value,
+        { Status: PostStatus.Closed } => L["This listing is closed to new requests."].Value,
+        { Status: PostStatus.Filled } => L["This home is full right now."].Value,
         _ => null
     };
+
+    private string EligibilityLabel(string chip)
+    {
+        var range = System.Text.RegularExpressions.Regex.Match(chip, @"^Age (\d+)[–-](\d+)$");
+        if (range.Success) return L["Age {0}–{1}", range.Groups[1].Value, range.Groups[2].Value];
+        var minimum = System.Text.RegularExpressions.Regex.Match(chip, @"^Age (\d+)\+$");
+        if (minimum.Success) return L["Age {0}+", minimum.Groups[1].Value];
+        var maximum = System.Text.RegularExpressions.Regex.Match(chip, @"^Age up to (\d+)$");
+        if (maximum.Success) return L["Age up to {0}", maximum.Groups[1].Value];
+        return L[chip];
+    }
 
     protected override Task OnParametersSetAsync() => LoadAsync();
 

@@ -1,34 +1,35 @@
+@inject IStringLocalizer<SharedResource> L
 @* Eligibility requirement builder for /housing/new and /housing/{id}/edit. Every
    field defaults to "no requirement" — the schema's nullable-means-unconstrained
    design (§2.5) is mirrored here field for field. *@
 
 <div class="hs-elig">
     <p class="hs-elig__hint">
-        Leave anything below on "No requirement" to accept any applicant on that trait.
+        @L["Leave anything below on No requirement to accept any applicant on that trait."]
     </p>
 
     <div class="field-row">
         <div class="field">
-            <label for="hs-elig-gender">Gender</label>
+            <label for="hs-elig-gender">@L["Gender"]</label>
             <InputSelect id="hs-elig-gender" class="field__input" @bind-Value="Value.Gender">
-                <option value="">No requirement</option>
-                <option value="@Gender.Male">Male only</option>
-                <option value="@Gender.Female">Female only</option>
+                <option value="">@L["No requirement"]</option>
+                <option value="@Gender.Male">@L["Male only"]</option>
+                <option value="@Gender.Female">@L["Female only"]</option>
             </InputSelect>
         </div>
 
         <div class="field">
-            <label for="hs-elig-occupation">Occupation</label>
+            <label for="hs-elig-occupation">@L["Occupation"]</label>
             <InputSelect id="hs-elig-occupation" class="field__input" @bind-Value="Value.Occupation">
-                <option value="">No requirement</option>
-                <option value="@Occupation.Student">Students only</option>
-                <option value="@Occupation.Working">Working professionals only</option>
+                <option value="">@L["No requirement"]</option>
+                <option value="@Occupation.Student">@L["Students only"]</option>
+                <option value="@Occupation.Working">@L["Working professionals only"]</option>
             </InputSelect>
         </div>
     </div>
 
     <div class="field">
-        <label>Age range (optional)</label>
+        <label>@L["Age range (optional)"]</label>
         <div class="hs-elig__age">
             <InputNumber class="field__input" @bind-Value="Value.MinAge" placeholder="Min" min="0" />
             <InputNumber class="field__input" @bind-Value="Value.MinAge" placeholder="Min" min="1" />
@@ -36,22 +37,22 @@
             <InputNumber class="field__input" @bind-Value="Value.MaxAge" placeholder="Max" min="0" />
             <InputNumber class="field__input" @bind-Value="Value.MaxAge" placeholder="Max" min="1" />
         </div>
-        <p class="field__helper">Fill in only a minimum, only a maximum, both, or neither.</p>
+        <p class="field__helper">@L["Fill in only a minimum, only a maximum, both, or neither."]</p>
     </div>
 
     <label class="hs-elig__check">
         <InputCheckbox @bind-Value="Value.VerifiedOnly" />
-        <span>Verified accounts only</span>
+        <span>@L["Verified accounts only"]</span>
     </label>
 
     <label class="hs-elig__check">
         <InputCheckbox @bind-Value="Value.NonSmokerOnly" />
-        <span>Non-smokers only</span>
+        <span>@L["Non-smokers only"]</span>
     </label>
 
     <label class="hs-elig__check">
         <InputCheckbox @bind-Value="Value.NonDrinkerOnly" />
-        <span>Non-drinkers only</span>
+        <span>@L["Non-drinkers only"]</span>
     </label>
 </div>
 

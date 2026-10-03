@@ -2033,3 +2033,36 @@
         grid-row: auto;
     }
 }
+
+/* Keep housing controls readable with longer Bangla labels in both themes. */
+.hs-page :is(.hs-head__actions, .hs-row__actions, .hs-detail__actions, .hs-modal__footer, .hs-booking-filters) {
+    min-width: 0;
+}
+.hs-page :is(.nx-btn, .hs-chip, .hs-badge, .hs-seg__opt) {
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+.hs-page :is(.hs-row__title, .hs-card__title, .hs-requester-card__title-section, .hs-booking-head__lead) {
+    overflow-wrap: anywhere;
+}
+.hs-page :is(input, select, textarea) {
+    min-width: 0;
+}
+@media (max-width: 640px) {
+    .hs-page .hs-head__actions,
+    .hs-page .hs-row__actions,
+    .hs-page .hs-modal__footer {
+        flex-wrap: wrap;
+    }
+    .hs-page .hs-booking-filters {
+        display: flex;
+        overflow-x: auto;
+        max-width: 100%;
+        scrollbar-width: thin;
+    }
+    .hs-page .hs-row__actions > .nx-btn,
+    .hs-page .hs-modal__footer > .nx-btn {
+        flex: 1 1 auto;
+    }
+}

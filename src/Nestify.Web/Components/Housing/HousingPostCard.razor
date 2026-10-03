@@ -1,31 +1,31 @@
+@inject IStringLocalizer<SharedResource> L
 @* Browse-grid card. Shows area, rent, seats and listing type per §4 of the
    Project_Distribution. The whole title links to the detail page. *@
 @inject Nestify.Web.Services.MoneyFormatterService Money
-
 <article class="hs-card @(Post.Status != PostStatus.Active ? "hs-card--closed" : null)">
     <div class="hs-card__media">
         <div class="hs-card__top">
-            <span class="hs-chip hs-chip--type">@HousingView.ShortLabel(Post.ListingType)</span>
+            <span class="hs-chip hs-chip--type">@L[HousingView.ShortLabel(Post.ListingType)]</span>
             @if (Post.IsPinned)
             {
-                <span class="mk-badge--pinned" title="@(Post.PinnedUntilUtc is { } expiry ? $"Pinned until {expiry.ToLocalTime():d MMM, h:mm tt}" : "Pinned")">
-                    📌 Pinned
+                <span class="mk-badge--pinned" title="@(Post.PinnedUntilUtc is { } expiry ? L["Pinned until {0}", expiry.ToLocalTime().ToString("g")] : L["Pinned"].Value)">
+                    📌 @L["Pinned"]
                 </span>
             }
             @if (Post.Status != PostStatus.Active)
             {
-                <span class="hs-chip hs-chip--closed">@HousingView.Label(Post.Status)</span>
+                <span class="hs-chip hs-chip--closed">@L[HousingView.Label(Post.Status)]</span>
             }
         </div>
 
         @if (Post.ImageUrls.Count > 0)
         {
             <button type="button" class="hs-card__photo" @onclick="OpenLightbox"
-                    aria-label="View photos of @Post.Title">
-                <img src="@Post.ImageUrls[0]" alt="Photo of @Post.Title" loading="lazy" />
+                    aria-label="@L["View photos of {0}", Post.Title]">
+                <img src="@Post.ImageUrls[0]" alt="@L["Photo of {0}", Post.Title]" loading="lazy" />
                 @if (Post.ImageUrls.Count > 1)
                 {
-                    <span class="hs-card__photo-count">+@(Post.ImageUrls.Count - 1) photos</span>
+                    <span class="hs-card__photo-count">+@(Post.ImageUrls.Count - 1) @L["photos"]</span>
                 }
             </button>
         }
@@ -51,13 +51,13 @@
             </svg>
             <span>@Post.AreaName, @Post.Division</span>
             <span class="hs-dot"></span>
-            <span class="hs-nowrap">@HousingView.RelativeTime(Post.CreatedAtUtc)</span>
+            <span class="hs-nowrap">@Post.CreatedAtUtc.ToLocalTime().ToString("g")</span>
         </div>
 
         <div class="hs-card__foot">
-            <span class="hs-price">@Money.Format(Post.MonthlyRent)<span class="hs-price__unit">/mo</span></span>
+            <span class="hs-price">@Money.Format(Post.MonthlyRent)<span class="hs-price__unit">@L["per month"]</span></span>
             <span class="hs-seats">
-                @Post.SeatsAvailable @(Post.SeatsAvailable == 1 ? "seat" : "seats")
+                @Post.SeatsAvailable @L["seats available"]
             </span>
         </div>
     </div>

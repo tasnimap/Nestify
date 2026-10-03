@@ -1,24 +1,24 @@
+@inject IStringLocalizer<SharedResource> L
 @page "/housing/new"
 @attribute [Authorize(Roles = "User")]
 @inject IHousingService Housing
 @inject IHouseLookupService HouseLookup
 @inject NavigationManager Nav
 @inject Nestify.Web.Services.ToastService Toast
-
-<PageTitle>Post a listing — Nestify</PageTitle>
+<PageTitle>@L["Post a listing"] — Nestify</PageTitle>
 
 <section class="nx-section hs-page">
     <div class="nx-container hs-wrap hs-wrap--narrow">
         <nav class="hs-crumbs" aria-label="Breadcrumb">
-            <a href="housing">Housing</a>
+            <a href="housing">@L["Housing"]</a>
             <span class="hs-crumbs__sep">/</span>
-            <span>Post a listing</span>
+            <span>@L["Post a listing"]</span>
         </nav>
 
         <header class="hs-head">
             <div class="hs-head__titles">
-                <p class="nx-eyebrow">M1 · Housing</p>
-                <h1>Post a seat or a house</h1>
+                <p class="nx-eyebrow">@L["M1 · Housing"]</p>
+                <h1>@L["Post a seat or a house"]</h1>
                 <p class="hs-head__lead">
                     Be specific about who else lives there and what's included — it's what gets a
                     genuine booking instead of a dozen "is this still available" messages.
@@ -36,9 +36,9 @@
         else if (_houses.Count == 0)
         {
             <div class="hs-empty">
-                <h3>You don't manage a house yet</h3>
-                <p>You need to be a Manager or CoManager of a house before you can post a listing.</p>
-                <a class="nx-btn nx-btn--primary" href="home">Create a house</a>
+                <h3>@L["You don't manage a house yet"]</h3>
+                <p>@L["You need to be a Manager or CoManager of a house before you can post a listing."]</p>
+                <a class="nx-btn nx-btn--primary" href="home">@L["Create a house"]</a>
             </div>
         }
         else

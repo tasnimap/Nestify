@@ -887,4 +887,228 @@
   <data name="Dinner short" xml:space="preserve"><value>Dinner short</value></data>
   <data name="Breakfast short" xml:space="preserve"><value>Breakfast short</value></data>
   <data name="Lunch short" xml:space="preserve"><value>Lunch short</value></data>
+  <data name="My posts" xml:space="preserve"><value>My posts</value></data>
+  <data name="My bookings" xml:space="preserve"><value>My bookings</value></data>
+  <data name="Post a listing" xml:space="preserve"><value>Post a listing</value></data>
+  <data name="Listing type" xml:space="preserve"><value>Listing type</value></data>
+  <data name="M1 · Housing" xml:space="preserve"><value>M1 · Housing</value></data>
+  <data name="Post a seat or a house" xml:space="preserve"><value>Post a seat or a house</value></data>
+  <data name="Create a house" xml:space="preserve"><value>Create a house</value></data>
+  <data name="Publish listing" xml:space="preserve"><value>Publish listing</value></data>
+  <data name="My listings" xml:space="preserve"><value>My listings</value></data>
+  <data name="Edit listing" xml:space="preserve"><value>Edit listing</value></data>
+  <data name="Booking requests" xml:space="preserve"><value>Booking requests</value></data>
+  <data name="All" xml:space="preserve"><value>All</value></data>
+  <data name="Pending" xml:space="preserve"><value>Pending</value></data>
+  <data name="Rejected" xml:space="preserve"><value>Rejected</value></data>
+  <data name="Applicant message" xml:space="preserve"><value>Applicant message</value></data>
+  <data name="Release reservation" xml:space="preserve"><value>Release reservation</value></data>
+  <data name="View listing" xml:space="preserve"><value>View listing</value></data>
+  <data name="Back to Housing" xml:space="preserve"><value>Back to Housing</value></data>
+  <data name="About this listing" xml:space="preserve"><value>About this listing</value></data>
+  <data name="Who can apply" xml:space="preserve"><value>Who can apply</value></data>
+  <data name="Send booking request" xml:space="preserve"><value>Send booking request</value></data>
+  <data name="Contact information" xml:space="preserve"><value>Contact information</value></data>
+  <data name="House" xml:space="preserve"><value>House</value></data>
+  <data name="Title" xml:space="preserve"><value>Title</value></data>
+  <data name="Description" xml:space="preserve"><value>Description</value></data>
+  <data name="Monthly rent (৳)" xml:space="preserve"><value>Monthly rent (৳)</value></data>
+  <data name="Photos" xml:space="preserve"><value>Photos</value></data>
+  <data name="Gender" xml:space="preserve"><value>Gender</value></data>
+  <data name="No requirement" xml:space="preserve"><value>No requirement</value></data>
+  <data name="Male only" xml:space="preserve"><value>Male only</value></data>
+  <data name="Female only" xml:space="preserve"><value>Female only</value></data>
+  <data name="Occupation" xml:space="preserve"><value>Occupation</value></data>
+  <data name="Students only" xml:space="preserve"><value>Students only</value></data>
+  <data name="Working professionals only" xml:space="preserve"><value>Working professionals only</value></data>
+  <data name="Age range (optional)" xml:space="preserve"><value>Age range (optional)</value></data>
+  <data name="Verified accounts only" xml:space="preserve"><value>Verified accounts only</value></data>
+  <data name="Non-smokers only" xml:space="preserve"><value>Non-smokers only</value></data>
+  <data name="Non-drinkers only" xml:space="preserve"><value>Non-drinkers only</value></data>
+  <data name="Listing" xml:space="preserve"><value>Listing</value></data>
+  <data name="Amount Paid" xml:space="preserve"><value>Amount Paid</value></data>
+  <data name="Pinned Until" xml:space="preserve"><value>Pinned Until</value></data>
+  <data name="Promotion Fee" xml:space="preserve"><value>Promotion Fee</value></data>
+  <data name="Duration" xml:space="preserve"><value>Duration</value></data>
+  <data name="Housing posting tokens" xml:space="preserve"><value>Housing posting tokens</value></data>
+  <data name="Shared tokens for your house" xml:space="preserve"><value>Shared tokens for your house</value></data>
+  <data name="Max occupants" xml:space="preserve"><value>Max occupants</value></data>
+  <data name="Living there now" xml:space="preserve"><value>Living there now</value></data>
+  <data name="Seats free" xml:space="preserve"><value>Seats free</value></data>
+  <data name="Saving…" xml:space="preserve"><value>Saving…</value></data>
+  <data name="Single seat" xml:space="preserve"><value>Single seat</value></data>
+  <data name="Multiple seats" xml:space="preserve"><value>Multiple seats</value></data>
+  <data name="Entire house" xml:space="preserve"><value>Entire house</value></data>
+  <data name="Seat" xml:space="preserve"><value>Seat</value></data>
+  <data name="Seats" xml:space="preserve"><value>Seats</value></data>
+  <data name="Whole house" xml:space="preserve"><value>Whole house</value></data>
+  <data name="Closed" xml:space="preserve"><value>Closed</value></data>
+  <data name="House is full" xml:space="preserve"><value>House is full</value></data>
+  <data name="Withdrawn" xml:space="preserve"><value>Withdrawn</value></data>
+  <data name="Previous photo" xml:space="preserve"><value>Previous photo</value></data>
+  <data name="Next photo" xml:space="preserve"><value>Next photo</value></data>
+  <data name="Page @_page.Page of @_page.TotalPages" xml:space="preserve"><value>Page @_page.Page of @_page.TotalPages</value></data>
+  <data name="You can&apos;t edit this listing" xml:space="preserve"><value>You can&apos;t edit this listing</value></data>
+  <data name="Add tokens to" xml:space="preserve"><value>Add tokens to</value></data>
+  <data name="Housing — Nestify" xml:space="preserve"><value>Housing — Nestify</value></data>
+  <data name="near where you already live your life." xml:space="preserve"><value>near where you already live your life.</value></data>
+  <data name="Housing tokens unavailable" xml:space="preserve"><value>Housing tokens unavailable</value></data>
+  <data name="Loading listings…" xml:space="preserve"><value>Loading listings…</value></data>
+  <data name="No requests match this filter." xml:space="preserve"><value>No requests match this filter.</value></data>
+  <data name="Filter booking requests" xml:space="preserve"><value>Filter booking requests</value></data>
+  <data name="Something went wrong reaching housing. Try again in a moment." xml:space="preserve"><value>Something went wrong reaching housing. Try again in a moment.</value></data>
+  <data name="It doesn&apos;t exist, or it isn&apos;t one of yours." xml:space="preserve"><value>It doesn&apos;t exist, or it isn&apos;t one of yours.</value></data>
+  <data name="No housing packages are available right now." xml:space="preserve"><value>No housing packages are available right now.</value></data>
+  <data name="Secure practice checkout" xml:space="preserve"><value>Secure practice checkout</value></data>
+  <data name="Preview requests" xml:space="preserve"><value>Preview requests</value></data>
+  <data name="bKash Number" xml:space="preserve"><value>bKash Number</value></data>
+  <data name="Loading requests…" xml:space="preserve"><value>Loading requests…</value></data>
+  <data name="No booking requests yet" xml:space="preserve"><value>No booking requests yet</value></data>
+  <data name="Max rent (৳/mo)" xml:space="preserve"><value>Max rent (৳/mo)</value></data>
+  <data name="Tell the manager a bit about yourself. They can see your note before deciding." xml:space="preserve"><value>Tell the manager a bit about yourself. They can see your note before deciding.</value></data>
+  <data name="Your message" xml:space="preserve"><value>Your message</value></data>
+  <data name="Waiting for review" xml:space="preserve"><value>Waiting for review</value></data>
+  <data name="Manager response" xml:space="preserve"><value>Manager response</value></data>
+  <data name="Back to My listings" xml:space="preserve"><value>Back to My listings</value></data>
+  <data name="and keep applicants informed." xml:space="preserve"><value>and keep applicants informed.</value></data>
+  <data name="Payment Gateway" xml:space="preserve"><value>Payment Gateway</value></data>
+  <data name="Your message (optional)" xml:space="preserve"><value>Your message (optional)</value></data>
+  <data name="Browse open seats and houses posted by managers on Nestify. Every listing you see already matches your profile — there is nothing to filter out yourself." xml:space="preserve"><value>Browse open seats and houses posted by managers on Nestify. Every listing you see already matches your profile — there is nothing to filter out yourself.</value></data>
+  <data name="Changes go live straight away." xml:space="preserve"><value>Changes go live straight away.</value></data>
+  <data name="This house is full — there is no seat to post about." xml:space="preserve"><value>This house is full — there is no seat to post about.</value></data>
+  <data name="Pinned Badge" xml:space="preserve"><value>Pinned Badge</value></data>
+  <data name="Booking requests — Nestify" xml:space="preserve"><value>Booking requests — Nestify</value></data>
+  <data name="Accepting..." xml:space="preserve"><value>Accepting...</value></data>
+  <data name="Plain text only — links and formatting won&apos;t render." xml:space="preserve"><value>Plain text only — links and formatting won&apos;t render.</value></data>
+  <data name="This post is not available" xml:space="preserve"><value>This post is not available</value></data>
+  <data name="No booking requests found." xml:space="preserve"><value>No booking requests found.</value></data>
+  <data name="Start by browsing available seats and houses to send booking requests to managers." xml:space="preserve"><value>Start by browsing available seats and houses to send booking requests to managers.</value></data>
+  <data name="View my requests" xml:space="preserve"><value>View my requests</value></data>
+  <data name="A clear badge helps your listing stand out to potential housemates." xml:space="preserve"><value>A clear badge helps your listing stand out to potential housemates.</value></data>
+  <data name="Couldn&apos;t load listings" xml:space="preserve"><value>Couldn&apos;t load listings</value></data>
+  <data name="Top of Housing Browse" xml:space="preserve"><value>Top of Housing Browse</value></data>
+  <data name="You haven&apos;t posted any listings yet" xml:space="preserve"><value>You haven&apos;t posted any listings yet</value></data>
+  <data name="Requested " xml:space="preserve"><value>Requested </value></data>
+  <data name="You haven&apos;t made any booking requests yet" xml:space="preserve"><value>You haven&apos;t made any booking requests yet</value></data>
+  <data name="Create a listing" xml:space="preserve"><value>Create a listing</value></data>
+  <data name="Review &amp;amp; reject" xml:space="preserve"><value>Review &amp;amp; reject</value></data>
+  <data name="This is a practice payment flow; no real money is charged." xml:space="preserve"><value>This is a practice payment flow; no real money is charged.</value></data>
+  <data name="Accepted by " xml:space="preserve"><value>Accepted by </value></data>
+  <data name="Add a few pictures of the room, the flat and the building entrance." xml:space="preserve"><value>Add a few pictures of the room, the flat and the building entrance.</value></data>
+  <data name="Listing Pinned Successfully!" xml:space="preserve"><value>Listing Pinned Successfully!</value></data>
+  <data name="A seat or a house, " xml:space="preserve"><value>A seat or a house, </value></data>
+  <data name="It may have been closed, removed, or the link may be out of date." xml:space="preserve"><value>It may have been closed, removed, or the link may be out of date.</value></data>
+  <data name="Submit report" xml:space="preserve"><value>Submit report</value></data>
+  <data name="Your active post appears before standard listings." xml:space="preserve"><value>Your active post appears before standard listings.</value></data>
+  <data name="Fill in only a minimum, only a maximum, both, or neither." xml:space="preserve"><value>Fill in only a minimum, only a maximum, both, or neither.</value></data>
+  <data name="Pick which house this listing belongs to." xml:space="preserve"><value>Pick which house this listing belongs to.</value></data>
+  <data name="Select a house…" xml:space="preserve"><value>Select a house…</value></data>
+  <data name="Start by creating your first post to share a seat or house on Nestify." xml:space="preserve"><value>Start by creating your first post to share a seat or house on Nestify.</value></data>
+  <data name="When someone requests to book your listing, their request will appear here." xml:space="preserve"><value>When someone requests to book your listing, their request will appear here.</value></data>
+  <data name="My bookings — Nestify" xml:space="preserve"><value>My bookings — Nestify</value></data>
+  <data name="Reject booking request" xml:space="preserve"><value>Reject booking request</value></data>
+  <data name="Hide requests" xml:space="preserve"><value>Hide requests</value></data>
+  <data name="Manage requests for " xml:space="preserve"><value>Manage requests for </value></data>
+  <data name="bKash Account Number" xml:space="preserve"><value>bKash Account Number</value></data>
+  <data name="Nothing matches those filters" xml:space="preserve"><value>Nothing matches those filters</value></data>
+  <data name="Reopen" xml:space="preserve"><value>Reopen</value></data>
+  <data name="No active listing fits this combination yet. Try a different area or widen the rent range." xml:space="preserve"><value>No active listing fits this combination yet. Try a different area or widen the rent range.</value></data>
+  <data name="View all (@postDto.BookingRequestCount)" xml:space="preserve"><value>View all (@postDto.BookingRequestCount)</value></data>
+  <data name="A short, respectful note gives the applicant useful closure. This message is optional." xml:space="preserve"><value>A short, respectful note gives the applicant useful closure. This message is optional.</value></data>
+  <data name="Accepted by" xml:space="preserve"><value>Accepted by</value></data>
+  <data name="The listing manager will see your request and let you know when they have made a decision." xml:space="preserve"><value>The listing manager will see your request and let you know when they have made a decision.</value></data>
+  <data name="Report" xml:space="preserve"><value>Report</value></data>
+  <data name="Extend pin" xml:space="preserve"><value>Extend pin</value></data>
+  <data name="Expires after" xml:space="preserve"><value>Expires after</value></data>
+  <data name="priority spotlight" xml:space="preserve"><value>priority spotlight</value></data>
+  <data name="Message (optional)" xml:space="preserve"><value>Message (optional)</value></data>
+  <data name="Browse listings" xml:space="preserve"><value>Browse listings</value></data>
+  <data name="Secure Demo" xml:space="preserve"><value>Secure Demo</value></data>
+  <data name="seats available" xml:space="preserve"><value>seats available</value></data>
+  <data name="Sending..." xml:space="preserve"><value>Sending...</value></data>
+  <data name="Pinned" xml:space="preserve"><value>Pinned</value></data>
+  <data name="Booking withdrawn." xml:space="preserve"><value>Booking withdrawn.</value></data>
+  <data name="This releases the seat for another applicant. A short, respectful note gives the applicant useful closure." xml:space="preserve"><value>This releases the seat for another applicant. A short, respectful note gives the applicant useful closure.</value></data>
+  <data name="Changes saved" xml:space="preserve"><value>Changes saved</value></data>
+  <data name="You can’t edit listing" xml:space="preserve"><value>You can’t edit listing</value></data>
+  <data name="Cancel reservation" xml:space="preserve"><value>Cancel reservation</value></data>
+  <data name="Choose a package to get started" xml:space="preserve"><value>Choose a package to get started</value></data>
+  <data name="Add any detail (optional)" xml:space="preserve"><value>Add any detail (optional)</value></data>
+  <data name="Reason" xml:space="preserve"><value>Reason</value></data>
+  <data name="Pin listing" xml:space="preserve"><value>Pin listing</value></data>
+  <data name="Manage requests for" xml:space="preserve"><value>Manage requests for</value></data>
+  <data name="View all" xml:space="preserve"><value>View all</value></data>
+  <data name="Available to publish" xml:space="preserve"><value>Available to publish</value></data>
+  <data name="Thank you for your interest, but..." xml:space="preserve"><value>Thank you for your interest, but...</value></data>
+  <data name="Contact details are shared only after the manager accepts your request." xml:space="preserve"><value>Contact details are shared only after the manager accepts your request.</value></data>
+  <data name="Posted" xml:space="preserve"><value>Posted</value></data>
+  <data name="Duration:" xml:space="preserve"><value>Duration:</value></data>
+  <data name="Housing unavailable" xml:space="preserve"><value>Housing unavailable</value></data>
+  <data name="Next expiry" xml:space="preserve"><value>Next expiry</value></data>
+  <data name="Couldn&apos;t load this listing. Please try again." xml:space="preserve"><value>Couldn&apos;t load this listing. Please try again.</value></data>
+  <data name="Your listing is live." xml:space="preserve"><value>Your listing is live.</value></data>
+  <data name="Tell the manager about yourself..." xml:space="preserve"><value>Tell the manager about yourself...</value></data>
+  <data name="Currently active until" xml:space="preserve"><value>Currently active until</value></data>
+  <data name="Your Housing listing now appears ahead of standard listings in browse results." xml:space="preserve"><value>Your Housing listing now appears ahead of standard listings in browse results.</value></data>
+  <data name="seat available" xml:space="preserve"><value>seat available</value></data>
+  <data name="characters" xml:space="preserve"><value>characters</value></data>
+  <data name="Post published" xml:space="preserve"><value>Post published</value></data>
+  <data name="Enter a valid Bangladeshi bKash phone number, like 01712345678." xml:space="preserve"><value>Enter a valid Bangladeshi bKash phone number, like 01712345678.</value></data>
+  <data name="Your listing has been updated." xml:space="preserve"><value>Your listing has been updated.</value></data>
+  <data name="Enter your 4 or 5 digit bKash PIN." xml:space="preserve"><value>Enter your 4 or 5 digit bKash PIN.</value></data>
+  <data name="Pinned until {0}" xml:space="preserve"><value>Pinned until {0}</value></data>
+  <data name="View photo {0}" xml:space="preserve"><value>View photo {0}</value></data>
+  <data name="House photo {0}" xml:space="preserve"><value>House photo {0}</value></data>
+  <data name="Request sent" xml:space="preserve"><value>Request sent</value></data>
+  <data name="Listing closed" xml:space="preserve"><value>Listing closed</value></data>
+  <data name="Your listing" xml:space="preserve"><value>Your listing</value></data>
+  <data name="Already in a home" xml:space="preserve"><value>Already in a home</value></data>
+  <data name="No seats available" xml:space="preserve"><value>No seats available</value></data>
+  <data name="Book this listing" xml:space="preserve"><value>Book this listing</value></data>
+  <data name="This is one of your listings." xml:space="preserve"><value>This is one of your listings.</value></data>
+  <data name="You already live in a home, so you can't book a seat here." xml:space="preserve"><value>You already live in a home, so you can't book a seat here.</value></data>
+  <data name="All available seats have been taken." xml:space="preserve"><value>All available seats have been taken.</value></data>
+  <data name="This listing is closed to new requests." xml:space="preserve"><value>This listing is closed to new requests.</value></data>
+  <data name="This home is full right now." xml:space="preserve"><value>This home is full right now.</value></data>
+  <data name="Track your booking requests and manage your connections with listing managers." xml:space="preserve"><value>Track your booking requests and manage your connections with listing managers.</value></data>
+  <data name="Joined {0}" xml:space="preserve"><value>Joined {0}</value></data>
+  <data name="Accepted by {0}" xml:space="preserve"><value>Accepted by {0}</value></data>
+  <data name="Reach out to sort out moving in - they can give you the join code or add you by email." xml:space="preserve"><value>Reach out to sort out moving in - they can give you the join code or add you by email.</value></data>
+  <data name="The manager did not leave a note with this decision." xml:space="preserve"><value>The manager did not leave a note with this decision.</value></data>
+  <data name="{0} Days Boost" xml:space="preserve"><value>{0} Days Boost</value></data>
+  <data name="{0} shared post tokens" xml:space="preserve"><value>{0} shared post tokens</value></data>
+  <data name="{0} shared posts" xml:space="preserve"><value>{0} shared posts</value></data>
+  <data name="bKash number (e.g. 01712345678)" xml:space="preserve"><value>bKash number (e.g. 01712345678)</value></data>
+  <data name="buy housing tokens" xml:space="preserve"><value>buy housing tokens</value></data>
+  <data name="Confirm ৳{0} bKash Pay" xml:space="preserve"><value>Confirm ৳{0} bKash Pay</value></data>
+  <data name="Each new housing listing uses one token. Everyone in your house shares the same balance. Buying another package extends the expiry of active tokens." xml:space="preserve"><value>Each new housing listing uses one token. Everyone in your house shares the same balance. Buying another package extends the expiry of active tokens.</value></data>
+  <data name="expires {0}" xml:space="preserve"><value>expires {0}</value></data>
+  <data name="Expires after {0} days" xml:space="preserve"><value>Expires after {0} days</value></data>
+  <data name="Extend an active pin by another {0} days." xml:space="preserve"><value>Extend an active pin by another {0} days.</value></data>
+  <data name="Extend Pinned Listing" xml:space="preserve"><value>Extend Pinned Listing</value></data>
+  <data name="Manage the seats and houses you've posted on Nestify. Review booking requests and keep your listings up to date." xml:space="preserve"><value>Manage the seats and houses you've posted on Nestify. Review booking requests and keep your listings up to date.</value></data>
+  <data name="Pay ৳{0} and add {1} shared tokens" xml:space="preserve"><value>Pay ৳{0} and add {1} shared tokens</value></data>
+  <data name="Pin Housing Listing to Top" xml:space="preserve"><value>Pin Housing Listing to Top</value></data>
+  <data name="Pinned till" xml:space="preserve"><value>Pinned till</value></data>
+  <data name="posts" xml:space="preserve"><value>posts</value></data>
+  <data name="total requests" xml:space="preserve"><value>total requests</value></data>
+  <data name="You don't manage a house yet" xml:space="preserve"><value>You don't manage a house yet</value></data>
+  <data name="You need to be a Manager or CoManager of a house before you can post a listing." xml:space="preserve"><value>You need to be a Manager or CoManager of a house before you can post a listing.</value></data>
+  <data name="Age {0}–{1}" xml:space="preserve"><value>Age {0}–{1}</value></data>
+  <data name="Age {0}+" xml:space="preserve"><value>Age {0}+</value></data>
+  <data name="Age up to {0}" xml:space="preserve"><value>Age up to {0}</value></data>
+  <data name="Fake listing" xml:space="preserve"><value>Fake listing</value></data>
+  <data name="Misleading photos or rent" xml:space="preserve"><value>Misleading photos or rent</value></data>
+  <data name="Duplicate post" xml:space="preserve"><value>Duplicate post</value></data>
+  <data name="Abusive or improper content" xml:space="preserve"><value>Abusive or improper content</value></data>
+  <data name="Scam or advance payment demand" xml:space="preserve"><value>Scam or advance payment demand</value></data>
+  <data name="Wrong rent" xml:space="preserve"><value>Wrong rent</value></data>
+  <data name="Other" xml:space="preserve"><value>Other</value></data>
+  <data name="View photos of {0}" xml:space="preserve"><value>View photos of {0}</value></data>
+  <data name="Leave anything below on No requirement to accept any applicant on that trait." xml:space="preserve"><value>Leave anything below on No requirement to accept any applicant on that trait.</value></data>
+  <data name="Give the post a title." xml:space="preserve"><value>Give the post a title.</value></data>
+  <data name="Title should be 4–150 characters." xml:space="preserve"><value>Title should be 4–150 characters.</value></data>
+  <data name="Describe the place so seekers know what they're getting." xml:space="preserve"><value>Describe the place so seekers know what they're getting.</value></data>
+  <data name="Description should be at least 20 characters." xml:space="preserve"><value>Description should be at least 20 characters.</value></data>
+  <data name="Enter a rent between ৳0 and ৳10,00,000." xml:space="preserve"><value>Enter a rent between ৳0 and ৳10,00,000.</value></data>
 </root>

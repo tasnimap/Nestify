@@ -1,10 +1,10 @@
+@inject IStringLocalizer<SharedResource> L
 @page "/housing/{Id}/edit"
 @attribute [Authorize(Roles = "User")]
 @inject IHousingService Housing
 @inject NavigationManager Nav
 @inject Nestify.Web.Services.ToastService Toast
-
-<PageTitle>Edit listing — Nestify</PageTitle>
+<PageTitle>@L["Edit listing"] — Nestify</PageTitle>
 
 <section class="nx-section hs-page">
     <div class="nx-container hs-wrap hs-wrap--narrow">
@@ -16,31 +16,31 @@
         else if (_model is null)
         {
             <nav class="hs-crumbs" aria-label="Breadcrumb">
-                <a href="housing">Housing</a>
+                <a href="housing">@L["Housing"]</a>
                 <span class="hs-crumbs__sep">/</span>
-                <span>Not available</span>
+                <span>@L["Not available"]</span>
             </nav>
             <div class="hs-empty hs-empty--page">
-                <h2>You can't edit this listing</h2>
-                <p>It doesn't exist, or it isn't one of yours.</p>
-                <a class="nx-btn nx-btn--primary" href="housing">Back to Housing</a>
+                <h2>@L["You can't edit this listing"]</h2>
+                <p>@L["It doesn't exist, or it isn't one of yours."]</p>
+                <a class="nx-btn nx-btn--primary" href="housing">@L["Back to Housing"]</a>
             </div>
         }
         else
         {
             <nav class="hs-crumbs" aria-label="Breadcrumb">
-                <a href="housing">Housing</a>
+                <a href="housing">@L["Housing"]</a>
                 <span class="hs-crumbs__sep">/</span>
                 <a href="housing/@Id">@_title</a>
                 <span class="hs-crumbs__sep">/</span>
-                <span>Edit</span>
+                <span>@L["Edit"]</span>
             </nav>
 
             <header class="hs-head">
                 <div class="hs-head__titles">
-                    <p class="nx-eyebrow">M1 · Housing</p>
-                    <h1>Edit listing</h1>
-                    <p class="hs-head__lead">Changes go live straight away.</p>
+                    <p class="nx-eyebrow">@L["M1 · Housing"]</p>
+                    <h1>@L["Edit listing"]</h1>
+                    <p class="hs-head__lead">@L["Changes go live straight away."]</p>
                 </div>
             </header>
 

@@ -1,3 +1,4 @@
+@inject IStringLocalizer<SharedResource> L
 @page "/bookings/mine"
 @attribute [Authorize(Roles = "User")]
 @using Nestify.Shared.Dtos.Housing
@@ -5,23 +6,22 @@
 @inject IHousingService Housing
 @inject NavigationManager Nav
 @inject ToastService Toast
-
-<PageTitle>My bookings — Nestify</PageTitle>
+<PageTitle>@L["My bookings — Nestify"]</PageTitle>
 
 <section class="nx-section hs-page">
     <div class="nx-container hs-wrap">
         <header class="hs-head">
             <div class="hs-head__titles">
-                <p class="nx-eyebrow">M1 · Housing</p>
-                <h1>My bookings</h1>
+                <p class="nx-eyebrow">@L["M1 · Housing"]</p>
+                <h1>@L["My bookings"]</h1>
                 <p class="hs-head__lead">
-                    Track your booking requests and manage your connections with listing managers.
+                    @L["Track your booking requests and manage your connections with listing managers."]
                 </p>
             </div>
 
             <div class="hs-head__actions">
-                <a class="nx-btn nx-btn--ghost" href="housing">Browse listings</a>
-                <a class="nx-btn nx-btn--ghost" href="housing/mine">My posts</a>
+                <a class="nx-btn nx-btn--ghost" href="housing">@L["Browse listings"]</a>
+                <a class="nx-btn nx-btn--ghost" href="housing/mine">@L["My posts"]</a>
             </div>
         </header>
 
@@ -45,9 +45,9 @@
                         <path d="M9.5 21v-6h5v6" />
                     </svg>
                 </div>
-                <h2>You haven't made any booking requests yet</h2>
-                <p>Start by browsing available seats and houses to send booking requests to managers.</p>
-                <a class="nx-btn nx-btn--primary" href="housing">Browse listings</a>
+                <h2>@L["You haven't made any booking requests yet"]</h2>
+                <p>@L["Start by browsing available seats and houses to send booking requests to managers."]</p>
+                <a class="nx-btn nx-btn--primary" href="housing">@L["Browse listings"]</a>
             </div>
         }
         else
@@ -62,8 +62,8 @@
                                     <a href="housing/@booking.Post.Id">@booking.Post.Title</a>
                                 </h2>
                                 <div class="hs-row__badges">
-                                    <span class="hs-chip hs-chip--type">@HousingView.Label(booking.Post.ListingType)</span>
-                                    <span class="hs-badge @(GetStatusClass(booking.Status))">@HousingView.Label(booking)</span>
+                                    <span class="hs-chip hs-chip--type">@L[HousingView.Label(booking.Post.ListingType)]</span>
+                                    <span class="hs-badge @(GetStatusClass(booking.Status))">@(booking.Status == BookingStatus.Joined ? L["Joined {0}", booking.HomeName ?? string.Empty] : L[HousingView.Label(booking.Status)])</span>
                                 </div>
                                 <div class="hs-row__meta">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
@@ -74,7 +74,7 @@
                                     </svg>
                                     <span>@booking.Post.AreaName, @booking.Post.Division</span>
                                     <span class="hs-dot"></span>
-                                    <span>Requested @booking.RequestedAtUtc.ToString("g")</span>
+                                    <span>@L["Requested"] @booking.RequestedAtUtc.ToLocalTime().ToString("g")</span>
                                 </div>
                             </div>
                             <div class="hs-price hs-price--sm">
@@ -85,7 +85,7 @@
                         @if (!string.IsNullOrEmpty(booking.Message))
                         {
                             <p class="hs-row__message">
-                                <span class="hs-row__message-label">Your message</span>
+                                <span class="hs-row__message-label">@L["Your message"]</span>
                                 @booking.Message
                             </p>
                         }
@@ -93,8 +93,8 @@
                         @if (booking.Status == BookingStatus.Accepted)
                         {
                             <p class="hs-booking-decision hs-booking-decision--accepted">
-                                <span class="hs-booking-decision__label">Accepted by @booking.ManagerName</span>
-                                Reach out to sort out moving in - they can give you the join code or add you by email.
+                                <span class="hs-booking-decision__label">@L["Accepted by {0}", booking.ManagerName ?? string.Empty]</span>
+                                @L["Reach out to sort out moving in - they can give you the join code or add you by email."]
                             </p>
                             <ContactDisclosureCard Contact="_contacts.GetValueOrDefault(booking.BookingId)" />
                         }
@@ -102,9 +102,9 @@
                         @if (booking.Status == BookingStatus.Rejected)
                         {
                             <p class="hs-booking-decision hs-booking-decision--rejected">
-                                <span class="hs-booking-decision__label">Manager response</span>
+                                <span class="hs-booking-decision__label">@L["Manager response"]</span>
                                 @(string.IsNullOrWhiteSpace(booking.ReplyMessage)
-                                    ? "The manager did not leave a note with this decision."
+                                    ? L["The manager did not leave a note with this decision."]
                                     : booking.ReplyMessage)
                             </p>
                         }
@@ -112,19 +112,19 @@
                         @if (booking.Status == BookingStatus.Pending)
                         {
                             <p class="hs-booking-decision hs-booking-decision--pending">
-                                <span class="hs-booking-decision__label">Waiting for review</span>
-                                The listing manager will see your request and let you know when they have made a decision.
+                                <span class="hs-booking-decision__label">@L["Waiting for review"]</span>
+                                @L["The listing manager will see your request and let you know when they have made a decision."]
                             </p>
                         }
 
                         <div class="hs-row__actions">
-                            <a class="nx-btn nx-btn--ghost" href="housing/@booking.Post.Id">View listing</a>
+                            <a class="nx-btn nx-btn--ghost" href="housing/@booking.Post.Id">@L["View listing"]</a>
                             @if (booking.Status == BookingStatus.Pending)
                             {
                                 <span class="hs-row__actions-spacer"></span>
                                 <button type="button" class="nx-btn nx-btn--ghost hs-danger-btn"
                                         @onclick="() => WithdrawBooking(booking.BookingId)">
-                                    Withdraw request
+                                    @L["Withdraw request"]
                                 </button>
                             }
                             else if (booking.Status == BookingStatus.Accepted)
@@ -132,7 +132,7 @@
                                 <span class="hs-row__actions-spacer"></span>
                                 <button type="button" class="nx-btn nx-btn--ghost hs-danger-btn"
                                         @onclick="() => WithdrawBooking(booking.BookingId)">
-                                    Cancel reservation
+                                    @L["Cancel reservation"]
                                 </button>
                             }
                         </div>

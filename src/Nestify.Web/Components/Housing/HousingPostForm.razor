@@ -1,3 +1,4 @@
+@inject IStringLocalizer<SharedResource> L
 @* Shared create/edit form for a housing post. HouseOptions is populated (and the
    selector shown) on Create only — Update has no house field (§3.6, a post cannot
    be reparented). *@
@@ -8,9 +9,9 @@
     @if (HouseOptions is { Count: > 0 })
     {
         <div class="field">
-            <label for="hs-house" class="field__label--required">House</label>
+            <label for="hs-house" class="field__label--required">@L["House"]</label>
             <select id="hs-house" class="field__input" value="@SelectedHouseId" @onchange="OnHouseChanged">
-                <option value="">Select a house…</option>
+                <option value="">@L["Select a house…"]</option>
                 @foreach (var h in HouseOptions)
                 {
                     <option value="@h.Id">@h.Name — @h.AreaName, @h.Division</option>
@@ -18,68 +19,68 @@
             </select>
             @if (ShowHouseValidation)
             {
-                <p class="field__error">Pick which house this listing belongs to.</p>
+                <p class="field__error">@L["Pick which house this listing belongs to."]</p>
             }
         </div>
 
         @if (SelectedHouse is { } house)
         {
             <div class="hs-form__house">
-                <div><span>Max occupants</span><strong>@house.MaxOccupants</strong></div>
-                <div><span>Living there now</span><strong>@house.CurrentOccupants</strong></div>
-                <div><span>Seats free</span><strong>@house.FreeSeats</strong></div>
+                <div><span>@L["Max occupants"]</span><strong>@house.MaxOccupants</strong></div>
+                <div><span>@L["Living there now"]</span><strong>@house.CurrentOccupants</strong></div>
+                <div><span>@L["Seats free"]</span><strong>@house.FreeSeats</strong></div>
             </div>
             @if (house.FreeSeats == 0)
             {
-                <p class="field__error">This house is full — there is no seat to post about.</p>
+                <p class="field__error">@L["This house is full — there is no seat to post about."]</p>
             }
         }
     }
 
     <div class="field">
-        <label for="hs-title" class="field__label--required">Title</label>
+        <label for="hs-title" class="field__label--required">@L["Title"]</label>
         <InputText id="hs-title" class="field__input" @bind-Value="Model.Title"
                    placeholder="One seat in a 3-bed flat, Dhanmondi" />
         <ValidationMessage For="@(() => Model.Title)" />
     </div>
 
     <div class="field">
-        <label for="hs-desc" class="field__label--required">Description</label>
+        <label for="hs-desc" class="field__label--required">@L["Description"]</label>
         <InputTextArea id="hs-desc" class="field__input" @bind-Value="Model.Description" rows="6"
                        placeholder="What the place is like, who else lives there, what's included in rent." />
         <ValidationMessage For="@(() => Model.Description)" />
-        <p class="field__helper">Plain text only — links and formatting won't render.</p>
+        <p class="field__helper">@L["Plain text only — links and formatting won't render."]</p>
     </div>
 
     <div class="field">
-        <label for="hs-type">Listing type</label>
+        <label for="hs-type">@L["Listing type"]</label>
         <InputSelect id="hs-type" class="field__input" @bind-Value="Model.ListingType">
             @foreach (var t in _listingTypes)
             {
-                <option value="@t">@HousingView.Label(t)</option>
+                <option value="@t">@L[HousingView.Label(t)]</option>
             }
         </InputSelect>
     </div>
 
     <div class="field">
-        <label for="hs-rent" class="field__label--required">Monthly rent (৳)</label>
+        <label for="hs-rent" class="field__label--required">@L["Monthly rent (৳)"]</label>
         <InputNumber id="hs-rent" class="field__input" @bind-Value="Model.MonthlyRent" step="100" />
         <ValidationMessage For="@(() => Model.MonthlyRent)" />
     </div>
 
     <div class="field">
-        <label>Photos</label>
+        <label>@L["Photos"]</label>
         <ImageUploader Value="Model.ImageUrls" ValueChanged="OnImagesChanged" />
-        <p class="field__helper">Add a few pictures of the room, the flat and the building entrance.</p>
+        <p class="field__helper">@L["Add a few pictures of the room, the flat and the building entrance."]</p>
     </div>
 
     <fieldset class="hs-form__fieldset">
-        <legend>Who can apply</legend>
+        <legend>@L["Who can apply"]</legend>
         <EligibilityBuilder Value="Model.Eligibility" />
     </fieldset>
 
     <div class="hs-form__foot">
-        <button type="button" class="nx-btn nx-btn--ghost" @onclick="OnCancel" disabled="@Busy">Cancel</button>
+        <button type="button" class="nx-btn nx-btn--ghost" @onclick="OnCancel" disabled="@Busy">@L["Cancel"]</button>
         <button type="submit" class="nx-btn nx-btn--primary" disabled="@Busy">
             @(Busy ? "Saving…" : SubmitLabel)
         </button>

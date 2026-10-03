@@ -1,14 +1,14 @@
+@inject IStringLocalizer<SharedResource> L
 @using Nestify.Shared.Dtos.Housing
 @inject IHousingService Housing
 @inject Nestify.Web.Services.MoneyFormatterService Money
 @inject Nestify.Web.Services.ToastService Toast
-
 <div class="mk-modal-overlay" @onclick="Cancel">
     <div class="mk-modal mk-pin-modal hs-pin-modal" @onclick:stopPropagation="true">
         <header class="mk-modal__header mk-pin-modal__head">
             <div class="mk-pin-modal__brand">
                 <span class="mk-pin-modal__bkash-tag">bKash</span>
-                <h2>@(IsCurrentlyPinned ? "Extend Pinned Listing" : "Pin Housing Listing to Top")</h2>
+                <h2>@(IsCurrentlyPinned ? L["Extend Pinned Listing"] : L["Pin Housing Listing to Top"])</h2>
             </div>
             <button type="button" class="mk-modal__close" @onclick="Cancel" aria-label="Close" disabled="@_busy">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -26,28 +26,28 @@
                             <polyline points="20 6 9 17 4 12" />
                         </svg>
                     </div>
-                    <h3 class="mk-pin-receipt__title">Listing Pinned Successfully!</h3>
+                    <h3 class="mk-pin-receipt__title">@L["Listing Pinned Successfully!"]</h3>
                     <p class="mk-pin-receipt__subtitle">
-                        Your Housing listing now appears ahead of standard listings in browse results.
+                        @L["Your Housing listing now appears ahead of standard listings in browse results."]
                     </p>
                     <div class="mk-pin-receipt__card">
-                        <div class="mk-pin-receipt__row"><span>Listing</span><strong>@ListingTitle</strong></div>
+                        <div class="mk-pin-receipt__row"><span>@L["Listing"]</span><strong>@ListingTitle</strong></div>
                         <div class="mk-pin-receipt__row">
-                            <span>Amount Paid</span>
+                            <span>@L["Amount Paid"]</span>
                             <strong class="mk-pin-receipt__amount">৳@_receipt.AmountBdt.ToString("N0") BDT</strong>
                         </div>
-                        <div class="mk-pin-receipt__row"><span>bKash Number</span><span>@_receipt.BkashNumber</span></div>
+                        <div class="mk-pin-receipt__row"><span>@L["bKash Number"]</span><span>@_receipt.BkashNumber</span></div>
                         <div class="mk-pin-receipt__row">
-                            <span>Transaction ID</span>
+                            <span>@L["Transaction ID"]</span>
                             <span class="mk-pin-receipt__mono">@_receipt.TransactionId</span>
                         </div>
                         <div class="mk-pin-receipt__row">
-                            <span>Pinned Until</span>
+                            <span>@L["Pinned Until"]</span>
                             <strong class="mk-pin-receipt__highlight">@_receipt.PinnedUntilUtc.ToLocalTime().ToString("d MMMM yyyy, h:mm tt")</strong>
                         </div>
                     </div>
                     <div class="mk-pin-receipt__actions">
-                        <button type="button" class="nx-btn nx-btn--primary nx-btn--block" @onclick="CloseReceipt">Done</button>
+                        <button type="button" class="nx-btn nx-btn--primary nx-btn--block" @onclick="CloseReceipt">@L["Done"]</button>
                     </div>
                 </div>
             }
@@ -70,22 +70,22 @@
                             <span class="mk-pin-info__price">@Money.Format(MonthlyRent)<small>/mo</small></span>
                             @if (IsCurrentlyPinned && CurrentPinnedUntilUtc is { } expiry)
                             {
-                                <span class="mk-pin-info__status">Currently active until @expiry.ToLocalTime().ToString("d MMM, h:mm tt")</span>
+                                <span class="mk-pin-info__status">@L["Currently active until"] @expiry.ToLocalTime().ToString("g")</span>
                             }
                         </div>
                     </div>
                     <div class="mk-pin-perks">
                         <div class="mk-pin-perk">
                             <div class="mk-pin-perk__icon">📌</div>
-                            <div><strong>Top of Housing Browse</strong><p>Your active post appears before standard listings.</p></div>
+                            <div><strong>@L["Top of Housing Browse"]</strong><p>@L["Your active post appears before standard listings."]</p></div>
                         </div>
                         <div class="mk-pin-perk">
                             <div class="mk-pin-perk__icon">✨</div>
-                            <div><strong>Pinned Badge</strong><p>A clear badge helps your listing stand out to potential housemates.</p></div>
+                            <div><strong>@L["Pinned Badge"]</strong><p>@L["A clear badge helps your listing stand out to potential housemates."]</p></div>
                         </div>
                         <div class="mk-pin-perk">
                             <div class="mk-pin-perk__icon">⚡</div>
-                            <div><strong>@_fee.Days Days Boost</strong><p>Extend an active pin by another @_fee.Days days.</p></div>
+                            <div><strong>@L["{0} Days Boost", _fee.Days]</strong><p>@L["Extend an active pin by another {0} days.", _fee.Days]</p></div>
                         </div>
                     </div>
                     @if (_feeError is not null)
@@ -96,7 +96,7 @@
                     {
                         <div class="mk-pin-pricing">
                             <div class="mk-pin-pricing__head">
-                                <span>Promotion Fee</span>
+                                <span>@L["Promotion Fee"]</span>
                                 <strong class="mk-pin-pricing__amount">৳@_fee.AmountBdt.ToString("N0") <small>BDT</small></strong>
                             </div>
                             <span class="mk-pin-pricing__detail">Duration: @_fee.Days days priority spotlight</span>
@@ -105,13 +105,13 @@
                             <div class="mk-bkash-checkout__banner">
                                 <div class="mk-bkash-checkout__logo">
                                     <span class="mk-bkash-logo-text">bKash</span>
-                                    <span class="mk-bkash-sub">Payment Gateway</span>
+                                    <span class="mk-bkash-sub">@L["Payment Gateway"]</span>
                                 </div>
-                                <span class="mk-bkash-secure">🔒 Secure Demo</span>
+                            <span class="mk-bkash-secure">🔒 @L["Secure Demo"]</span>
                             </div>
                             <div class="mk-bkash-form">
                                 <div class="mk-bkash-field">
-                                    <label for="hs-bkash-phone">bKash Account Number</label>
+                                    <label for="hs-bkash-phone">@L["bKash Account Number"]</label>
                                     <div class="mk-bkash-input-wrap">
                                         <input id="hs-bkash-phone" type="tel" placeholder="01712345678"
                                                @bind="_bkashNumber" @bind:event="oninput"
@@ -119,7 +119,7 @@
                                     </div>
                                 </div>
                                 <div class="mk-bkash-field">
-                                    <label for="hs-bkash-pin">bKash PIN</label>
+                                    <label for="hs-bkash-pin">@L["bKash PIN"]</label>
                                     <div class="mk-bkash-input-wrap">
                                         <input id="hs-bkash-pin" type="password" inputmode="numeric"
                                                placeholder="••••" maxlength="5"
@@ -134,10 +134,10 @@
                                     </div>
                                 }
                                 <div class="mk-bkash-actions">
-                                    <button type="button" class="nx-btn nx-btn--ghost" @onclick="Cancel" disabled="@_busy">Cancel</button>
+                                    <button type="button" class="nx-btn nx-btn--ghost" @onclick="Cancel" disabled="@_busy">@L["Cancel"]</button>
                                     <button type="submit" class="nx-btn mk-btn--bkash"
                                             disabled="@(_busy || string.IsNullOrWhiteSpace(_bkashNumber) || string.IsNullOrWhiteSpace(_bkashPin))">
-                                        @(_busy ? "Processing…" : $"Confirm ৳{_fee.AmountBdt:N0} bKash Pay")
+                                        @(_busy ? L["Processing…"] : L["Confirm ৳{0} bKash Pay", _fee.AmountBdt.ToString("N0")])
                                     </button>
                                 </div>
                             </div>

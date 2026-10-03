@@ -887,4 +887,228 @@
   <data name="Dinner short" xml:space="preserve"><value>রা</value></data>
   <data name="Breakfast short" xml:space="preserve"><value>সা</value></data>
   <data name="Lunch short" xml:space="preserve"><value>দু</value></data>
+  <data name="My posts" xml:space="preserve"><value>আমার বিজ্ঞাপন</value></data>
+  <data name="My bookings" xml:space="preserve"><value>আমার বুকিং</value></data>
+  <data name="Post a listing" xml:space="preserve"><value>বিজ্ঞাপন দিন</value></data>
+  <data name="Listing type" xml:space="preserve"><value>বিজ্ঞাপনের ধরন</value></data>
+  <data name="M1 · Housing" xml:space="preserve"><value>M1 · বাসা খোঁজা</value></data>
+  <data name="Post a seat or a house" xml:space="preserve"><value>আসন বা বাসার বিজ্ঞাপন দিন</value></data>
+  <data name="Create a house" xml:space="preserve"><value>বাসা তৈরি করুন</value></data>
+  <data name="Publish listing" xml:space="preserve"><value>বিজ্ঞাপন প্রকাশ করুন</value></data>
+  <data name="My listings" xml:space="preserve"><value>আমার বিজ্ঞাপন</value></data>
+  <data name="Edit listing" xml:space="preserve"><value>বিজ্ঞাপন সম্পাদনা</value></data>
+  <data name="Booking requests" xml:space="preserve"><value>বুকিং অনুরোধ</value></data>
+  <data name="All" xml:space="preserve"><value>সব</value></data>
+  <data name="Pending" xml:space="preserve"><value>অপেক্ষমাণ</value></data>
+  <data name="Rejected" xml:space="preserve"><value>প্রত্যাখ্যাত</value></data>
+  <data name="Applicant message" xml:space="preserve"><value>আবেদনকারীর বার্তা</value></data>
+  <data name="Release reservation" xml:space="preserve"><value>সংরক্ষণ বাতিল করুন</value></data>
+  <data name="View listing" xml:space="preserve"><value>বিজ্ঞাপন দেখুন</value></data>
+  <data name="Back to Housing" xml:space="preserve"><value>বাসা খোঁজায় ফিরুন</value></data>
+  <data name="About this listing" xml:space="preserve"><value>বিজ্ঞাপন সম্পর্কে</value></data>
+  <data name="Who can apply" xml:space="preserve"><value>কারা আবেদন করতে পারবেন</value></data>
+  <data name="Send booking request" xml:space="preserve"><value>বুকিং অনুরোধ পাঠান</value></data>
+  <data name="Contact information" xml:space="preserve"><value>যোগাযোগের তথ্য</value></data>
+  <data name="House" xml:space="preserve"><value>বাসা</value></data>
+  <data name="Title" xml:space="preserve"><value>শিরোনাম</value></data>
+  <data name="Description" xml:space="preserve"><value>বিবরণ</value></data>
+  <data name="Monthly rent (৳)" xml:space="preserve"><value>মাসিক ভাড়া (৳)</value></data>
+  <data name="Photos" xml:space="preserve"><value>ছবি</value></data>
+  <data name="Gender" xml:space="preserve"><value>লিঙ্গ</value></data>
+  <data name="No requirement" xml:space="preserve"><value>কোনো শর্ত নেই</value></data>
+  <data name="Male only" xml:space="preserve"><value>শুধু পুরুষ</value></data>
+  <data name="Female only" xml:space="preserve"><value>শুধু নারী</value></data>
+  <data name="Occupation" xml:space="preserve"><value>পেশা</value></data>
+  <data name="Students only" xml:space="preserve"><value>শুধু শিক্ষার্থী</value></data>
+  <data name="Working professionals only" xml:space="preserve"><value>শুধু কর্মজীবী</value></data>
+  <data name="Age range (optional)" xml:space="preserve"><value>বয়সসীমা (ঐচ্ছিক)</value></data>
+  <data name="Verified accounts only" xml:space="preserve"><value>শুধু যাচাইকৃত অ্যাকাউন্ট</value></data>
+  <data name="Non-smokers only" xml:space="preserve"><value>ধূমপান করেন না এমন ব্যক্তি</value></data>
+  <data name="Non-drinkers only" xml:space="preserve"><value>মদ্যপান করেন না এমন ব্যক্তি</value></data>
+  <data name="Listing" xml:space="preserve"><value>বিজ্ঞাপন</value></data>
+  <data name="Amount Paid" xml:space="preserve"><value>পরিশোধিত অর্থ</value></data>
+  <data name="Pinned Until" xml:space="preserve"><value>পিনের মেয়াদ</value></data>
+  <data name="Promotion Fee" xml:space="preserve"><value>প্রচারমূল্য</value></data>
+  <data name="Duration" xml:space="preserve"><value>মেয়াদ</value></data>
+  <data name="Housing posting tokens" xml:space="preserve"><value>বাসার বিজ্ঞাপন টোকেন</value></data>
+  <data name="Shared tokens for your house" xml:space="preserve"><value>আপনার বাসার যৌথ টোকেন</value></data>
+  <data name="Max occupants" xml:space="preserve"><value>সর্বোচ্চ বাসিন্দা</value></data>
+  <data name="Living there now" xml:space="preserve"><value>বর্তমান বাসিন্দা</value></data>
+  <data name="Seats free" xml:space="preserve"><value>খালি আসন</value></data>
+  <data name="Saving…" xml:space="preserve"><value>সংরক্ষণ হচ্ছে…</value></data>
+  <data name="Single seat" xml:space="preserve"><value>একটি আসন</value></data>
+  <data name="Multiple seats" xml:space="preserve"><value>একাধিক আসন</value></data>
+  <data name="Entire house" xml:space="preserve"><value>পুরো বাসা</value></data>
+  <data name="Seat" xml:space="preserve"><value>আসন</value></data>
+  <data name="Seats" xml:space="preserve"><value>আসন</value></data>
+  <data name="Whole house" xml:space="preserve"><value>পুরো বাসা</value></data>
+  <data name="Closed" xml:space="preserve"><value>বন্ধ</value></data>
+  <data name="House is full" xml:space="preserve"><value>বাসা পূর্ণ</value></data>
+  <data name="Withdrawn" xml:space="preserve"><value>প্রত্যাহার করা হয়েছে</value></data>
+  <data name="Previous photo" xml:space="preserve"><value>আগের ছবি</value></data>
+  <data name="Next photo" xml:space="preserve"><value>পরের ছবি</value></data>
+  <data name="Page @_page.Page of @_page.TotalPages" xml:space="preserve"><value>পৃষ্ঠা @_page.Page / @_page.TotalPages</value></data>
+  <data name="You can&apos;t edit this listing" xml:space="preserve"><value>এই বিজ্ঞাপন সম্পাদনা করতে পারবেন না</value></data>
+  <data name="Add tokens to" xml:space="preserve"><value>টোকেন যোগ হবে</value></data>
+  <data name="Housing — Nestify" xml:space="preserve"><value>বাসা খুঁজুন — Nestify</value></data>
+  <data name="near where you already live your life." xml:space="preserve"><value>খুঁজুন।</value></data>
+  <data name="Housing tokens unavailable" xml:space="preserve"><value>বাসার বিজ্ঞাপনের টোকেন পাওয়া যাচ্ছে না</value></data>
+  <data name="Loading listings…" xml:space="preserve"><value>বিজ্ঞাপন লোড হচ্ছে…</value></data>
+  <data name="No requests match this filter." xml:space="preserve"><value>এই ছাঁকনিতে কোনো অনুরোধ নেই।</value></data>
+  <data name="Filter booking requests" xml:space="preserve"><value>বুকিং অনুরোধ ছাঁকুন</value></data>
+  <data name="Something went wrong reaching housing. Try again in a moment." xml:space="preserve"><value>বাসার বিজ্ঞাপন লোড করতে সমস্যা হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।</value></data>
+  <data name="It doesn&apos;t exist, or it isn&apos;t one of yours." xml:space="preserve"><value>বিজ্ঞাপনটি নেই, অথবা এটি আপনার নয়।</value></data>
+  <data name="No housing packages are available right now." xml:space="preserve"><value>এই মুহূর্তে বাসার বিজ্ঞাপনের কোনো প্যাকেজ নেই।</value></data>
+  <data name="Secure practice checkout" xml:space="preserve"><value>নিরাপদ পরীক্ষামূলক পেমেন্ট</value></data>
+  <data name="Preview requests" xml:space="preserve"><value>অনুরোধের সংক্ষিপ্ত বিবরণ</value></data>
+  <data name="bKash Number" xml:space="preserve"><value>বিকাশ নম্বর</value></data>
+  <data name="Loading requests…" xml:space="preserve"><value>অনুরোধ লোড হচ্ছে…</value></data>
+  <data name="No booking requests yet" xml:space="preserve"><value>এখনো কোনো বুকিং অনুরোধ নেই</value></data>
+  <data name="Max rent (৳/mo)" xml:space="preserve"><value>সর্বোচ্চ ভাড়া (৳/মাস)</value></data>
+  <data name="Tell the manager a bit about yourself. They can see your note before deciding." xml:space="preserve"><value>নিজের সম্পর্কে ব্যবস্থাপককে কিছু বলুন। সিদ্ধান্তের আগে তিনি আপনার বার্তাটি দেখতে পাবেন।</value></data>
+  <data name="Your message" xml:space="preserve"><value>আপনার বার্তা</value></data>
+  <data name="Waiting for review" xml:space="preserve"><value>পর্যালোচনার অপেক্ষায়</value></data>
+  <data name="Manager response" xml:space="preserve"><value>ব্যবস্থাপকের উত্তর</value></data>
+  <data name="Back to My listings" xml:space="preserve"><value>আমার বিজ্ঞাপনে ফিরুন</value></data>
+  <data name="and keep applicants informed." xml:space="preserve"><value>আবেদনকারীদের সিদ্ধান্তের বিষয়ে অবহিত রাখুন।</value></data>
+  <data name="Payment Gateway" xml:space="preserve"><value>পেমেন্ট গেটওয়ে</value></data>
+  <data name="Your message (optional)" xml:space="preserve"><value>আপনার বার্তা (ঐচ্ছিক)</value></data>
+  <data name="Browse open seats and houses posted by managers on Nestify. Every listing you see already matches your profile — there is nothing to filter out yourself." xml:space="preserve"><value>Nestify-তে ব্যবস্থাপকেরা যে খালি আসন ও বাসার বিজ্ঞাপন দিয়েছেন, সেগুলো দেখুন। এখানে দেখানো প্রতিটি বিজ্ঞাপন আপনার প্রোফাইলের সঙ্গে মেলে।</value></data>
+  <data name="Changes go live straight away." xml:space="preserve"><value>পরিবর্তনগুলো সঙ্গে সঙ্গে কার্যকর হবে।</value></data>
+  <data name="This house is full — there is no seat to post about." xml:space="preserve"><value>বাসাটি পূর্ণ—এখানে আসনের বিজ্ঞাপন দেওয়ার সুযোগ নেই।</value></data>
+  <data name="Pinned Badge" xml:space="preserve"><value>পিন করা ব্যাজ</value></data>
+  <data name="Booking requests — Nestify" xml:space="preserve"><value>বুকিং অনুরোধ — Nestify</value></data>
+  <data name="Accepting..." xml:space="preserve"><value>গ্রহণ করা হচ্ছে…</value></data>
+  <data name="Plain text only — links and formatting won&apos;t render." xml:space="preserve"><value>শুধু সাধারণ লেখা দিন—লিংক বা ফরম্যাটিং দেখা যাবে না।</value></data>
+  <data name="This post is not available" xml:space="preserve"><value>এই বিজ্ঞাপনটি পাওয়া যাচ্ছে না</value></data>
+  <data name="No booking requests found." xml:space="preserve"><value>কোনো বুকিং অনুরোধ পাওয়া যায়নি।</value></data>
+  <data name="Start by browsing available seats and houses to send booking requests to managers." xml:space="preserve"><value>খালি আসন ও বাসার বিজ্ঞাপন দেখে ব্যবস্থাপকদের কাছে বুকিং অনুরোধ পাঠান।</value></data>
+  <data name="View my requests" xml:space="preserve"><value>আমার অনুরোধ দেখুন</value></data>
+  <data name="A clear badge helps your listing stand out to potential housemates." xml:space="preserve"><value>স্পষ্ট ব্যাজটি সম্ভাব্য সহবাসীদের কাছে বিজ্ঞাপনটি আলাদা করে তুলে ধরবে।</value></data>
+  <data name="Couldn&apos;t load listings" xml:space="preserve"><value>বিজ্ঞাপন লোড করা যায়নি</value></data>
+  <data name="Top of Housing Browse" xml:space="preserve"><value>বাসার বিজ্ঞাপনের তালিকার শীর্ষে</value></data>
+  <data name="You haven&apos;t posted any listings yet" xml:space="preserve"><value>আপনি এখনো কোনো বিজ্ঞাপন দেননি</value></data>
+  <data name="Requested " xml:space="preserve"><value>অনুরোধের সময়: </value></data>
+  <data name="You haven&apos;t made any booking requests yet" xml:space="preserve"><value>আপনি এখনো কোনো বুকিং অনুরোধ পাঠাননি</value></data>
+  <data name="Create a listing" xml:space="preserve"><value>বিজ্ঞাপন তৈরি করুন</value></data>
+  <data name="Review &amp;amp; reject" xml:space="preserve"><value>পর্যালোচনা ও প্রত্যাখ্যান</value></data>
+  <data name="This is a practice payment flow; no real money is charged." xml:space="preserve"><value>এটি পরীক্ষামূলক পেমেন্ট; কোনো প্রকৃত অর্থ কাটা হবে না।</value></data>
+  <data name="Accepted by " xml:space="preserve"><value>গ্রহণ করেছেন: </value></data>
+  <data name="Add a few pictures of the room, the flat and the building entrance." xml:space="preserve"><value>ঘর, ফ্ল্যাট ও ভবনের প্রবেশপথের কয়েকটি ছবি যোগ করুন।</value></data>
+  <data name="Listing Pinned Successfully!" xml:space="preserve"><value>বিজ্ঞাপনটি সফলভাবে পিন করা হয়েছে!</value></data>
+  <data name="A seat or a house, " xml:space="preserve"><value>আপনার পরিচিত এলাকার বাসা বা আসন</value></data>
+  <data name="It may have been closed, removed, or the link may be out of date." xml:space="preserve"><value>বিজ্ঞাপনটি বন্ধ বা সরানো হয়েছে, অথবা লিংকটির মেয়াদ শেষ।</value></data>
+  <data name="Submit report" xml:space="preserve"><value>রিপোর্ট পাঠান</value></data>
+  <data name="Your active post appears before standard listings." xml:space="preserve"><value>আপনার সক্রিয় বিজ্ঞাপন সাধারণ বিজ্ঞাপনের আগে দেখানো হবে।</value></data>
+  <data name="Fill in only a minimum, only a maximum, both, or neither." xml:space="preserve"><value>শুধু সর্বনিম্ন, শুধু সর্বোচ্চ, দুটোই অথবা কোনোটিই উল্লেখ করতে পারেন।</value></data>
+  <data name="Pick which house this listing belongs to." xml:space="preserve"><value>এই বিজ্ঞাপনটি কোন বাসার, তা বেছে নিন।</value></data>
+  <data name="Select a house…" xml:space="preserve"><value>একটি বাসা বেছে নিন…</value></data>
+  <data name="Start by creating your first post to share a seat or house on Nestify." xml:space="preserve"><value>Nestify-তে আসন বা বাসার তথ্য জানাতে প্রথম বিজ্ঞাপনটি তৈরি করুন।</value></data>
+  <data name="When someone requests to book your listing, their request will appear here." xml:space="preserve"><value>কেউ আপনার বিজ্ঞাপনে বুকিং অনুরোধ পাঠালে তা এখানে দেখা যাবে।</value></data>
+  <data name="My bookings — Nestify" xml:space="preserve"><value>আমার বুকিং — Nestify</value></data>
+  <data name="Reject booking request" xml:space="preserve"><value>বুকিং অনুরোধ প্রত্যাখ্যান</value></data>
+  <data name="Hide requests" xml:space="preserve"><value>অনুরোধ লুকান</value></data>
+  <data name="Manage requests for " xml:space="preserve"><value>এর অনুরোধ পরিচালনা করুন: </value></data>
+  <data name="bKash Account Number" xml:space="preserve"><value>বিকাশ অ্যাকাউন্ট নম্বর</value></data>
+  <data name="Nothing matches those filters" xml:space="preserve"><value>এই ছাঁকনিতে কোনো বিজ্ঞাপন মেলেনি</value></data>
+  <data name="Reopen" xml:space="preserve"><value>আবার চালু করুন</value></data>
+  <data name="No active listing fits this combination yet. Try a different area or widen the rent range." xml:space="preserve"><value>এই সমন্বয়ে এখনো কোনো সক্রিয় বিজ্ঞাপন নেই। অন্য এলাকা বেছে নিন বা ভাড়ার সীমা বাড়ান।</value></data>
+  <data name="View all (@postDto.BookingRequestCount)" xml:space="preserve"><value>সব দেখুন (@postDto.BookingRequestCount)</value></data>
+  <data name="A short, respectful note gives the applicant useful closure. This message is optional." xml:space="preserve"><value>সংক্ষিপ্ত ও সম্মানজনক বার্তা আবেদনকারীকে সিদ্ধান্তটি বুঝতে সাহায্য করবে। বার্তাটি ঐচ্ছিক।</value></data>
+  <data name="Accepted by" xml:space="preserve"><value>গ্রহণ করেছেন</value></data>
+  <data name="The listing manager will see your request and let you know when they have made a decision." xml:space="preserve"><value>বিজ্ঞাপনের ব্যবস্থাপক আপনার অনুরোধটি দেখে সিদ্ধান্ত জানাবেন।</value></data>
+  <data name="Report" xml:space="preserve"><value>রিপোর্ট করুন</value></data>
+  <data name="Extend pin" xml:space="preserve"><value>পিনের মেয়াদ বাড়ান</value></data>
+  <data name="Expires after" xml:space="preserve"><value>মেয়াদ শেষ হবে</value></data>
+  <data name="priority spotlight" xml:space="preserve"><value>অগ্রাধিকার প্রদর্শন</value></data>
+  <data name="Message (optional)" xml:space="preserve"><value>বার্তা (ঐচ্ছিক)</value></data>
+  <data name="Browse listings" xml:space="preserve"><value>বিজ্ঞাপন দেখুন</value></data>
+  <data name="Secure Demo" xml:space="preserve"><value>নিরাপদ ডেমো</value></data>
+  <data name="seats available" xml:space="preserve"><value>টি আসন খালি</value></data>
+  <data name="Sending..." xml:space="preserve"><value>পাঠানো হচ্ছে…</value></data>
+  <data name="Pinned" xml:space="preserve"><value>পিন করা</value></data>
+  <data name="Booking withdrawn." xml:space="preserve"><value>বুকিং অনুরোধ প্রত্যাহার করা হয়েছে।</value></data>
+  <data name="This releases the seat for another applicant. A short, respectful note gives the applicant useful closure." xml:space="preserve"><value>এতে আসনটি অন্য আবেদনকারীর জন্য খালি হবে। সংক্ষিপ্ত ও সম্মানজনক বার্তা আবেদনকারীকে সিদ্ধান্তটি বুঝতে সাহায্য করবে।</value></data>
+  <data name="Changes saved" xml:space="preserve"><value>পরিবর্তন সংরক্ষিত</value></data>
+  <data name="You can’t edit listing" xml:space="preserve"><value>আপনি এই বিজ্ঞাপন সম্পাদনা করতে পারবেন না</value></data>
+  <data name="Cancel reservation" xml:space="preserve"><value>বুকিং বাতিল করুন</value></data>
+  <data name="Choose a package to get started" xml:space="preserve"><value>শুরু করতে একটি প্যাকেজ বেছে নিন</value></data>
+  <data name="Add any detail (optional)" xml:space="preserve"><value>প্রাসঙ্গিক তথ্য যোগ করুন (ঐচ্ছিক)</value></data>
+  <data name="Reason" xml:space="preserve"><value>কারণ</value></data>
+  <data name="Pin listing" xml:space="preserve"><value>বিজ্ঞাপন পিন করুন</value></data>
+  <data name="Manage requests for" xml:space="preserve"><value>অনুরোধ পরিচালনা করুন</value></data>
+  <data name="View all" xml:space="preserve"><value>সব দেখুন</value></data>
+  <data name="Available to publish" xml:space="preserve"><value>প্রকাশের জন্য উপলভ্য</value></data>
+  <data name="Thank you for your interest, but..." xml:space="preserve"><value>আগ্রহ দেখানোর জন্য ধন্যবাদ, তবে…</value></data>
+  <data name="Contact details are shared only after the manager accepts your request." xml:space="preserve"><value>ব্যবস্থাপক আপনার অনুরোধ গ্রহণ করলেই শুধু যোগাযোগের তথ্য দেখানো হবে।</value></data>
+  <data name="Posted" xml:space="preserve"><value>প্রকাশিত</value></data>
+  <data name="Duration:" xml:space="preserve"><value>মেয়াদ:</value></data>
+  <data name="Housing unavailable" xml:space="preserve"><value>বাসার বিজ্ঞাপন পাওয়া যাচ্ছে না</value></data>
+  <data name="Next expiry" xml:space="preserve"><value>পরবর্তী মেয়াদ শেষ</value></data>
+  <data name="Couldn&apos;t load this listing. Please try again." xml:space="preserve"><value>বিজ্ঞাপনটি লোড করা যায়নি। আবার চেষ্টা করুন।</value></data>
+  <data name="Your listing is live." xml:space="preserve"><value>আপনার বিজ্ঞাপন প্রকাশিত হয়েছে।</value></data>
+  <data name="Tell the manager about yourself..." xml:space="preserve"><value>ব্যবস্থাপককে নিজের সম্পর্কে জানান…</value></data>
+  <data name="Currently active until" xml:space="preserve"><value>এ পর্যন্ত সক্রিয়</value></data>
+  <data name="Your Housing listing now appears ahead of standard listings in browse results." xml:space="preserve"><value>আপনার বাসার বিজ্ঞাপন এখন তালিকায় সাধারণ বিজ্ঞাপনের আগে দেখানো হবে।</value></data>
+  <data name="seat available" xml:space="preserve"><value>টি আসন খালি</value></data>
+  <data name="characters" xml:space="preserve"><value>অক্ষর</value></data>
+  <data name="Post published" xml:space="preserve"><value>বিজ্ঞাপন প্রকাশিত</value></data>
+  <data name="Enter a valid Bangladeshi bKash phone number, like 01712345678." xml:space="preserve"><value>সঠিক বাংলাদেশি বিকাশ নম্বর লিখুন, যেমন 01712345678।</value></data>
+  <data name="Your listing has been updated." xml:space="preserve"><value>আপনার বিজ্ঞাপন হালনাগাদ হয়েছে।</value></data>
+  <data name="Enter your 4 or 5 digit bKash PIN." xml:space="preserve"><value>৪ বা ৫ সংখ্যার বিকাশ পিন লিখুন।</value></data>
+  <data name="Pinned until {0}" xml:space="preserve"><value>{0} পর্যন্ত পিন করা</value></data>
+  <data name="View photo {0}" xml:space="preserve"><value>{0} নম্বর ছবি দেখুন</value></data>
+  <data name="House photo {0}" xml:space="preserve"><value>বাসার {0} নম্বর ছবি</value></data>
+  <data name="Request sent" xml:space="preserve"><value>অনুরোধ পাঠানো হয়েছে</value></data>
+  <data name="Listing closed" xml:space="preserve"><value>বিজ্ঞাপন বন্ধ</value></data>
+  <data name="Your listing" xml:space="preserve"><value>আপনার বিজ্ঞাপন</value></data>
+  <data name="Already in a home" xml:space="preserve"><value>ইতিমধ্যে একটি বাসায় যুক্ত</value></data>
+  <data name="No seats available" xml:space="preserve"><value>কোনো আসন খালি নেই</value></data>
+  <data name="Book this listing" xml:space="preserve"><value>এই বিজ্ঞাপনে বুক করুন</value></data>
+  <data name="This is one of your listings." xml:space="preserve"><value>এটি আপনারই একটি বিজ্ঞাপন।</value></data>
+  <data name="You already live in a home, so you can't book a seat here." xml:space="preserve"><value>আপনি ইতিমধ্যে একটি বাসায় থাকেন, তাই এখানে আসন বুক করতে পারবেন না।</value></data>
+  <data name="All available seats have been taken." xml:space="preserve"><value>সব আসন বুক হয়ে গেছে।</value></data>
+  <data name="This listing is closed to new requests." xml:space="preserve"><value>এই বিজ্ঞাপনে নতুন অনুরোধ নেওয়া হচ্ছে না।</value></data>
+  <data name="This home is full right now." xml:space="preserve"><value>এই বাসায় এখন কোনো আসন খালি নেই।</value></data>
+  <data name="Track your booking requests and manage your connections with listing managers." xml:space="preserve"><value>আপনার বুকিং অনুরোধের অবস্থা দেখুন এবং বাসার ব্যবস্থাপকদের সঙ্গে যোগাযোগ বজায় রাখুন।</value></data>
+  <data name="Joined {0}" xml:space="preserve"><value>{0}-এর বাসায় যুক্ত হয়েছেন</value></data>
+  <data name="Accepted by {0}" xml:space="preserve"><value>{0} আপনার অনুরোধ গ্রহণ করেছেন</value></data>
+  <data name="Reach out to sort out moving in - they can give you the join code or add you by email." xml:space="preserve"><value>বাসায় ওঠার বিষয়ে কথা বলতে যোগাযোগ করুন—তিনি যোগদানের কোড দিতে পারেন অথবা ইমেইলের মাধ্যমে যুক্ত করতে পারেন।</value></data>
+  <data name="The manager did not leave a note with this decision." xml:space="preserve"><value>ব্যবস্থাপক সিদ্ধান্তের সঙ্গে কোনো বার্তা দেননি।</value></data>
+  <data name="{0} Days Boost" xml:space="preserve"><value>{0} দিনের প্রচার</value></data>
+  <data name="{0} shared post tokens" xml:space="preserve"><value>যৌথ বিজ্ঞাপনের টোকেন: {0}</value></data>
+  <data name="{0} shared posts" xml:space="preserve"><value>যৌথ বিজ্ঞাপন: {0}টি</value></data>
+  <data name="bKash number (e.g. 01712345678)" xml:space="preserve"><value>বিকাশ নম্বর (যেমন 01712345678)</value></data>
+  <data name="buy housing tokens" xml:space="preserve"><value>বাসার বিজ্ঞাপনের টোকেন কিনুন</value></data>
+  <data name="Confirm ৳{0} bKash Pay" xml:space="preserve"><value>৳{0} বিকাশ পেমেন্ট নিশ্চিত করুন</value></data>
+  <data name="Each new housing listing uses one token. Everyone in your house shares the same balance. Buying another package extends the expiry of active tokens." xml:space="preserve"><value>প্রতিটি নতুন বাসার বিজ্ঞাপনে একটি টোকেন লাগে। বাসার সবাই একই টোকেন ব্যালেন্স ব্যবহার করেন। নতুন প্যাকেজ কিনলে সক্রিয় টোকেনের মেয়াদ বাড়ে।</value></data>
+  <data name="expires {0}" xml:space="preserve"><value>মেয়াদ শেষ হবে {0}-এ</value></data>
+  <data name="Expires after {0} days" xml:space="preserve"><value>{0} দিন পর মেয়াদ শেষ</value></data>
+  <data name="Extend an active pin by another {0} days." xml:space="preserve"><value>সক্রিয় পিনের মেয়াদ আরও {0} দিন বাড়ান।</value></data>
+  <data name="Extend Pinned Listing" xml:space="preserve"><value>পিন করা বিজ্ঞাপনের মেয়াদ বাড়ান</value></data>
+  <data name="Manage the seats and houses you've posted on Nestify. Review booking requests and keep your listings up to date." xml:space="preserve"><value>Nestify-তে দেওয়া আসন ও বাসার বিজ্ঞাপন পরিচালনা করুন। বুকিং অনুরোধ পর্যালোচনা করুন এবং তথ্য হালনাগাদ রাখুন।</value></data>
+  <data name="Pay ৳{0} and add {1} shared tokens" xml:space="preserve"><value>৳{0} পরিশোধ করে {1}টি যৌথ টোকেন যোগ করুন</value></data>
+  <data name="Pin Housing Listing to Top" xml:space="preserve"><value>বাসার বিজ্ঞাপন তালিকার শীর্ষে পিন করুন</value></data>
+  <data name="Pinned till" xml:space="preserve"><value>পিন থাকবে</value></data>
+  <data name="posts" xml:space="preserve"><value>টি বিজ্ঞাপন</value></data>
+  <data name="total requests" xml:space="preserve"><value>মোট অনুরোধ</value></data>
+  <data name="You don't manage a house yet" xml:space="preserve"><value>আপনি এখনো কোনো বাসার ব্যবস্থাপক নন</value></data>
+  <data name="You need to be a Manager or CoManager of a house before you can post a listing." xml:space="preserve"><value>বিজ্ঞাপন দিতে হলে আপনাকে কোনো বাসার Manager বা Co-manager হতে হবে।</value></data>
+  <data name="Age {0}–{1}" xml:space="preserve"><value>বয়স {0}–{1}</value></data>
+  <data name="Age {0}+" xml:space="preserve"><value>বয়স {0}+ </value></data>
+  <data name="Age up to {0}" xml:space="preserve"><value>বয়স সর্বোচ্চ {0}</value></data>
+  <data name="Fake listing" xml:space="preserve"><value>ভুয়া বিজ্ঞাপন</value></data>
+  <data name="Misleading photos or rent" xml:space="preserve"><value>বিভ্রান্তিকর ছবি বা ভাড়ার তথ্য</value></data>
+  <data name="Duplicate post" xml:space="preserve"><value>একই বিজ্ঞাপন একাধিকবার</value></data>
+  <data name="Abusive or improper content" xml:space="preserve"><value>আপত্তিকর বা অনুপযুক্ত বিষয়বস্তু</value></data>
+  <data name="Scam or advance payment demand" xml:space="preserve"><value>প্রতারণা বা অগ্রিম অর্থের দাবি</value></data>
+  <data name="Wrong rent" xml:space="preserve"><value>ভাড়ার তথ্য ভুল</value></data>
+  <data name="Other" xml:space="preserve"><value>অন্যান্য</value></data>
+  <data name="View photos of {0}" xml:space="preserve"><value>{0}-এর ছবি দেখুন</value></data>
+  <data name="Leave anything below on No requirement to accept any applicant on that trait." xml:space="preserve"><value>কোনো আবেদনকারীর ক্ষেত্রে কোনো শর্ত না রাখতে নিচের ঘরগুলো “কোনো শর্ত নেই” অবস্থায় রাখুন।</value></data>
+  <data name="Give the post a title." xml:space="preserve"><value>বিজ্ঞাপনের শিরোনাম লিখুন।</value></data>
+  <data name="Title should be 4–150 characters." xml:space="preserve"><value>শিরোনাম ৪ থেকে ১৫০ অক্ষরের মধ্যে হতে হবে।</value></data>
+  <data name="Describe the place so seekers know what they're getting." xml:space="preserve"><value>আগ্রহীরা কী পাবেন তা বুঝতে পারে—এমনভাবে জায়গাটির বিবরণ দিন।</value></data>
+  <data name="Description should be at least 20 characters." xml:space="preserve"><value>বিবরণ কমপক্ষে ২০ অক্ষরের হতে হবে।</value></data>
+  <data name="Enter a rent between ৳0 and ৳10,00,000." xml:space="preserve"><value>৳০ থেকে ৳১০,০০,০০০-এর মধ্যে ভাড়া লিখুন।</value></data>
 </root>
