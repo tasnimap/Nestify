@@ -650,7 +650,7 @@
 
                         <div class="field">
                             <label for="payment-member">@L["Who paid"]</label>
-                            @if (_ws!.CanManage)
+                            @if (CanChoosePaymentMember)
                             {
                                 <select id="payment-member" class="field__input" @bind="_paymentModel.UserId">
                                     @foreach (var member in Members)
@@ -969,6 +969,7 @@
     private IEnumerable<SettlementMemberDto> VisibleMembers => Members;
 
     private string CurrentMemberName => Members.FirstOrDefault(m => m.IsMe)?.Name ?? L["Member"].Value;
+    private bool CanChoosePaymentMember => _ws?.CanManage == true;
 
     private bool CanEditColumn(SettlementMemberDto member) =>
         IsOpen && (_ws!.CanManage || member.IsMe);
