@@ -952,6 +952,7 @@
     display: inline-flex;
     align-items: center;
     gap: .35rem;
+    min-width: 5.3rem;
 }
 
 .stl__slot-step {
