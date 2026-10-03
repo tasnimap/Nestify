@@ -109,4 +109,302 @@
   <data name="{0}h ago" xml:space="preserve"><value>{0} ঘণ্টা আগে</value></data>
   <data name="{0}d ago" xml:space="preserve"><value>{0} দিন আগে</value></data>
   <data name="." xml:space="preserve"><value>।</value></data>
+  <data name="{0} days ago" xml:space="preserve"><value>{0} দিন আগে</value></data>
+  <data name="{0} hours · {1} visits" xml:space="preserve"><value>{0} ঘণ্টা · {1}টি কাজ</value></data>
+  <data name="{0} hours per week" xml:space="preserve"><value>সপ্তাহে {0} ঘণ্টা</value></data>
+  <data name="{0} is now a current engagement." xml:space="preserve"><value>{0} এখন আপনার চলমান কাজের তালিকায় যুক্ত হয়েছেন।</value></data>
+  <data name="{0} is now a current engagement. {1} hours a week were added to your schedule." xml:space="preserve"><value>{0} এখন আপনার চলমান কাজের তালিকায় যুক্ত হয়েছেন। আপনার সময়সূচিতে সপ্তাহে {1} ঘণ্টা যোগ হয়েছে।</value></data>
+  <data name="{0} months ago" xml:space="preserve"><value>{0} মাস আগে</value></data>
+  <data name="{0} of {1} visits" xml:space="preserve"><value>{1}টির মধ্যে {0}টি কাজ</value></data>
+  <data name="{0} open hours a week published." xml:space="preserve"><value>সপ্তাহে {0} ঘণ্টার খোলা সময় প্রকাশ করা হয়েছে।</value></data>
+  <data name="{0} out of 5 stars" xml:space="preserve"><value>৫টির মধ্যে {0}টি তারকা</value></data>
+  <data name="{0} out of 5 stars, {1} reviews" xml:space="preserve"><value>৫টির মধ্যে {0}টি তারকা, {1}টি রিভিউ</value></data>
+  <data name="{0} per month" xml:space="preserve"><value>মাসে {0}</value></data>
+  <data name="{0} reviews" xml:space="preserve"><value>{0}টি রিভিউ</value></data>
+  <data name="{0} reviews · {1} average rating" xml:space="preserve"><value>{0}টি রিভিউ · গড় রেটিং {1}</value></data>
+  <data name="{0} saved." xml:space="preserve"><value>{0} সংরক্ষণ করা হয়েছে।</value></data>
+  <data name="{0} stars" xml:space="preserve"><value>{0}টি তারকা</value></data>
+  <data name="{0} visits" xml:space="preserve"><value>{0}টি কাজ</value></data>
+  <data name="{0} visits booked" xml:space="preserve"><value>{0}টি কাজ নির্ধারিত</value></data>
+  <data name="{0} weeks ago" xml:space="preserve"><value>{0} সপ্তাহ আগে</value></data>
+  <data name="{0} will be told you are not available." xml:space="preserve"><value>{0}-কে জানানো হবে যে আপনি এখন সময় দিতে পারবেন না।</value></data>
+  <data name="{0} will see your note." xml:space="preserve"><value>{0} আপনার বার্তাটি দেখতে পাবেন।</value></data>
+  <data name="{0} years" xml:space="preserve"><value>{0} বছর</value></data>
+  <data name="{0}–{1} of {2}" xml:space="preserve"><value>{2}-এর মধ্যে {0}–{1}</value></data>
+  <data name="৳{0} paid from {1}" xml:space="preserve"><value>{1} নম্বর থেকে ৳{0} পরিশোধ হয়েছে</value></data>
+  <data name="3 stars and below" xml:space="preserve"><value>৩ তারকা বা তার কম</value></data>
+  <data name="4 or 5 digits" xml:space="preserve"><value>৪ বা ৫টি সংখ্যা</value></data>
+  <data name="A thoughtful, concise reply helps new clients see that you listen." xml:space="preserve"><value>সংক্ষিপ্ত ও আন্তরিক উত্তর নতুন ক্লায়েন্টদের বুঝতে সাহায্য করে যে আপনি তাঁদের কথা গুরুত্ব দেন।</value></data>
+  <data name="Accept" xml:space="preserve"><value>গ্রহণ করুন</value></data>
+  <data name="Accept a request and it will appear here." xml:space="preserve"><value>কোনো অনুরোধ গ্রহণ করলে সেটি এখানে দেখা যাবে।</value></data>
+  <data name="Accept request" xml:space="preserve"><value>অনুরোধ গ্রহণ করুন</value></data>
+  <data name="Accepted" xml:space="preserve"><value>গৃহীত</value></data>
+  <data name="Accepting bookings" xml:space="preserve"><value>কাজের অনুরোধ গ্রহণ করছেন</value></data>
+  <data name="Active" xml:space="preserve"><value>চলমান</value></data>
+  <data name="Active jobs" xml:space="preserve"><value>চলমান কাজ</value></data>
+  <data name="Add a headline so clients know what you do best." xml:space="preserve"><value>আপনার দক্ষতা জানাতে একটি সংক্ষিপ্ত পরিচিতি লিখুন।</value></data>
+  <data name="Add both photos to continue." xml:space="preserve"><value>এগিয়ে যেতে দুটি ছবিই যোগ করুন।</value></data>
+  <data name="Add your services, monthly rate and area to your profile. Then you can accept bookings and apply for verification." xml:space="preserve"><value>প্রোফাইলে আপনার সেবা, মাসিক পারিশ্রমিক ও এলাকা যোগ করুন। এরপর কাজের অনুরোধ গ্রহণ এবং যাচাইয়ের আবেদন করতে পারবেন।</value></data>
+  <data name="Address" xml:space="preserve"><value>ঠিকানা</value></data>
+  <data name="Afternoons" xml:space="preserve"><value>দুপুর</value></data>
+  <data name="All ({0})" xml:space="preserve"><value>সব ({0})</value></data>
+  <data name="All reviews" xml:space="preserve"><value>সব রিভিউ</value></data>
+  <data name="Already booked by another home" xml:space="preserve"><value>অন্য একটি বাসার জন্য আগে থেকেই নির্ধারিত</value></data>
+  <data name="Amount" xml:space="preserve"><value>পরিমাণ</value></data>
+  <data name="An admin checked your photo and NID. Clients can see the verified badge on your profile." xml:space="preserve"><value>অ্যাডমিন আপনার ছবি ও জাতীয় পরিচয়পত্র যাচাই করেছেন। ক্লায়েন্টরা আপনার প্রোফাইলে যাচাইকৃত ব্যাজ দেখতে পাবেন।</value></data>
+  <data name="Apply for verification" xml:space="preserve"><value>যাচাইয়ের আবেদন করুন</value></data>
+  <data name="Area" xml:space="preserve"><value>এলাকা</value></data>
+  <data name="Availability not loaded" xml:space="preserve"><value>কাজের সময় লোড হয়নি</value></data>
+  <data name="Available for new bookings" xml:space="preserve"><value>নতুন কাজের অনুরোধের জন্য উপলভ্য</value></data>
+  <data name="bKash PIN" xml:space="preserve"><value>বিকাশ পিন</value></data>
+  <data name="Booked" xml:space="preserve"><value>নির্ধারিত</value></data>
+  <data name="Booked hours" xml:space="preserve"><value>নির্ধারিত ঘণ্টা</value></data>
+  <data name="Booked hours are locked by the home that booked them. The same pattern repeats every week." xml:space="preserve"><value>যে বাসা সময় বুক করেছে, সেই ঘণ্টাগুলো আর পরিবর্তন করা যাবে না। এই সময়সূচি প্রতি সপ্তাহে পুনরাবৃত্ত হবে।</value></data>
+  <data name="Change my hours" xml:space="preserve"><value>আমার কাজের সময় বদলান</value></data>
+  <data name="Change password" xml:space="preserve"><value>পাসওয়ার্ড পরিবর্তন</value></data>
+  <data name="Choose a clear photo of your face" xml:space="preserve"><value>আপনার মুখের একটি পরিষ্কার ছবি বেছে নিন</value></data>
+  <data name="Choose a clear photo of your NID" xml:space="preserve"><value>জাতীয় পরিচয়পত্রের একটি পরিষ্কার ছবি বেছে নিন</value></data>
+  <data name="Choose at least one service." xml:space="preserve"><value>অন্তত একটি সেবা বেছে নিন।</value></data>
+  <data name="Choose the area where you live." xml:space="preserve"><value>আপনার বসবাসের এলাকা বেছে নিন।</value></data>
+  <data name="Choose the hours you can work each week, from Saturday to Friday. Clients see this schedule when they request you, so keep it accurate and up to date." xml:space="preserve"><value>প্রতি সপ্তাহে শনিবার থেকে শুক্রবার যে সময়গুলোতে কাজ করতে পারবেন, তা বেছে নিন। কাজের অনুরোধের সময় ক্লায়েন্টরা এই সময়সূচি দেখবেন—তাই তথ্য হালনাগাদ রাখুন।</value></data>
+  <data name="Clear week" xml:space="preserve"><value>সপ্তাহের সময় মুছুন</value></data>
+  <data name="Click the map or drag the pin to your home." xml:space="preserve"><value>মানচিত্রে ক্লিক করুন অথবা পিন টেনে আপনার বাসার অবস্থান দেখান।</value></data>
+  <data name="Clients can now find and request you." xml:space="preserve"><value>এখন ক্লায়েন্টরা আপনাকে খুঁজে কাজের অনুরোধ পাঠাতে পারবেন।</value></data>
+  <data name="Complete" xml:space="preserve"><value>সম্পন্ন</value></data>
+  <data name="Complete your profile first: add your services, rate and address before applying." xml:space="preserve"><value>আবেদনের আগে প্রোফাইলে সেবা, পারিশ্রমিক ও ঠিকানা যোগ করে সম্পূর্ণ করুন।</value></data>
+  <data name="Completed" xml:space="preserve"><value>সম্পন্ন</value></data>
+  <data name="Confirm new password" xml:space="preserve"><value>নতুন পাসওয়ার্ড নিশ্চিত করুন</value></data>
+  <data name="Continue to payment" xml:space="preserve"><value>পেমেন্টে এগিয়ে যান</value></data>
+  <data name="Could not accept this request. Please try again." xml:space="preserve"><value>অনুরোধটি গ্রহণ করা যায়নি। আবার চেষ্টা করুন।</value></data>
+  <data name="Could not decline this request. Please try again." xml:space="preserve"><value>অনুরোধটি প্রত্যাখ্যান করা যায়নি। আবার চেষ্টা করুন।</value></data>
+  <data name="Could not enable bookings. Please try again." xml:space="preserve"><value>কাজের অনুরোধ চালু করা যায়নি। আবার চেষ্টা করুন।</value></data>
+  <data name="Could not load your saved hours. Check your connection and try again." xml:space="preserve"><value>সংরক্ষিত কাজের সময় লোড করা যায়নি। সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।</value></data>
+  <data name="Could not mark this engagement complete. Please try again." xml:space="preserve"><value>কাজটি সম্পন্ন হিসেবে চিহ্নিত করা যায়নি। আবার চেষ্টা করুন।</value></data>
+  <data name="Could not post your reply. Please try again." xml:space="preserve"><value>আপনার উত্তর পোস্ট করা যায়নি। আবার চেষ্টা করুন।</value></data>
+  <data name="Could not prepare your documents. Please select both photos again." xml:space="preserve"><value>নথি প্রস্তুত করা যায়নি। দুটি ছবিই আবার বেছে নিন।</value></data>
+  <data name="Could not save your hours: {0}" xml:space="preserve"><value>কাজের সময় সংরক্ষণ করা যায়নি: {0}</value></data>
+  <data name="Could not save your profile changes. Please try again." xml:space="preserve"><value>প্রোফাইলের পরিবর্তন সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।</value></data>
+  <data name="Could not submit your verification request. Please try again." xml:space="preserve"><value>যাচাইয়ের আবেদন পাঠানো যায়নি। আবার চেষ্টা করুন।</value></data>
+  <data name="Could not update your password. Please try again." xml:space="preserve"><value>পাসওয়ার্ড হালনাগাদ করা যায়নি। আবার চেষ্টা করুন।</value></data>
+  <data name="Could not update your photo. Please try again." xml:space="preserve"><value>ছবি হালনাগাদ করা যায়নি। আবার চেষ্টা করুন।</value></data>
+  <data name="Could not withdraw your application. Please try again." xml:space="preserve"><value>আপনার আবেদন প্রত্যাহার করা যায়নি। আবার চেষ্টা করুন।</value></data>
+  <data name="Current" xml:space="preserve"><value>বর্তমান</value></data>
+  <data name="Current password" xml:space="preserve"><value>বর্তমান পাসওয়ার্ড</value></data>
+  <data name="Days" xml:space="preserve"><value>দিন</value></data>
+  <data name="Decline" xml:space="preserve"><value>প্রত্যাখ্যান করুন</value></data>
+  <data name="Declined" xml:space="preserve"><value>প্রত্যাখ্যাত</value></data>
+  <data name="Describe your strongest skills in one line." xml:space="preserve"><value>আপনার প্রধান দক্ষতাগুলো এক লাইনে লিখুন।</value></data>
+  <data name="Discard" xml:space="preserve"><value>বাতিল করুন</value></data>
+  <data name="District" xml:space="preserve"><value>জেলা</value></data>
+  <data name="Division" xml:space="preserve"><value>বিভাগ</value></data>
+  <data name="Domestic Helper" xml:space="preserve"><value>গৃহসহায়তাকর্মী</value></data>
+  <data name="Done" xml:space="preserve"><value>সম্পন্ন</value></data>
+  <data name="Edit about me" xml:space="preserve"><value>আমার পরিচিতি সম্পাদনা</value></data>
+  <data name="Edit account" xml:space="preserve"><value>অ্যাকাউন্ট সম্পাদনা</value></data>
+  <data name="Edit profile" xml:space="preserve"><value>প্রোফাইল সম্পাদনা</value></data>
+  <data name="Edit services and rate" xml:space="preserve"><value>সেবা ও পারিশ্রমিক সম্পাদনা</value></data>
+  <data name="Edit where you live" xml:space="preserve"><value>ঠিকানা সম্পাদনা</value></data>
+  <data name="Email can&apos;t be changed here." xml:space="preserve"><value>এখান থেকে ইমেইল পরিবর্তন করা যাবে না।</value></data>
+  <data name="Enter a clear address that someone can follow." xml:space="preserve"><value>সহজে খুঁজে পাওয়া যায় এমন স্পষ্ট ঠিকানা লিখুন।</value></data>
+  <data name="Enter a monthly rate." xml:space="preserve"><value>মাসিক পারিশ্রমিক লিখুন।</value></data>
+  <data name="Enter a valid Bangladeshi mobile number, such as 01712345678." xml:space="preserve"><value>সঠিক বাংলাদেশি মোবাইল নম্বর লিখুন, যেমন 01712345678।</value></data>
+  <data name="Enter your address." xml:space="preserve"><value>আপনার ঠিকানা লিখুন।</value></data>
+  <data name="Enter your current password." xml:space="preserve"><value>আপনার বর্তমান পাসওয়ার্ড লিখুন।</value></data>
+  <data name="Evenings" xml:space="preserve"><value>সন্ধ্যা</value></data>
+  <data name="Experience" xml:space="preserve"><value>অভিজ্ঞতা</value></data>
+  <data name="Fill in {0}" xml:space="preserve"><value>{0} পূরণ করুন</value></data>
+  <data name="Filter reviews" xml:space="preserve"><value>রিভিউ বাছাই</value></data>
+  <data name="Finish your profile so clients can find you" xml:space="preserve"><value>ক্লায়েন্টদের কাছে দৃশ্যমান হতে প্রোফাইল সম্পূর্ণ করুন</value></data>
+  <data name="For example, Bangla and basic English" xml:space="preserve"><value>যেমন: বাংলা ও প্রাথমিক ইংরেজি</value></data>
+  <data name="For example, those hours are already taken or the area is too far." xml:space="preserve"><value>যেমন: ওই সময়ে অন্য কাজ আছে, অথবা এলাকাটি অনেক দূরে।</value></data>
+  <data name="Free day" xml:space="preserve"><value>কাজ নেই</value></data>
+  <data name="Full days" xml:space="preserve"><value>সারাদিন</value></data>
+  <data name="Full schedule" xml:space="preserve"><value>সম্পূর্ণ সময়সূচি</value></data>
+  <data name="Go to my profile" xml:space="preserve"><value>আমার প্রোফাইলে যান</value></data>
+  <data name="Headline" xml:space="preserve"><value>সংক্ষিপ্ত পরিচিতি</value></data>
+  <data name="Helper dashboard" xml:space="preserve"><value>সহায়তাকর্মীর ড্যাশবোর্ড</value></data>
+  <data name="Helper verification fee" xml:space="preserve"><value>সহায়তাকর্মীর যাচাই ফি</value></data>
+  <data name="HELPER WORKSPACE" xml:space="preserve"><value>সহায়তাকর্মীর কর্মক্ষেত্র</value></data>
+  <data name="Highest rated" xml:space="preserve"><value>সর্বোচ্চ রেটিং</value></data>
+  <data name="Homes" xml:space="preserve"><value>বাসা</value></data>
+  <data name="hours changed" xml:space="preserve"><value>ঘণ্টার পরিবর্তন হয়েছে</value></data>
+  <data name="Hours not saved" xml:space="preserve"><value>কাজের সময় সংরক্ষণ হয়নি</value></data>
+  <data name="Hours saved" xml:space="preserve"><value>কাজের সময় সংরক্ষিত হয়েছে</value></data>
+  <data name="hours short" xml:space="preserve"><value>ঘ</value></data>
+  <data name="Hours this week" xml:space="preserve"><value>এই সপ্তাহের ঘণ্টা</value></data>
+  <data name="Inbox is clear" xml:space="preserve"><value>নতুন কোনো অনুরোধ নেই</value></data>
+  <data name="Joined" xml:space="preserve"><value>যোগ দিয়েছেন</value></data>
+  <data name="Keep hours open on your availability board so clients can book this day." xml:space="preserve"><value>ক্লায়েন্টদের অনুরোধের সুযোগ দিতে এই দিনে কাজের সময় খোলা রাখুন।</value></data>
+  <data name="Keep request" xml:space="preserve"><value>অনুরোধটি রাখুন</value></data>
+  <data name="Languages" xml:space="preserve"><value>ভাষা</value></data>
+  <data name="Last week" xml:space="preserve"><value>গত সপ্তাহ</value></data>
+  <data name="Lowest rated" xml:space="preserve"><value>সর্বনিম্ন রেটিং</value></data>
+  <data name="Mark complete" xml:space="preserve"><value>সম্পন্ন হিসেবে চিহ্নিত করুন</value></data>
+  <data name="Marked complete" xml:space="preserve"><value>সম্পন্ন হিসেবে চিহ্নিত</value></data>
+  <data name="Member since {0}" xml:space="preserve"><value>{0} থেকে সদস্য</value></data>
+  <data name="Merchant" xml:space="preserve"><value>গ্রাহক</value></data>
+  <data name="month" xml:space="preserve"><value>মাস</value></data>
+  <data name="Monthly rate (৳)" xml:space="preserve"><value>মাসিক পারিশ্রমিক (৳)</value></data>
+  <data name="Mornings" xml:space="preserve"><value>সকাল</value></data>
+  <data name="My reviews" xml:space="preserve"><value>আমার রিভিউ</value></data>
+  <data name="My schedule" xml:space="preserve"><value>আমার সময়সূচি</value></data>
+  <data name="National ID (NID)" xml:space="preserve"><value>জাতীয় পরিচয়পত্র (এনআইডি)</value></data>
+  <data name="Needs reply" xml:space="preserve"><value>উত্তর প্রয়োজন</value></data>
+  <data name="New password" xml:space="preserve"><value>নতুন পাসওয়ার্ড</value></data>
+  <data name="New requests" xml:space="preserve"><value>নতুন অনুরোধ</value></data>
+  <data name="New requests from clients will appear here. Keep your hours open to receive more requests." xml:space="preserve"><value>ক্লায়েন্টদের নতুন অনুরোধ এখানে দেখা যাবে। আরও অনুরোধ পেতে কাজের সময় খোলা রাখুন।</value></data>
+  <data name="Newest first" xml:space="preserve"><value>নতুনগুলো আগে</value></data>
+  <data name="Next page" xml:space="preserve"><value>পরের পৃষ্ঠা</value></data>
+  <data name="Next up" xml:space="preserve"><value>পরবর্তী কাজ</value></data>
+  <data name="Next week" xml:space="preserve"><value>পরের সপ্তাহ</value></data>
+  <data name="NID preview" xml:space="preserve"><value>এনআইডির পূর্বরূপ</value></data>
+  <data name="No active engagements" xml:space="preserve"><value>বর্তমানে কোনো কাজ নেই</value></data>
+  <data name="No home on file" xml:space="preserve"><value>কোনো বাসার তথ্য নেই</value></data>
+  <data name="No pending requests right now." xml:space="preserve"><value>এই মুহূর্তে কোনো অপেক্ষমাণ অনুরোধ নেই।</value></data>
+  <data name="No services picked yet." xml:space="preserve"><value>এখনও কোনো সেবা বেছে নেওয়া হয়নি।</value></data>
+  <data name="No visits or new requests today." xml:space="preserve"><value>আজ কোনো কাজ বা নতুন অনুরোধ নেই।</value></data>
+  <data name="Not applied yet" xml:space="preserve"><value>এখনও আবেদন করা হয়নি</value></data>
+  <data name="Not approved" xml:space="preserve"><value>অনুমোদিত হয়নি</value></data>
+  <data name="Not set" xml:space="preserve"><value>নির্ধারণ করা হয়নি</value></data>
+  <data name="Nothing booked" xml:space="preserve"><value>কোনো কাজ নির্ধারিত নেই</value></data>
+  <data name="Nothing booked today. Enjoy the day off." xml:space="preserve"><value>আজ কোনো কাজ নেই। বিশ্রামের দিনটি উপভোগ করুন।</value></data>
+  <data name="Nothing completed yet" xml:space="preserve"><value>এখনও কোনো কাজ সম্পন্ন হয়নি</value></data>
+  <data name="Nothing written yet. A few lines about your work help clients choose you." xml:space="preserve"><value>এখনও কিছু লেখা হয়নি। আপনার কাজ সম্পর্কে কয়েকটি লাইন ক্লায়েন্টদের সিদ্ধান্ত নিতে সাহায্য করবে।</value></data>
+  <data name="Off" xml:space="preserve"><value>কাজের বাইরে</value></data>
+  <data name="Office hours" xml:space="preserve"><value>অফিসের সময়</value></data>
+  <data name="Only clients who shared a home with you during an engagement can leave a review. Every review is from someone you worked with." xml:space="preserve"><value>আপনার সঙ্গে একই বাসায় কাজের সম্পর্কে যুক্ত ছিলেন—শুধু এমন ক্লায়েন্টই রিভিউ দিতে পারেন। প্রতিটি রিভিউ আপনার কাজের অভিজ্ঞতাসম্পন্ন কারও কাছ থেকে এসেছে।</value></data>
+  <data name="Only your area is shown to clients. Your address and map pin remain private." xml:space="preserve"><value>ক্লায়েন্টরা শুধু আপনার এলাকা দেখবেন। আপনার ঠিকানা ও মানচিত্রের অবস্থান ব্যক্তিগত থাকবে।</value></data>
+  <data name="Open" xml:space="preserve"><value>খোলা</value></data>
+  <data name="Open availability" xml:space="preserve"><value>কাজের সময় দেখুন</value></data>
+  <data name="Open hours" xml:space="preserve"><value>খোলা সময়</value></data>
+  <data name="Open hours per week" xml:space="preserve"><value>সপ্তাহে খোলা সময়</value></data>
+  <data name="Open on map" xml:space="preserve"><value>মানচিত্রে দেখুন</value></data>
+  <data name="Pages" xml:space="preserve"><value>পৃষ্ঠা</value></data>
+  <data name="Password updated." xml:space="preserve"><value>পাসওয়ার্ড হালনাগাদ হয়েছে।</value></data>
+  <data name="Past" xml:space="preserve"><value>অতীত</value></data>
+  <data name="Pay ৳{0}" xml:space="preserve"><value>৳{0} পরিশোধ করুন</value></data>
+  <data name="Payment" xml:space="preserve"><value>পেমেন্ট</value></data>
+  <data name="Payment could not be completed. Please check your details and try again." xml:space="preserve"><value>পেমেন্ট সম্পন্ন হয়নি। তথ্য যাচাই করে আবার চেষ্টা করুন।</value></data>
+  <data name="Payment successful" xml:space="preserve"><value>পেমেন্ট সফল হয়েছে</value></data>
+  <data name="Per month" xml:space="preserve"><value>মাসিক</value></data>
+  <data name="Photo" xml:space="preserve"><value>ছবি</value></data>
+  <data name="Pin" xml:space="preserve"><value>অবস্থান পিন</value></data>
+  <data name="Previous page" xml:space="preserve"><value>আগের পৃষ্ঠা</value></data>
+  <data name="Previous week" xml:space="preserve"><value>আগের সপ্তাহ</value></data>
+  <data name="Processing…" xml:space="preserve"><value>প্রক্রিয়াধীন…</value></data>
+  <data name="Profile photo updated." xml:space="preserve"><value>প্রোফাইলের ছবি হালনাগাদ হয়েছে।</value></data>
+  <data name="Purpose" xml:space="preserve"><value>উদ্দেশ্য</value></data>
+  <data name="Quick fill" xml:space="preserve"><value>দ্রুত সময় নির্বাচন</value></data>
+  <data name="Rate" xml:space="preserve"><value>পারিশ্রমিক</value></data>
+  <data name="Rate not set" xml:space="preserve"><value>পারিশ্রমিক নির্ধারণ করা হয়নি</value></data>
+  <data name="Rating" xml:space="preserve"><value>রেটিং</value></data>
+  <data name="Rating breakdown" xml:space="preserve"><value>রেটিংয়ের বিবরণ</value></data>
+  <data name="Replace photo" xml:space="preserve"><value>ছবি বদলান</value></data>
+  <data name="Reply" xml:space="preserve"><value>উত্তর দিন</value></data>
+  <data name="Reply posted" xml:space="preserve"><value>উত্তর পোস্ট হয়েছে</value></data>
+  <data name="Reply to {0}" xml:space="preserve"><value>{0}-কে উত্তর দিন</value></data>
+  <data name="Requests" xml:space="preserve"><value>অনুরোধ</value></data>
+  <data name="Review all requests" xml:space="preserve"><value>সব অনুরোধ দেখুন</value></data>
+  <data name="Review new requests here. Accepting a request books its hours and adds the visits to your schedule." xml:space="preserve"><value>নতুন অনুরোধ এখানে দেখুন। অনুরোধ গ্রহণ করলে নির্ধারিত ঘণ্টাগুলো বুক হবে এবং কাজগুলো সময়সূচিতে যোগ হবে।</value></data>
+  <data name="Review your agreed visits by day. Booked hours are locked on your availability board." xml:space="preserve"><value>সম্মত হওয়া কাজগুলো দিন অনুযায়ী দেখুন। নির্ধারিত ঘণ্টা কাজের সময়সূচিতে লক থাকবে।</value></data>
+  <data name="Saturday to Friday, repeats every week" xml:space="preserve"><value>শনিবার থেকে শুক্রবার—প্রতি সপ্তাহে একই সময়সূচি</value></data>
+  <data name="Security" xml:space="preserve"><value>নিরাপত্তা</value></data>
+  <data name="See visits" xml:space="preserve"><value>কাজগুলো দেখুন</value></data>
+  <data name="Send decline" xml:space="preserve"><value>প্রত্যাখ্যান পাঠান</value></data>
+  <data name="Sending your application…" xml:space="preserve"><value>আবেদন পাঠানো হচ্ছে…</value></data>
+  <data name="Services and rate" xml:space="preserve"><value>সেবা ও পারিশ্রমিক</value></data>
+  <data name="Services you offer" xml:space="preserve"><value>আপনার দেওয়া সেবাসমূহ</value></data>
+  <data name="Set the monthly amount you charge for the agreed hours." xml:space="preserve"><value>সম্মত কাজের সময়ের জন্য আপনার মাসিক পারিশ্রমিক লিখুন।</value></data>
+  <data name="Set your hours" xml:space="preserve"><value>কাজের সময় নির্ধারণ করুন</value></data>
+  <data name="Share your experience and how you prefer to work." xml:space="preserve"><value>আপনার অভিজ্ঞতা ও কাজের পছন্দ সম্পর্কে লিখুন।</value></data>
+  <data name="Sign-up only asked for your name, phone and email. Still missing: {0}. Use the Edit links on each card." xml:space="preserve"><value>নিবন্ধনে শুধু নাম, ফোন ও ইমেইল নেওয়া হয়েছে। এখনও বাকি: {0}। প্রতিটি অংশের সম্পাদনা লিংক ব্যবহার করুন।</value></data>
+  <data name="Since" xml:space="preserve"><value>শুরু</value></data>
+  <data name="Some of these hours are already booked. Accepting will double book you." xml:space="preserve"><value>এই সময়গুলোর কিছু আগে থেকেই বুক করা। গ্রহণ করলে একই সময়ে একাধিক কাজ পড়বে।</value></data>
+  <data name="Sort reviews" xml:space="preserve"><value>রিভিউ সাজান</value></data>
+  <data name="Tell {0} why (optional)" xml:space="preserve"><value>{0}-কে কারণ জানান (ঐচ্ছিক)</value></data>
+  <data name="Thank them, or explain what you changed." xml:space="preserve"><value>ধন্যবাদ জানান, অথবা কী পরিবর্তন করেছেন তা ব্যাখ্যা করুন।</value></data>
+  <data name="The admin could not approve your documents." xml:space="preserve"><value>অ্যাডমিন আপনার নথি অনুমোদন করতে পারেননি।</value></data>
+  <data name="The availability service did not return a schedule." xml:space="preserve"><value>কাজের সময়সূচি পাওয়া যায়নি।</value></data>
+  <data name="The availability service returned an incomplete weekly board." xml:space="preserve"><value>সাপ্তাহিক সময়সূচির তথ্য অসম্পূর্ণ।</value></data>
+  <data name="The bKash PIN must contain 4 or 5 digits." xml:space="preserve"><value>বিকাশ পিনে ৪ বা ৫টি সংখ্যা থাকতে হবে।</value></data>
+  <data name="The new password must differ from your current password." xml:space="preserve"><value>নতুন পাসওয়ার্ডটি বর্তমান পাসওয়ার্ড থেকে আলাদা হতে হবে।</value></data>
+  <data name="The new password needs at least 8 characters." xml:space="preserve"><value>নতুন পাসওয়ার্ডে অন্তত ৮টি অক্ষর থাকতে হবে।</value></data>
+  <data name="The photo must be 5 MB or smaller." xml:space="preserve"><value>ছবির আকার ৫ এমবির বেশি হতে পারবে না।</value></data>
+  <data name="The two new passwords do not match." xml:space="preserve"><value>নতুন পাসওয়ার্ড দুটি মেলেনি।</value></data>
+  <data name="This is a practice payment page. Any Bangladeshi mobile number and a 4- or 5-digit PIN will be accepted." xml:space="preserve"><value>এটি অনুশীলনের পেমেন্ট পৃষ্ঠা। যেকোনো বাংলাদেশি মোবাইল নম্বর এবং ৪ বা ৫ সংখ্যার পিন গ্রহণ করা হবে।</value></data>
+  <data name="This week" xml:space="preserve"><value>এই সপ্তাহ</value></data>
+  <data name="Tip" xml:space="preserve"><value>পরামর্শ</value></data>
+  <data name="Toggle the whole day" xml:space="preserve"><value>পুরো দিনের সময় বদলান</value></data>
+  <data name="Transaction ID" xml:space="preserve"><value>লেনদেন নম্বর</value></data>
+  <data name="Try again in a moment." xml:space="preserve"><value>কিছুক্ষণ পর আবার চেষ্টা করুন।</value></data>
+  <data name="Under review" xml:space="preserve"><value>পর্যালোচনাধীন</value></data>
+  <data name="Unsaved changes" xml:space="preserve"><value>অসংরক্ষিত পরিবর্তন</value></data>
+  <data name="Upazila / thana" xml:space="preserve"><value>উপজেলা / থানা</value></data>
+  <data name="Update availability" xml:space="preserve"><value>কাজের সময় হালনাগাদ করুন</value></data>
+  <data name="Upload a clear photo of yourself and your NID. An admin will compare them with your profile before adding the verified badge." xml:space="preserve"><value>আপনার একটি পরিষ্কার ছবি ও জাতীয় পরিচয়পত্রের ছবি দিন। যাচাইকৃত ব্যাজ দেওয়ার আগে অ্যাডমিন সেগুলো আপনার প্রোফাইলের সঙ্গে মিলিয়ে দেখবেন।</value></data>
+  <data name="Verification" xml:space="preserve"><value>যাচাই</value></data>
+  <data name="Verification pending" xml:space="preserve"><value>যাচাই অপেক্ষমাণ</value></data>
+  <data name="Verified" xml:space="preserve"><value>যাচাইকৃত</value></data>
+  <data name="Verified by Nestify" xml:space="preserve"><value>Nestify দ্বারা যাচাইকৃত</value></data>
+  <data name="Verified client" xml:space="preserve"><value>যাচাইকৃত ক্লায়েন্ট</value></data>
+  <data name="Verified helpers appear first and may receive more requests. Pay the fee through bKash, then submit a photo of yourself and your NID." xml:space="preserve"><value>যাচাইকৃত সহায়তাকর্মীরা আগে দেখানো হন এবং বেশি অনুরোধ পেতে পারেন। বিকাশে ফি দিয়ে নিজের ও জাতীয় পরিচয়পত্রের ছবি জমা দিন।</value></data>
+  <data name="Verify your profile" xml:space="preserve"><value>আপনার প্রোফাইল যাচাই করুন</value></data>
+  <data name="View" xml:space="preserve"><value>দেখুন</value></data>
+  <data name="View photo" xml:space="preserve"><value>ছবি দেখুন</value></data>
+  <data name="View profile photo" xml:space="preserve"><value>প্রোফাইলের ছবি দেখুন</value></data>
+  <data name="Visits this week" xml:space="preserve"><value>এই সপ্তাহের কাজ</value></data>
+  <data name="Waiting" xml:space="preserve"><value>অপেক্ষমাণ</value></data>
+  <data name="Waiting for the client to confirm" xml:space="preserve"><value>ক্লায়েন্টের নিশ্চিতকরণের অপেক্ষায়</value></data>
+  <data name="Waiting for your answer" xml:space="preserve"><value>আপনার উত্তরের অপেক্ষায়</value></data>
+  <data name="We asked {0} to confirm. You can be reviewed once they do." xml:space="preserve"><value>{0}-কে নিশ্চিত করতে বলা হয়েছে। তিনি নিশ্চিত করলে আপনি রিভিউ পেতে পারবেন।</value></data>
+  <data name="We could not load your profile. Please try again." xml:space="preserve"><value>আপনার প্রোফাইল লোড করা যায়নি। আবার চেষ্টা করুন।</value></data>
+  <data name="week" xml:space="preserve"><value>সপ্তাহ</value></data>
+  <data name="Week at a glance" xml:space="preserve"><value>সপ্তাহের সংক্ষিপ্ত চিত্র</value></data>
+  <data name="Weekly availability" xml:space="preserve"><value>সাপ্তাহিক কাজের সময়</value></data>
+  <data name="Weekly hours · {0}" xml:space="preserve"><value>সাপ্তাহিক ঘণ্টা · {0}</value></data>
+  <data name="Weekly pattern" xml:space="preserve"><value>সাপ্তাহিক সময়সূচি</value></data>
+  <data name="What your clients say" xml:space="preserve"><value>আপনার ক্লায়েন্টদের মতামত</value></data>
+  <data name="Where I live" xml:space="preserve"><value>আমার ঠিকানা</value></data>
+  <data name="Working days" xml:space="preserve"><value>কাজের দিন</value></data>
+  <data name="Years of experience" xml:space="preserve"><value>কাজের অভিজ্ঞতা (বছর)</value></data>
+  <data name="years short" xml:space="preserve"><value>বছর</value></data>
+  <data name="You can apply again with clearer photos." xml:space="preserve"><value>আরও পরিষ্কার ছবি দিয়ে আবার আবেদন করতে পারেন।</value></data>
+  <data name="You have {0} requests waiting." xml:space="preserve"><value>আপনার জন্য {0}টি অনুরোধ অপেক্ষা করছে।</value></data>
+  <data name="You have {0} visits today and {1} requests waiting." xml:space="preserve"><value>আজ আপনার {0}টি কাজ আছে এবং {1}টি অনুরোধ অপেক্ষা করছে।</value></data>
+  <data name="You have {0} visits today." xml:space="preserve"><value>আজ আপনার {0}টি কাজ আছে।</value></data>
+  <data name="Your bKash account number" xml:space="preserve"><value>আপনার বিকাশ অ্যাকাউন্ট নম্বর</value></data>
+  <data name="Your home on the map" xml:space="preserve"><value>মানচিত্রে আপনার বাসা</value></data>
+  <data name="Your photo" xml:space="preserve"><value>আপনার ছবি</value></data>
+  <data name="Your photo and NID have been sent. An admin will review them soon." xml:space="preserve"><value>আপনার ছবি ও জাতীয় পরিচয়পত্র পাঠানো হয়েছে। অ্যাডমিন শিগগিরই পর্যালোচনা করবেন।</value></data>
+  <data name="Your photo and NID were submitted on {0}. An admin will review them soon." xml:space="preserve"><value>{0} তারিখে আপনার ছবি ও জাতীয় পরিচয়পত্র জমা হয়েছে। অ্যাডমিন শিগগিরই পর্যালোচনা করবেন।</value></data>
+  <data name="Your photo preview" xml:space="preserve"><value>আপনার ছবির পূর্বরূপ</value></data>
+  <data name="Your profile could not be loaded" xml:space="preserve"><value>আপনার প্রোফাইল লোড করা যায়নি</value></data>
+  <data name="Your profile is complete" xml:space="preserve"><value>আপনার প্রোফাইল সম্পূর্ণ</value></data>
+  <data name="Your profile is hidden from clients. Turn on bookings when you are ready to receive requests." xml:space="preserve"><value>ক্লায়েন্টদের কাছে আপনার প্রোফাইল গোপন আছে। অনুরোধ নিতে প্রস্তুত হলে কাজ গ্রহণ চালু করুন।</value></data>
+  <data name="Your reply" xml:space="preserve"><value>আপনার উত্তর</value></data>
+  <data name="Your reply to {0} has been posted." xml:space="preserve"><value>{0}-এর জন্য আপনার উত্তর পোস্ট হয়েছে।</value></data>
+  <data name="Your verification application was withdrawn." xml:space="preserve"><value>আপনার যাচাইয়ের আবেদন প্রত্যাহার করা হয়েছে।</value></data>
+  <data name="About me" xml:space="preserve"><value>আমার সম্পর্কে</value></data>
+  <data name="Could not save your hours. Please try again." xml:space="preserve"><value>আপনার কাজের সময় সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।</value></data>
+  <data name="Could not update your availability. Please try again." xml:space="preserve"><value>আপনার কাজের প্রাপ্যতা হালনাগাদ করা যায়নি। আবার চেষ্টা করুন।</value></data>
+  <data name="there" xml:space="preserve"><value>আপনি</value></data>
+  <data name="Enter your full name." xml:space="preserve"><value>আপনার পূর্ণ নাম লিখুন।</value></data>
+  <data name="Name must be 2 to 120 characters." xml:space="preserve"><value>নাম ২ থেকে ১২০ অক্ষরের মধ্যে হতে হবে।</value></data>
+  <data name="Enter your email address." xml:space="preserve"><value>আপনার ইমেইল ঠিকানা লিখুন।</value></data>
+  <data name="Enter a valid email address, e.g. name@example.com." xml:space="preserve"><value>সঠিক ইমেইল ঠিকানা লিখুন, যেমন name@example.com।</value></data>
+  <data name="Enter your phone number." xml:space="preserve"><value>আপনার ফোন নম্বর লিখুন।</value></data>
+  <data name="Enter an 11-digit number starting with 01." xml:space="preserve"><value>০১ দিয়ে শুরু হওয়া ১১ সংখ্যার নম্বর লিখুন।</value></data>
+  <data name="Choose a password." xml:space="preserve"><value>একটি পাসওয়ার্ড নির্বাচন করুন।</value></data>
+  <data name="Password must be at least 8 characters." xml:space="preserve"><value>পাসওয়ার্ড অন্তত ৮ অক্ষরের হতে হবে।</value></data>
+  <data name="Re-enter your password." xml:space="preserve"><value>পাসওয়ার্ডটি আবার লিখুন।</value></data>
+  <data name="The two passwords do not match." xml:space="preserve"><value>দুটি পাসওয়ার্ড মিলছে না।</value></data>
+  <data name="You need to accept the terms to continue." xml:space="preserve"><value>এগিয়ে যেতে শর্তাবলিতে সম্মতি দিন।</value></data>
+  <data name="{0} hours changed" xml:space="preserve"><value>{0} ঘণ্টার পরিবর্তন</value></data>
+  <data name="{0} hours short" xml:space="preserve"><value>{0} ঘণ্টা</value></data>
+  <data name="6 AM" xml:space="preserve"><value>সকাল ৬টা</value></data>
+  <data name="12 PM" xml:space="preserve"><value>দুপুর ১২টা</value></data>
+  <data name="6 PM" xml:space="preserve"><value>সন্ধ্যা ৬টা</value></data>
+  <data name="12 AM" xml:space="preserve"><value>রাত ১২টা</value></data>
+  <data name="{0}, {1} — {2}" xml:space="preserve"><value>{0}, {1} — {2}</value></data>
+  <data name="them" xml:space="preserve"><value>তাকে</value></data>
 </root>
