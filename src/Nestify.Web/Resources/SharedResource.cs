@@ -25,6 +25,7 @@ public sealed class SharedResource
     public static string SettlementAmountNonNegative => Get("Amount cannot be negative.");
     public static string SettlementPayerRequired => Get("Pick who paid.");
     public static string SettlementPaymentAmountRequired => Get("Amount must be greater than ৳0.00.");
+    public static string SettlementAmountNonZero => Get("Amount cannot be ৳0.00.");
     public static string SettlementPaymentNoteRequired => Get("Add a short note so the house knows what this was.");
 
     public static string HousingPostTitleRequired => Get("Give the post a title.");

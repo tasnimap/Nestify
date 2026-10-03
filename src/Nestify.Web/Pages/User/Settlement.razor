@@ -708,6 +708,7 @@
                         </div>
 
                         <MoneyInput @bind-Value="_paymentModel.Amount"
+                                    AllowNegative="true"
                                     Label='@L["Amount"]'
                                     For="@(() => _paymentModel.Amount)" />
 
@@ -1207,10 +1208,10 @@
     private void ResetForms()
     {
         _billModel.Name = string.Empty;
-        _billModel.Amount = 0m;
+        _billModel.Amount = null;
 
         _paymentModel.UserId = Members.FirstOrDefault(m => m.IsMe)?.UserId ?? Members.FirstOrDefault()?.UserId ?? 0;
-        _paymentModel.Amount = 0m;
+        _paymentModel.Amount = null;
         _paymentModel.Note = string.Empty;
         _paymentModel.PaidOn = DefaultFormDate();
     }
@@ -1267,7 +1268,7 @@
             var (data, error) = await SettlementApi.AddBillAsync(_year, _month, new CreateSettlementBillRequest
             {
                 Description = _billModel.Name,
-                Amount = _billModel.Amount,
+                Amount = _billModel.Amount ?? 0m,
                 SpentOn = DefaultFormDate()
             });
 
@@ -1302,7 +1303,7 @@
             var (data, error) = await SettlementApi.AddPaymentAsync(_year, _month, new CreateSettlementPaymentRequest
             {
                 UserId = _paymentModel.UserId,
-                Amount = _paymentModel.Amount,
+                Amount = _paymentModel.Amount ?? 0m,
                 FundType = _paymentModel.FundType,
                 Note = _paymentModel.Note,
                 PaidOn = _paymentModel.PaidOn
@@ -1372,8 +1373,9 @@
         [Required(ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = nameof(SharedResource.SettlementBillNameRequired))]
         public string Name { get; set; } = string.Empty;
 
-        [Range(0, 1000000, ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = nameof(SharedResource.SettlementAmountNonNegative))]
-        public decimal Amount { get; set; }
+        [Required(ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = nameof(SharedResource.SettlementPaymentAmountRequired))]
+        [Range(0.01, 1000000, ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = nameof(SharedResource.SettlementPaymentAmountRequired))]
+        public decimal? Amount { get; set; }
     }
 
     private sealed class PaymentFormModel
@@ -1381,8 +1383,10 @@
         [Range(1, long.MaxValue, ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = nameof(SharedResource.SettlementPayerRequired))]
         public long UserId { get; set; }
 
-        [Range(0.01, 1000000, ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = nameof(SharedResource.SettlementPaymentAmountRequired))]
-        public decimal Amount { get; set; }
+        [Required(ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = nameof(SharedResource.SettlementAmountNonZero))]
+        [Range(-1000000, 1000000, ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = nameof(SharedResource.SettlementAmountNonZero))]
+        [NotZero(ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = nameof(SharedResource.SettlementAmountNonZero))]
+        public decimal? Amount { get; set; }
 
         [Required]
         public DateTime PaidOn { get; set; }
@@ -1446,4 +1450,17 @@
         "garbage" => """<svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6v14a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>""",
         _ => """<svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>"""
     };
+
+    private sealed class NotZeroAttribute : ValidationAttribute
+    {
+        protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
+        {
+            if (value is decimal d && d == 0m)
+            {
+                var errorMessage = FormatErrorMessage(validationContext.DisplayName);
+                return new ValidationResult(errorMessage);
+            }
+            return ValidationResult.Success;
+        }
+    }
 }
