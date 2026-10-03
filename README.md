@@ -1,4 +1,3 @@
-For an existing Neon database, apply the numbered files in `src/Nestify.Database/migrations/` in order (`001` through `009`). Migration `004` makes the optional smoking and drinking profile fields nullable; migration `008` adds home-level shared housing posting credits; migration `009` adds paid Housing post pinning. Do not rerun `nestify.sql` against a live database because it drops and recreates the application tables.
 # Nestify — Bachelor Life, Unified
 
 Nestify is a web platform for Bangladeshi university students and bachelors who live away from home in shared flats and messes. It brings the four scattered, word-of-mouth parts of bachelor life under one verified account:
