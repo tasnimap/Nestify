@@ -5,7 +5,7 @@ Nestify is a web platform for Bangladeshi university students and bachelors who 
 
 - **Housing** — find a seat in a shared home, or post the free seats in yours.
 - **Home & Settlement** — run the home you live in: members, roles, meals, expenses and the monthly settlement book.
-- **Domestic Help** — find a verified khala / bua near you and book her weekly hours for your home.
+- **Domestic Help** — find a verified helper near you and book their weekly hours for your home.
 - **Marketplace** — buy and sell second-hand things to other bachelors nearby.
 
 An admin console handles verification of users and helpers, moderation of posts, fees and an audit log. A Gemini-powered assistant answers questions about the platform to signed-in users.

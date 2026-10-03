@@ -87,7 +87,7 @@
   <data name="Creating account..." xml:space="preserve"><value>Creating account...</value></data>
   <data name="Already have an account?" xml:space="preserve"><value>Already have an account?</value></data>
   <data name="Sign in" xml:space="preserve"><value>Sign in</value></data>
-  <data name="Log in and pick up where you left off — your seat, your khala, your settlements." xml:space="preserve"><value>Log in and pick up where you left off — your seat, your khala, your settlements.</value></data>
+  <data name="Log in and pick up where you left off — your seat, your helper, your settlements." xml:space="preserve"><value>Log in and pick up where you left off — your seat, your helper, your settlements.</value></data>
   <data name="New here?" xml:space="preserve"><value>New here?</value></data>
   <data name="One verified account for housing, domestic help, shared expenses, and the marketplace." xml:space="preserve"><value>One verified account for housing, domestic help, shared expenses, and the marketplace.</value></data>
   <data name="Save" xml:space="preserve"><value>Save</value></data>
@@ -545,7 +545,7 @@
   <data name="{0} hours a week across {1} day(s)" xml:space="preserve"><value>{0} hours a week across {1} day(s)</value></data>
   <data name="Rate: Low to High" xml:space="preserve"><value>Rate: Low to High</value></data>
   <data name="Terminate / release helper" xml:space="preserve"><value>Terminate / release helper</value></data>
-  <data name="Trusted khala &amp; bua, near where you already live." xml:space="preserve"><value>Trusted khala &amp; bua, near where you already live.</value></data>
+  <data name="Trusted helpers, near where you already live." xml:space="preserve"><value>Trusted helpers, near where you already live.</value></data>
   <data name="Day" xml:space="preserve"><value>Day</value></data>
   <data name="Back to Domestic Help" xml:space="preserve"><value>Back to Domestic Help</value></data>
   <data name="Review posted on her profile." xml:space="preserve"><value>Review posted on her profile.</value></data>

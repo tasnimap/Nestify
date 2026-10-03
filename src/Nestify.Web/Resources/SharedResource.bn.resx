@@ -87,7 +87,7 @@
   <data name="Creating account..." xml:space="preserve"><value>অ্যাকাউন্ট তৈরি হচ্ছে...</value></data>
   <data name="Already have an account?" xml:space="preserve"><value>আগে থেকেই অ্যাকাউন্ট আছে?</value></data>
   <data name="Sign in" xml:space="preserve"><value>সাইন ইন</value></data>
-  <data name="Log in and pick up where you left off — your seat, your khala, your settlements." xml:space="preserve"><value>লগ ইন করে আপনার আগের কাজ চালিয়ে যান—বাসার আসন, সহায়তাকর্মী ও মাসিক হিসাব সবই আপনার জন্য অপেক্ষা করছে।</value></data>
+  <data name="Log in and pick up where you left off — your seat, your helper, your settlements." xml:space="preserve"><value>লগ ইন করে আগের কাজ চালিয়ে যান—বাসার আসন, সহায়ক এবং মাসিক হিসাব সবই আপনার জন্য অপেক্ষা করছে।</value></data>
   <data name="New here?" xml:space="preserve"><value>এখানে নতুন?</value></data>
   <data name="One verified account for housing, domestic help, shared expenses, and the marketplace." xml:space="preserve"><value>বাসা, গৃহসহায়তা, যৌথ খরচ ও কেনাবেচার জন্য একটি যাচাইকৃত অ্যাকাউন্ট।</value></data>
   <data name="Save" xml:space="preserve"><value>সংরক্ষণ</value></data>
@@ -545,7 +545,7 @@
   <data name="{0} hours a week across {1} day(s)" xml:space="preserve"><value>{0} ঘণ্টা সপ্তাহে, {1} দিনে</value></data>
   <data name="Rate: Low to High" xml:space="preserve"><value>পারিশ্রমিক: কম থেকে বেশি</value></data>
   <data name="Terminate / release helper" xml:space="preserve"><value>সহায়িকার কাজ শেষ করুন / অব্যাহতি দিন</value></data>
-  <data name="Trusted khala &amp; bua, near where you already live." xml:space="preserve"><value>আপনার কাছাকাছি বিশ্বস্ত গৃহসহায়িকা</value></data>
+  <data name="Trusted helpers, near where you already live." xml:space="preserve"><value>আপনার আশেপাশেই বিশ্বস্ত সহায়ক।</value></data>
   <data name="Day" xml:space="preserve"><value>দিন</value></data>
   <data name="Back to Domestic Help" xml:space="preserve"><value>গৃহসহায়িকা তালিকায় ফিরুন</value></data>
   <data name="Review posted on her profile." xml:space="preserve"><value>পর্যালোচনাটি তাঁর প্রোফাইলে প্রকাশিত হয়েছে।</value></data>
