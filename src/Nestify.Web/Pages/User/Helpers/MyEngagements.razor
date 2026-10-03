@@ -4,17 +4,18 @@
 @using Nestify.Web.Components
 @using Nestify.Web.Components.Helper
 @inject IHelperService Helpers
+@inject IStringLocalizer<SharedResource> L
 @inject Nestify.Web.Services.ToastService Toast
 @inject Nestify.Web.Services.MoneyFormatterService Money
 
-<PageTitle>My Engagements — Nestify</PageTitle>
+<PageTitle>@L["My engagements"] — Nestify</PageTitle>
 
 <div class="dh">
     <div class="dh__inner dh__inner--narrow">
         <header class="dh-head dh-rise">
-            <p class="dh-kicker">Domestic Help</p>
-            <h1>My engagements</h1>
-            <p>Helpers your home has asked for, and every helper who worked at a home while you lived there. Anyone who took her service can review her.</p>
+            <p class="dh-kicker">@L["Domestic Help"]</p>
+            <h1>@L["My engagements"]</h1>
+            <p>@L["Helpers your home has asked for, and every helper who worked at a home while you lived there. Anyone who took her service can review her."]</p>
         </header>
 
         @if (_loading)
@@ -31,9 +32,9 @@
                     <span class="dh-empty__art" aria-hidden="true">
                         <svg class="nx-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
                     </span>
-                    <h3>No engagements yet</h3>
-                    <p>Find a helper near you and pick the hours you need.</p>
-                    <a class="nx-btn nx-btn--accent" href="helpers">Browse helpers</a>
+                    <h3>@L["No engagements yet"]</h3>
+                    <p>@L["Find a helper near you and pick the hours you need."]</p>
+                    <a class="nx-btn nx-btn--accent" href="helpers">@L["Browse helpers"]</a>
                 </div>
             </div>
         }
@@ -52,8 +53,8 @@
                             <a href="helpers/@e.HelperId"><img class="dh-engagement__photo" src="@e.HelperPhotoUrl" alt="" /></a>
                             <div class="dh-engagement__who">
                                 <strong><a href="helpers/@e.HelperId">@e.HelperName</a></strong>
-                                <span>@string.Join(", ", e.Services.Select(ServiceTypes.Label)) · @Money.Format(e.MonthlyRate)/mo · @e.Slots.Count h/week</span>
-                                <span>@e.HomeName · asked by @(e.IsRequester ? "you" : e.RequesterName)@StintLine(e)</span>
+                                <span>@L["{0} services · {1} per month · {2} h/week", string.Join(", ", e.Services.Select(ServiceTypes.Label)), Money.Format(e.MonthlyRate), e.Slots.Count]</span>
+                                <span>@L["{0} · asked by {1}{2}", e.HomeName, e.IsRequester ? L["you"].Value : e.RequesterName, StintLine(e)]</span>
                             </div>
                             <span class="dh-status dh-status--@e.Status.ToString().ToLowerInvariant()">@StatusLabel(e)</span>
                         </div>
@@ -65,7 +66,7 @@
                                     var picks = e.Slots.Where(s => s.DayOfWeek == (int)day).OrderBy(s => s.Hour).ToList();
                                     if (picks.Count == 0) continue;
                                     <li>
-                                        <span class="md-slots__day">@day</span>
+                                        <span class="md-slots__day">@DayName(day)</span>
                                         @foreach (var s in picks)
                                         {
                                             <span class="md-slots__chip">@AvailabilityGrid.HourLabel(s.Hour)</span>
@@ -77,54 +78,54 @@
 
                         @if (e.Status == EngagementStatus.Declined && !string.IsNullOrWhiteSpace(e.DeclineReason))
                         {
-                            <p class="dh-note">@e.HelperName said: “@e.DeclineReason”</p>
+                            <p class="dh-note">@L["{0} said:", e.HelperName] “@e.DeclineReason”</p>
                         }
                         @if (e.HelperPhone is not null)
                         {
-                            <p class="dh-note">Phone: <a href="tel:@e.HelperPhone">@e.HelperPhone</a>@(e.StartDate is { } start ? $" · since {start:d MMM yyyy}" : "")</p>
+                            <p class="dh-note">@L["Phone:"] <a href="tel:@e.HelperPhone">@e.HelperPhone</a>@(e.StartDate is { } start ? $" · {L["since {0}", start.ToString("d MMM yyyy")]}" : "")</p>
                         }
 
                         <div class="dh-engagement__actions">
                             @if (e.Status == EngagementStatus.Requested)
                             {
-                                <span class="dh-muted">Sent @e.RequestedAtUtc.ToLocalTime().ToString("d MMM"), waiting for her answer.</span>
+                                <span class="dh-muted">@L["Sent {0}, waiting for her answer.", e.RequestedAtUtc.ToLocalTime().ToString("d MMM")]</span>
                                 @if (e.CanManage && !e.IsRequester)
                                 {
-                                    <button class="nx-btn nx-btn--ghost" style="color:var(--nx-danger);border-color:var(--nx-danger);" disabled="@_busy" @onclick="() => Reject(e)">Reject request</button>
+                                    <button class="nx-btn nx-btn--ghost" style="color:var(--nx-danger);border-color:var(--nx-danger);" disabled="@_busy" @onclick="() => Reject(e)">@L["Reject request"]</button>
                                 }
                                 else if (e.IsRequester)
                                 {
-                                    <button class="nx-btn nx-btn--ghost" disabled="@_busy" @onclick="() => Cancel(e)">Withdraw request</button>
+                                    <button class="nx-btn nx-btn--ghost" disabled="@_busy" @onclick="() => Cancel(e)">@L["Withdraw request"]</button>
                                 }
                             }
 
                             @if (e.IsCurrent && e.CanManage)
                             {
                                 <button class="nx-btn nx-btn--ghost" style="color:var(--nx-danger);border-color:var(--nx-danger);" disabled="@_busy" @onclick="() => PromptRelease(e)">
-                                    Terminate / release helper
+                                    @L["Terminate / release helper"]
                                 </button>
                                 @if (e.ClientMarkedComplete)
                                 {
-                                    <p class="dh-note">You marked this complete — waiting for @e.HelperName to confirm.</p>
+                                    <p class="dh-note">@L["You marked this complete — waiting for {0} to confirm.", e.HelperName]</p>
                                 }
                                 else if (e.HelperMarkedComplete)
                                 {
-                                    <p class="dh-note">@e.HelperName marked this complete. Confirm to close it.</p>
-                                    <button class="nx-btn nx-btn--accent" @onclick="() => MarkComplete(e)">Confirm complete</button>
+                                    <p class="dh-note">@L["{0} marked this complete. Confirm to close it.", e.HelperName]</p>
+                                    <button class="nx-btn nx-btn--accent" @onclick="() => MarkComplete(e)">@L["Confirm complete"]</button>
                                 }
                                 else
                                 {
-                                    <button class="nx-btn nx-btn--ghost" disabled="@_busy" @onclick="() => MarkComplete(e)">Mark complete</button>
+                                    <button class="nx-btn nx-btn--ghost" disabled="@_busy" @onclick="() => MarkComplete(e)">@L["Mark complete"]</button>
                                 }
                             }
 
                             @if (e.CanReview)
                             {
-                                <button class="nx-btn nx-btn--accent" @onclick="() => OpenReview(e)">Write a review</button>
+                                <button class="nx-btn nx-btn--accent" @onclick="() => OpenReview(e)">@L["Write a review"]</button>
                             }
                             else if (e.HasReview)
                             {
-                                <span class="dh-muted">You reviewed this engagement.</span>
+                                <span class="dh-muted">@L["You reviewed this engagement."]</span>
                             }
                         </div>
                             </article>
@@ -138,21 +139,22 @@
         @if (_reviewTarget is not null)
         {
             <section class="dh-panel dh-review-box dh-rise">
-                <div class="dh-panel__head"><h2>Review @_reviewTarget.HelperName</h2></div>
-                <p class="dh-muted">Share your experience with @_reviewTarget.HelperName. Your review will appear on her profile.</p>
+                <div class="dh-panel__head"><h2>@L["Review {0}", _reviewTarget.HelperName]</h2></div>
+                <p class="dh-muted">@L["Share your experience with {0}. Your review will appear on her profile.", _reviewTarget.HelperName]</p>
                 <RatingStars Value="_reviewRating" ReadOnly="false" ShowCount="false" ValueChanged="SetReviewRating" />
                 @if (_ratingError is not null)
                 {
                     <p class="md-msg md-msg--bad" role="alert">@_ratingError</p>
                 }
-                <textarea @bind="_reviewComment" maxlength="500" placeholder="How was your experience?"></textarea>
+                <label class="nx-sr-only" for="engagement-review-comment">@L["Your review"]</label>
+                <textarea id="engagement-review-comment" @bind="_reviewComment" maxlength="500" placeholder='@L["How was your experience?"]'></textarea>
                 @if (_reviewError is not null)
                 {
                     <p class="md-msg md-msg--bad">@_reviewError</p>
                 }
                 <div class="dh-engagement__actions">
-                    <button class="nx-btn nx-btn--accent" disabled="@_busy" @onclick="SubmitReview">Submit review</button>
-                    <button class="nx-btn nx-btn--ghost" @onclick="() => _reviewTarget = null">Cancel</button>
+                    <button class="nx-btn nx-btn--accent" disabled="@_busy" @onclick="SubmitReview">@L["Submit review"]</button>
+                    <button class="nx-btn nx-btn--ghost" @onclick="() => _reviewTarget = null">@L["Cancel"]</button>
                 </div>
             </section>
         }
@@ -162,17 +164,17 @@
             <div class="md-overlay" @onclick="() => _releaseTarget = null">
                 <div class="md-modal md-modal--sm" role="dialog" aria-modal="true" @onclick:stopPropagation="true">
                     <header class="md-modal__head">
-                        <h2>Release @_releaseTarget.HelperName?</h2>
-                        <button type="button" class="md-modal__close" @onclick="() => _releaseTarget = null" aria-label="Close">&times;</button>
+                        <h2>@L["Release {0}?", _releaseTarget.HelperName]</h2>
+                        <button type="button" class="md-modal__close" @onclick="() => _releaseTarget = null" aria-label="@L["Close"]">&times;</button>
                     </header>
                     <div class="md-modal__body">
-                        <p>Are you sure you want to release <strong>@_releaseTarget.HelperName</strong> from <strong>@_releaseTarget.HomeName</strong>?</p>
-                        <p class="dh-muted">This will end her engagement immediately, free up her weekly hours for other homes, and allow home members to leave a review.</p>
+                        <p>@L["Are you sure you want to release {0} from {1}?", _releaseTarget.HelperName, _releaseTarget.HomeName]</p>
+                        <p class="dh-muted">@L["This will end her engagement immediately, free up her weekly hours for other homes, and allow home members to leave a review."]</p>
                     </div>
                     <footer class="md-modal__foot">
-                        <button type="button" class="nx-btn nx-btn--ghost" @onclick="() => _releaseTarget = null" disabled="@_busy">Cancel</button>
+                        <button type="button" class="nx-btn nx-btn--ghost" @onclick="() => _releaseTarget = null" disabled="@_busy">@L["Cancel"]</button>
                         <button type="button" class="nx-btn nx-btn--accent" style="background:#dc2626;border-color:#dc2626;" @onclick="ConfirmRelease" disabled="@_busy">
-                            @(_busy ? "Releasing…" : "Release helper")
+                            @(_busy ? L["Releasing…"] : L["Release helper"])
                         </button>
                     </footer>
                 </div>
@@ -195,11 +197,11 @@
 
     private IEnumerable<(string Title, List<EngagementDto> Engagements)> EngagementSections => new[]
     {
-        ("CURRENT MAID", _engagements.Where(e => e.IsCurrent).ToList()),
-        ("PENDING REQUESTS", _engagements.Where(e => e.Status == EngagementStatus.Requested).ToList()),
-        ("PAST MAIDS", _engagements.Where(e => e.JoinedOn is not null && e.LeftOn is not null).ToList()),
-        ("CLOSED REQUESTS", _engagements.Where(e => e.Status is EngagementStatus.Declined or EngagementStatus.Cancelled).ToList()),
-        ("OTHER ENGAGEMENTS", _engagements.Where(e => !e.IsCurrent
+        (L["CURRENT MAID"].Value, _engagements.Where(e => e.IsCurrent).ToList()),
+        (L["PENDING REQUESTS"].Value, _engagements.Where(e => e.Status == EngagementStatus.Requested).ToList()),
+        (L["PAST MAIDS"].Value, _engagements.Where(e => e.JoinedOn is not null && e.LeftOn is not null).ToList()),
+        (L["CLOSED REQUESTS"].Value, _engagements.Where(e => e.Status is EngagementStatus.Declined or EngagementStatus.Cancelled).ToList()),
+        (L["OTHER ENGAGEMENTS"].Value, _engagements.Where(e => !e.IsCurrent
             && e.Status != EngagementStatus.Requested
             && e.JoinedOn is null
             && e.Status is not (EngagementStatus.Declined or EngagementStatus.Cancelled)).ToList())
@@ -214,34 +216,36 @@
         _loading = false;
     }
 
-    private static string StintLine(EngagementDto e) =>
+    private string StintLine(EngagementDto e) =>
         e.JoinedOn is not { } joined ? string.Empty
-        : e.LeftOn is { } left ? $" · worked there {joined:d MMM yyyy} – {left:d MMM yyyy}"
-        : $" · with the home since {joined:d MMM yyyy}";
+        : e.LeftOn is { } left ? $" · {L["worked there {0} – {1}", joined.ToString("d MMM yyyy"), left.ToString("d MMM yyyy")]}"
+        : $" · {L["with the home since {0}", joined.ToString("d MMM yyyy")]}";
 
-    private static string StatusLabel(EngagementDto e) => e.Status switch
+    private string StatusLabel(EngagementDto e) => e.Status switch
     {
-        EngagementStatus.Requested => "Waiting",
-        EngagementStatus.Active => "Working for you",
-        EngagementStatus.Completed => "Completed",
-        EngagementStatus.Declined => "Declined",
-        EngagementStatus.Cancelled => "Cancelled",
+        EngagementStatus.Requested => L["Waiting"].Value,
+        EngagementStatus.Active => L["Working for you"].Value,
+        EngagementStatus.Completed => L["Completed"].Value,
+        EngagementStatus.Declined => L["Declined"].Value,
+        EngagementStatus.Cancelled => L["Cancelled"].Value,
         _ => e.Status.ToString()
     };
 
+    private static string DayName(DayOfWeek day) => CultureInfo.CurrentCulture.DateTimeFormat.GetDayName(day);
+
     private async Task Cancel(EngagementDto e)
     {
-        await Run(() => Helpers.CancelRequestAsync(e.Id), "Request withdrawn.");
+        await Run(() => Helpers.CancelRequestAsync(e.Id), L["Request withdrawn"].Value);
     }
 
     private async Task Reject(EngagementDto e)
     {
-        await Run(() => Helpers.RejectRequestAsync(e.Id), "Request rejected.");
+        await Run(() => Helpers.RejectRequestAsync(e.Id), L["Request rejected"].Value);
     }
 
     private async Task MarkComplete(EngagementDto e)
     {
-        await Run(() => Helpers.MarkCompleteAsync(e.Id), "Marked complete.");
+        await Run(() => Helpers.MarkCompleteAsync(e.Id), L["Marked complete"].Value);
     }
 
     private void PromptRelease(EngagementDto e) => _releaseTarget = e;
@@ -252,7 +256,7 @@
         var helperName = _releaseTarget.HelperName;
         var id = _releaseTarget.Id;
         _releaseTarget = null;
-        await Run(() => Helpers.ReleaseEngagementAsync(id), $"{helperName} has been released.");
+        await Run(() => Helpers.ReleaseEngagementAsync(id), L["{0} has been released.", helperName]);
     }
 
     private async Task Run(Func<Task> action, string done)
@@ -261,12 +265,12 @@
         try
         {
             await action();
-            Toast.ShowInfo(done, "Engagements");
+            Toast.ShowInfo(done, L["Engagements"]);
             await LoadAsync();
         }
         catch (Exception ex)
         {
-            Toast.ShowWarning(ex.Message, "Engagements");
+            Toast.ShowWarning(L[ex.Message], L["Engagements"]);
         }
         finally
         {
@@ -295,12 +299,12 @@
         if (_reviewTarget is null) return;
         if (_reviewRating == 0)
         {
-            _ratingError = "Select a rating";
+            _ratingError = L["Select a rating"];
             return;
         }
         if (string.IsNullOrWhiteSpace(_reviewComment))
         {
-            _reviewError = "Write a line or two about how it went.";
+            _reviewError = L["Write a line or two about how it went."];
             return;
         }
 
@@ -308,13 +312,13 @@
         try
         {
             await Helpers.SubmitReviewAsync(_reviewTarget.Id, _reviewRating, _reviewComment);
-            Toast.ShowSuccess("Review posted on her profile.", "Thanks!");
+            Toast.ShowSuccess(L["Review posted on her profile."], L["Thanks!"]);
             _reviewTarget = null;
             await LoadAsync();
         }
         catch (Exception ex)
         {
-            _reviewError = ex.Message;
+            _reviewError = L[ex.Message];
         }
         finally
         {

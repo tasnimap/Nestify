@@ -2,30 +2,31 @@
    slots from 6:00 AM to 12:00 AM. Open hours can be picked, up to MaxPerDay
    on any one day; booked and off hours cannot. *@
 @using Nestify.Shared.Dtos.Helpers
+@inject IStringLocalizer<SharedResource> L
 
 <div class="dh-sched">
     <div class="dh-sched__top">
         <div>
-            <p class="dh-sched__range">Every week</p>
+            <p class="dh-sched__range">@L["Every week"]</p>
             <p class="dh-sched__lead">
                 @if (Selectable)
                 {
-                    <span>Tap the hours you need each week — up to @MaxPerDay per day.</span>
+                    <span>@L["Tap the hours you need each week — up to {0} per day.", MaxPerDay]</span>
                 }
                 else
                 {
-                    <span>18 hourly slots a day, 6:00 AM to 12:00 AM.</span>
+                    <span>@L["18 hourly slots a day, 6:00 AM to 12:00 AM."]</span>
                 }
             </p>
         </div>
         <ul class="dh-legend">
             @if (Selectable)
             {
-                <li><span class="dh-key dh-key--picked"></span>Picked (@Selection.Count)</li>
+                <li><span class="dh-key dh-key--picked"></span>@L["Picked ({0})", Selection.Count]</li>
             }
-            <li><span class="dh-key dh-key--free"></span>Available (@_freeCount)</li>
-            <li><span class="dh-key dh-key--booked"></span>Booked (@_bookedCount)</li>
-            <li><span class="dh-key dh-key--off"></span>Not available</li>
+            <li><span class="dh-key dh-key--free"></span>@L["Available ({0})", _freeCount]</li>
+            <li><span class="dh-key dh-key--booked"></span>@L["Booked ({0})", _bookedCount]</li>
+            <li><span class="dh-key dh-key--off"></span>@L["Not available"]</li>
         </ul>
     </div>
 
@@ -33,7 +34,7 @@
         <table class="dh-sched__table">
             <thead>
                 <tr>
-                    <th scope="col" class="dh-sched__corner">Day</th>
+                    <th scope="col" class="dh-sched__corner">@L["Day"]</th>
                     @for (var hour = StartHour; hour < EndHour; hour++)
                     {
                         <th scope="col" class="dh-sched__hour">@HourLabel(hour)</th>
@@ -47,7 +48,7 @@
                     var dayFull = picked >= MaxPerDay;
                     <tr>
                         <th scope="row" class="dh-sched__day">
-                            <span class="dh-sched__dow">@day.ToString()[..3]</span>
+                            <span class="dh-sched__dow">@DayAbbreviation(day)</span>
                             @if (Selectable)
                             {
                                 <span class="dh-sched__tally @(picked > 0 ? "dh-sched__tally--on" : null)">@picked/@MaxPerDay</span>
@@ -59,14 +60,14 @@
                             var state = StateOf(day, h);
                             var isPicked = IsPicked(day, h);
                             var canPick = Selectable && state == "free" && (isPicked || !dayFull);
-                            var label = $"{day} · {RangeLabel(h)} — {(isPicked ? "Picked" : StateLabel(state))}";
+                            var label = $"{DayLabel(day)} · {RangeLabel(h)} — {(isPicked ? L["Picked"].Value : StateLabel(state))}";
 
                             <td class="dh-sched__cell">
                                 @if (Selectable && state == "free")
                                 {
                                     <button type="button"
                                             class="dh-slot dh-slot--free @(isPicked ? "dh-slot--picked" : null) @(!canPick ? "dh-slot--locked" : null)"
-                                            title="@(canPick ? label : $"{day} — {MaxPerDay} hours already picked for this day")"
+                                            title="@(canPick ? label : L["{0} — {1} hours already picked for this day", DayLabel(day), MaxPerDay].Value)"
                                             disabled="@(!canPick)"
                                             aria-pressed="@isPicked.ToString().ToLowerInvariant()"
                                             @onclick="() => Toggle(day, h)">
@@ -91,8 +92,8 @@
     {
         <div class="dh-picks">
             <p class="dh-picks__head">
-                <strong>@Selection.Count</strong> @(Selection.Count == 1 ? "hour" : "hours") a week picked
-                <button type="button" class="dh-picks__clear" @onclick="ClearAll">Clear</button>
+                <strong>@Selection.Count</strong> @L[Selection.Count == 1 ? "{0} hour a week picked" : "{0} hours a week picked", Selection.Count]
+                <button type="button" class="dh-picks__clear" @onclick="ClearAll">@L["Clear"]</button>
             </p>
             <ul class="dh-picks__list">
                 @foreach (var day in Week)
@@ -100,10 +101,10 @@
                     var picks = Selection.Where(s => s.DayOfWeek == (int)day).OrderBy(s => s.Hour).ToList();
                     if (picks.Count == 0) continue;
                     <li>
-                        <span class="dh-picks__day">@day</span>
+                        <span class="dh-picks__day">@DayLabel(day)</span>
                         @foreach (var s in picks)
                         {
-                            <button type="button" class="dh-picks__chip" title="Remove @RangeLabel(s.Hour)" @onclick="() => Toggle(day, s.Hour)">
+                            <button type="button" class="dh-picks__chip" title='@L["Remove {0}", RangeLabel(s.Hour)]' @onclick="() => Toggle(day, s.Hour)">
                                 @RangeLabel(s.Hour)
                                 <span aria-hidden="true">×</span>
                             </button>
@@ -114,7 +115,7 @@
         </div>
     }
 
-    <p class="dh-sched__note">Scroll sideways to see the whole day. The same hours repeat every week for as long as the engagement runs.</p>
+    <p class="dh-sched__note">@L["Scroll sideways to see the whole day. The same hours repeat every week for as long as the engagement runs."]</p>
 </div>
 
 @code {
@@ -182,20 +183,24 @@
         await SelectionChanged.InvokeAsync(Selection);
     }
 
-    public static string HourLabel(int hour) => hour switch
+    public static string HourLabel(int hour)
     {
-        0 or 24 => "12 AM",
-        12 => "12 PM",
-        < 12 => $"{hour} AM",
-        _ => $"{hour - 12} PM"
-    };
+        var normalizedHour = hour == 24 ? 0 : hour;
+        var time = new DateTime(2000, 1, 1).AddHours(normalizedHour);
+        return time.ToString("h tt", CultureInfo.CurrentCulture);
+    }
 
-    public static string RangeLabel(int hour) => $"{HourLabel(hour)} - {HourLabel(hour + 1)}";
+    public static string RangeLabel(int hour) => CultureInfo.CurrentCulture.Name.StartsWith("bn", StringComparison.OrdinalIgnoreCase)
+        ? $"{HourLabel(hour)} – {HourLabel(hour + 1)}"
+        : $"{HourLabel(hour)} - {HourLabel(hour + 1)}";
 
-    private static string StateLabel(string state) => state switch
+    private string DayLabel(DayOfWeek day) => CultureInfo.CurrentCulture.DateTimeFormat.GetDayName(day);
+    private string DayAbbreviation(DayOfWeek day) => CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedDayName(day);
+
+    private string StateLabel(string state) => state switch
     {
-        "free" => "Available",
-        "booked" => "Booked",
-        _ => "Not available"
+        "free" => L["Available"].Value,
+        "booked" => L["Booked"].Value,
+        _ => L["Not available"].Value
     };
 }

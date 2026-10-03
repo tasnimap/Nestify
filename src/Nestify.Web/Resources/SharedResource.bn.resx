@@ -521,4 +521,172 @@
   <data name="Join code" xml:space="preserve"><value>যোগদানের কোড</value></data>
   <data name="Save changes" xml:space="preserve"><value>পরিবর্তন সংরক্ষণ করুন</value></data>
   <data name="Location" xml:space="preserve"><value>অবস্থান</value></data>
+  <data name="hour" xml:space="preserve"><value>ঘণ্টা</value></data>
+  <data name="Cancelled" xml:space="preserve"><value>বাতিল</value></data>
+  <data name="Previous" xml:space="preserve"><value>আগের</value></data>
+  <data name="{0} replied:" xml:space="preserve"><value>{0}-এর উত্তর:</value></data>
+  <data name="Submit review" xml:space="preserve"><value>পর্যালোচনা জমা দিন</value></data>
+  <data name="Photo of {0}" xml:space="preserve"><value>{0}-এর ছবি</value></data>
+  <data name="Request engagement" xml:space="preserve"><value>নিয়োগের অনুরোধ</value></data>
+  <data name="Working for you" xml:space="preserve"><value>আপনার বাসায় কর্মরত</value></data>
+  <data name="{0} services · {1} per month · {2} h/week" xml:space="preserve"><value>{0}টি সেবা · মাসে {1} · সপ্তাহে {2} ঘণ্টা</value></data>
+  <data name="It may have been removed, or the link may be out of date." xml:space="preserve"><value>প্রোফাইলটি সরানো হয়ে থাকতে পারে, অথবা লিংকটি আর কার্যকর নেই।</value></data>
+  <data name="CLOSED REQUESTS" xml:space="preserve"><value>বন্ধ অনুরোধ</value></data>
+  <data name="Not available" xml:space="preserve"><value>খালি নেই</value></data>
+  <data name="{0} free a week" xml:space="preserve"><value>সপ্তাহে {0} ঘণ্টা খালি</value></data>
+  <data name="No reviews yet." xml:space="preserve"><value>এখনো কোনো পর্যালোচনা নেই।</value></data>
+  <data name="M2 · Domestic Help" xml:space="preserve"><value>M2 · সাহায্যকারী</value></data>
+  <data name="Every week" xml:space="preserve"><value>প্রতি সপ্তাহে</value></data>
+  <data name="Release helper" xml:space="preserve"><value>সহায়িকাকে অব্যাহতি দিন</value></data>
+  <data name="{0} year(s)" xml:space="preserve"><value>{0} বছর</value></data>
+  <data name="Review {0}" xml:space="preserve"><value>{0}-এর পর্যালোচনা</value></data>
+  <data name="Pick at least one service." xml:space="preserve"><value>অন্তত একটি সেবা বেছে নিন।</value></data>
+  <data name="Filter helpers" xml:space="preserve"><value>সহায়িকা খুঁজুন</value></data>
+  <data name="{0} hours a week across {1} day(s)" xml:space="preserve"><value>{0} ঘণ্টা সপ্তাহে, {1} দিনে</value></data>
+  <data name="Rate: Low to High" xml:space="preserve"><value>পারিশ্রমিক: কম থেকে বেশি</value></data>
+  <data name="Terminate / release helper" xml:space="preserve"><value>সহায়িকার কাজ শেষ করুন / অব্যাহতি দিন</value></data>
+  <data name="Trusted khala &amp; bua, near where you already live." xml:space="preserve"><value>আপনার কাছাকাছি বিশ্বস্ত গৃহসহায়িকা</value></data>
+  <data name="Day" xml:space="preserve"><value>দিন</value></data>
+  <data name="Back to Domestic Help" xml:space="preserve"><value>গৃহসহায়িকা তালিকায় ফিরুন</value></data>
+  <data name="Review posted on her profile." xml:space="preserve"><value>পর্যালোচনাটি তাঁর প্রোফাইলে প্রকাশিত হয়েছে।</value></data>
+  <data name="OTHER ENGAGEMENTS" xml:space="preserve"><value>অন্যান্য নিয়োগ</value></data>
+  <data name="Rate: High to Low" xml:space="preserve"><value>পারিশ্রমিক: বেশি থেকে কম</value></data>
+  <data name="No engagements yet" xml:space="preserve"><value>এখনো কোনো নিয়োগ নেই</value></data>
+  <data name="with the home since {0}" xml:space="preserve"><value>এই বাসায় কাজ শুরু {0}</value></data>
+  <data name="since {0}" xml:space="preserve"><value>শুরু {0}</value></data>
+  <data name="{0} yrs experience" xml:space="preserve"><value>{0} বছরের অভিজ্ঞতা</value></data>
+  <data name="Are you sure you want to release {0} from your home?" xml:space="preserve"><value>আপনি কি নিশ্চিত যে {0}-কে আপনার বাসার কাজ থেকে অব্যাহতি দিতে চান?</value></data>
+  <data name="Try a different area, service, or widen the rate range." xml:space="preserve"><value>অন্য এলাকা বা সেবা বেছে নিন, অথবা পারিশ্রমিকের সীমা বাড়ান।</value></data>
+  <data name="Browse helpers registered on Nestify, rated only by the bachelors they actually worked for. Pick the weekly hours you need and she answers from her own dashboard." xml:space="preserve"><value>Nestify-তে নিবন্ধিত গৃহসহায়িকাদের দেখুন। যাঁদের সঙ্গে তাঁরা কাজ করেছেন, কেবল তাঁরাই তাঁদের রেটিং দিয়েছেন। আপনার প্রয়োজনীয় সাপ্তাহিক সময় বেছে নিন; তিনি নিজের ড্যাশবোর্ড থেকে উত্তর দেবেন।</value></data>
+  <data name="Phone:" xml:space="preserve"><value>ফোন:</value></data>
+  <data name="Area not set" xml:space="preserve"><value>এলাকা উল্লেখ নেই</value></data>
+  <data name="On Nestify since" xml:space="preserve"><value>Nestify-তে যোগ দিয়েছেন</value></data>
+  <data name="{0} PM" xml:space="preserve"><value>বিকেল {0}টা</value></data>
+  <data name="{0} has been released from your home." xml:space="preserve"><value>{0}-কে আপনার বাসার কাজ থেকে অব্যাহতি দেওয়া হয়েছে।</value></data>
+  <data name="Write a review" xml:space="preserve"><value>পর্যালোচনা লিখুন</value></data>
+  <data name="Couldn&apos;t load helpers" xml:space="preserve"><value>সহায়িকাদের তথ্য আনা যায়নি</value></data>
+  <data name="helpers" xml:space="preserve"><value>সহায়িকা</value></data>
+  <data name="Clear all filters" xml:space="preserve"><value>সব ফিল্টার মুছুন</value></data>
+  <data name="Show more reviews" xml:space="preserve"><value>আরও পর্যালোচনা দেখুন</value></data>
+  <data name="How many of you live there, what you eat, anything she should know." xml:space="preserve"><value>বাসায় কতজন থাকেন, খাবারের পছন্দ বা তাঁর জানা দরকার এমন কিছু লিখুন।</value></data>
+  <data name="Retry" xml:space="preserve"><value>আবার চেষ্টা করুন</value></data>
+  <data name="Clear filters" xml:space="preserve"><value>ফিল্টার মুছুন</value></data>
+  <data name="Next" xml:space="preserve"><value>পরের</value></data>
+  <data name="Any" xml:space="preserve"><value>যেকোনো</value></data>
+  <data name="This profile is not available" xml:space="preserve"><value>এই প্রোফাইলটি পাওয়া যাচ্ছে না</value></data>
+  <data name="Marked complete." xml:space="preserve"><value>সম্পন্ন হিসেবে চিহ্নিত করা হয়েছে।</value></data>
+  <data name="Find a helper near you and pick the hours you need." xml:space="preserve"><value>কাছাকাছি একজন সহায়িকা খুঁজে আপনার প্রয়োজনীয় সময় বেছে নিন।</value></data>
+  <data name="PENDING REQUESTS" xml:space="preserve"><value>অপেক্ষমাণ অনুরোধ</value></data>
+  <data name="Tap the hours you need each week — up to {0} per day." xml:space="preserve"><value>প্রতি সপ্তাহে প্রয়োজনীয় সময় বেছে নিন—দিনে সর্বোচ্চ {0} ঘণ্টা।</value></data>
+  <data name="{0} said:" xml:space="preserve"><value>{0} বলেছেন:</value></data>
+  <data name="Submitting…" xml:space="preserve"><value>জমা দেওয়া হচ্ছে…</value></data>
+  <data name="Weekly hours" xml:space="preserve"><value>সাপ্তাহিক সময়</value></data>
+  <data name="Remove {0}" xml:space="preserve"><value>{0} সরান</value></data>
+  <data name="View in My engagements →" xml:space="preserve"><value>আমার নিয়োগসমূহে দেখুন →</value></data>
+  <data name="Releasing…" xml:space="preserve"><value>অব্যাহতি দেওয়া হচ্ছে…</value></data>
+  <data name="About {0}" xml:space="preserve"><value>{0} সম্পর্কে</value></data>
+  <data name="Request rejected." xml:space="preserve"><value>অনুরোধ প্রত্যাখ্যান করা হয়েছে।</value></data>
+  <data name="Something went wrong. Try again in a moment." xml:space="preserve"><value>সমস্যা হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।</value></data>
+  <data name="Request withdrawn." xml:space="preserve"><value>অনুরোধ প্রত্যাহার করা হয়েছে।</value></data>
+  <data name="Write a line or two about how it went." xml:space="preserve"><value>কাজের অভিজ্ঞতা সম্পর্কে এক–দুই লাইন লিখুন।</value></data>
+  <data name="Release {0}" xml:space="preserve"><value>{0}-কে অব্যাহতি দিন</value></data>
+  <data name="Pick the hours you need each week on the board — up to 3 a day." xml:space="preserve"><value>বোর্ডে প্রতি সপ্তাহে আপনার প্রয়োজনীয় সময় বেছে নিন—দিনে সর্বোচ্চ ৩ ঘণ্টা।</value></data>
+  <data name="Sending…" xml:space="preserve"><value>পাঠানো হচ্ছে…</value></data>
+  <data name="{0} is currently working for your home." xml:space="preserve"><value>{0} বর্তমানে আপনার বাসায় কাজ করছেন।</value></data>
+  <data name="What do you need?" xml:space="preserve"><value>আপনার কী ধরনের সেবা প্রয়োজন?</value></data>
+  <data name="Service" xml:space="preserve"><value>সেবা</value></data>
+  <data name="Request {0}" xml:space="preserve"><value>{0}-এর কাছে অনুরোধ পাঠান</value></data>
+  <data name="My engagements" xml:space="preserve"><value>আমার নিয়োগসমূহ</value></data>
+  <data name="Most experienced" xml:space="preserve"><value>সবচেয়ে অভিজ্ঞ</value></data>
+  <data name="{0} hour a week picked" xml:space="preserve"><value>সপ্তাহে {0} ঘণ্টা বেছে নেওয়া হয়েছে</value></data>
+  <data name="Released" xml:space="preserve"><value>অব্যাহতি দেওয়া হয়েছে</value></data>
+  <data name="Clear" xml:space="preserve"><value>মুছুন</value></data>
+  <data name="Release {0}?" xml:space="preserve"><value>{0}-কে অব্যাহতি দেবেন?</value></data>
+  <data name="Only a home&apos;s manager or co-manager can send this; she sees your name, the home&apos;s area and this note." xml:space="preserve"><value>শুধু বাসার ব্যবস্থাপক বা সহ-ব্যবস্থাপক এই অনুরোধ পাঠাতে পারেন। তিনি আপনার নাম, বাসার এলাকা এবং এই বার্তাটি দেখতে পাবেন।</value></data>
+  <data name="Confirm complete" xml:space="preserve"><value>সম্পন্ন নিশ্চিত করুন</value></data>
+  <data name="Send request" xml:space="preserve"><value>অনুরোধ পাঠান</value></data>
+  <data name="{0} review(s)" xml:space="preserve"><value>{0}টি পর্যালোচনা</value></data>
+  <data name="CURRENT MAID" xml:space="preserve"><value>বর্তমান সহায়িকা</value></data>
+  <data name="Page {0} of {1}" xml:space="preserve"><value>{1} পৃষ্ঠার {0} নম্বর</value></data>
+  <data name="You can review this helper after your own accepted engagement is active or completed. A review can be submitted once per engagement." xml:space="preserve"><value>আপনার অনুরোধ গৃহীত হয়ে নিয়োগটি সক্রিয় হলে বা সম্পন্ন হলে আপনি পর্যালোচনা দিতে পারবেন। প্রতি নিয়োগে একবারই পর্যালোচনা জমা দেওয়া যাবে।</value></data>
+  <data name="{0}&apos;s phone number is shared only after she accepts." xml:space="preserve"><value>অনুরোধ গ্রহণ করার পরই {0}-এর ফোন নম্বর দেখানো হবে।</value></data>
+  <data name="Your rating" xml:space="preserve"><value>আপনার রেটিং</value></data>
+  <data name="{0} hours a week picked" xml:space="preserve"><value>সপ্তাহে {0} ঘণ্টা বেছে নেওয়া হয়েছে</value></data>
+  <data name="Booked ({0})" xml:space="preserve"><value>নির্ধারিত ({0})</value></data>
+  <data name="Requested" xml:space="preserve"><value>অনুরোধ পাঠানো হয়েছে</value></data>
+  <data name="How was your experience?" xml:space="preserve"><value>আপনার অভিজ্ঞতা কেমন ছিল?</value></data>
+  <data name="Max rate (৳/mo)" xml:space="preserve"><value>সর্বোচ্চ মাসিক পারিশ্রমিক (৳)</value></data>
+  <data name="Your request was sent to {0}. You will see her answer under My engagements." xml:space="preserve"><value>{0}-এর কাছে আপনার অনুরোধ পাঠানো হয়েছে। আমার নিয়োগসমূহে তাঁর উত্তর দেখতে পাবেন।</value></data>
+  <data name="{0} AM" xml:space="preserve"><value>সকাল {0}টা</value></data>
+  <data name="{0} · asked by {1}{2}" xml:space="preserve"><value>{0} · অনুরোধকারী {1}{2}</value></data>
+  <data name="{0} picked" xml:space="preserve"><value>{0}টি বেছে নেওয়া হয়েছে</value></data>
+  <data name="{0} - {1}" xml:space="preserve"><value>{0} – {1}</value></data>
+  <data name="Browse helpers" xml:space="preserve"><value>সহায়িকা খুঁজুন</value></data>
+  <data name="Sent {0}, waiting for her answer." xml:space="preserve"><value>{0}-এ পাঠানো হয়েছে, উত্তরের অপেক্ষায়।</value></data>
+  <data name="/month" xml:space="preserve"><value>/মাস</value></data>
+  <data name="Loading helpers…" xml:space="preserve"><value>সহায়িকাদের তথ্য আনা হচ্ছে…</value></data>
+  <data name="You reviewed this engagement." xml:space="preserve"><value>এই নিয়োগের জন্য আপনি পর্যালোচনা দিয়েছেন।</value></data>
+  <data name="/mo" xml:space="preserve"><value>/মাস</value></data>
+  <data name="{0} is not taking new bookings right now." xml:space="preserve"><value>{0} এই মুহূর্তে নতুন কাজ নিচ্ছেন না।</value></data>
+  <data name="Helpers your home has asked for, and every helper who worked at a home while you lived there. Anyone who took her service can review her." xml:space="preserve"><value>আপনার বাসা যাঁদের কাজের অনুরোধ করেছে এবং আপনার বসবাসের সময় যাঁরা বাসায় কাজ করেছেন—সব নিয়োগ এখানে দেখুন। যাঁরা তাঁদের সেবা নিয়েছেন, তাঁরা পর্যালোচনা দিতে পারবেন।</value></data>
+  <data name="Sort" xml:space="preserve"><value>সাজান</value></data>
+  <data name="Picked ({0})" xml:space="preserve"><value>বেছে নেওয়া ({0})</value></data>
+  <data name="Select a rating" xml:space="preserve"><value>একটি রেটিং বেছে নিন</value></data>
+  <data name="A note for {0}" xml:space="preserve"><value>{0}-এর জন্য বার্তা</value></data>
+  <data name="This will end her engagement immediately, free up her weekly hours for other homes, and allow home members to leave a review." xml:space="preserve"><value>এতে তাঁর নিয়োগ সঙ্গে সঙ্গে শেষ হবে, অন্য বাসার জন্য সাপ্তাহিক সময় খালি হবে এবং বাসার সদস্যরা পর্যালোচনা দিতে পারবেন।</value></data>
+  <data name="Filters" xml:space="preserve"><value>ফিল্টার</value></data>
+  <data name="{0} has not written a bio yet." xml:space="preserve"><value>{0} এখনো নিজের পরিচিতি লেখেননি।</value></data>
+  <data name="Thanks!" xml:space="preserve"><value>ধন্যবাদ!</value></data>
+  <data name="You marked this complete — waiting for {0} to confirm." xml:space="preserve"><value>আপনি কাজ সম্পন্ন করেছেন—{0}-এর নিশ্চিতকরণের অপেক্ষায়।</value></data>
+  <data name="Available ({0})" xml:space="preserve"><value>খালি ({0})</value></data>
+  <data name="{0} / 500" xml:space="preserve"><value>{0} / ৫০০</value></data>
+  <data name="18 hourly slots a day, 6:00 AM to 12:00 AM." xml:space="preserve"><value>প্রতিদিন ১৮টি সময়খণ্ড, সকাল ৬টা থেকে রাত ১২টা পর্যন্ত।</value></data>
+  <data name="Share your experience with {0}. Your review will appear on her profile." xml:space="preserve"><value>{0}-এর সঙ্গে আপনার অভিজ্ঞতা জানান। আপনার পর্যালোচনা তাঁর প্রোফাইলে দেখা যাবে।</value></data>
+  <data name="Verified helpers only" xml:space="preserve"><value>শুধু যাচাইকৃত সহায়িকা</value></data>
+  <data name="No limit" xml:space="preserve"><value>সীমা নেই</value></data>
+  <data name="Write a comment before submitting." xml:space="preserve"><value>জমা দেওয়ার আগে মন্তব্য লিখুন।</value></data>
+  <data name="Pagination" xml:space="preserve"><value>পৃষ্ঠাসমূহ</value></data>
+  <data name="Reject request" xml:space="preserve"><value>অনুরোধ প্রত্যাখ্যান করুন</value></data>
+  <data name="Booking" xml:space="preserve"><value>নিয়োগ</value></data>
+  <data name="{0} hours already picked for this day" xml:space="preserve"><value>এই দিনে ইতিমধ্যে {0} ঘণ্টা বেছে নেওয়া হয়েছে</value></data>
+  <data name="No helpers match those filters" xml:space="preserve"><value>এই ফিল্টারে কোনো সহায়িকা পাওয়া যায়নি</value></data>
+  <data name="Thanks — your review has been posted." xml:space="preserve"><value>ধন্যবাদ—আপনার পর্যালোচনা প্রকাশিত হয়েছে।</value></data>
+  <data name="PAST MAIDS" xml:space="preserve"><value>আগের সহায়িকারা</value></data>
+  <data name="Scroll sideways to see the whole day. The same hours repeat every week for as long as the engagement runs." xml:space="preserve"><value>পুরো দিনের সময় দেখতে পাশে স্ক্রল করুন। নিয়োগ চলাকালীন প্রতি সপ্তাহে একই সময়সূচি থাকবে।</value></data>
+  <data name="{0} has been released." xml:space="preserve"><value>{0}-কে অব্যাহতি দেওয়া হয়েছে।</value></data>
+  <data name="Your review" xml:space="preserve"><value>আপনার পর্যালোচনা</value></data>
+  <data name="{0} marked this complete. Confirm to close it." xml:space="preserve"><value>{0} কাজটি সম্পন্ন করেছেন। নিয়োগ বন্ধ করতে নিশ্চিত করুন।</value></data>
+  <data name="Request {0} {1} a week" xml:space="preserve"><value>সপ্তাহে {0} ঘণ্টার অনুরোধ</value></data>
+  <data name="Breadcrumb" xml:space="preserve"><value>অবস্থান নির্দেশক</value></data>
+  <data name="Withdraw request" xml:space="preserve"><value>অনুরোধ প্রত্যাহার করুন</value></data>
+  <data name="A review can be at most 500 characters." xml:space="preserve"><value>পর্যালোচনা সর্বোচ্চ ৫০০ অক্ষরের হতে পারে।</value></data>
+  <data name="worked there {0} – {1}" xml:space="preserve"><value>সেখানে কাজ করেছেন {0} – {1}</value></data>
+  <data name="[{0}]" xml:space="preserve"><value>[{0}]</value></data>
+  <data name="Request withdrawn" xml:space="preserve"><value>অনুরোধ প্রত্যাহার করা হয়েছে</value></data>
+  <data name="Available" xml:space="preserve"><value>খালি</value></data>
+  <data name="{0} hours a week at {1}/month, booked for your home. {2}" xml:space="preserve"><value>আপনার বাসার জন্য সপ্তাহে {0} ঘণ্টা, মাসে {1}। {2}</value></data>
+  <data name="Request rejected" xml:space="preserve"><value>অনুরোধ প্রত্যাখ্যান করা হয়েছে</value></data>
+  <data name="the helper" xml:space="preserve"><value>সহায়িকা</value></data>
+  <data name="{0} — {1} hours already picked for this day" xml:space="preserve"><value>এই দিনে ইতিমধ্যে {1} ঘণ্টা বেছে নেওয়া হয়েছে ({0})</value></data>
+  <data name="Picked" xml:space="preserve"><value>বেছে নেওয়া</value></data>
+  <data name="Are you sure you want to release {0} from {1}?" xml:space="preserve"><value>আপনি কি নিশ্চিত যে {0}-কে {1} থেকে অব্যাহতি দিতে চান?</value></data>
+  <data name="Could not post the review." xml:space="preserve"><value>পর্যালোচনা প্রকাশ করা যায়নি।</value></data>
+  <data name="You aren&apos;t part of this engagement." xml:space="preserve"><value>আপনি এই নিয়োগের অংশ নন।</value></data>
+  <data name="You aren&apos;t currently authorized to complete this engagement." xml:space="preserve"><value>এই নিয়োগ সম্পন্ন করার অনুমতি বর্তমানে আপনার নেই।</value></data>
+  <data name="Could not release the helper." xml:space="preserve"><value>সহায়িকাকে অব্যাহতি দেওয়া যায়নি।</value></data>
+  <data name="No current helper placement was found for this engagement." xml:space="preserve"><value>এই নিয়োগের জন্য বর্তমান সহায়িকার নিয়োগ-রেকর্ড পাওয়া যায়নি।</value></data>
+  <data name="Could not mark the engagement complete." xml:space="preserve"><value>নিয়োগটি সম্পন্ন হিসেবে চিহ্নিত করা যায়নি।</value></data>
+  <data name="Could not send the request." xml:space="preserve"><value>অনুরোধ পাঠানো যায়নি।</value></data>
+  <data name="Rating must be between 1 and 5." xml:space="preserve"><value>রেটিং ১ থেকে ৫-এর মধ্যে হতে হবে।</value></data>
+  <data name="Request not found." xml:space="preserve"><value>অনুরোধটি পাওয়া যায়নি।</value></data>
+  <data name="This engagement isn&apos;t active." xml:space="preserve"><value>এই নিয়োগটি সক্রিয় নয়।</value></data>
+  <data name="This request was already answered." xml:space="preserve"><value>এই অনুরোধের উত্তর ইতিমধ্যে দেওয়া হয়েছে।</value></data>
+  <data name="This request can&apos;t be withdrawn any more." xml:space="preserve"><value>এই অনুরোধটি আর প্রত্যাহার করা যাবে না।</value></data>
+  <data name="Could not reject the request." xml:space="preserve"><value>অনুরোধ প্রত্যাখ্যান করা যায়নি।</value></data>
+  <data name="Could not withdraw the request." xml:space="preserve"><value>অনুরোধ প্রত্যাহার করা যায়নি।</value></data>
+  <data name="Engagement not found." xml:space="preserve"><value>নিয়োগটি পাওয়া যায়নি।</value></data>
+  <data name="Only a current manager or co-manager can reject a pending request for this home." xml:space="preserve"><value>শুধু বর্তমান ব্যবস্থাপক বা সহ-ব্যবস্থাপক এই বাসার অপেক্ষমাণ অনুরোধ প্রত্যাখ্যান করতে পারেন।</value></data>
+  <data name="Only the requester on an accepted, active, or completed engagement can review this helper." xml:space="preserve"><value>গৃহীত, সক্রিয় বা সম্পন্ন নিয়োগের অনুরোধকারীই কেবল এই সহায়িকার পর্যালোচনা দিতে পারবেন।</value></data>
+  <data name="You&apos;ve already reviewed this engagement." xml:space="preserve"><value>আপনি এই নিয়োগের জন্য ইতিমধ্যে পর্যালোচনা দিয়েছেন।</value></data>
+  <data name="Only a current manager or co-manager can release an active helper for this home." xml:space="preserve"><value>শুধু বর্তমান ব্যবস্থাপক বা সহ-ব্যবস্থাপক এই বাসার সক্রিয় সহায়িকাকে অব্যাহতি দিতে পারেন।</value></data>
 </root>
