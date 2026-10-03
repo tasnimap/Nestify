@@ -957,16 +957,18 @@
 
 .stl__slot-step {
     display: inline-grid;
-    width: 2.05rem;
-    height: 2.05rem;
+    width: 2.25rem;
+    height: 2.25rem;
     place-items: center;
     padding: 0;
-    border: 2px solid #d8eefb;
+    border: 2px solid #a6d5f1;
     border-radius: 10px;
     background: var(--nx-card);
-    color: #347fcf;
+    color: #176fc0;
     cursor: pointer;
     line-height: 1;
+    overflow: visible;
+    box-shadow: 0 1px 3px rgb(37 126 196 / 18%);
     transition: background .2s ease, border-color .2s ease, color .2s ease, transform .2s ease;
 }
 
@@ -980,9 +982,9 @@
 }
 
 .stl__slot-step:disabled {
-    color: #347fcf;
+    color: #176fc0;
     cursor: not-allowed;
-    opacity: .8;
+    opacity: 1;
 }
 
 .stl__slot-step--up {
@@ -997,10 +999,10 @@
 
 .stl__chevron {
     display: block;
-    width: .6rem;
-    height: .6rem;
-    border-top: 3px solid currentColor;
-    border-right: 3px solid currentColor;
+    width: .7rem;
+    height: .7rem;
+    border-top: 4px solid currentColor;
+    border-right: 4px solid currentColor;
     flex: 0 0 auto;
 }
 

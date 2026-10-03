@@ -45,6 +45,7 @@ test("members can submit their own payments while managers can choose the payer"
     assert.match(razor, /value="@CurrentMemberName" readonly/);
     assert.match(settlementService, /var canRecordForOthers = membership\.Role is HomeService\.RoleManager or HomeService\.RoleCoManager;/);
     assert.match(settlementService, /request\.UserId = userId;/);
+    assert.match(settlementService, /var note = .*[\s\S]*?using var connection = await _db\.OpenAsync\(\);[\s\S]*?request\.UserId = userId;/);
     assert.match(razor, /@onclick="FinalizePeriod"/);
     assert.match(razor, /_ws is not null && _ws\.CanManage && IsOpen/);
 });
@@ -53,7 +54,10 @@ test("meal sheet restores the personal and everyone views", () => {
     assert.match(razor, /@L\["Only me"\]/);
     assert.match(razor, /@L\["Everyone"\]/);
     assert.match(razor, /private bool _onlyMyColumn;/);
-    assert.match(razor, /Members\.Where\(m => m\.IsMe\)/);
+    assert.match(razor, /Members\.Where\(m => m\.UserId == _ws\?\.CurrentUserId\)/);
+    assert.match(razor, /member\.UserId == _ws\.CurrentUserId/);
+    assert.match(settlementService, /CurrentUserId = userId/);
     assert.match(styles, /\.stl__view-toggle/);
-    assert.match(styles, /\.stl__slot-step:disabled[\s\S]*?opacity: \.8/);
+    assert.match(styles, /\.stl__slot-step:disabled[\s\S]*?opacity: 1/);
+    assert.match(styles, /\.stl__chevron[\s\S]*?border-top: 4px/);
 });
