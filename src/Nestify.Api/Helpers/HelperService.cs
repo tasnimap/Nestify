@@ -24,9 +24,25 @@ public sealed class HelperService
 
     // ------------------------------------------------------------ browse
 
-    public async Task<HelperPageDto<HelperSummaryDto>> BrowseAsync(HelperFilterDto filter)
+    public async Task<HelperPageDto<HelperSummaryDto>> BrowseAsync(HelperFilterDto filter, long? currentUserId = null)
     {
         using var connection = await _db.OpenAsync();
+
+        double? clientLat = null;
+        double? clientLon = null;
+
+        if (currentUserId is not null && filter.Sort == HelperSortOption.DistanceAsc)
+        {
+            var homeCoords = await connection.QuerySingleOrDefaultAsync<(double Lat, double Lon)?>(
+                "SELECT h.latitude AS Lat, h.longitude AS Lon FROM homes h JOIN home_members hm ON hm.home_id = h.id WHERE hm.user_id = @currentUserId AND hm.left_at_utc IS NULL LIMIT 1",
+                new { currentUserId });
+            
+            if (homeCoords is not null)
+            {
+                clientLat = homeCoords.Value.Lat;
+                clientLon = homeCoords.Value.Lon;
+            }
+        }
 
         // Paused helpers and profiles still missing services, rate or address stay out.
         var where = new List<string>
@@ -84,8 +100,15 @@ public sealed class HelperService
             HelperSortOption.RateAsc => "hp.monthly_rate ASC, hp.id",
             HelperSortOption.RateDesc => "hp.monthly_rate DESC, hp.id",
             HelperSortOption.ExperienceDesc => "hp.years_experience DESC, hp.id",
+            HelperSortOption.DistanceAsc when clientLat is not null && clientLon is not null => "point(a.longitude, a.latitude) <-> point(@clientLon, @clientLat) ASC, hp.id",
             _ => "hp.is_verified DESC, coalesce(hp.average_rating, 0) DESC, hp.review_count DESC, hp.id"
         };
+
+        if (clientLat is not null && clientLon is not null)
+        {
+            args.Add("clientLat", clientLat);
+            args.Add("clientLon", clientLon);
+        }
 
         var page = Math.Max(filter.Page, 1);
         var pageSize = filter.PageSize <= 0 ? 9 : filter.PageSize;

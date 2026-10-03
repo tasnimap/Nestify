@@ -21,7 +21,7 @@ public sealed class HelperController : ControllerBase
 
     [HttpGet]
     public async Task<ActionResult<HelperPageDto<HelperSummaryDto>>> Browse([FromQuery] HelperFilterDto filter)
-        => Ok(await _helpers.BrowseAsync(filter));
+        => Ok(await _helpers.BrowseAsync(filter, CurrentUserId()));
 
     [HttpGet("{id:long}")]
     public async Task<ActionResult<HelperDetailDto>> Get(long id)
