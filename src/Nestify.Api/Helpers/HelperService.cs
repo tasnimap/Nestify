@@ -245,7 +245,7 @@ public sealed class HelperService
             """, new { id, pageSize, offset = (page - 1) * pageSize })).ToList();
 
         var total = await connection.ExecuteScalarAsync<int>(
-            "SELECT count(*) FROM helper_reviews WHERE helper_profile_id = @id AND NOT is_hidden", new { id });
+            "SELECT count(*) FROM nestify.helper_reviews WHERE helper_profile_id = @id AND NOT is_hidden", new { id });
 
         return new HelperPageDto<ReviewDto>
         {
@@ -607,8 +607,8 @@ public sealed class HelperService
         return null;
     }
 
-    // Anyone who lived in the home while the helper worked there took her
-    // service, so any of them can review that placement, once each.
+    // Only the original requester may review an accepted active or completed
+    // engagement, once per engagement.
     public async Task<string?> SubmitReviewAsync(long reviewerUserId, string engagementId, int rating, string comment)
     {
         if (rating is < 1 or > 5)
@@ -621,34 +621,46 @@ public sealed class HelperService
         }
 
         comment = (comment ?? string.Empty).Trim();
-        if (comment.Length > 1000)
+        if (comment.Length == 0)
         {
-            comment = comment[..1000];
+            return "Write a comment before submitting.";
+        }
+        if (comment.Length > 500)
+        {
+            return "A review can be at most 500 characters.";
         }
 
         using var connection = await _db.OpenAsync();
 
         var placement = await connection.QuerySingleOrDefaultAsync<PlacementRow>("""
             SELECT p.id AS PlacementId, p.helper_profile_id AS HelperProfileId, hp.user_id AS HelperUserId
-            FROM helper_home_placements p
-            JOIN domestic_helper_profiles hp ON hp.id = p.helper_profile_id
-            WHERE p.engagement_id = @id
-              AND EXISTS (SELECT 1 FROM home_members hm
-                          WHERE hm.home_id = p.home_id AND hm.user_id = @reviewerUserId
-                            AND hm.joined_at_utc::date <= coalesce(p.left_on, CURRENT_DATE)
-                            AND (hm.left_at_utc IS NULL OR hm.left_at_utc::date >= p.joined_on))
-            """, new { id, reviewerUserId });
+            FROM public.service_engagements e
+            JOIN public.helper_home_placements p ON p.engagement_id = e.id
+            JOIN public.domestic_helper_profiles hp ON hp.id = e.helper_profile_id
+            WHERE e.id = @id
+              AND e.client_user_id = @reviewerUserId
+              AND e.status IN (@active, @completed)
+              AND p.helper_profile_id = e.helper_profile_id
+              AND p.home_id = e.home_id
+              AND (e.status = @completed OR p.left_on IS NULL)
+            """, new
+        {
+            id,
+            reviewerUserId,
+            active = (short)EngagementStatus.Active,
+            completed = (short)EngagementStatus.Completed
+        });
 
         if (placement is null)
         {
-            return "Only someone who lived in the home while she worked there can review her.";
+            return "Only the requester on an accepted, active, or completed engagement can review this helper.";
         }
 
         using var transaction = connection.BeginTransaction();
         try
         {
             var reviewId = await connection.ExecuteScalarAsync<long>("""
-                INSERT INTO helper_reviews (placement_id, helper_profile_id, reviewer_user_id, rating, comment)
+                INSERT INTO nestify.helper_reviews (placement_id, helper_profile_id, reviewer_user_id, rating, comment)
                 VALUES (@placementId, @helperProfileId, @reviewerUserId, @rating, @comment)
                 RETURNING id
                 """, new { placement.PlacementId, placement.HelperProfileId, reviewerUserId, rating, comment }, transaction);
@@ -656,7 +668,7 @@ public sealed class HelperService
             await connection.ExecuteAsync("""
                 UPDATE domestic_helper_profiles hp
                 SET average_rating = s.avg_rating, review_count = s.total
-                FROM (SELECT avg(rating) AS avg_rating, count(*)::int AS total FROM helper_reviews WHERE helper_profile_id = @helperProfileId AND NOT is_hidden) s
+                FROM (SELECT avg(rating) AS avg_rating, count(*)::int AS total FROM nestify.helper_reviews WHERE helper_profile_id = @helperProfileId AND NOT is_hidden) s
                 WHERE hp.id = @helperProfileId
                 """, new { placement.HelperProfileId }, transaction);
 
@@ -668,7 +680,7 @@ public sealed class HelperService
         catch (PostgresException ex) when (ex.SqlState == "23505")
         {
             transaction.Rollback();
-            return "You've already reviewed her for this engagement.";
+            return "You've already reviewed this engagement.";
         }
 
         transaction.Commit();
@@ -757,11 +769,11 @@ public sealed class HelperService
         SELECT r.id, pl.engagement_id AS EngagementId, u.full_name AS ReviewerName,
                coalesce(p.profile_picture_url, '') AS ReviewerPhotoUrl, h.name AS HomeName,
                r.rating, r.comment, r.created_at_utc AS CreatedAtUtc, r.reply, r.replied_at_utc AS RepliedAtUtc
-        FROM helper_reviews r
-        JOIN helper_home_placements pl ON pl.id = r.placement_id
-        JOIN homes h ON h.id = pl.home_id
-        JOIN users u ON u.id = r.reviewer_user_id
-        LEFT JOIN user_additional_profile_info p ON p.user_id = u.id
+        FROM nestify.helper_reviews r
+        JOIN public.helper_home_placements pl ON pl.id = r.placement_id
+        JOIN public.homes h ON h.id = pl.home_id
+        JOIN public.users u ON u.id = r.reviewer_user_id
+        LEFT JOIN public.user_additional_profile_info p ON p.user_id = u.id
         """;
 
     internal static async Task<List<ReviewDto>> ToReviewDtosAsync(IDbConnection connection, List<ReviewRow> rows)
@@ -799,7 +811,9 @@ public sealed class HelperService
                            WHERE hm.home_id = e.home_id AND hm.user_id = @clientUserId
                              AND hm.joined_at_utc::date <= coalesce(pl.left_on, CURRENT_DATE)
                              AND (hm.left_at_utc IS NULL OR hm.left_at_utc::date >= pl.joined_on)) AS LivedThere,
-                   EXISTS (SELECT 1 FROM helper_reviews r WHERE r.placement_id = pl.id AND r.reviewer_user_id = @clientUserId) AS HasReview
+                   EXISTS (SELECT 1 FROM nestify.helper_reviews r WHERE r.placement_id = pl.id AND r.reviewer_user_id = @clientUserId) AS HasReview,
+                   (e.client_user_id = @clientUserId AND e.status IN (@active, @completed)
+                    AND pl.id IS NOT NULL AND (e.status = @completed OR pl.left_on IS NULL)) AS ReviewEligible
             FROM service_engagements e
             JOIN domestic_helper_profiles hp ON hp.id = e.helper_profile_id
             JOIN users u ON u.id = hp.user_id
@@ -818,7 +832,13 @@ public sealed class HelperService
                              AND hm.joined_at_utc::date <= coalesce(pl.left_on, CURRENT_DATE)
                              AND (hm.left_at_utc IS NULL OR hm.left_at_utc::date >= pl.joined_on))))
             ORDER BY e.requested_at_utc DESC
-            """, new { clientUserId, onlyId })).ToList();
+            """, new
+            {
+                clientUserId,
+                onlyId,
+                active = (short)EngagementStatus.Active,
+                completed = (short)EngagementStatus.Completed
+            })).ToList();
 
         var ids = rows.Select(r => r.Id).ToList();
         var services = await LoadEngagementServicesAsync(connection, ids);
@@ -853,7 +873,7 @@ public sealed class HelperService
                 HelperMarkedComplete = r.HelperMarkedComplete,
                 CanManage = r.IsHomeManager,
                 HasReview = r.HasReview,
-                CanReview = r.LivedThere && !r.HasReview
+                CanReview = r.ReviewEligible && !r.HasReview
             };
         }).ToList();
     }
@@ -986,5 +1006,6 @@ public sealed class HelperService
         public bool IsHomeManager { get; set; }
         public bool LivedThere { get; set; }
         public bool HasReview { get; set; }
+        public bool ReviewEligible { get; set; }
     }
 }

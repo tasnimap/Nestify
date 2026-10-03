@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Nestify.Shared.Dtos.Helpers;
 
 // Numbered the same way as helper_services.service_type in Domestic_Help.sql.
@@ -245,8 +247,7 @@ public sealed class EngagementRequestDto
 }
 
 /// <summary>
-/// An engagement as a bachelor sees it: either one they asked for on behalf
-/// of their home, or a helper who worked at their home while they lived there.
+/// An engagement visible to the requester or a current/former home manager.
 /// </summary>
 public sealed class EngagementDto
 {
@@ -274,12 +275,16 @@ public sealed class EngagementDto
     public bool HelperMarkedComplete { get; set; }
     public bool CanManage { get; set; }               // current manager / co-manager of the home
     public bool HasReview { get; set; }               // this user already reviewed her for this placement
-    public bool CanReview { get; set; }               // lived in the home while she worked there, and has not reviewed yet
+    public bool CanReview { get; set; }               // requester on active/completed engagement and has not reviewed yet
 }
 
 public sealed class SubmitReviewDto
 {
+    [Range(1, 5, ErrorMessage = "Rating must be between 1 and 5.")]
     public int Rating { get; set; }
+
+    [Required(ErrorMessage = "Write a comment before submitting.")]
+    [StringLength(500, ErrorMessage = "A review can be at most 500 characters.")]
     public string Comment { get; set; } = string.Empty;
 }
 

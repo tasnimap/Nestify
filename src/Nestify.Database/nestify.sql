@@ -37,7 +37,9 @@
 -- Drop everything, children first
 -- ============================================================================
 
-DROP TABLE IF EXISTS helper_reviews               CASCADE;
+CREATE SCHEMA IF NOT EXISTS nestify;
+
+DROP TABLE IF EXISTS nestify.helper_reviews       CASCADE;
 DROP TABLE IF EXISTS notifications                CASCADE;
 DROP TABLE IF EXISTS helper_home_placements       CASCADE;
 DROP TABLE IF EXISTS service_engagement_slots     CASCADE;
@@ -1301,14 +1303,13 @@ CREATE INDEX        ix_placement_home       ON helper_home_placements (home_id, 
 CREATE INDEX        ix_placement_helper     ON helper_home_placements (helper_profile_id, joined_on DESC);
 
 
--- A review hangs off a placement: only someone who lived in that home while
--- the helper worked there can write one, and each of them only once. The
--- helper may write one reply under the review.
-CREATE TABLE helper_reviews (
+-- A review hangs off a placement and is submitted by the requester on the
+-- eligible engagement. The helper may write one reply under the review.
+CREATE TABLE nestify.helper_reviews (
     id                bigint        GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    placement_id      bigint        NOT NULL REFERENCES helper_home_placements (id) ON DELETE CASCADE,
-    helper_profile_id bigint        NOT NULL REFERENCES domestic_helper_profiles (id) ON DELETE CASCADE,
-    reviewer_user_id  bigint        NOT NULL REFERENCES users (id) ON DELETE RESTRICT,
+    placement_id      bigint        NOT NULL REFERENCES public.helper_home_placements (id) ON DELETE CASCADE,
+    helper_profile_id bigint        NOT NULL REFERENCES public.domestic_helper_profiles (id) ON DELETE CASCADE,
+    reviewer_user_id  bigint        NOT NULL REFERENCES public.users (id) ON DELETE RESTRICT,
     rating            smallint      NOT NULL,
     comment           varchar(1000) NOT NULL DEFAULT '',
     reply             varchar(500),
@@ -1319,5 +1320,7 @@ CREATE TABLE helper_reviews (
     CONSTRAINT ck_review_rating CHECK (rating BETWEEN 1 AND 5)
 );
 
-CREATE UNIQUE INDEX ux_review_placement_reviewer ON helper_reviews (placement_id, reviewer_user_id);
-CREATE INDEX        ix_review_helper             ON helper_reviews (helper_profile_id, created_at_utc DESC) WHERE NOT is_hidden;
+CREATE UNIQUE INDEX IF NOT EXISTS nestify.ux_review_placement_reviewer
+    ON nestify.helper_reviews (placement_id, reviewer_user_id);
+CREATE INDEX IF NOT EXISTS nestify.ix_review_helper
+    ON nestify.helper_reviews (helper_profile_id, created_at_utc DESC) WHERE NOT is_hidden;

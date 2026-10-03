@@ -579,7 +579,7 @@ public sealed class HelperWorkspaceService
         long? helperId = await EnsureProfileAsync(connection, userId);
 
         var summary = await connection.QuerySingleAsync<(decimal Average, int Count)>(
-            "SELECT coalesce(average_rating, 0), review_count FROM domestic_helper_profiles WHERE id = @helperId", new { helperId });
+            "SELECT coalesce(average_rating, 0), review_count FROM public.domestic_helper_profiles WHERE id = @helperId", new { helperId });
 
         var rows = (await connection.QueryAsync<HelperService.ReviewRow>($"""
             {HelperService.ReviewSql}
@@ -612,8 +612,8 @@ public sealed class HelperWorkspaceService
         using var transaction = connection.BeginTransaction();
         var target = await connection.QuerySingleOrDefaultAsync<ReplyTargetRow>("""
             SELECT r.reviewer_user_id AS ReviewerUserId, r.reply AS ExistingReply
-            FROM helper_reviews r
-            JOIN domestic_helper_profiles hp ON hp.id = r.helper_profile_id
+            FROM nestify.helper_reviews r
+            JOIN public.domestic_helper_profiles hp ON hp.id = r.helper_profile_id
             WHERE r.id = @id AND r.helper_profile_id = hp.id AND hp.user_id = @userId
             FOR UPDATE OF r
             """, new { id, userId }, transaction);
@@ -626,9 +626,9 @@ public sealed class HelperWorkspaceService
 
         var newReply = reply.Length == 0 ? null : reply;
         var changed = await connection.ExecuteAsync("""
-            UPDATE helper_reviews r
+            UPDATE nestify.helper_reviews r
             SET reply = @reply, replied_at_utc = CASE WHEN @reply IS NULL THEN NULL ELSE now() END
-            FROM domestic_helper_profiles hp
+            FROM public.domestic_helper_profiles hp
             WHERE r.id = @id AND r.helper_profile_id = hp.id AND hp.user_id = @userId
             """, new { id, userId, reply = newReply }, transaction);
 

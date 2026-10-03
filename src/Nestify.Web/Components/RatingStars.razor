@@ -1,7 +1,7 @@
-<div class="rt-stars" role="img" aria-label="@AriaLabel">
+<div class="rt-stars" role="@(ReadOnly ? "img" : "group")" aria-label="@AriaLabel" @onmouseleave="ClearPreview">
     @for (var i = 1; i <= 5; i++)
     {
-        var filled = i <= Math.Round(Value);
+        var filled = i <= DisplayValue;
         var star = i;
         @if (ReadOnly)
         {
@@ -10,6 +10,7 @@
         else
         {
             <button type="button" class="rt-star rt-star--input @(filled ? "rt-star--filled" : null)"
+                    aria-label="Rate @star out of 5" @onmouseenter="() => _hoverValue = star"
                     @onclick="() => SetValue(star)">★</button>
         }
     }
@@ -26,11 +27,17 @@
     [Parameter] public bool ShowCount { get; set; } = true;
     [Parameter] public EventCallback<int> ValueChanged { get; set; }
 
+    private int? _hoverValue;
+    private int DisplayValue => Math.Clamp((int)Math.Round(ReadOnly ? Value : _hoverValue ?? Value, MidpointRounding.AwayFromZero), 0, 5);
+
     private string AriaLabel => $"{Value:0.0} out of 5 stars" + (Count is { } c ? $", {c} reviews" : "");
 
     private Task SetValue(int v)
     {
         Value = v;
+        _hoverValue = null;
         return ValueChanged.InvokeAsync(v);
     }
+
+    private void ClearPreview() => _hoverValue = null;
 }

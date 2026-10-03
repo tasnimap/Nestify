@@ -120,7 +120,7 @@
 
                             @if (e.CanReview)
                             {
-                                <button class="nx-btn nx-btn--accent" @onclick="() => OpenReview(e)">Leave a review</button>
+                                <button class="nx-btn nx-btn--accent" @onclick="() => OpenReview(e)">Write a review</button>
                             }
                             else if (e.HasReview)
                             {
@@ -139,9 +139,9 @@
         {
             <section class="dh-panel dh-review-box dh-rise">
                 <div class="dh-panel__head"><h2>Review @_reviewTarget.HelperName</h2></div>
-                <p class="dh-muted">You lived at @_reviewTarget.HomeName while she worked there, so you can rate her service. It goes on her public profile.</p>
+                <p class="dh-muted">Share your experience with @_reviewTarget.HelperName. Your review will appear on her profile.</p>
                 <RatingStars Value="_reviewRating" ReadOnly="false" ShowCount="false" ValueChanged="v => _reviewRating = v" />
-                <textarea @bind="_reviewComment" maxlength="1000" placeholder="How was your experience?"></textarea>
+                <textarea @bind="_reviewComment" maxlength="500" placeholder="How was your experience?"></textarea>
                 @if (_reviewError is not null)
                 {
                     <p class="md-msg md-msg--bad">@_reviewError</p>
