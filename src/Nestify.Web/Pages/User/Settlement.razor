@@ -351,7 +351,7 @@
                                                             disabled="@(locked || cell[slot] <= 0m)"
                                                             aria-label='@L["Decrease {0} for {1} on {2}", SlotLabel(slot), member.Name, day.ToString("dd MMM", CultureInfo.CurrentCulture)]'
                                                             @onclick="() => AdjustMealSlot(key, slot, -MealSheetState.MealStep)">
-                                                        <span aria-hidden="true">▼</span>
+                                                        <span class="stl__chevron stl__chevron--left" aria-hidden="true"></span>
                                                     </button>
                                                     <output class="stl__slot-value @(cell[slot] == 0m ? "is-zero" : null)"
                                                             aria-label='@L["{0} {1} on {2}", member.Name, SlotLabel(slot), day.ToString("dd MMM", CultureInfo.CurrentCulture)]'>
@@ -362,7 +362,7 @@
                                                             disabled="@(locked || cell[slot] >= MealSheetState.MaxMealValue)"
                                                             aria-label='@L["Increase {0} for {1} on {2}", SlotLabel(slot), member.Name, day.ToString("dd MMM", CultureInfo.CurrentCulture)]'
                                                             @onclick="() => AdjustMealSlot(key, slot, MealSheetState.MealStep)">
-                                                        <span aria-hidden="true">▲</span>
+                                                        <span class="stl__chevron stl__chevron--right" aria-hidden="true"></span>
                                                     </button>
                                                 </div>
                                             }
