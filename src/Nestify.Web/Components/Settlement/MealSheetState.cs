@@ -7,6 +7,8 @@ namespace Nestify.Web.Components.Settlement;
 public sealed class MealSheetState
 {
     public enum Slot { Breakfast, Lunch, Dinner }
+    public const decimal MealStep = 0.5m;
+    public const decimal MaxMealValue = 10m;
 
     public sealed record CellKey(DateOnly Date, long UserId);
 
@@ -61,7 +63,7 @@ public sealed class MealSheetState
 
     public void Set(CellKey key, Slot slot, decimal value)
     {
-        value = Math.Clamp(value, 0m, 10m);
+        value = Math.Clamp(value, 0m, MaxMealValue);
         if (!_cells.TryGetValue(key, out var cell))
         {
             cell = new Cell();
