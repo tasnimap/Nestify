@@ -27,9 +27,11 @@ $migration$;
 -- The existing composite unique index enforces one review per placement and
 -- reviewer. The API limits eligible reviewers to the engagement requester,
 -- which makes this one review per engagement without discarding housemate data.
-CREATE UNIQUE INDEX IF NOT EXISTS nestify.ux_review_placement_reviewer
+-- Note: index names must NOT be schema-qualified; an index always lives in the
+-- same schema as its table.
+CREATE UNIQUE INDEX IF NOT EXISTS ux_review_placement_reviewer
     ON nestify.helper_reviews (placement_id, reviewer_user_id);
-CREATE INDEX IF NOT EXISTS nestify.ix_review_helper
+CREATE INDEX IF NOT EXISTS ix_review_helper
     ON nestify.helper_reviews (helper_profile_id, created_at_utc DESC)
     WHERE NOT is_hidden;
 
