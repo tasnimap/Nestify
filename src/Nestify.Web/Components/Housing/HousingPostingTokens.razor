@@ -1,17 +1,17 @@
+@inject IStringLocalizer<SharedResource> L
 @inject IHousingService Housing
-
 @if (_loadError is not null)
 {
     <button type="button" class="mk-credit" @onclick="LoadAsync">
-        <strong>Housing tokens unavailable</strong>
-        <span>Retry</span>
+        <strong>@L["Housing tokens unavailable"]</strong>
+        <span>@L["Retry"]</span>
     </button>
 }
 else if (_home is not null)
 {
     <button type="button" class="mk-credit" @onclick="OpenPackages">
-        <strong>@_balance.PostsLeft shared posts</strong>
-        <span>@(_balance.NextExpiryUtc is { } expiry ? $"expires {expiry.ToLocalTime():d MMM}" : "buy housing tokens")</span>
+        <strong>@L["{0} shared posts", _balance.PostsLeft]</strong>
+        <span>@(_balance.NextExpiryUtc is { } expiry ? L["expires {0}", expiry.ToLocalTime().ToString("d MMM")] : L["buy housing tokens"])</span>
     </button>
 }
 
@@ -21,17 +21,16 @@ else if (_home is not null)
         <section class="mk-checkout" role="dialog" aria-modal="true" aria-labelledby="housing-package-title"
                  @onclick:stopPropagation="true">
             <button class="mk-checkout__close" type="button" aria-label="Close" @onclick="ClosePackages">×</button>
-            <p class="nx-eyebrow">Housing posting tokens</p>
-            <h2 id="housing-package-title">Shared tokens for your house</h2>
+            <p class="nx-eyebrow">@L["Housing posting tokens"]</p>
+            <h2 id="housing-package-title">@L["Shared tokens for your house"]</h2>
             <p class="mk-checkout__intro">
-                Each new housing listing uses one token. Everyone in your house shares the same balance.
-                Buying another package extends the expiry of active tokens.
+                @L["Each new housing listing uses one token. Everyone in your house shares the same balance. Buying another package extends the expiry of active tokens."]
             </p>
 
             @if (_homes.Count > 1)
             {
                 <div class="mk-pay-form">
-                    <label for="housing-token-home">Add tokens to</label>
+                    <label for="housing-token-home">@L["Add tokens to"]</label>
                     <select id="housing-token-home" value="@_home.Id" @onchange="OnHomeChanged">
                         @foreach (var home in _homes)
                         {
@@ -42,16 +41,16 @@ else if (_home is not null)
             }
 
             <div class="mk-checkout__balance">
-                <span>Available to publish · @_home.Name</span>
-                <strong>@_balance.PostsLeft <small>posts</small></strong>
+                <span>@L["Available to publish"] · @_home.Name</span>
+                <strong>@_balance.PostsLeft <small>@L["posts"]</small></strong>
                 <em>@(_balance.NextExpiryUtc is { } nextExpiry
-                    ? $"Next expiry: {nextExpiry.ToLocalTime():d MMM yyyy}"
-                    : "Choose a package to get started")</em>
+                    ? $"{L["Next expiry"]}: {nextExpiry.ToLocalTime().ToString("d")}"
+                    : L["Choose a package to get started"])</em>
             </div>
 
             @if (_plans.Count == 0)
             {
-                <p class="mk-checkout__error">No housing packages are available right now.</p>
+                <p class="mk-checkout__error">@L["No housing packages are available right now."]</p>
             }
             else
             {
@@ -62,8 +61,8 @@ else if (_home is not null)
                                 class="mk-package @(_selectedPlan?.Id == plan.Id ? "mk-package--selected" : null)"
                                 @onclick="() => _selectedPlan = plan">
                             <strong>@plan.Name</strong>
-                            <span>@plan.Posts shared post tokens</span>
-                            <small>Expires after @plan.ValidDays days</small>
+                            <span>@L["{0} shared post tokens", plan.Posts]</span>
+                            <small>@L["Expires after {0} days", plan.ValidDays]</small>
                             <b>৳@plan.PriceBdt.ToString("N0")</b>
                         </button>
                     }
@@ -72,21 +71,21 @@ else if (_home is not null)
                 @if (_selectedPlan is not null)
                 {
                     <div class="mk-pay-form">
-                        <div class="mk-pay-form__brand"><b>bKash</b><span>Secure practice checkout</span></div>
-                        <label for="housing-bkash-number">bKash number</label>
+                        <div class="mk-pay-form__brand"><b>bKash</b><span>@L["Secure practice checkout"]</span></div>
+                        <label for="housing-bkash-number">@L["bKash number"]</label>
                         <input id="housing-bkash-number" type="tel" autocomplete="tel"
-                               placeholder="bKash number (e.g. 01712345678)" @bind="_bkashNumber" />
-                        <label for="housing-bkash-pin">bKash PIN</label>
+                               placeholder="@L["bKash number (e.g. 01712345678)"]" @bind="_bkashNumber" />
+                        <label for="housing-bkash-pin">@L["bKash PIN"]</label>
                         <input id="housing-bkash-pin" type="password" inputmode="numeric" maxlength="5"
-                               autocomplete="off" placeholder="4 or 5 digits" @bind="_bkashPin" />
+                               autocomplete="off" placeholder="@L["4 or 5 digits"]" @bind="_bkashPin" />
                         @if (_checkoutError is not null)
                         {
                             <p class="mk-checkout__error">@_checkoutError</p>
                         }
                         <button type="button" class="nx-btn nx-btn--primary" disabled="@_checkingOut" @onclick="CheckoutAsync">
-                            @(_checkingOut ? "Processing…" : $"Pay ৳{_selectedPlan.PriceBdt:N0} and add {_selectedPlan.Posts} shared tokens")
+                            @(_checkingOut ? L["Processing…"] : L["Pay ৳{0} and add {1} shared tokens", _selectedPlan.PriceBdt.ToString("N0"), _selectedPlan.Posts])
                         </button>
-                        <small>This is a practice payment flow; no real money is charged.</small>
+                        <small>@L["This is a practice payment flow; no real money is charged."]</small>
                     </div>
                 }
             }

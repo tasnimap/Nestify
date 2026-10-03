@@ -1,13 +1,13 @@
+@inject IStringLocalizer<SharedResource> L
 @* "Post a listing" without leaving the page you are on. It hosts the same form
    the /housing/new page uses, so the two stay in step. *@
 @inject IHousingService Housing
 @inject IHouseLookupService HouseLookup
 @inject ToastService Toast
-
 <div class="hs-modal-overlay" @onclick="Cancel">
     <div class="hs-modal hs-modal--wide" @onclick:stopPropagation="true">
         <header class="hs-modal__header">
-            <h2>Post a seat or a house</h2>
+            <h2>@L["Post a seat or a house"]</h2>
             <button type="button" class="hs-modal__close" @onclick="Cancel" aria-label="Close">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                     <path d="M18 6 6 18M6 6l12 12" />
@@ -23,16 +23,16 @@
             else if (_houses.Count == 0)
             {
                 <div class="hs-empty">
-                    <h3>You don't manage a house yet</h3>
-                    <p>You need to be a Manager or CoManager of a house before you can post a listing.</p>
-                    <a class="nx-btn nx-btn--primary" href="home">Create a house</a>
+                    <h3>@L["You don't manage a house yet"]</h3>
+                    <p>@L["You need to be a Manager or CoManager of a house before you can post a listing."]</p>
+                    <a class="nx-btn nx-btn--primary" href="home">@L["Create a house"]</a>
                 </div>
             }
             else
             {
                 <HousingPostForm Model="_model" HouseOptions="_houses" SelectedHouseId="_selectedHouseId"
                                  SelectedHouseIdChanged="v => _selectedHouseId = v"
-                                 Busy="_busy" SubmitLabel="Publish listing"
+                                 Busy="_busy" SubmitLabel="@L["Publish listing"]"
                                  OnValidSubmit="Submit" OnCancel="Cancel" />
             }
         </div>

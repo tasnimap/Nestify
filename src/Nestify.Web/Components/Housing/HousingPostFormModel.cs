@@ -9,12 +9,12 @@ namespace Nestify.Web.Components.Housing;
 /// </summary>
 public sealed class HousingPostFormModel
 {
-    [Required(ErrorMessage = "Give the post a title.")]
-    [StringLength(150, MinimumLength = 4, ErrorMessage = "Title should be 4–150 characters.")]
+    [Required(ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = nameof(SharedResource.HousingPostTitleRequired))]
+    [StringLength(150, MinimumLength = 4, ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = nameof(SharedResource.HousingPostTitleLength))]
     public string Title { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "Describe the place so seekers know what they're getting.")]
-    [StringLength(4000, MinimumLength = 20, ErrorMessage = "Description should be at least 20 characters.")]
+    [Required(ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = nameof(SharedResource.HousingPostDescriptionRequired))]
+    [StringLength(4000, MinimumLength = 20, ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = nameof(SharedResource.HousingPostDescriptionLength))]
     public string Description { get; set; } = string.Empty;
 
     public ListingType ListingType { get; set; } = ListingType.SingleSeat;
@@ -22,7 +22,7 @@ public sealed class HousingPostFormModel
     /// <summary>Not typed in — filled from the house's max occupants minus its current members.</summary>
     public int SeatsAvailable { get; set; }
 
-    [Range(0, 1_000_000, ErrorMessage = "Enter a rent between ৳0 and ৳10,00,000.")]
+    [Range(0, 1_000_000, ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = nameof(SharedResource.HousingPostRentRange))]
     public decimal MonthlyRent { get; set; }
 
     public EligibilityDto Eligibility { get; set; } = new();

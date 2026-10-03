@@ -1,20 +1,20 @@
+@inject IStringLocalizer<SharedResource> L
 @page "/housing/{Id}/bookings"
 @attribute [Authorize(Roles = "User")]
 @inject IHousingService Housing
 @inject Nestify.Web.Services.ToastService Toast
 @inject Nestify.Web.Services.MoneyFormatterService Money
 @inject NavigationManager Navigation
-
-<PageTitle>Booking requests — Nestify</PageTitle>
+<PageTitle>@L["Booking requests — Nestify"]</PageTitle>
 
 <section class="nx-section hs-page">
     <div class="nx-container hs-wrap hs-wrap--narrow">
         <nav class="hs-crumbs" aria-label="Breadcrumb">
-            <a href="housing">Housing</a>
+            <a href="housing">@L["Housing"]</a>
             <span class="hs-crumbs__sep">/</span>
-            <a href="housing/mine">My listings</a>
+            <a href="housing/mine">@L["My listings"]</a>
             <span class="hs-crumbs__sep">/</span>
-            <span>Booking requests</span>
+            <span>@L["Booking requests"]</span>
         </nav>
 
         @if (_loading)
@@ -24,22 +24,22 @@
         else
         {
             <header class="hs-page__header hs-booking-head">
-                <h1>Booking requests</h1>
-                <p class="hs-booking-head__lead">Manage requests for <strong>@(_post?.Title ?? "this listing")</strong> and keep applicants informed.</p>
+                <h1>@L["Booking requests"]</h1>
+                <p class="hs-booking-head__lead">@L["Manage requests for "]<strong>@(_post?.Title ?? "this listing")</strong> and keep applicants informed.</p>
                 @if (_requesters.Count > 0)
                 {
                     <div class="hs-booking-filters" role="group" aria-label="Filter booking requests">
                         <button type="button" class="hs-booking-filter @(_statusFilter is null ? "is-active" : null)" aria-pressed="@(_statusFilter is null)" @onclick="() => _statusFilter = null">
-                            <span>All</span><b>@_requesters.Count</b>
+                            <span>@L["All"]</span><b>@_requesters.Count</b>
                         </button>
                         <button type="button" class="hs-booking-filter @(_statusFilter == BookingStatus.Pending ? "is-active" : null)" aria-pressed="@(_statusFilter == BookingStatus.Pending)" @onclick="() => _statusFilter = BookingStatus.Pending">
-                            <span>Pending</span><b>@_requesters.Count(r => r.Status == BookingStatus.Pending)</b>
+                            <span>@L["Pending"]</span><b>@_requesters.Count(r => r.Status == BookingStatus.Pending)</b>
                         </button>
                         <button type="button" class="hs-booking-filter @(_statusFilter == BookingStatus.Accepted ? "is-active" : null)" aria-pressed="@(_statusFilter == BookingStatus.Accepted)" @onclick="() => _statusFilter = BookingStatus.Accepted">
-                            <span>Accepted</span><b>@_requesters.Count(r => r.Status == BookingStatus.Accepted)</b>
+                            <span>@L["Accepted"]</span><b>@_requesters.Count(r => r.Status == BookingStatus.Accepted)</b>
                         </button>
                         <button type="button" class="hs-booking-filter @(_statusFilter == BookingStatus.Rejected ? "is-active" : null)" aria-pressed="@(_statusFilter == BookingStatus.Rejected)" @onclick="() => _statusFilter = BookingStatus.Rejected">
-                            <span>Rejected</span><b>@_requesters.Count(r => r.Status == BookingStatus.Rejected)</b>
+                            <span>@L["Rejected"]</span><b>@_requesters.Count(r => r.Status == BookingStatus.Rejected)</b>
                         </button>
                     </div>
                 }
@@ -48,16 +48,16 @@
             @if (_requesters.Count == 0)
             {
                 <div class="hs-empty hs-empty--section">
-                    <h2>No booking requests yet</h2>
-                    <p>When someone requests to book your listing, their request will appear here.</p>
-                    <a class="nx-btn nx-btn--primary" href="housing/mine">Back to My listings</a>
+                    <h2>@L["No booking requests yet"]</h2>
+                    <p>@L["When someone requests to book your listing, their request will appear here."]</p>
+                    <a class="nx-btn nx-btn--primary" href="housing/mine">@L["Back to My listings"]</a>
                 </div>
             }
             else
             {
                 @if (!VisibleRequesters.Any())
                 {
-                    <div class="hs-empty hs-empty--section"><p>No requests match this filter.</p></div>
+                    <div class="hs-empty hs-empty--section"><p>@L["No requests match this filter."]</p></div>
                 }
                 else
                 {
@@ -71,19 +71,19 @@
                                     <div class="hs-requester-card__title-section">
                                         <h3>@requester.RequesterName</h3>
                                         <span class="hs-badge hs-badge--@HousingView.StatusModifier(requester.Status)">
-                                            @HousingView.Label(requester.Status)
+                                            @L[HousingView.Label(requester.Status)]
                                         </span>
                                     </div>
                                 </div>
                                 <div class="hs-requester-card__meta">
-                                    <time>@HousingView.RelativeTime(requester.RequestedAtUtc)</time>
+                                    <time>@requester.RequestedAtUtc.ToLocalTime().ToString("g")</time>
                                 </div>
                             </header>
 
                             @if (!string.IsNullOrEmpty(requester.Message))
                             {
                                 <div class="hs-requester-card__message">
-                                    <span class="hs-requester-card__message-label">Applicant message</span>
+                                    <span class="hs-requester-card__message-label">@L["Applicant message"]</span>
                                     <p>@requester.Message</p>
                                 </div>
                             }
@@ -137,7 +137,7 @@
                     ? "This releases the seat for another applicant. A short, respectful note gives the applicant useful closure."
                     : "A short, respectful note gives the applicant useful closure. This message is optional.")</p>
                 <div class="field">
-                    <label for="reject-message" class="field__label">Message (optional)</label>
+                    <label for="reject-message" class="field__label">@L["Message (optional)"]</label>
                     <textarea id="reject-message" class="field__textarea" 
                               @bind="_rejectMessage" @bind:event="oninput"
                               placeholder="Thank you for your interest, but..."

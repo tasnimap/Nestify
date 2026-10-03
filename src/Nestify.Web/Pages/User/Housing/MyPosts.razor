@@ -1,26 +1,26 @@
+@inject IStringLocalizer<SharedResource> L
 @page "/housing/mine"
 @attribute [Authorize(Roles = "User")]
 @using Nestify.Shared.Dtos.Housing
 @inject IHousingService Housing
 @inject NavigationManager Nav
 @inject ToastService Toast
-
-<PageTitle>My listings — Nestify</PageTitle>
+<PageTitle>@L["My listings"] — Nestify</PageTitle>
 
 <section class="nx-section hs-page">
     <div class="nx-container hs-wrap">
         <header class="hs-head">
             <div class="hs-head__titles">
-                <p class="nx-eyebrow">M1 · Housing</p>
-                <h1>My listings</h1>
+                <p class="nx-eyebrow">@L["M1 · Housing"]</p>
+                <h1>@L["My listings"]</h1>
                 <p class="hs-head__lead">
-                    Manage the seats and houses you've posted on Nestify. Review booking requests and keep your listings up to date.
+                    @L["Manage the seats and houses you've posted on Nestify. Review booking requests and keep your listings up to date."]
                 </p>
             </div>
 
             <div class="hs-head__actions">
-                <a class="nx-btn nx-btn--ghost" href="housing">Browse listings</a>
-                <a class="nx-btn nx-btn--ghost" href="bookings/mine">My bookings</a>
+                <a class="nx-btn nx-btn--ghost" href="housing">@L["Browse listings"]</a>
+                <a class="nx-btn nx-btn--ghost" href="bookings/mine">@L["My bookings"]</a>
                 <button type="button" class="nx-btn nx-btn--primary" @onclick="OpenPostModal">
                     <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
                     Post a listing
@@ -48,9 +48,9 @@
                         <path d="M9.5 21v-6h5v6" />
                     </svg>
                 </div>
-                <h2>You haven't posted any listings yet</h2>
-                <p>Start by creating your first post to share a seat or house on Nestify.</p>
-                <button type="button" class="nx-btn nx-btn--primary" @onclick="OpenPostModal">Create a listing</button>
+                <h2>@L["You haven't posted any listings yet"]</h2>
+                <p>@L["Start by creating your first post to share a seat or house on Nestify."]</p>
+                <button type="button" class="nx-btn nx-btn--primary" @onclick="OpenPostModal">@L["Create a listing"]</button>
             </div>
         }
         else
@@ -78,9 +78,9 @@
                                     <a href="housing/@postDto.Post.Id">@postDto.Post.Title</a>
                                 </h2>
                                 <div class="hs-row__badges">
-                                    <span class="hs-chip hs-chip--type">@HousingView.Label(postDto.Post.ListingType)</span>
+                                    <span class="hs-chip hs-chip--type">@L[HousingView.Label(postDto.Post.ListingType)]</span>
                                     <span class="hs-badge hs-badge--@HousingView.StatusModifier(postDto.Post.Status)">
-                                        @HousingView.Label(postDto.Post.Status)
+                                        @L[HousingView.Label(postDto.Post.Status)]
                                     </span>
                                     @if (postDto.Post.IsPinned)
                                     {
@@ -105,7 +105,7 @@
                                     @if (postDto.Post.IsPinned && postDto.Post.PinnedUntilUtc is { } pinUntil)
                                     {
                                         <span class="hs-dot"></span>
-                                        <span class="hs-pin-expiry">Pinned till @pinUntil.ToLocalTime().ToString("d MMM, h:mm tt")</span>
+                                        <span class="hs-pin-expiry">@L["Pinned till"] @pinUntil.ToLocalTime().ToString("g")</span>
                                     }
                                 </div>
                             </div>
@@ -115,9 +115,9 @@
                         </div>
 
                         <div class="hs-row__stats">
-                            <span class="hs-stat"><strong>@postDto.Post.SeatsAvailable</strong>&nbsp;seats available</span>
-                            <span class="hs-stat"><strong>@postDto.BookingRequestCount</strong>&nbsp;total requests</span>
-                            <span class="hs-stat"><strong>@postDto.PendingBookingRequestCount</strong>&nbsp;pending</span>
+                            <span class="hs-stat"><strong>@postDto.Post.SeatsAvailable</strong>&nbsp;@L["seats available"]</span>
+                            <span class="hs-stat"><strong>@postDto.BookingRequestCount</strong>&nbsp;@L["total requests"]</span>
+                            <span class="hs-stat"><strong>@postDto.PendingBookingRequestCount</strong>&nbsp;@L["Pending"]</span>
                         </div>
 
                         @if (postDto.BookingRequestCount > 0)
@@ -126,11 +126,11 @@
                             {
                                 @if (_requestersLoading)
                                 {
-                                    <p class="hs-requesters__loading">Loading requests…</p>
+                                    <p class="hs-requesters__loading">@L["Loading requests…"]</p>
                                 }
                                 else if (_currentRequesters.Count == 0)
                                 {
-                                    <p class="hs-requesters__empty">No booking requests found.</p>
+                                    <p class="hs-requesters__empty">@L["No booking requests found."]</p>
                                 }
                                 else
                                 {
@@ -141,9 +141,9 @@
                                                 <div class="hs-requester__top">
                                                     <div class="hs-requester__info">
                                                         <p class="hs-requester__name">@requester.RequesterName</p>
-                                                        <p class="hs-requester__date">Requested @requester.RequestedAtUtc.ToString("g")</p>
+                                                        <p class="hs-requester__date">@L["Requested"] @requester.RequestedAtUtc.ToLocalTime().ToString("g")</p>
                                                     </div>
-                                                    <span class="hs-badge @GetRequesterBadgeClass(requester.Status)">@HousingView.Label(requester.Status)</span>
+                                                    <span class="hs-badge @GetRequesterBadgeClass(requester.Status)">@L[HousingView.Label(requester.Status)]</span>
                                                 </div>
                                                 @if (!string.IsNullOrEmpty(requester.Message))
                                                 {
@@ -173,33 +173,33 @@
                         }
 
                         <div class="hs-row__actions">
-                            <a class="nx-btn nx-btn--ghost" href="housing/@postDto.Post.Id">View</a>
+                            <a class="nx-btn nx-btn--ghost" href="housing/@postDto.Post.Id">@L["View"]</a>
                             @if (postDto.BookingRequestCount > 0)
                             {
                                 <button type="button" class="nx-btn nx-btn--ghost"
                                         @onclick="() => LoadRequesters(postDto.Post.Id)">
-                                    @(_expandedPostId == postDto.Post.Id ? "Hide requests" : "Preview requests")
+                                    @(_expandedPostId == postDto.Post.Id ? L["Hide requests"] : L["Preview requests"])
                                 </button>
-                                <a class="nx-btn nx-btn--ghost" href="housing/@postDto.Post.Id/bookings">View all (@postDto.BookingRequestCount)</a>
+                                <a class="nx-btn nx-btn--ghost" href="housing/@postDto.Post.Id/bookings">@L["View all (@postDto.BookingRequestCount)"]</a>
                             }
-                            <a class="nx-btn nx-btn--ghost" href="housing/@postDto.Post.Id/edit">Edit</a>
+                            <a class="nx-btn nx-btn--ghost" href="housing/@postDto.Post.Id/edit">@L["Edit"]</a>
                             @if (postDto.Post.Status == PostStatus.Active)
                             {
                                 <button type="button" class="nx-btn nx-btn--ghost hs-pin-btn"
                                         @onclick="() => OpenPinModal(postDto.Post)">
-                                    📌 @(postDto.Post.IsPinned ? "Extend pin" : "Pin listing")
+                                    📌 @(postDto.Post.IsPinned ? L["Extend pin"] : L["Pin listing"])
                                 </button>
                             }
                             <span class="hs-row__actions-spacer"></span>
                             @if (postDto.Post.Status == PostStatus.Active)
                             {
-                                <button type="button" class="nx-btn nx-btn--ghost" @onclick="() => ClosePost(postDto.Post.Id)">Close</button>
+                                <button type="button" class="nx-btn nx-btn--ghost" @onclick="() => ClosePost(postDto.Post.Id)">@L["Close"]</button>
                             }
                             else
                             {
-                                <button type="button" class="nx-btn nx-btn--ghost" @onclick="() => ReopenPost(postDto.Post.Id)">Reopen</button>
+                                <button type="button" class="nx-btn nx-btn--ghost" @onclick="() => ReopenPost(postDto.Post.Id)">@L["Reopen"]</button>
                             }
-                            <button type="button" class="nx-btn nx-btn--ghost hs-danger-btn" @onclick="() => DeletePost(postDto.Post.Id)">Delete</button>
+                            <button type="button" class="nx-btn nx-btn--ghost hs-danger-btn" @onclick="() => DeletePost(postDto.Post.Id)">@L["Delete"]</button>
                         </div>
                     </article>
                 }

@@ -26,4 +26,10 @@ public sealed class SharedResource
     public static string SettlementPayerRequired => Get("Pick who paid.");
     public static string SettlementPaymentAmountRequired => Get("Amount must be greater than ৳0.00.");
     public static string SettlementPaymentNoteRequired => Get("Add a short note so the house knows what this was.");
+
+    public static string HousingPostTitleRequired => Get("Give the post a title.");
+    public static string HousingPostTitleLength => Get("Title should be 4–150 characters.");
+    public static string HousingPostDescriptionRequired => Get("Describe the place so seekers know what they're getting.");
+    public static string HousingPostDescriptionLength => Get("Description should be at least 20 characters.");
+    public static string HousingPostRentRange => Get("Enter a rent between ৳0 and ৳10,00,000.");
 }

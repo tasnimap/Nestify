@@ -1,25 +1,24 @@
+@inject IStringLocalizer<SharedResource> L
 @page "/housing"
 @attribute [Authorize(Roles = "User")]
 @using Nestify.Shared.Dtos.Area
 @inject IHousingService Housing
-
-<PageTitle>Housing — Nestify</PageTitle>
+<PageTitle>@L["Housing — Nestify"]</PageTitle>
 
 <section class="nx-section hs-page">
     <div class="nx-container hs-wrap">
         <header class="hs-head">
             <div class="hs-head__titles">
-                <p class="nx-eyebrow">Housing</p>
-                <h1>A seat or a house, <span class="nx-display-accent">near where you already live your life.</span></h1>
+                <p class="nx-eyebrow">@L["Housing"]</p>
+                <h1>@L["A seat or a house, "]<span class="nx-display-accent">@L["near where you already live your life."]</span></h1>
                 <p class="hs-head__lead">
-                    Browse open seats and houses posted by managers on Nestify. Every listing you see already
-                    matches your profile — there is nothing to filter out yourself.
+                    @L["Browse open seats and houses posted by managers on Nestify. Every listing you see already matches your profile — there is nothing to filter out yourself."]
                 </p>
             </div>
             
             <div class="hs-head__actions">
-                <a class="nx-btn nx-btn--ghost" href="housing/mine">My posts</a>
-                <a class="nx-btn nx-btn--ghost" href="bookings/mine">My bookings</a>
+                <a class="nx-btn nx-btn--ghost" href="housing/mine">@L["My posts"]</a>
+                <a class="nx-btn nx-btn--ghost" href="bookings/mine">@L["My bookings"]</a>
                 <HousingPostingTokens />
                 <button type="button" class="nx-btn nx-btn--primary" @onclick="OpenPostModal">
                     <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
@@ -31,25 +30,25 @@
         <div class="hs-browse">
             <aside class="hs-lens" aria-label="Filter listings">
                 <div class="hs-lens__row">
-                    <span class="hs-lens__label">Area</span>
+                    <span class="hs-lens__label">@L["Area"]</span>
                     <AreaCascade Selection="_areaSelection" SelectionChanged="OnAreaChanged" Filter="true" />
                 </div>
 
                 <div class="hs-lens__row">
-                    <span class="hs-lens__label">Listing type</span>
+                    <span class="hs-lens__label">@L["Listing type"]</span>
                     <div class="hs-seg hs-seg--wrap">
                         <button type="button" class="hs-seg__opt @(_filter.ListingType is null ? "hs-seg__opt--active" : null)"
-                                @onclick="() => SetListingType(null)">Any</button>
+                                @onclick="() => SetListingType(null)">@L["Any"]</button>
                         @foreach (var t in _listingTypes)
                         {
                             <button type="button" class="hs-seg__opt @(_filter.ListingType == t ? "hs-seg__opt--active" : null)"
-                                    @onclick="() => SetListingType(t)">@HousingView.ShortLabel(t)</button>
+                                    @onclick="() => SetListingType(t)">@L[HousingView.ShortLabel(t)]</button>
                         }
                     </div>
                 </div>
 
                 <div class="hs-lens__row">
-                    <label class="hs-lens__label" for="hs-max-rent">Max rent (৳/mo)</label>
+                    <label class="hs-lens__label" for="hs-max-rent">@L["Max rent (৳/mo)"]</label>
                     <input id="hs-max-rent" type="number" min="0" step="500" placeholder="No limit" inputmode="numeric"
                            value="@_filter.MaxRent" @onchange="OnMaxRent" />
                 </div>
@@ -67,7 +66,7 @@
                 <p class="hs-results__count">
                     @if (_loading)
                     {
-                        <span>Loading listings…</span>
+                        <span>@L["Loading listings…"]</span>
                     }
                     else if (_page is not null)
                     {
@@ -87,9 +86,9 @@
                 else if (_error)
                 {
                     <div class="hs-empty">
-                        <h3>Couldn't load listings</h3>
-                        <p>Something went wrong reaching housing. Try again in a moment.</p>
-                        <button class="nx-btn nx-btn--primary" @onclick="LoadAsync">Retry</button>
+                        <h3>@L["Couldn't load listings"]</h3>
+                        <p>@L["Something went wrong reaching housing. Try again in a moment."]</p>
+                        <button class="nx-btn nx-btn--primary" @onclick="LoadAsync">@L["Retry"]</button>
                     </div>
                 }
                 else if (_page is null || _page.Items.Count == 0)
@@ -103,11 +102,11 @@
                                 <path d="M9.5 21v-6h5v6" />
                             </svg>
                         </div>
-                        <h3>Nothing matches those filters</h3>
-                        <p>No active listing fits this combination yet. Try a different area or widen the rent range.</p>
+                        <h3>@L["Nothing matches those filters"]</h3>
+                        <p>@L["No active listing fits this combination yet. Try a different area or widen the rent range."]</p>
                         @if (HasActiveFilters)
                         {
-                            <button class="nx-btn nx-btn--ghost" @onclick="ClearFilters">Clear filters</button>
+                            <button class="nx-btn nx-btn--ghost" @onclick="ClearFilters">@L["Clear filters"]</button>
                         }
                     </div>
                 }
@@ -123,9 +122,9 @@
                     @if (_page.TotalPages > 1)
                     {
                         <nav class="hs-pager" aria-label="Pagination">
-                            <button class="nx-btn nx-btn--ghost" disabled="@(!_page.HasPrevious)" @onclick="PrevPage">Previous</button>
-                            <span class="hs-pager__pages">Page @_page.Page of @_page.TotalPages</span>
-                            <button class="nx-btn nx-btn--ghost" disabled="@(!_page.HasNext)" @onclick="NextPage">Next</button>
+                            <button class="nx-btn nx-btn--ghost" disabled="@(!_page.HasPrevious)" @onclick="PrevPage">@L["Previous"]</button>
+                            <span class="hs-pager__pages">@L["Page @_page.Page of @_page.TotalPages"]</span>
+                            <button class="nx-btn nx-btn--ghost" disabled="@(!_page.HasNext)" @onclick="NextPage">@L["Next"]</button>
                         </nav>
                     }
                 }
