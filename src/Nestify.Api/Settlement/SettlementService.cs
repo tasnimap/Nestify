@@ -398,16 +398,22 @@ public sealed class SettlementService
         }
 
         using var connection = await _db.OpenAsync();
-        var membership = await GetManagerMembershipAsync(connection, userId);
+        var membership = await GetMembershipAsync(connection, null, userId);
         if (membership is null)
         {
-            return (null, "Only a home manager or co-manager can record payments.");
+            return (null, "You are not in a home.");
         }
 
         var book = await GetOpenBookAsync(connection, null, membership.HomeId, year, month);
         if (book is null)
         {
             return (null, "This month's book is not open.");
+        }
+
+        var canRecordForOthers = membership.Role is HomeService.RoleManager or HomeService.RoleCoManager;
+        if (!canRecordForOthers)
+        {
+            request.UserId = userId;
         }
 
         if (!await IsBookMemberAsync(connection, null, book.Id, request.UserId))
