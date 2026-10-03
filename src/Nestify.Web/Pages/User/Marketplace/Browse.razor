@@ -128,7 +128,7 @@
                         <option value="">@L["All Bangladesh"]</option>
                         @foreach (var d in _divisions)
                         {
-                            <option value="@d.Id">@d.Name</option>
+                            <option value="@d.Id">@d.Label()</option>
                         }
                     </select>
                 </div>
@@ -142,7 +142,7 @@
                             <option value="">@L["All districts"]</option>
                             @foreach (var d in _districts)
                             {
-                                <option value="@d.Id">@d.Name</option>
+                                <option value="@d.Id">@d.Label()</option>
                             }
                         </select>
                     </div>
@@ -157,7 +157,7 @@
                             <option value="">@L["All upazilas"]</option>
                             @foreach (var u in _upazilas)
                             {
-                                <option value="@u.Id">@u.Name</option>
+                                <option value="@u.Id">@u.Label()</option>
                             }
                         </select>
                     </div>

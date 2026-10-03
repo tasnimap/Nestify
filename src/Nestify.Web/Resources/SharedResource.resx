@@ -1121,6 +1121,12 @@
   <data name="Newest" xml:space="preserve"><value>Newest</value></data>
   <data name="Post your first item" xml:space="preserve"><value>Post your first item</value></data>
   <data name="Sold outside Nestify" xml:space="preserve"><value>Sold outside Nestify</value></data>
+  <data name="All divisions" xml:space="preserve"><value>All divisions</value></data>
+  <data name="All division" xml:space="preserve"><value>All division</value></data>
+  <data name="Select division" xml:space="preserve"><value>Select division</value></data>
+  <data name="Select district" xml:space="preserve"><value>Select district</value></data>
+  <data name="Select upazila" xml:space="preserve"><value>Select upazila</value></data>
+  <data name="Distance" xml:space="preserve"><value>Distance</value></data>
   <data name="All districts" xml:space="preserve"><value>All districts</value></data>
   <data name="Suspected scam" xml:space="preserve"><value>Suspected scam</value></data>
   <data name="This listing isn&apos;t available" xml:space="preserve"><value>This listing isn&apos;t available</value></data>

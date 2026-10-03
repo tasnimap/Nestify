@@ -15,6 +15,7 @@
 --
 -- After this, load the reference data:
 --   seed/bangladesh_administrative_seed.sql   divisions, districts, upazilas
+--   seed/area_names_bn_seed.sql               Bangla names (area_names_bn)
 --   seed/domestic_help_seed.sql               sample helpers (optional)
 --
 -- Order of the sections below:
@@ -100,6 +101,7 @@ DROP TABLE IF EXISTS houses                       CASCADE;
 
 DROP TABLE IF EXISTS user_additional_profile_info CASCADE;
 
+DROP TABLE IF EXISTS area_names_bn                 CASCADE;
 DROP TABLE IF EXISTS upazilas                     CASCADE;
 DROP TABLE IF EXISTS districts                    CASCADE;
 DROP TABLE IF EXISTS divisions                    CASCADE;
@@ -222,6 +224,21 @@ CREATE TABLE upazilas (
 CREATE INDEX        ix_upazilas_district      ON upazilas (district_id);
 CREATE INDEX        ix_upazilas_metro         ON upazilas (district_id) WHERE is_metropolitan_thana;
 CREATE UNIQUE INDEX ux_upazilas_district_name ON upazilas (district_id, name);
+
+
+-- Bangla names for every division, district and upazila / thana, kept apart
+-- from the English rows above. The English names stay the keys used for
+-- filtering; the app reads this table to show the Bangla label when the
+-- language is switched to Bangla.
+--   area_type  'division' | 'district' | 'upazila'  (upazila includes metro thanas)
+--   area_id    id in the table named by area_type
+-- Rows come from seed/area_names_bn_seed.sql.
+CREATE TABLE area_names_bn (
+    area_type varchar(10)  NOT NULL CHECK (area_type IN ('division', 'district', 'upazila')),
+    area_id   int          NOT NULL,
+    name_bn   varchar(100) NOT NULL,
+    PRIMARY KEY (area_type, area_id)
+);
 
 
 -- ============================================================================

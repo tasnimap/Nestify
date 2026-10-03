@@ -41,7 +41,7 @@ public enum EngagementRole
 
 public enum HelperSortOption
 {
-    RatingDesc,
+    DistanceAsc,
     RateAsc,
     RateDesc,
     ExperienceDesc
@@ -193,7 +193,7 @@ public sealed class HelperFilterDto
     public decimal? MaxMonthlyRate { get; set; }
     public double? MinRating { get; set; }
     public bool VerifiedOnly { get; set; }
-    public HelperSortOption Sort { get; set; } = HelperSortOption.RatingDesc;
+    public HelperSortOption Sort { get; set; } = HelperSortOption.DistanceAsc;
     public int Page { get; set; } = 1;
     public int PageSize { get; set; } = 9;
 }

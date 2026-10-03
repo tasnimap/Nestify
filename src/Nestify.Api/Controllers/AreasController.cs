@@ -23,7 +23,10 @@ public sealed class AreasController : ControllerBase
     {
         using var connection = await _db.OpenAsync();
         var rows = await connection.QueryAsync<DivisionDto>(
-            "SELECT id, name, bn_name AS BnName FROM divisions ORDER BY name");
+            @"SELECT d.id, d.name, COALESCE(t.name_bn, d.bn_name, d.name) AS BnName
+              FROM divisions d
+              LEFT JOIN area_names_bn t ON t.area_type = 'division' AND t.area_id = d.id
+              ORDER BY d.name");
         return Ok(rows.ToList());
     }
 
@@ -32,10 +35,12 @@ public sealed class AreasController : ControllerBase
     {
         using var connection = await _db.OpenAsync();
         var rows = await connection.QueryAsync<DistrictDto>(
-            @"SELECT id, division_id AS DivisionId, name, bn_name AS BnName
-              FROM districts
-              WHERE division_id = @divisionId
-              ORDER BY name",
+            @"SELECT d.id, d.division_id AS DivisionId, d.name,
+                     COALESCE(t.name_bn, d.bn_name, d.name) AS BnName
+              FROM districts d
+              LEFT JOIN area_names_bn t ON t.area_type = 'district' AND t.area_id = d.id
+              WHERE d.division_id = @divisionId
+              ORDER BY d.name",
             new { divisionId });
         return Ok(rows.ToList());
     }
@@ -47,10 +52,12 @@ public sealed class AreasController : ControllerBase
     {
         using var connection = await _db.OpenAsync();
         var rows = await connection.QueryAsync<UpazilaDto>(
-            @"SELECT id, district_id AS DistrictId, name, COALESCE(bn_name, name) AS BnName
-              FROM upazilas
-              WHERE district_id = @districtId
-              ORDER BY is_metropolitan_thana DESC, name",
+            @"SELECT u.id, u.district_id AS DistrictId, u.name,
+                     COALESCE(t.name_bn, u.bn_name, u.name) AS BnName
+              FROM upazilas u
+              LEFT JOIN area_names_bn t ON t.area_type = 'upazila' AND t.area_id = u.id
+              WHERE u.district_id = @districtId
+              ORDER BY u.is_metropolitan_thana DESC, u.name",
             new { districtId });
         return Ok(rows.ToList());
     }
