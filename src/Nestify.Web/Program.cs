@@ -25,7 +25,9 @@ if (builder.HostEnvironment.IsDevelopment())
 }
 
 builder.Services.AddBlazoredLocalStorage();
-builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+// The SDK embeds Resources/SharedResource*.resx as Nestify.Web.SharedResource;
+// leave ResourcesPath unset so IStringLocalizer<SharedResource> uses that base name.
+builder.Services.AddLocalization();
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<CustomAuthStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(sp =>
@@ -95,6 +97,8 @@ var savedLanguage = await js.InvokeAsync<string?>("nestifyLanguage.get");
 var culture = new CultureInfo(string.Equals(savedLanguage, "bn", StringComparison.OrdinalIgnoreCase) ? "bn-BD" : "en");
 CultureInfo.DefaultThreadCurrentCulture = culture;
 CultureInfo.DefaultThreadCurrentUICulture = culture;
+CultureInfo.CurrentCulture = culture;
+CultureInfo.CurrentUICulture = culture;
 await js.InvokeVoidAsync("nestifyLanguage.apply", culture.Name);
 
 await host.RunAsync();

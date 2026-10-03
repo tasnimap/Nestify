@@ -20,6 +20,9 @@
   <data name="Log in" xml:space="preserve"><value>লগ ইন</value></data>
   <data name="Helper" xml:space="preserve"><value>সহায়তাকর্মী</value></data>
   <data name="Dashboard" xml:space="preserve"><value>ড্যাশবোর্ড</value></data>
+  <data name="Today" xml:space="preserve"><value>আজ</value></data>
+  <data name="Tomorrow" xml:space="preserve"><value>আগামীকাল</value></data>
+  <data name="View engagement" xml:space="preserve"><value>কাজের বিবরণ দেখুন</value></data>
   <data name="Availability" xml:space="preserve"><value>কাজের সময়</value></data>
   <data name="Schedule" xml:space="preserve"><value>সময়সূচি</value></data>
   <data name="Engagements" xml:space="preserve"><value>কাজের অনুরোধ</value></data>

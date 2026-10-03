@@ -20,6 +20,9 @@
   <data name="Log in" xml:space="preserve"><value>Log in</value></data>
   <data name="Helper" xml:space="preserve"><value>Helper</value></data>
   <data name="Dashboard" xml:space="preserve"><value>Dashboard</value></data>
+  <data name="Today" xml:space="preserve"><value>Today</value></data>
+  <data name="Tomorrow" xml:space="preserve"><value>Tomorrow</value></data>
+  <data name="View engagement" xml:space="preserve"><value>View engagement</value></data>
   <data name="Availability" xml:space="preserve"><value>Availability</value></data>
   <data name="Schedule" xml:space="preserve"><value>Schedule</value></data>
   <data name="Engagements" xml:space="preserve"><value>Engagements</value></data>
