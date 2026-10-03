@@ -1,7 +1,9 @@
 using System.Data;
 using Dapper;
 using Nestify.Api.Data;
+using Nestify.Api.Notifications;
 using Nestify.Shared.Dtos.Admin;
+using Nestify.Shared.Dtos.Notifications;
 
 namespace Nestify.Api.Admin;
 
@@ -25,8 +27,13 @@ public sealed class AdminConsoleService
     private const short VerificationApproved = 2;
 
     private readonly DbConnectionFactory _db;
+    private readonly NotificationService _notifications;
 
-    public AdminConsoleService(DbConnectionFactory db) => _db = db;
+    public AdminConsoleService(DbConnectionFactory db, NotificationService notifications)
+    {
+        _db = db;
+        _notifications = notifications;
+    }
 
     // ------------------------------------------------------------ summary
 
@@ -615,6 +622,9 @@ public sealed class AdminConsoleService
         await connection.ExecuteAsync(
             "INSERT INTO admin_accounts (user_id, scope, created_by_user_id) VALUES (@userId, @scope, @adminId)",
             new { userId, scope, adminId }, transaction);
+        await _notifications.CreateAsync(connection, transaction, userId, NotificationType.GeneralUpdate,
+            "Admin account created", "Your Nestify admin account is ready.",
+            NotificationSourceType.AdminAccount, userId, "/admin");
         await LogAsync(connection, transaction, adminId, "Created admin account", name, scope, "ok");
         transaction.Commit();
         return (userId, null);
@@ -657,6 +667,11 @@ public sealed class AdminConsoleService
         await LogAsync(connection, transaction, adminId, isActive ? "Enabled admin" : "Suspended admin", name, null,
             isActive ? "ok" : "danger");
         transaction.Commit();
+        var accountEventId = await _notifications.NextEventSourceIdAsync(connection);
+        await _notifications.CreateAsync(targetId, NotificationType.GeneralUpdate,
+            isActive ? "Admin account restored" : "Admin account suspended",
+            isActive ? "Your Nestify admin account has been restored." : "Your Nestify admin account has been suspended.",
+            NotificationSourceType.AdminAccount, accountEventId, "/admin");
         return (true, isActive ? "Admin restored." : "Admin suspended.");
     }
 

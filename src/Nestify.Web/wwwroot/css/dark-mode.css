@@ -787,36 +787,68 @@ html[data-theme="dark"] .layout--helper .site-footer {
     background: var(--nx-bg-deep);
 }
 
-html[data-theme="dark"] .layout--helper .notification-dropdown {
+html[data-theme="dark"] .notification-dropdown,
+html[data-admin-theme="dark"] .notification-dropdown {
     color: var(--nx-body);
     background: var(--nx-card);
     border-color: var(--nx-border);
 }
 
-html[data-theme="dark"] .layout--helper .notification-dropdown__header,
-html[data-theme="dark"] .layout--helper .notification-dropdown .notification-item {
+html[data-theme="dark"] .notification-dropdown__header,
+html[data-theme="dark"] .notification-dropdown .notification-item,
+html[data-admin-theme="dark"] .notification-dropdown__header,
+html[data-admin-theme="dark"] .notification-dropdown .notification-item {
     border-color: var(--nx-border);
 }
 
-html[data-theme="dark"] .layout--helper .notification-dropdown__header h2,
-html[data-theme="dark"] .layout--helper .notification-item__title {
-    color: var(--nx-ink);
+html[data-theme="dark"] .notification-dropdown__header h2,
+html[data-theme="dark"] .notification-item__title,
+html[data-admin-theme="dark"] .notification-dropdown__header h2,
+html[data-admin-theme="dark"] .notification-item__title {
+    color: #f2edf9;
 }
 
-html[data-theme="dark"] .layout--helper .notification-dropdown__state,
-html[data-theme="dark"] .layout--helper .notification-item__time,
-html[data-theme="dark"] .layout--helper .notification-item__body,
-html[data-theme="dark"] .layout--helper .notification-item__mark-read {
-    color: var(--nx-muted);
+html[data-theme="dark"] .notification-dropdown__state,
+html[data-theme="dark"] .notification-item__time,
+html[data-theme="dark"] .notification-item__body,
+html[data-theme="dark"] .notification-item__mark-read,
+html[data-admin-theme="dark"] .notification-dropdown__state,
+html[data-admin-theme="dark"] .notification-item__time,
+html[data-admin-theme="dark"] .notification-item__body,
+html[data-admin-theme="dark"] .notification-item__mark-read {
+    color: #b9afc9;
 }
 
-html[data-theme="dark"] .layout--helper .notification-dropdown .notification-item:hover {
+html[data-theme="dark"] .notification-dropdown .notification-item:hover,
+html[data-admin-theme="dark"] .notification-dropdown .notification-item:hover {
     background: var(--nx-bg-alt);
 }
 
-html[data-theme="dark"] .layout--helper .notification-dropdown .notification-item--unread,
-html[data-theme="dark"] .layout--helper .notification-dropdown .notification-item--unread:hover {
+html[data-theme="dark"] .notification-dropdown .notification-item--unread,
+html[data-theme="dark"] .notification-dropdown .notification-item--unread:hover,
+html[data-admin-theme="dark"] .notification-dropdown .notification-item--unread,
+html[data-admin-theme="dark"] .notification-dropdown .notification-item--unread:hover {
     background: var(--nx-primary-soft);
+}
+
+html[data-admin-theme="dark"] .adm .notification-dropdown {
+    color: #eee8f5;
+    background: #211d2a;
+    border-color: #40384d;
+}
+
+html[data-admin-theme="dark"] .adm .notification-dropdown__header,
+html[data-admin-theme="dark"] .adm .notification-dropdown .notification-item {
+    border-color: #40384d;
+}
+
+html[data-admin-theme="dark"] .adm .notification-dropdown .notification-item:hover {
+    background: #302a3b;
+}
+
+html[data-admin-theme="dark"] .adm .notification-dropdown .notification-item--unread,
+html[data-admin-theme="dark"] .adm .notification-dropdown .notification-item--unread:hover {
+    background: #382d4c;
 }
 
 html.theme-transitioning .layout--helper,

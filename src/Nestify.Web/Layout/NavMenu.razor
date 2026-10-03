@@ -35,7 +35,6 @@
                             <li><NavLink class="nav__link" href="helpers" @onclick="Close">Domestic Help</NavLink></li>
                             <li><NavLink class="nav__link" href="marketplace" @onclick="Close">Marketplace</NavLink></li>
                             <li><NavLink class="nav__link" href="settlement" @onclick="Close">Settlement</NavLink></li>
-                            <li><Nestify.Web.Components.Helper.NotificationBell /></li>
                         </AuthorizeView>
                         <AuthorizeView Roles="DomesticHelper,DomesticHelp,Maid,Helper" Context="helperCtx">
                             <li><NavLink class="nav__link" href="helpers/dashboard" @onclick="Close">My Dashboard</NavLink></li>
@@ -45,6 +44,7 @@
                             <li><NavLink class="nav__link" href="admin" @onclick="Close">Admin Console</NavLink></li>
                             <li><NavLink class="nav__link" href="admin/verifications" @onclick="Close">Verifications</NavLink></li>
                         </AuthorizeView>
+                        <li><NotificationBell /></li>
                     </Authorized>
                 </AuthorizeView>
             </ul>

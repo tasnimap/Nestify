@@ -4,8 +4,10 @@ using System.Text.RegularExpressions;
 using Dapper;
 using Npgsql;
 using Nestify.Api.Data;
+using Nestify.Api.Notifications;
 using Nestify.Shared.Dtos.Admin;
 using Nestify.Shared.Dtos.Helpers;
+using Nestify.Shared.Dtos.Notifications;
 using Nestify.Shared.Dtos.Profile;
 
 namespace Nestify.Api.Profiles;
@@ -15,6 +17,7 @@ public sealed class VerificationService
 {
     private readonly DbConnectionFactory _db;
     private readonly CloudinaryUploader _uploader;
+    private readonly NotificationService _notifications;
 
     // verification_requests.status
     private const short Pending = 1;
@@ -44,10 +47,11 @@ public sealed class VerificationService
     private static readonly Regex BangladeshiPhone = new(@"^(\+?88)?01[3-9]\d{8}$", RegexOptions.Compiled);
     private static readonly Regex BkashPin = new(@"^\d{4,5}$", RegexOptions.Compiled);
 
-    public VerificationService(DbConnectionFactory db, CloudinaryUploader uploader)
+    public VerificationService(DbConnectionFactory db, CloudinaryUploader uploader, NotificationService notifications)
     {
         _db = db;
         _uploader = uploader;
+        _notifications = notifications;
     }
 
     // ------------------------------------------------------------ fee and payment
@@ -547,6 +551,14 @@ public sealed class VerificationService
                 note = reason,
                 kind = approve ? "ok" : "danger"
             }, transaction);
+
+        await _notifications.CreateAsync(connection, transaction, request.UserId,
+            NotificationType.GeneralUpdate,
+            approve ? "Verification approved" : "Verification request rejected",
+            approve ? "Your account verification was approved."
+                : $"Your account verification was rejected. {reason}",
+            NotificationSourceType.AccountVerification, requestId,
+            request.SubjectType == DomesticHelper ? "/helpers/profile" : "/profile");
 
         transaction.Commit();
         return null;

@@ -1,7 +1,7 @@
 namespace Nestify.Shared.Dtos.Notifications;
 
 // Values 1-8 retain the meanings already assigned by the helper workflow.
-// The database accepts type 9, but this repository does not assign it.
+// Type 9 is the existing general-update type used by other application areas.
 public enum NotificationType : short
 {
     HelperRequestReceived = 1,
@@ -11,15 +11,28 @@ public enum NotificationType : short
     HelperCompletionMarked = 5,
     EngagementReleased = 6,
     HelperReviewSubmitted = 7,
-    ReviewReplyReceived = 8
+    ReviewReplyReceived = 8,
+    GeneralUpdate = 9
 }
 
-// No source-type registry existed in the repository. These values distinguish
-// engagement IDs from review IDs for deduplication and future navigation.
+// Source type scopes the existing (recipient, source type, source id, type)
+// deduplication key to the domain event that produced a notification.
 public enum NotificationSourceType : short
 {
     DomesticHelperEngagement = 1,
-    DomesticHelperReview = 2
+    DomesticHelperReview = 2,
+    HomeJoinRequest = 3,
+    HomeMembership = 4,
+    HomeRoleChange = 5,
+    SettlementMember = 6,
+    SettlementBill = 7,
+    SettlementPayment = 8,
+    SettlementFinalization = 9,
+    MarketplaceInterest = 10,
+    MarketplaceListing = 11,
+    AdminAccount = 12,
+    AccountVerification = 13,
+    HelperAvailability = 14
 }
 
 public sealed class NotificationDto

@@ -2,7 +2,9 @@ using System.Data;
 using Dapper;
 using Nestify.Api.Data;
 using Nestify.Api.Housing;
+using Nestify.Api.Notifications;
 using Nestify.Shared.Dtos.Home;
+using Nestify.Shared.Dtos.Notifications;
 
 namespace Nestify.Api.Homes;
 
@@ -22,10 +24,12 @@ public sealed class HomeService
     private const short RequestCancelled = 4;
 
     private readonly DbConnectionFactory _db;
+    private readonly NotificationService _notifications;
 
-    public HomeService(DbConnectionFactory db)
+    public HomeService(DbConnectionFactory db, NotificationService notifications)
     {
         _db = db;
+        _notifications = notifications;
     }
 
     public async Task<HomeDto?> GetMyHomeAsync(long userId)
@@ -136,9 +140,12 @@ public sealed class HomeService
             return (false, "No home uses that join code.");
         }
 
-        await connection.ExecuteAsync(
-            "INSERT INTO home_join_requests (home_id, user_id, status) VALUES (@homeId, @userId, @status)",
+        var requestId = await connection.ExecuteScalarAsync<long>(
+            "INSERT INTO home_join_requests (home_id, user_id, status) VALUES (@homeId, @userId, @status) RETURNING id",
             new { homeId = home.Id, userId, status = RequestPending });
+        await NotifyHomeRolesAsync(connection, home.Id, new[] { RoleManager, RoleCoManager },
+            "New home join request", $"A person has requested to join {home.Name}.",
+            NotificationSourceType.HomeJoinRequest, requestId, "/home");
 
         return (true, $"Request sent to {home.Name}. A manager has to approve it.");
     }
@@ -202,6 +209,12 @@ public sealed class HomeService
             transaction);
         await HousingHooks.AfterMemberJoinedAsync(connection, transaction, me.HomeId, request.UserId);
         transaction.Commit();
+        await _notifications.CreateAsync(request.UserId, NotificationType.GeneralUpdate,
+            "Home request approved", "Your request to join the home was approved.",
+            NotificationSourceType.HomeJoinRequest, request.Id, "/home");
+        await NotifyHomeMembersAsync(connection, me.HomeId, request.UserId,
+            "New home member", $"{request.FullName} joined the home.",
+            NotificationSourceType.HomeMembership, request.Id, "/home");
 
         return (true, $"{request.FullName} joined the house.");
     }
@@ -216,7 +229,10 @@ public sealed class HomeService
         }
 
         await SetRequestStatusAsync(connection, requestId, RequestRejected, userId);
-        return (true, $"Request from {request!.FullName} was rejected.");
+        await _notifications.CreateAsync(request!.UserId, NotificationType.GeneralUpdate,
+            "Home request declined", "Your request to join the home was declined.",
+            NotificationSourceType.HomeJoinRequest, request.Id, "/home");
+        return (true, $"Request from {request.FullName} was rejected.");
     }
 
     public async Task<(bool Ok, string Message)> UpdateDetailsAsync(long userId, HomeDetailsDto dto)
@@ -324,8 +340,8 @@ public sealed class HomeService
         }
 
         using var transaction = connection.BeginTransaction();
-        await connection.ExecuteAsync(
-            "INSERT INTO home_members (home_id, user_id, role) VALUES (@homeId, @userId, @role)",
+        var memberRowId = await connection.ExecuteScalarAsync<long>(
+            "INSERT INTO home_members (home_id, user_id, role) VALUES (@homeId, @userId, @role) RETURNING id",
             new { homeId = me.HomeId, userId = target.Id, role = RoleMember },
             transaction);
 
@@ -350,6 +366,12 @@ public sealed class HomeService
             transaction);
         await HousingHooks.AfterMemberJoinedAsync(connection, transaction, me.HomeId, target.Id);
         transaction.Commit();
+        await _notifications.CreateAsync(target.Id, NotificationType.GeneralUpdate,
+            "Added to a home", "You were added as a member of a home.",
+            NotificationSourceType.HomeMembership, memberRowId, "/home");
+        await NotifyHomeMembersAsync(connection, me.HomeId, target.Id,
+            "New home member", $"{target.FullName} joined the home.",
+            NotificationSourceType.HomeMembership, memberRowId, "/home");
 
         return (true, $"{target.FullName} was added.");
     }
@@ -369,6 +391,10 @@ public sealed class HomeService
         }
 
         await SetRoleAsync(connection, memberId, RoleCoManager);
+        var roleEventId = await _notifications.NextEventSourceIdAsync(connection);
+        await _notifications.CreateAsync(target!.UserId, NotificationType.GeneralUpdate,
+            "Co-manager assigned", "You were assigned the co-manager role.",
+            NotificationSourceType.HomeRoleChange, roleEventId, "/home");
         return (true, $"{target.FullName} is now a co-manager.");
     }
 
@@ -387,6 +413,10 @@ public sealed class HomeService
         }
 
         await SetRoleAsync(connection, memberId, RoleMember);
+        var roleEventId = await _notifications.NextEventSourceIdAsync(connection);
+        await _notifications.CreateAsync(target!.UserId, NotificationType.GeneralUpdate,
+            "Home role updated", "Your co-manager role was removed.",
+            NotificationSourceType.HomeRoleChange, roleEventId, "/home");
         return (true, $"{target.FullName} is now a member.");
     }
 
@@ -412,6 +442,12 @@ public sealed class HomeService
             new { memberId }, transaction);
         await HousingHooks.AfterCapacityChangedAsync(connection, transaction, me.HomeId);
         transaction.Commit();
+        await _notifications.CreateAsync(target!.UserId, NotificationType.GeneralUpdate,
+            "Home membership ended", "Your membership in the home was ended by a manager.",
+            NotificationSourceType.HomeMembership, target.Id, "/home");
+        await NotifyHomeMembersAsync(connection, me.HomeId, target.UserId,
+            "Home member left", $"{target.FullName} is no longer a member of the home.",
+            NotificationSourceType.HomeMembership, target.Id, "/home");
 
         return (true, $"{target!.FullName} was removed.");
     }
@@ -444,6 +480,14 @@ public sealed class HomeService
             transaction);
         transaction.Commit();
 
+        var roleEventId = await _notifications.NextEventSourceIdAsync(connection);
+        await _notifications.CreateAsync(target!.UserId, NotificationType.GeneralUpdate,
+            "Manager role transferred", "You are now the manager of your home.",
+            NotificationSourceType.HomeRoleChange, roleEventId, "/home");
+        await _notifications.CreateAsync(me.UserId, NotificationType.GeneralUpdate,
+            "Manager role transferred", "You transferred the manager role and are now a co-manager.",
+            NotificationSourceType.HomeRoleChange, roleEventId, "/home");
+
         return (true, $"{target!.FullName} is now the manager.");
     }
 
@@ -467,11 +511,34 @@ public sealed class HomeService
             new { id = me.Id }, transaction);
         await HousingHooks.AfterCapacityChangedAsync(connection, transaction, me.HomeId);
         transaction.Commit();
+        await NotifyHomeMembersAsync(connection, me.HomeId, userId,
+            "Home member left", $"{me.FullName} left the home.",
+            NotificationSourceType.HomeMembership, me.Id, "/home");
 
         return (true, "You left the home.");
     }
 
     private static int MaxOccupantsOrDefault(HomeDetailsDto dto) => dto.MaxOccupants < 1 ? 4 : dto.MaxOccupants;
+
+    private async Task NotifyHomeRolesAsync(IDbConnection connection, long homeId, short[] roles,
+        string title, string body, NotificationSourceType sourceType, long sourceId, string link)
+    {
+        var recipients = await connection.QueryAsync<long>(
+            "SELECT user_id FROM home_members WHERE home_id = @homeId AND left_at_utc IS NULL AND role = ANY(@roles)",
+            new { homeId, roles });
+        foreach (var recipient in recipients)
+            await _notifications.CreateAsync(recipient, NotificationType.GeneralUpdate, title, body, sourceType, sourceId, link);
+    }
+
+    private async Task NotifyHomeMembersAsync(IDbConnection connection, long homeId, long excludedUserId,
+        string title, string body, NotificationSourceType sourceType, long sourceId, string link)
+    {
+        var recipients = await connection.QueryAsync<long>(
+            "SELECT user_id FROM home_members WHERE home_id = @homeId AND left_at_utc IS NULL AND user_id <> @excludedUserId",
+            new { homeId, excludedUserId });
+        foreach (var recipient in recipients)
+            await _notifications.CreateAsync(recipient, NotificationType.GeneralUpdate, title, body, sourceType, sourceId, link);
+    }
 
     private static async Task<int> CountActiveMembersAsync(IDbConnection connection, long homeId) =>
         await connection.ExecuteScalarAsync<int>(
@@ -567,7 +634,7 @@ public sealed class HomeService
         }
 
         var request = await connection.QueryFirstOrDefaultAsync<JoinRequestRow>(
-            @"SELECT r.id AS Id, r.user_id AS UserId, u.full_name AS FullName
+            @"SELECT r.id AS Id, r.home_id AS HomeId, r.user_id AS UserId, u.full_name AS FullName
               FROM home_join_requests r
               JOIN users u ON u.id = r.user_id
               WHERE r.id = @requestId AND r.home_id = @homeId AND r.status = @status",
@@ -685,6 +752,7 @@ public sealed class HomeService
     private sealed class JoinRequestRow
     {
         public long Id { get; set; }
+        public long HomeId { get; set; }
         public long UserId { get; set; }
         public string FullName { get; set; } = string.Empty;
     }

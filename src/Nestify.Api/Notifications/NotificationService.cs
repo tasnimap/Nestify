@@ -85,7 +85,35 @@ public sealed class NotificationService
         long sourceId,
         string? linkPath)
     {
-        return connection.ExecuteAsync("""
+        return InsertAsync(connection, transaction, recipientUserId, type, title, body, sourceType, sourceId, linkPath);
+    }
+
+    // Shared convenience for application events that do not already own a
+    // database transaction. Existing transactional helper workflows continue
+    // using the overload above so their notification commits with the event.
+    public async Task CreateAsync(
+        long recipientUserId,
+        NotificationType type,
+        string title,
+        string message,
+        NotificationSourceType sourceType,
+        long sourceId,
+        string? linkUrl)
+    {
+        using var connection = await _db.OpenAsync();
+        await InsertAsync(connection, null, recipientUserId, type, title, message, sourceType, sourceId, linkUrl);
+    }
+
+    private static Task InsertAsync(
+        IDbConnection connection,
+        IDbTransaction? transaction,
+        long recipientUserId,
+        NotificationType type,
+        string title,
+        string body,
+        NotificationSourceType sourceType,
+        long sourceId,
+        string? linkPath) => connection.ExecuteAsync("""
             INSERT INTO public.notifications
                 (recipient_user_id, type, title, body, link_path, source_type, source_id)
             VALUES
@@ -101,5 +129,13 @@ public sealed class NotificationService
             sourceType = (short)sourceType,
             sourceId
         }, transaction);
-    }
+
+    // Some events can happen repeatedly for the same entity (for example an
+    // availability board being saved more than once). Allocate an occurrence
+    // key from the existing identity sequence so the dedupe index treats each
+    // real event separately without changing the schema.
+    public Task<long> NextEventSourceIdAsync(IDbConnection connection, IDbTransaction? transaction = null) =>
+        connection.ExecuteScalarAsync<long>(
+            "SELECT nextval(pg_get_serial_sequence('public.notifications', 'id'))",
+            transaction: transaction);
 }
