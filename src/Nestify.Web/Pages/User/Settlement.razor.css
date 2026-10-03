@@ -917,7 +917,7 @@
     box-shadow: var(--nx-shadow-sm);
 }
 
-/* breakfast + lunch + dinner, three vertical steppers per member per day */
+/* breakfast + lunch + dinner, three horizontal steppers per member per day */
 
 .stl__sheet-member { display: block; }
 
@@ -950,28 +950,18 @@
 }
 
 .stl__slot-stepper {
-    display: grid;
-    grid-template-columns: 1.6rem;
-    grid-template-rows: .95rem 1.45rem .95rem;
-    justify-items: center;
+    display: inline-flex;
     align-items: center;
-    padding: .1rem 0;
+    padding: .1rem;
     border: 1px solid var(--nx-border);
     border-radius: 8px;
     background: var(--nx-bg-alt);
 }
 
-.stl__slot-label {
-    color: var(--nx-muted);
-    font-size: .56rem;
-    font-weight: 800;
-    line-height: 1;
-}
-
 .stl__slot-step {
     display: inline-grid;
-    width: 100%;
-    height: 100%;
+    width: 1.05rem;
+    height: 1.35rem;
     place-items: center;
     padding: 0;
     border: 0;
@@ -998,10 +988,10 @@
 
 .stl__slot-value {
     display: grid;
-    width: 100%;
-    height: 100%;
+    min-width: 1.5rem;
+    height: 1.35rem;
     place-items: center;
-    border-block: 1px solid var(--nx-border);
+    border-inline: 1px solid var(--nx-border);
     color: var(--nx-ink);
     font-size: .78rem;
     font-weight: 800;
@@ -1014,16 +1004,6 @@
     color: var(--nx-muted);
     font-size: .72rem;
     font-weight: 700;
-}
-
-.stl__slot-sum {
-    min-width: 1.6rem;
-    margin-left: .3rem;
-    padding-left: .35rem;
-    border-left: 1px solid var(--nx-border);
-    color: var(--nx-primary-strong);
-    font-size: .8rem;
-    font-weight: 800;
 }
 
 .stl__slot-totals {
@@ -1047,6 +1027,7 @@
 }
 
 .stl__sheet-total {
+    min-width: 4rem;
     color: var(--nx-primary-strong);
     font-weight: 800;
 }
