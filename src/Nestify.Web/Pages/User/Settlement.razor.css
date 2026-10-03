@@ -1027,6 +1027,7 @@
 }
 
 .stl__sheet-total {
+    min-width: 4rem;
     color: var(--nx-primary-strong);
     font-weight: 800;
 }
