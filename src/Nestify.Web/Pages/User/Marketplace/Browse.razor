@@ -72,7 +72,7 @@
         }
 
         <div class="mk-browse">
-            <aside class="mk-lens" aria-label="Filter listings">
+            <aside class="mk-lens" aria-label="@L["Filter listings"]">
                 <div class="mk-lens__row">
                     <label class="mk-lens__label" for="mk-search">@L["Search"]</label>
                     <div class="mk-lens__search">
@@ -230,7 +230,7 @@
 
                     @if (_page.TotalPages > 1)
                     {
-                        <nav class="mk-pager" aria-label="Pagination">
+                        <nav class="mk-pager" aria-label="@L["Pagination"]">
                             <button class="nx-btn nx-btn--ghost" disabled="@(!_page.HasPrevious)" @onclick="PrevPage">@L["Previous"]</button>
                             <span class="mk-pager__pages">@L["Page {0} of {1}", _page.Page, _page.TotalPages]</span>
                             <button class="nx-btn nx-btn--ghost" disabled="@(!_page.HasNext)" @onclick="NextPage">@L["Next"]</button>
@@ -272,7 +272,7 @@
             _postingBalance = await Marketplace.GetPostingBalanceAsync();
             _selectedPlan ??= _postingPlans.FirstOrDefault();
         }
-        catch { _checkoutError = "Could not load posting packages. Please try again."; }
+        catch { _checkoutError = L["Could not load posting packages. Please try again."].Value; }
     }
 
     private void ClosePackages() => _showPackages = false;
@@ -289,7 +289,7 @@
             _postingBalance.NextExpiryUtc = purchase.ExpiresAtUtc;
             _showPackages = false;
         }
-        catch (Exception ex) { _checkoutError = ex.Message; }
+        catch { _checkoutError = L["Payment could not be completed. Please try again."].Value; }
         finally { _checkingOut = false; }
     }
 

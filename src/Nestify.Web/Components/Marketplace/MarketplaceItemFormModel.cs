@@ -1,5 +1,6 @@
 // src/Nestify.Web/Components/Marketplace/MarketplaceItemFormModel.cs
 using System.ComponentModel.DataAnnotations;
+using Nestify.Web;
 using Nestify.Shared.Dtos.Marketplace;
 
 namespace Nestify.Web.Components.Marketplace;
@@ -10,26 +11,26 @@ namespace Nestify.Web.Components.Marketplace;
 /// </summary>
 public sealed class MarketplaceItemFormModel
 {
-    [Required(ErrorMessage = "Give the item a title.")]
-    [StringLength(80, MinimumLength = 4, ErrorMessage = "Title should be 4–80 characters.")]
+    [Required(ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = nameof(SharedResource.MarketplaceItemTitleRequired))]
+    [StringLength(80, MinimumLength = 4, ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = nameof(SharedResource.MarketplaceItemTitleLength))]
     public string Title { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "Add a description so buyers know what they're getting.")]
-    [StringLength(1200, MinimumLength = 20, ErrorMessage = "Description should be at least 20 characters.")]
+    [Required(ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = nameof(SharedResource.MarketplaceItemDescriptionRequired))]
+    [StringLength(1200, MinimumLength = 20, ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = nameof(SharedResource.MarketplaceItemDescriptionLength))]
     public string Description { get; set; } = string.Empty;
 
     public MarketplaceCategory Category { get; set; } = MarketplaceCategory.Furniture;
 
     public ItemCondition Condition { get; set; } = ItemCondition.Good;
 
-    [Range(1, 1_000_000, ErrorMessage = "Enter a price between ৳1 and ৳10,00,000.")]
+    [Range(1, 1_000_000, ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = nameof(SharedResource.MarketplaceItemPriceRange))]
     public decimal PriceBdt { get; set; }
 
-    [Required(ErrorMessage = "Pick a division.")]
+    [Required(ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = nameof(SharedResource.MarketplaceItemDivisionRequired))]
     public string Division { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "Add the area where the buyer would collect it.")]
-    [StringLength(80, ErrorMessage = "Keep the area under 80 characters.")]
+    [Required(ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = nameof(SharedResource.MarketplaceItemAreaRequired))]
+    [StringLength(80, ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = nameof(SharedResource.MarketplaceItemAreaLength))]
     public string AreaName { get; set; } = string.Empty;
 
     public List<string> Images { get; set; } = new();

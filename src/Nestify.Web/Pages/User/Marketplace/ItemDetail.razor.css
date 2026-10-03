@@ -179,3 +179,33 @@
     .mk-buybox__form-actions { flex-wrap: wrap; }
     .mk-buybox__form-actions .nx-btn { flex: 1 1 8rem; }
 }
+/* Permit long Bangla labels and user supplied titles to wrap inside detail panels. */
+.mk-detail,
+.mk-detail__main,
+.mk-buybox,
+.mk-buybox__inner,
+.mk-panel,
+.mk-seller__body,
+.mk-buybox__form {
+    min-width: 0;
+}
+
+.mk-buybox__title,
+.mk-buybox__notice,
+.mk-buybox__safe,
+.mk-specs__k,
+.mk-specs__v,
+.mk-seller__name,
+.mk-crumbs > * {
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 560px) {
+    .mk-buybox__form-actions {
+        flex-wrap: wrap;
+    }
+
+    .mk-buybox__form-actions > * {
+        flex: 1 1 100%;
+    }
+}

@@ -15,14 +15,14 @@
             <div class="field">
                 <label for="mk-title" class="field__label--required">@L["Title"]</label>
                 <InputText id="mk-title" class="field__input" @bind-Value="Model.Title"
-                           placeholder="Solid wood study table with drawer" />
+                           placeholder="@L["Solid wood study table with drawer"]" />
                 <ValidationMessage For="@(() => Model.Title)" />
             </div>
 
             <div class="field">
                 <label for="mk-desc" class="field__label--required">@L["Description"]</label>
                 <InputTextArea id="mk-desc" class="field__input" @bind-Value="Model.Description" rows="6"
-                               placeholder="What it is, how long you've used it, any wear, and what's included." />
+                               placeholder="@L["What it is, how long you've used it, any wear, and what's included."]" />
                 <ValidationMessage For="@(() => Model.Description)" />
                 <p class="field__helper">@L["Plain text only — links and formatting won't render."]</p>
             </div>
@@ -94,10 +94,7 @@
                     <ValidationMessage For="@(() => Model.AreaName)" />
                 </div>
             </div>
-            <p class="field__helper">
-                Buyers see this as the collection area. City thanas such as Dhanmondi or Gulshan are
-                listed with the upazilas of their district.
-            </p>
+            <p class="field__helper">@L["Buyers see this as the collection area. City thanas are listed with the upazilas of their district."]</p>
 
             <div class="field">
                 <label>@L["Photos"]</label>
@@ -111,7 +108,7 @@
                 <article class="mk-card mk-form__card">
                     <div class="mk-card__media">
                         <MediaTile Seed="@PreviewSeed" Label="@PreviewTitle"
-                                   Tag="@MarketplaceView.CategoryTag(Model.Category)" />
+                                   Tag="@L[MarketplaceView.CategoryTag(Model.Category)]" />
                         <ConditionBadge Condition="Model.Condition" CssClass="mk-badge--on-media" />
                     </div>
                     <div class="mk-card__body">
@@ -121,7 +118,7 @@
                                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                 <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" />
                             </svg>
-                            <span>@(string.IsNullOrWhiteSpace(Model.AreaName) ? "Area" : Model.AreaName)</span>
+                            <span>@(string.IsNullOrWhiteSpace(Model.AreaName) ? L["Area"] : Model.AreaName)</span>
                             <span class="mk-dot"></span>
                             <span class="mk-nowrap">@L["just now"]</span>
                         </div>
@@ -152,7 +149,7 @@
         <ValidationSummary class="mk-form__errors" />
         <button type="button" class="nx-btn nx-btn--ghost" @onclick="OnCancel" disabled="@Busy">@L["Cancel"]</button>
         <button type="submit" class="nx-btn nx-btn--primary" disabled="@Busy">
-            @(Busy ? "Saving…" : SubmitLabel)
+            @(Busy ? L["Saving…"] : L[SubmitLabel])
         </button>
     </div>
 </EditForm>
@@ -264,7 +261,7 @@
     // The title and description sit at the top of a long form, so say why the
     // button did nothing instead of leaving the messages scrolled out of view.
     private void HandleInvalidSubmit() =>
-        Toast.ShowWarning("Fix the highlighted fields first — the title and description have minimum lengths.", "Not published yet");
+        Toast.ShowWarning(L["Fix the highlighted fields first — the title and description have minimum lengths."].Value, L["Not published yet"].Value);
 
     private Task HandleValidSubmit() => OnValidSubmit.InvokeAsync();
 }

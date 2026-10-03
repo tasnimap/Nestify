@@ -32,4 +32,13 @@ public sealed class SharedResource
     public static string HousingPostDescriptionRequired => Get("Describe the place so seekers know what they're getting.");
     public static string HousingPostDescriptionLength => Get("Description should be at least 20 characters.");
     public static string HousingPostRentRange => Get("Enter a rent between ৳0 and ৳10,00,000.");
+
+    public static string MarketplaceItemTitleRequired => Get("Give the item a title.");
+    public static string MarketplaceItemTitleLength => Get("Title should be 4–80 characters.");
+    public static string MarketplaceItemDescriptionRequired => Get("Add a description so buyers know what they're getting.");
+    public static string MarketplaceItemDescriptionLength => Get("Description should be at least 20 characters.");
+    public static string MarketplaceItemPriceRange => Get("Enter a price between ৳1 and ৳10,00,000.");
+    public static string MarketplaceItemDivisionRequired => Get("Pick a division.");
+    public static string MarketplaceItemAreaRequired => Get("Add the area where the buyer would collect it.");
+    public static string MarketplaceItemAreaLength => Get("Keep the area under 80 characters.");
 }

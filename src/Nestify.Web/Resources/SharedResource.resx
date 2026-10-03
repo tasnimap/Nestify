@@ -1109,7 +1109,6 @@
   <data name="Give the post a title." xml:space="preserve"><value>Give the post a title.</value></data>
   <data name="Title should be 4–150 characters." xml:space="preserve"><value>Title should be 4–150 characters.</value></data>
   <data name="Describe the place so seekers know what they're getting." xml:space="preserve"><value>Describe the place so seekers know what they're getting.</value></data>
-  <data name="Description should be at least 20 characters." xml:space="preserve"><value>Description should be at least 20 characters.</value></data>
   <data name="Enter a rent between ৳0 and ৳10,00,000." xml:space="preserve"><value>Enter a rent between ৳0 and ৳10,00,000.</value></data>
   <data name="Electronics" xml:space="preserve"><value>Electronics</value></data>
   <data name="Buyer interest" xml:space="preserve"><value>Buyer interest</value></data>
@@ -1228,4 +1227,202 @@
   <data name="Arrange a public place and daytime handover. Nestify never handles payment." xml:space="preserve"><value>Arrange a public place and daytime handover. Nestify never handles payment.</value></data>
   <data name="Price ↓" xml:space="preserve"><value>Price ↓</value></data>
   <data name="These checks are a preview. Your photos are checked again on our side when the listing goes live." xml:space="preserve"><value>These checks are a preview. Your photos are checked again on our side when the listing goes live.</value></data>
+  <data name="Where do you study?" xml:space="preserve"><value>Where do you study?</value></data>
+  <data name="Where do you work?" xml:space="preserve"><value>Where do you work?</value></data>
+  <data name="Change photo" xml:space="preserve"><value>Change photo</value></data>
+  <data name="Reach me" xml:space="preserve"><value>Reach me</value></data>
+  <data name="{0} / {1} days" xml:space="preserve"><value>{0} / {1} days</value></data>
+  <data name="None pending" xml:space="preserve"><value>None pending</value></data>
+  <data name="Student" xml:space="preserve"><value>Student</value></data>
+  <data name="{0} ({1} yrs)" xml:space="preserve"><value>{0} ({1} yrs)</value></data>
+  <data name="Student — College" xml:space="preserve"><value>Student — College</value></data>
+  <data name="Settlement paid" xml:space="preserve"><value>Settlement paid</value></data>
+  <data name="No active settlement" xml:space="preserve"><value>No active settlement</value></data>
+  <data name="Occupation not set" xml:space="preserve"><value>Occupation not set</value></data>
+  <data name="Meals logged" xml:space="preserve"><value>Meals logged</value></data>
+  <data name="Student — {0}" xml:space="preserve"><value>Student — {0}</value></data>
+  <data name="Non-smoker" xml:space="preserve"><value>Non-smoker</value></data>
+  <data name="Online" xml:space="preserve"><value>Online</value></data>
+  <data name="Student — University" xml:space="preserve"><value>Student — University</value></data>
+  <data name="Not chosen" xml:space="preserve"><value>Not chosen</value></data>
+  <data name="Cancelling..." xml:space="preserve"><value>Cancelling...</value></data>
+  <data name="Not added" xml:space="preserve"><value>Not added</value></data>
+  <data name="Because you are a job holder, your employee ID is needed too." xml:space="preserve"><value>Because you are a job holder, your employee ID is needed too.</value></data>
+  <data name="Employee ID" xml:space="preserve"><value>Employee ID</value></data>
+  <data name="Workplace name" xml:space="preserve"><value>Workplace name</value></data>
+  <data name="Drinking" xml:space="preserve"><value>Drinking</value></data>
+  <data name="Student — High school" xml:space="preserve"><value>Student — High school</value></data>
+  <data name="Meal participation" xml:space="preserve"><value>Meal participation</value></data>
+  <data name="School, college or university name" xml:space="preserve"><value>School, college or university name</value></data>
+  <data name="{0} pending" xml:space="preserve"><value>{0} pending</value></data>
+  <data name="We could not load your profile." xml:space="preserve"><value>We could not load your profile.</value></data>
+  <data name="Active bookings" xml:space="preserve"><value>Active bookings</value></data>
+  <data name="Date of birth" xml:space="preserve"><value>Date of birth</value></data>
+  <data name="Job holder" xml:space="preserve"><value>Job holder</value></data>
+  <data name="Unemployed" xml:space="preserve"><value>Unemployed</value></data>
+  <data name="Student ID" xml:space="preserve"><value>Student ID</value></data>
+  <data name="Not specified" xml:space="preserve"><value>Not specified</value></data>
+  <data name="Workplace" xml:space="preserve"><value>Workplace</value></data>
+  <data name="Profile completeness" xml:space="preserve"><value>Profile completeness</value></data>
+  <data name="Smoking" xml:space="preserve"><value>Smoking</value></data>
+  <data name="Uploading..." xml:space="preserve"><value>Uploading...</value></data>
+  <data name="Address not set" xml:space="preserve"><value>Address not set</value></data>
+  <data name="This month at a glance" xml:space="preserve"><value>This month at a glance</value></data>
+  <data name="Upload the front of your current school, college or university ID." xml:space="preserve"><value>Upload the front of your current school, college or university ID.</value></data>
+  <data name="Upload your employee ID or a workplace ID that shows your name." xml:space="preserve"><value>Upload your employee ID or a workplace ID that shows your name.</value></data>
+  <data name="Smoker" xml:space="preserve"><value>Smoker</value></data>
+  <data name="Cancel application" xml:space="preserve"><value>Cancel application</value></data>
+  <data name="Bachelor account" xml:space="preserve"><value>Bachelor account</value></data>
+  <data name="Personal details" xml:space="preserve"><value>Personal details</value></data>
+  <data name="Female" xml:space="preserve"><value>Female</value></data>
+  <data name="Settlement contribution" xml:space="preserve"><value>Settlement contribution</value></data>
+  <data name="Because you are a student, your student ID is needed too." xml:space="preserve"><value>Because you are a student, your student ID is needed too.</value></data>
+  <data name="this month" xml:space="preserve"><value>this month</value></data>
+  <data name="Male" xml:space="preserve"><value>Male</value></data>
+  <data name="Non-drinker" xml:space="preserve"><value>Non-drinker</value></data>
+  <data name="Loading your profile..." xml:space="preserve"><value>Loading your profile...</value></data>
+  <data name="We could not find your account." xml:space="preserve"><value>We could not find your account.</value></data>
+  <data name="Market interests" xml:space="preserve"><value>Market interests</value></data>
+  <data name="Drinker" xml:space="preserve"><value>Drinker</value></data>
+  <data name="School / university" xml:space="preserve"><value>School / university</value></data>
+  <data name="Instagram profile link" xml:space="preserve"><value>Instagram profile link</value></data>
+  <data name="Identity document" xml:space="preserve"><value>Identity document</value></data>
+  <data name="Verify your account" xml:space="preserve"><value>Verify your account</value></data>
+  <data name="New password must be different from the current one." xml:space="preserve"><value>New password must be different from the current one.</value></data>
+  <data name="Your verification application has been sent. An admin will review it soon." xml:space="preserve"><value>Your verification application has been sent. An admin will review it soon.</value></data>
+  <data name="Identity document photo" xml:space="preserve"><value>Identity document photo</value></data>
+  <data name="Prefer not to say" xml:space="preserve"><value>Prefer not to say</value></data>
+  <data name="Your full name" xml:space="preserve"><value>Your full name</value></data>
+  <data name="Send application again" xml:space="preserve"><value>Send application again</value></data>
+  <data name="WhatsApp number" xml:space="preserve"><value>WhatsApp number</value></data>
+  <data name="Upload a clear photo of your NID or birth certificate. " xml:space="preserve"><value>Upload a clear photo of your NID or birth certificate. </value></data>
+  <data name="Photo selected" xml:space="preserve"><value>Photo selected</value></data>
+  <data name="Phone number" xml:space="preserve"><value>Phone number</value></data>
+  <data name="Birth certificate" xml:space="preserve"><value>Birth certificate</value></data>
+  <data name="Selected " xml:space="preserve"><value>Selected </value></data>
+  <data name="The bKash PIN must be 4 or 5 digits." xml:space="preserve"><value>The bKash PIN must be 4 or 5 digits.</value></data>
+  <data name="Facebook profile link" xml:space="preserve"><value>Facebook profile link</value></data>
+  <data name="Choose your identity document and its photo to continue." xml:space="preserve"><value>Choose your identity document and its photo to continue.</value></data>
+  <data name="Add a photo of your {0} to continue." xml:space="preserve"><value>Add a photo of your {0} to continue.</value></data>
+  <data name="Select your occupation" xml:space="preserve"><value>Select your occupation</value></data>
+  <data name="e.g. 01712345678" xml:space="preserve"><value>e.g. 01712345678</value></data>
+  <data name="New password must be at least 8 characters." xml:space="preserve"><value>New password must be at least 8 characters.</value></data>
+  <data name="New password and confirmation do not match." xml:space="preserve"><value>New password and confirmation do not match.</value></data>
+  <data name="Choose a document" xml:space="preserve"><value>Choose a document</value></data>
+  <data name="Updating…" xml:space="preserve"><value>Updating…</value></data>
+  <data name="Selected identity document preview" xml:space="preserve"><value>Selected identity document preview</value></data>
+  <data name=" photo" xml:space="preserve"><value> photo</value></data>
+  <data name="paid from" xml:space="preserve"><value>paid from</value></data>
+  <data name="Choose a clear document photo" xml:space="preserve"><value>Choose a clear document photo</value></data>
+  <data name="Account verification fee" xml:space="preserve"><value>Account verification fee</value></data>
+  <data name="An admin will review the documents before the verified badge is added to your account." xml:space="preserve"><value>An admin will review the documents before the verified badge is added to your account.</value></data>
+  <data name="Enter a valid number like 01712345678." xml:space="preserve"><value>Enter a valid number like 01712345678.</value></data>
+  <data name="Update password" xml:space="preserve"><value>Update password</value></data>
+  <data name="X profile link" xml:space="preserve"><value>X profile link</value></data>
+  <data name="This is a practice payment portal. Any Bangladeshi mobile number and any 4-5 digit PIN will be accepted." xml:space="preserve"><value>This is a practice payment portal. Any Bangladeshi mobile number and any 4-5 digit PIN will be accepted.</value></data>
+  <data name="What it is, how long you&apos;ve used it, any wear, and what&apos;s included." xml:space="preserve"><value>What it is, how long you&apos;ve used it, any wear, and what&apos;s included.</value></data>
+  <data name="Buyer contact — shared with you" xml:space="preserve"><value>Buyer contact — shared with you</value></data>
+  <data name="No requests yet" xml:space="preserve"><value>No requests yet</value></data>
+  <data name="{0} post tokens" xml:space="preserve"><value>{0} post tokens</value></data>
+  <data name="View photos full size" xml:space="preserve"><value>View photos full size</value></data>
+  <data name="Pinned to top" xml:space="preserve"><value>Pinned to top</value></data>
+  <data name="Identity verified by Nestify" xml:space="preserve"><value>Identity verified by Nestify</value></data>
+  <data name="Next expiry: {0}" xml:space="preserve"><value>Next expiry: {0}</value></data>
+  <data name="Add a clear photo" xml:space="preserve"><value>Add a clear photo</value></data>
+  <data name="Buy posting tokens" xml:space="preserve"><value>Buy posting tokens</value></data>
+  <data name="View photos of" xml:space="preserve"><value>View photos of</value></data>
+  <data name="Show photo {0}" xml:space="preserve"><value>Show photo {0}</value></data>
+  <data name="This person has not completed verification" xml:space="preserve"><value>This person has not completed verification</value></data>
+  <data name="Change profile picture" xml:space="preserve"><value>Change profile picture</value></data>
+  <data name="{0} posts" xml:space="preserve"><value>{0} posts</value></data>
+  <data name="Filter listings" xml:space="preserve"><value>Filter listings</value></data>
+  <data name="table, cycle, Miyako…" xml:space="preserve"><value>table, cycle, Miyako…</value></data>
+  <data name="Seller contact — shared with you" xml:space="preserve"><value>Seller contact — shared with you</value></data>
+  <data name="{0} paid from {1}" xml:space="preserve"><value>{0} paid from {1}</value></data>
+  <data name="{0}w ago" xml:space="preserve"><value>{0}w ago</value></data>
+  <data name="Pin Listing to Top" xml:space="preserve"><value>Pin Listing to Top</value></data>
+  <data name="{0} photo" xml:space="preserve"><value>{0} photo</value></data>
+  <data name="{0}mo ago" xml:space="preserve"><value>{0}mo ago</value></data>
+  <data name="Currently active until {0}" xml:space="preserve"><value>Currently active until {0}</value></data>
+  <data name="Member for {0} yr" xml:space="preserve"><value>Member for {0} yr</value></data>
+  <data name="Profile could not be saved. Please try again." xml:space="preserve"><value>Profile could not be saved. Please try again.</value></data>
+  <data name="Hide password" xml:space="preserve"><value>Hide password</value></data>
+  <data name="{0}y ago" xml:space="preserve"><value>{0}y ago</value></data>
+  <data name="Listing pinned for {0} days! Transaction ID: {1}" xml:space="preserve"><value>Listing pinned for {0} days! Transaction ID: {1}</value></data>
+  <data name="Selected {0} preview" xml:space="preserve"><value>Selected {0} preview</value></data>
+  <data name="Upload a clear photo of your NID or birth certificate." xml:space="preserve"><value>Upload a clear photo of your NID or birth certificate.</value></data>
+  <data name="Payment could not be completed. Please try again." xml:space="preserve"><value>Payment could not be completed. Please try again.</value></data>
+  <data name="Post Pinned" xml:space="preserve"><value>Post Pinned</value></data>
+  <data name="Choose a clear {0} photo" xml:space="preserve"><value>Choose a clear {0} photo</value></data>
+  <data name="01XXXXXXXXX" xml:space="preserve"><value>01XXXXXXXXX</value></data>
+  <data name="Member for {0} yrs" xml:space="preserve"><value>Member for {0} yrs</value></data>
+  <data name="Duration: {0} days priority spotlight" xml:space="preserve"><value>Duration: {0} days priority spotlight</value></data>
+  <data name="Photo upload failed. Please try again." xml:space="preserve"><value>Photo upload failed. Please try again.</value></data>
+  <data name="Your verification request could not be cancelled. Please try again." xml:space="preserve"><value>Your verification request could not be cancelled. Please try again.</value></data>
+  <data name="Profile photo of {0}" xml:space="preserve"><value>Profile photo of {0}</value></data>
+  <data name="Password could not be updated. Please try again." xml:space="preserve"><value>Password could not be updated. Please try again.</value></data>
+  <data name="Member for {0} mo" xml:space="preserve"><value>Member for {0} mo</value></data>
+  <data name="Show password" xml:space="preserve"><value>Show password</value></data>
+  <data name="Could not prepare the documents. Please choose the files again." xml:space="preserve"><value>Could not prepare the documents. Please choose the files again.</value></data>
+  <data name="টেবিল, সাইকেল, Miyako…" xml:space="preserve"><value>টেবিল, সাইকেল, Miyako…</value></data>
+  <data name="Your application could not be sent. Please try again." xml:space="preserve"><value>Your application could not be sent. Please try again.</value></data>
+  <data name="Listing removed. It no longer appears in the marketplace." xml:space="preserve"><value>Listing removed. It no longer appears in the marketplace.</value></data>
+  <data name="Your item is live. Buyers can send you requests now." xml:space="preserve"><value>Your item is live. Buyers can send you requests now.</value></data>
+  <data name="Some photos not added" xml:space="preserve"><value>Some photos not added</value></data>
+  <data name="Listing marked as sold. The buyer has been told, and the other requests are closed." xml:space="preserve"><value>Listing marked as sold. The buyer has been told, and the other requests are closed.</value></data>
+  <data name="Request declined." xml:space="preserve"><value>Request declined.</value></data>
+  <data name="Something went wrong" xml:space="preserve"><value>Something went wrong</value></data>
+  <data name="Couldn&apos;t publish the listing. Please try again." xml:space="preserve"><value>Couldn&apos;t publish the listing. Please try again.</value></data>
+  <data name="Couldn&apos;t save those changes." xml:space="preserve"><value>Couldn&apos;t save those changes.</value></data>
+  <data name="Listing published" xml:space="preserve"><value>Listing published</value></data>
+  <data name="Listing marked as sold." xml:space="preserve"><value>Listing marked as sold.</value></data>
+  <data name="That request has already been answered." xml:space="preserve"><value>That request has already been answered.</value></data>
+  <data name="{0} file(s) skipped — wrong type or over {1} MB." xml:space="preserve"><value>{0} file(s) skipped — wrong type or over {1} MB.</value></data>
+  <data name="Updated" xml:space="preserve"><value>Updated</value></data>
+  <data name="Pay ৳{0} and add {1} posts" xml:space="preserve"><value>Pay ৳{0} and add {1} posts</value></data>
+  <data name="Not updated" xml:space="preserve"><value>Not updated</value></data>
+  <data name="JPG, PNG or WebP · up to {0} MB each · {1} max" xml:space="preserve"><value>JPG, PNG or WebP · up to {0} MB each · {1} max</value></data>
+  <data name="Solid wood study table with drawer" xml:space="preserve"><value>Solid wood study table with drawer</value></data>
+  <data name="Couldn&apos;t mark it sold. Reload and try again." xml:space="preserve"><value>Couldn&apos;t mark it sold. Reload and try again.</value></data>
+  <data name="Buyer accepted" xml:space="preserve"><value>Buyer accepted</value></data>
+  <data name="No change" xml:space="preserve"><value>No change</value></data>
+  <data name="Accepted. Your contact details are now visible to this buyer." xml:space="preserve"><value>Accepted. Your contact details are now visible to this buyer.</value></data>
+  <data name="Pinned to top until {0}" xml:space="preserve"><value>Pinned to top until {0}</value></data>
+  <data name="You&apos;ve sent the seller a buy request. Track it on" xml:space="preserve"><value>You&apos;ve sent the seller a buy request. Track it on</value></data>
+  <data name="You haven&apos;t listed anything yet" xml:space="preserve"><value>You haven&apos;t listed anything yet</value></data>
+  <data name="Sell a piece of furniture, a book bundle or an appliance you&apos;ve replaced." xml:space="preserve"><value>Sell a piece of furniture, a book bundle or an appliance you&apos;ve replaced.</value></data>
+  <data name="Your item is featured with priority ranking at the top of Marketplace browse results." xml:space="preserve"><value>Your item is featured with priority ranking at the top of Marketplace browse results.</value></data>
+  <data name="Either the listing doesn&apos;t exist or it isn&apos;t one of yours." xml:space="preserve"><value>Either the listing doesn&apos;t exist or it isn&apos;t one of yours.</value></data>
+  <data name="Requests you&apos;ve sent to sellers. Their contact details appear here once they accept." xml:space="preserve"><value>Requests you&apos;ve sent to sellers. Their contact details appear here once they accept.</value></data>
+  <data name="{0} — {1} awaiting your reply. Accepting one shares your contact details with that buyer." xml:space="preserve"><value>{0} — {1} awaiting your reply. Accepting one shares your contact details with that buyer.</value></data>
+  <data name="Pinned till {0}" xml:space="preserve"><value>Pinned till {0}</value></data>
+  <data name="Could not pin this listing. Please try again." xml:space="preserve"><value>Could not pin this listing. Please try again.</value></data>
+  <data name="Pick the accepted request you sold the item to. That buyer is told; other requests close and cannot be withdrawn." xml:space="preserve"><value>Pick the accepted request you sold the item to. That buyer is told; other requests close and cannot be withdrawn.</value></data>
+  <data name="Pin to top (৳50)" xml:space="preserve"><value>Pin to top (৳50)</value></data>
+  <data name="Buyers see this as the collection area. City thanas are listed with the upazilas of their district." xml:space="preserve"><value>Buyers see this as the collection area. City thanas are listed with the upazilas of their district.</value></data>
+  <data name="You haven&apos;t sent any buy requests" xml:space="preserve"><value>You haven&apos;t sent any buy requests</value></data>
+  <data name="Pin this post to top with bKash" xml:space="preserve"><value>Pin this post to top with bKash</value></data>
+  <data name="This buyer list isn&apos;t available" xml:space="preserve"><value>This buyer list isn&apos;t available</value></data>
+  <data name="No {0} listings" xml:space="preserve"><value>No {0} listings</value></data>
+  <data name="Enter a valid 11-digit Bangladeshi bKash phone number (e.g. 01712345678)." xml:space="preserve"><value>Enter a valid 11-digit Bangladeshi bKash phone number (e.g. 01712345678).</value></data>
+  <data name=" to {0} · {1}" xml:space="preserve"><value> to {0} · {1}</value></data>
+  <data name="When a buyer sends a request it shows up here with their message." xml:space="preserve"><value>When a buyer sends a request it shows up here with their message.</value></data>
+  <data name="Click to extend pin duration" xml:space="preserve"><value>Click to extend pin duration</value></data>
+  <data name="Find something in the marketplace and send the seller a message to get started." xml:space="preserve"><value>Find something in the marketplace and send the seller a message to get started.</value></data>
+  <data name="to {0} · {1}" xml:space="preserve"><value>to {0} · {1}</value></data>
+  <data name="Give the item a title." xml:space="preserve"><value>Give the item a title.</value></data>
+  <data name="Title should be 4–80 characters." xml:space="preserve"><value>Title should be 4–80 characters.</value></data>
+  <data name="Add a description so buyers know what they&apos;re getting." xml:space="preserve"><value>Add a description so buyers know what they&apos;re getting.</value></data>
+  <data name="Description should be at least 20 characters." xml:space="preserve"><value>Description should be at least 20 characters.</value></data>
+  <data name="Enter a price between ৳1 and ৳10,00,000." xml:space="preserve"><value>Enter a price between ৳1 and ৳10,00,000.</value></data>
+  <data name="Pick a division." xml:space="preserve"><value>Pick a division.</value></data>
+  <data name="Add the area where the buyer would collect it." xml:space="preserve"><value>Add the area where the buyer would collect it.</value></data>
+  <data name="Keep the area under 80 characters." xml:space="preserve"><value>Keep the area under 80 characters.</value></data>
+  <data name="You have not accepted any request on this listing." xml:space="preserve"><value>You have not accepted any request on this listing.</value></data>
+  <data name="None of these buyers took it." xml:space="preserve"><value>None of these buyers took it.</value></data>
+  <data name="Could not submit your report. Please try again." xml:space="preserve"><value>Could not submit your report. Please try again.</value></data>
+  <data name="Photo {0}" xml:space="preserve"><value>Photo {0}</value></data>
+  <data name="Saved" xml:space="preserve"><value>Saved</value></data>
+  <data name="WhatsApp" xml:space="preserve"><value>WhatsApp</value></data>
+  <data name="Could not load posting packages. Please try again." xml:space="preserve"><value>Could not load posting packages. Please try again.</value></data>
 </root>

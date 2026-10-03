@@ -19,9 +19,7 @@
             <div class="mk-head__titles">
                 <p class="nx-eyebrow">@L["Marketplace"]</p>
                 <h1>@L["My buy requests"]</h1>
-                <p class="mk-head__lead">
-                    Requests you've sent to sellers. Their contact details appear here once they accept.
-                </p>
+                <p class="mk-head__lead">@L["Requests you've sent to sellers. Their contact details appear here once they accept."]</p>
             </div>
         </header>
 
@@ -34,8 +32,8 @@
         }
         else if (_rows.Count == 0)
         {
-            <MarketplaceEmpty Title="You haven't sent any buy requests"
-                              Message="Find something in the marketplace and send the seller a message to get started.">
+            <MarketplaceEmpty Title="@L["You haven't sent any buy requests"]"
+                              Message="@L["Find something in the marketplace and send the seller a message to get started."]">
                 <a class="nx-btn nx-btn--primary" href="marketplace">@L["Browse the marketplace"]</a>
             </MarketplaceEmpty>
         }
@@ -56,7 +54,7 @@
                                 <div class="mk-row__badges">
                                     <span class="mk-price mk-price--sm">@Money.Format(r.ItemPriceBdt)</span>
                                     <InterestStatusBadge Status="r.Status" />
-                                    <span class="mk-muted">to @r.SellerDisplayName · @MarketplaceView.RelativeTime(r.CreatedAtUtc)</span>
+                                    <span class="mk-muted">@L["to {0} · {1}", r.SellerDisplayName, MarketplaceView.RelativeTime(r.CreatedAtUtc, L)]</span>
                                 </div>
                                 <p class="mk-row__msg mk-plain">@r.Message</p>
 
@@ -118,7 +116,7 @@
         {
             if (await Marketplace.WithdrawInterestAsync(interestId))
             {
-                Toast.ShowInfo("Request withdrawn.", "Done");
+                Toast.ShowInfo(L["Request withdrawn."].Value, L["Done"].Value);
                 await LoadAsync();
             }
         }
