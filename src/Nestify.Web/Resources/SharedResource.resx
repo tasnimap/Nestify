@@ -761,6 +761,8 @@
   <data name="Red line shows total meals. Blue line shows total meal cost in taka." xml:space="preserve"><value>Red line shows total meals. Blue line shows total meal cost in taka.</value></data>
   <data name="Everyone" xml:space="preserve"><value>Everyone</value></data>
   <data name="Breakfast" xml:space="preserve"><value>Breakfast</value></data>
+  <data name="Increase {0} for {1} on {2}" xml:space="preserve"><value>Increase {0} for {1} on {2}</value></data>
+  <data name="Decrease {0} for {1} on {2}" xml:space="preserve"><value>Decrease {0} for {1} on {2}</value></data>
   <data name="Add a member to this book" xml:space="preserve"><value>Add a member to this book</value></data>
   <data name="Bill name" xml:space="preserve"><value>Bill name</value></data>
   <data name="Payment not saved" xml:space="preserve"><value>Payment not saved</value></data>

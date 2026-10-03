@@ -345,19 +345,27 @@
                                         <div class="stl__slots @(cell.IsDirty ? "is-dirty" : null)">
                                             @foreach (var slot in MealSlots)
                                             {
-                                                @if (slot != MealSheetState.Slot.Breakfast)
-                                                {
-                                                    <span class="stl__slot-sep" aria-hidden="true">+</span>
-                                                }
-                                                <input class="stl__slot @(cell[slot] == 0m ? "is-zero" : null)"
-                                                       type="number"
-                                                       min="0"
-                                                       max="10"
-                                                       step="0.5"
-                                                       value="@cell[slot].ToString("0.##", CultureInfo.InvariantCulture)"
-                                                       disabled="@locked"
-                                                       aria-label='@L["{0} {1} on {2}", member.Name, SlotLabel(slot), day.ToString("dd MMM", CultureInfo.CurrentCulture)]'
-                                                       @onchange="args => ChangeMealSlot(key, slot, args.Value?.ToString())" />
+                                                <div class="stl__slot-stepper">
+                                                    <span class="stl__slot-label">@SlotShortLabel(slot)</span>
+                                                    <button type="button"
+                                                            class="stl__slot-step stl__slot-step--up"
+                                                            disabled="@(locked || cell[slot] >= MealSheetState.MaxMealValue)"
+                                                            aria-label='@L["Increase {0} for {1} on {2}", SlotLabel(slot), member.Name, day.ToString("dd MMM", CultureInfo.CurrentCulture)]'
+                                                            @onclick="() => AdjustMealSlot(key, slot, MealSheetState.MealStep)">
+                                                        <span aria-hidden="true">▲</span>
+                                                    </button>
+                                                    <output class="stl__slot-value @(cell[slot] == 0m ? "is-zero" : null)"
+                                                            aria-label='@L["{0} {1} on {2}", member.Name, SlotLabel(slot), day.ToString("dd MMM", CultureInfo.CurrentCulture)]'>
+                                                        @cell[slot].ToString("0.##", CultureInfo.InvariantCulture)
+                                                    </output>
+                                                    <button type="button"
+                                                            class="stl__slot-step stl__slot-step--down"
+                                                            disabled="@(locked || cell[slot] <= 0m)"
+                                                            aria-label='@L["Decrease {0} for {1} on {2}", SlotLabel(slot), member.Name, day.ToString("dd MMM", CultureInfo.CurrentCulture)]'
+                                                            @onclick="() => AdjustMealSlot(key, slot, -MealSheetState.MealStep)">
+                                                        <span aria-hidden="true">▼</span>
+                                                    </button>
+                                                </div>
                                             }
                                             <span class="stl__slot-sum" aria-hidden="true">@cell.Total.ToString("0.##")</span>
                                         </div>
@@ -1160,6 +1168,13 @@
         _ => L["Dinner"]
     };
 
+    private string SlotShortLabel(MealSheetState.Slot slot) => slot switch
+    {
+        MealSheetState.Slot.Breakfast => L["Breakfast short"],
+        MealSheetState.Slot.Lunch => L["Lunch short"],
+        _ => L["Dinner short"]
+    };
+
     private async Task GoToPreviousMonth()
     {
         (_year, _month) = Shift((_year, _month), -1);
@@ -1229,13 +1244,8 @@
             L["The meal sheet is up to date."], L["Meals saved"]);
     }
 
-    private void ChangeMealSlot(MealSheetState.CellKey key, MealSheetState.Slot slot, string? rawValue)
-    {
-        if (decimal.TryParse(rawValue, NumberStyles.Number, CultureInfo.InvariantCulture, out var value))
-        {
-            _sheet.Set(key, slot, value);
-        }
-    }
+    private void AdjustMealSlot(MealSheetState.CellKey key, MealSheetState.Slot slot, decimal amount) =>
+        _sheet.Set(key, slot, _sheet.Get(key)[slot] + amount);
 
     private async Task ChangeBillAmount(SettlementBillDto bill, string? rawValue)
     {

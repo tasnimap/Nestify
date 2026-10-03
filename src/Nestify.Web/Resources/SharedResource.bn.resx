@@ -761,6 +761,8 @@
   <data name="Red line shows total meals. Blue line shows total meal cost in taka." xml:space="preserve"><value>লাল রেখায় মোট খাবারের সংখ্যা এবং নীল রেখায় টাকায় মোট খাবারের খরচ দেখানো হয়েছে।</value></data>
   <data name="Everyone" xml:space="preserve"><value>সবাই</value></data>
   <data name="Breakfast" xml:space="preserve"><value>সকালের খাবার</value></data>
+  <data name="Increase {0} for {1} on {2}" xml:space="preserve"><value>{2}-এ {1}-এর {0} বাড়ান</value></data>
+  <data name="Decrease {0} for {1} on {2}" xml:space="preserve"><value>{2}-এ {1}-এর {0} কমান</value></data>
   <data name="Add a member to this book" xml:space="preserve"><value>এই হিসাবে সদস্য যোগ করুন</value></data>
   <data name="Bill name" xml:space="preserve"><value>বিলের নাম</value></data>
   <data name="Payment not saved" xml:space="preserve"><value>পরিশোধ সংরক্ষিত হয়নি</value></data>
