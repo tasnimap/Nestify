@@ -58,6 +58,9 @@
     public bool Disabled { get; set; }
 
     [Parameter]
+    public bool AllowNegative { get; set; }
+
+    [Parameter]
     public RenderFragment? HelperContent { get; set; }
 
     public string Id
@@ -73,7 +76,7 @@
         get => _formattedValue;
         set
         {
-            var cleaned = new string(value?.Where(c => char.IsDigit(c) || c == '.' || c == ',').ToArray());
+            var cleaned = new string(value?.Where(c => char.IsDigit(c) || c == '.' || c == ',' || (AllowNegative && c == '-')).ToArray());
             _formattedValue = cleaned;
             
             if (string.IsNullOrWhiteSpace(cleaned))
