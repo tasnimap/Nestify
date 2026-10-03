@@ -5,6 +5,9 @@ import test from "node:test";
 const razor = readFileSync(
     new URL("../../src/Nestify.Web/Pages/User/Settlement.razor", import.meta.url),
     "utf8");
+const styles = readFileSync(
+    new URL("../../src/Nestify.Web/Pages/User/Settlement.razor.css", import.meta.url),
+    "utf8");
 const state = readFileSync(
     new URL("../../src/Nestify.Web/Components/Settlement/MealSheetState.cs", import.meta.url),
     "utf8");
@@ -17,6 +20,8 @@ test("meal sheet exposes one stepper for each daily meal slot", () => {
     assert.equal((razor.match(/class="stl__slot-step stl__slot-step--down"/g) ?? []).length, 1);
     assert.match(razor, /stl__chevron stl__chevron--left/);
     assert.match(razor, /stl__chevron stl__chevron--right/);
+    assert.match(styles, /\.stl__slot-step--down[\s\S]*?background: var\(--nx-card\)/);
+    assert.match(styles, /\.stl__slot-step--up[\s\S]*?background: #dff2ff/);
     assert.doesNotMatch(razor, /class="stl__slot-sum"/);
     assert.doesNotMatch(razor, /SlotShortLabel/);
 });
