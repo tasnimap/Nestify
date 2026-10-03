@@ -1192,10 +1192,10 @@
     private void ResetForms()
     {
         _billModel.Name = string.Empty;
-        _billModel.Amount = 0m;
+        _billModel.Amount = null;
 
         _paymentModel.UserId = Members.FirstOrDefault(m => m.IsMe)?.UserId ?? Members.FirstOrDefault()?.UserId ?? 0;
-        _paymentModel.Amount = 0m;
+        _paymentModel.Amount = null;
         _paymentModel.Note = string.Empty;
         _paymentModel.PaidOn = DefaultFormDate();
     }
@@ -1257,7 +1257,7 @@
             var (data, error) = await SettlementApi.AddBillAsync(_year, _month, new CreateSettlementBillRequest
             {
                 Description = _billModel.Name,
-                Amount = _billModel.Amount,
+                Amount = _billModel.Amount ?? 0m,
                 SpentOn = DefaultFormDate()
             });
 
@@ -1292,7 +1292,7 @@
             var (data, error) = await SettlementApi.AddPaymentAsync(_year, _month, new CreateSettlementPaymentRequest
             {
                 UserId = _paymentModel.UserId,
-                Amount = _paymentModel.Amount,
+                Amount = _paymentModel.Amount ?? 0m,
                 FundType = _paymentModel.FundType,
                 Note = _paymentModel.Note,
                 PaidOn = _paymentModel.PaidOn
@@ -1362,8 +1362,9 @@
         [Required(ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = nameof(SharedResource.SettlementBillNameRequired))]
         public string Name { get; set; } = string.Empty;
 
-        [Range(0, 1000000, ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = nameof(SharedResource.SettlementAmountNonNegative))]
-        public decimal Amount { get; set; }
+        [Required(ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = nameof(SharedResource.SettlementPaymentAmountRequired))]
+        [Range(0.01, 1000000, ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = nameof(SharedResource.SettlementPaymentAmountRequired))]
+        public decimal? Amount { get; set; }
     }
 
     private sealed class PaymentFormModel
@@ -1371,8 +1372,9 @@
         [Range(1, long.MaxValue, ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = nameof(SharedResource.SettlementPayerRequired))]
         public long UserId { get; set; }
 
+        [Required(ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = nameof(SharedResource.SettlementPaymentAmountRequired))]
         [Range(0.01, 1000000, ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = nameof(SharedResource.SettlementPaymentAmountRequired))]
-        public decimal Amount { get; set; }
+        public decimal? Amount { get; set; }
 
         [Required]
         public DateTime PaidOn { get; set; }

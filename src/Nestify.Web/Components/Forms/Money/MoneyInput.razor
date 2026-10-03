@@ -29,8 +29,7 @@
             @onblur="NormalizeValue"
             placeholder="@Placeholder"
             disabled="@Disabled"
-            inputmode="decimal"
-            pattern="[0-9,.]+" />
+            inputmode="decimal" />
     </div>
 
     @if (HasError)
@@ -74,17 +73,30 @@
         get => _formattedValue;
         set
         {
-            _formattedValue = value;
+            var cleaned = new string(value?.Where(c => char.IsDigit(c) || c == '.' || c == ',').ToArray());
+            _formattedValue = cleaned;
             
-            if (MoneyFormatter.TryParse(value, out decimal parsedValue))
+            if (string.IsNullOrWhiteSpace(cleaned))
+            {
+                CurrentValue = default!;
+                return;
+            }
+
+            if (MoneyFormatter.TryParse(cleaned, out decimal parsedValue))
             {
                 CurrentValue = (TValue)(object)parsedValue;
+            }
+            else
+            {
+                CurrentValue = default!;
             }
         }
     }
 
     private void NormalizeValue()
     {
+        if (string.IsNullOrWhiteSpace(_formattedValue)) return;
+
         if (!MoneyFormatter.TryParse(_formattedValue, out var parsedValue))
         {
             return;
@@ -110,7 +122,19 @@
         // Format the current value for display
         if (CurrentValue is decimal decimalValue)
         {
-            _formattedValue = MoneyFormatter.FormatNumber(decimalValue);
+            if (MoneyFormatter.TryParse(_formattedValue, out decimal currentParsed) && currentParsed == decimalValue)
+            {
+                // The current input text represents the same numeric value (e.g. "5" and "5.00").
+                // Leave it alone so we don't interrupt the user's typing.
+            }
+            else
+            {
+                _formattedValue = MoneyFormatter.FormatNumber(decimalValue);
+            }
+        }
+        else if (CurrentValue is null)
+        {
+            _formattedValue = string.Empty;
         }
     }
 
