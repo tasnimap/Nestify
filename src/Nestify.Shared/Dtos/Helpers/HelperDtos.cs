@@ -195,7 +195,7 @@ public sealed class HelperFilterDto
     public bool VerifiedOnly { get; set; }
     public HelperSortOption Sort { get; set; } = HelperSortOption.DistanceAsc;
     public int Page { get; set; } = 1;
-    public int PageSize { get; set; } = 9;
+    public int PageSize { get; set; } = 12;
 }
 
 public sealed class HelperPageDto<T>
