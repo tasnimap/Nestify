@@ -119,11 +119,12 @@
                         }
                     </div>
 
-                    @if (_page.TotalPages > 1)
+                    @if (_page.TotalPages > 0)
                     {
                         <nav class="hs-pager" aria-label="Pagination">
                             <button class="nx-btn nx-btn--ghost" disabled="@(!_page.HasPrevious)" @onclick="PrevPage">@L["Previous"]</button>
-                            <span class="hs-pager__pages">@L["Page @_page.Page of @_page.TotalPages"]</span>
+                            @* Fix: Used proper placehoder syntax {0} and {1} instead of C# string interpolation inside IStringLocalizer to ensure correct rendering *@
+                            <span class="hs-pager__pages">@L["Page {0} of {1}", _page.Page, _page.TotalPages]</span>
                             <button class="nx-btn nx-btn--ghost" disabled="@(!_page.HasNext)" @onclick="NextPage">@L["Next"]</button>
                         </nav>
                     }

@@ -107,7 +107,7 @@ public sealed class HousingPostFilterDto
     public ListingType? ListingType { get; set; }
     public decimal? MaxRent { get; set; }
     public int Page { get; set; } = 1;
-    public int PageSize { get; set; } = 9;
+    public int PageSize { get; set; } = 12;
 }
 
 /// <summary>A page of results plus the counters the grid header needs.</summary>
