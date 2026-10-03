@@ -990,6 +990,11 @@
     background: #dff2ff;
 }
 
+.stl__slot-step--down {
+    border-color: #d8eefb;
+    background: var(--nx-card);
+}
+
 .stl__chevron {
     display: block;
     width: .6rem;
