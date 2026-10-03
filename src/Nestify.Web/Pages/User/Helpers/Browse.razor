@@ -4,40 +4,38 @@
 @using Nestify.Shared.Dtos.Area
 @using Nestify.Shared.Dtos.Helpers
 @inject IHelperService Helpers
+@inject IStringLocalizer<SharedResource> L
 
-<PageTitle>Domestic Help — Nestify</PageTitle>
+<PageTitle>@L["Domestic Help"] — Nestify</PageTitle>
 
 <div class="dh">
     <div class="dh__inner">
         <header class="dh-banner dh-rise">
             <div>
-                <p class="dh-kicker">M2 · Domestic Help</p>
-                <h1>Trusted khala &amp; bua, <span class="nx-display-accent">near where you already live.</span></h1>
-                <p class="dh-banner__lead">
-                    Browse helpers registered on Nestify, rated only by the bachelors they actually worked for.
-                    Pick the weekly hours you need and she answers from her own dashboard.
-                </p>
+                <p class="dh-kicker">@L["M2 · Domestic Help"]</p>
+                <h1>@L["Trusted khala & bua, near where you already live."]</h1>
+                <p class="dh-banner__lead">@L["Browse helpers registered on Nestify, rated only by the bachelors they actually worked for. Pick the weekly hours you need and she answers from her own dashboard."]</p>
             </div>
             <div class="dh-banner__actions">
-                <a class="nx-btn nx-btn--ghost" href="engagements/mine">My engagements</a>
+                <a class="nx-btn nx-btn--ghost" href="engagements/mine">@L["My engagements"]</a>
             </div>
         </header>
 
         <div class="dh-browse">
-            <details class="dh-lens dh-rise" style="--d:80ms" open aria-label="Filter helpers">
-                <summary class="dh-lens__summary">Filters</summary>
+            <details class="dh-lens dh-rise" style="--d:80ms" open aria-label="@L["Filter helpers"]">
+                <summary class="dh-lens__summary">@L["Filters"]</summary>
 
                 <div class="dh-lens__body">
                     <div class="dh-lens__row">
-                        <span class="dh-field__label">Area</span>
+                        <span class="dh-field__label">@L["Area"]</span>
                         <AreaCascade Selection="_areaSelection" SelectionChanged="OnAreaChanged" Filter="true" />
                     </div>
 
                     <div class="dh-lens__row">
-                        <span class="dh-field__label">Service</span>
+                        <span class="dh-field__label">@L["Service"]</span>
                         <div class="dh-chips">
                             <button type="button" class="dh-chip @(_filter.ServiceType is null ? "dh-chip--on" : null)"
-                                    @onclick="() => SetServiceType(null)">Any</button>
+                                    @onclick="() => SetServiceType(null)">@L["Any"]</button>
                             @foreach (var s in _serviceTypes)
                             {
                                 <button type="button" class="dh-chip @(_filter.ServiceType == s ? "dh-chip--on" : null)"
@@ -47,25 +45,25 @@
                     </div>
 
                     <div class="dh-lens__row">
-                        <label class="dh-field__label" for="hp-max-rate">Max rate (৳/mo)</label>
-                        <input id="hp-max-rate" type="number" min="0" step="500" placeholder="No limit" inputmode="numeric"
+                        <label class="dh-field__label" for="hp-max-rate">@L["Max rate (৳/mo)"]</label>
+                        <input id="hp-max-rate" type="number" min="0" step="500" placeholder="@L["No limit"]" inputmode="numeric"
                                value="@_filter.MaxMonthlyRate" @onchange="OnMaxRate" />
                     </div>
 
                     <div class="dh-lens__row">
-                        <label class="dh-field__label" for="hp-sort">Sort</label>
+                        <label class="dh-field__label" for="hp-sort">@L["Sort"]</label>
                         <select id="hp-sort" value="@_filter.Sort" @onchange="OnSortChanged">
-                            <option value="@HelperSortOption.RatingDesc">Rating</option>
-                            <option value="@HelperSortOption.RateAsc">Rate: Low to High</option>
-                            <option value="@HelperSortOption.RateDesc">Rate: High to Low</option>
-                            <option value="@HelperSortOption.ExperienceDesc">Most experienced</option>
+                            <option value="@HelperSortOption.RatingDesc">@L["Rating"]</option>
+                            <option value="@HelperSortOption.RateAsc">@L["Rate: Low to High"]</option>
+                            <option value="@HelperSortOption.RateDesc">@L["Rate: High to Low"]</option>
+                            <option value="@HelperSortOption.ExperienceDesc">@L["Most experienced"]</option>
                         </select>
                     </div>
 
                     <div class="dh-lens__row">
                         <label class="dh-check">
                             <input type="checkbox" checked="@_filter.VerifiedOnly" @onchange="OnVerifiedOnly" />
-                            <span>Verified helpers only</span>
+                            <span>@L["Verified helpers only"]</span>
                         </label>
                     </div>
 
@@ -73,7 +71,7 @@
                     {
                         <button type="button" class="dh-lens__clear" @onclick="ClearFilters">
                             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6 18 18M6 18 18 6" /></svg>
-                            Clear all filters
+                            @L["Clear all filters"]
                         </button>
                     }
                 </div>
@@ -83,11 +81,11 @@
                 <p class="dh-results__bar">
                     @if (_loading)
                     {
-                        <span>Loading helpers…</span>
+                        <span>@L["Loading helpers…"]</span>
                     }
                     else if (_page is not null)
                     {
-                        <span><strong>@_page.TotalCount</strong> @(_page.TotalCount == 1 ? "helper" : "helpers")</span>
+                        <span><strong>@_page.TotalCount</strong> @(_page.TotalCount == 1 ? L["helper"] : L["helpers"])</span>
                     }
                 </p>
 
@@ -107,9 +105,9 @@
                             <span class="dh-empty__art" aria-hidden="true">
                                 <svg class="nx-icon" viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01" /><circle cx="12" cy="12" r="9" /></svg>
                             </span>
-                            <h3>Couldn't load helpers</h3>
-                            <p>Something went wrong. Try again in a moment.</p>
-                            <button class="nx-btn nx-btn--accent" @onclick="LoadAsync">Retry</button>
+                            <h3>@L["Couldn't load helpers"]</h3>
+                            <p>@L["Something went wrong. Try again in a moment."]</p>
+                            <button class="nx-btn nx-btn--accent" @onclick="LoadAsync">@L["Retry"]</button>
                         </div>
                     </div>
                 }
@@ -120,11 +118,11 @@
                             <span class="dh-empty__art" aria-hidden="true">
                                 <svg class="nx-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
                             </span>
-                            <h3>No helpers match those filters</h3>
-                            <p>Try a different area, service, or widen the rate range.</p>
+                            <h3>@L["No helpers match those filters"]</h3>
+                            <p>@L["Try a different area, service, or widen the rate range."]</p>
                             @if (HasActiveFilters)
                             {
-                                <button class="nx-btn nx-btn--ghost" @onclick="ClearFilters">Clear filters</button>
+                                <button class="nx-btn nx-btn--ghost" @onclick="ClearFilters">@L["Clear filters"]</button>
                             }
                         </div>
                     </div>
@@ -142,10 +140,10 @@
 
                     @if (_page.TotalPages > 1)
                     {
-                        <nav class="dh-pager" aria-label="Pagination">
-                            <button class="nx-btn nx-btn--ghost" disabled="@(!_page.HasPrevious)" @onclick="PrevPage">Previous</button>
-                            <span>Page @_page.Page of @_page.TotalPages</span>
-                            <button class="nx-btn nx-btn--ghost" disabled="@(!_page.HasNext)" @onclick="NextPage">Next</button>
+                        <nav class="dh-pager" aria-label="@L["Pagination"]">
+                            <button class="nx-btn nx-btn--ghost" disabled="@(!_page.HasPrevious)" @onclick="PrevPage">@L["Previous"]</button>
+                            <span>@L["Page {0} of {1}", _page.Page, _page.TotalPages]</span>
+                            <button class="nx-btn nx-btn--ghost" disabled="@(!_page.HasNext)" @onclick="NextPage">@L["Next"]</button>
                         </nav>
                     }
                 }

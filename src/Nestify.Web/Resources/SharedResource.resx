@@ -521,4 +521,172 @@
   <data name="Join code" xml:space="preserve"><value>Join code</value></data>
   <data name="Save changes" xml:space="preserve"><value>Save changes</value></data>
   <data name="Location" xml:space="preserve"><value>Location</value></data>
+  <data name="hour" xml:space="preserve"><value>hour</value></data>
+  <data name="Cancelled" xml:space="preserve"><value>Cancelled</value></data>
+  <data name="Previous" xml:space="preserve"><value>Previous</value></data>
+  <data name="{0} replied:" xml:space="preserve"><value>{0} replied:</value></data>
+  <data name="Submit review" xml:space="preserve"><value>Submit review</value></data>
+  <data name="Photo of {0}" xml:space="preserve"><value>Photo of {0}</value></data>
+  <data name="Request engagement" xml:space="preserve"><value>Request engagement</value></data>
+  <data name="Working for you" xml:space="preserve"><value>Working for you</value></data>
+  <data name="{0} services · {1} per month · {2} h/week" xml:space="preserve"><value>{0} services · {1} per month · {2} h/week</value></data>
+  <data name="It may have been removed, or the link may be out of date." xml:space="preserve"><value>It may have been removed, or the link may be out of date.</value></data>
+  <data name="CLOSED REQUESTS" xml:space="preserve"><value>CLOSED REQUESTS</value></data>
+  <data name="Not available" xml:space="preserve"><value>Not available</value></data>
+  <data name="{0} free a week" xml:space="preserve"><value>{0} free a week</value></data>
+  <data name="No reviews yet." xml:space="preserve"><value>No reviews yet.</value></data>
+  <data name="M2 · Domestic Help" xml:space="preserve"><value>M2 · Domestic Help</value></data>
+  <data name="Every week" xml:space="preserve"><value>Every week</value></data>
+  <data name="Release helper" xml:space="preserve"><value>Release helper</value></data>
+  <data name="{0} year(s)" xml:space="preserve"><value>{0} year(s)</value></data>
+  <data name="Review {0}" xml:space="preserve"><value>Review {0}</value></data>
+  <data name="Pick at least one service." xml:space="preserve"><value>Pick at least one service.</value></data>
+  <data name="Filter helpers" xml:space="preserve"><value>Filter helpers</value></data>
+  <data name="{0} hours a week across {1} day(s)" xml:space="preserve"><value>{0} hours a week across {1} day(s)</value></data>
+  <data name="Rate: Low to High" xml:space="preserve"><value>Rate: Low to High</value></data>
+  <data name="Terminate / release helper" xml:space="preserve"><value>Terminate / release helper</value></data>
+  <data name="Trusted khala &amp; bua, near where you already live." xml:space="preserve"><value>Trusted khala &amp; bua, near where you already live.</value></data>
+  <data name="Day" xml:space="preserve"><value>Day</value></data>
+  <data name="Back to Domestic Help" xml:space="preserve"><value>Back to Domestic Help</value></data>
+  <data name="Review posted on her profile." xml:space="preserve"><value>Review posted on her profile.</value></data>
+  <data name="OTHER ENGAGEMENTS" xml:space="preserve"><value>OTHER ENGAGEMENTS</value></data>
+  <data name="Rate: High to Low" xml:space="preserve"><value>Rate: High to Low</value></data>
+  <data name="No engagements yet" xml:space="preserve"><value>No engagements yet</value></data>
+  <data name="with the home since {0}" xml:space="preserve"><value>with the home since {0}</value></data>
+  <data name="since {0}" xml:space="preserve"><value>since {0}</value></data>
+  <data name="{0} yrs experience" xml:space="preserve"><value>{0} yrs experience</value></data>
+  <data name="Are you sure you want to release {0} from your home?" xml:space="preserve"><value>Are you sure you want to release {0} from your home?</value></data>
+  <data name="Try a different area, service, or widen the rate range." xml:space="preserve"><value>Try a different area, service, or widen the rate range.</value></data>
+  <data name="Browse helpers registered on Nestify, rated only by the bachelors they actually worked for. Pick the weekly hours you need and she answers from her own dashboard." xml:space="preserve"><value>Browse helpers registered on Nestify, rated only by the bachelors they actually worked for. Pick the weekly hours you need and she answers from her own dashboard.</value></data>
+  <data name="Phone:" xml:space="preserve"><value>Phone:</value></data>
+  <data name="Area not set" xml:space="preserve"><value>Area not set</value></data>
+  <data name="On Nestify since" xml:space="preserve"><value>On Nestify since</value></data>
+  <data name="{0} PM" xml:space="preserve"><value>{0} PM</value></data>
+  <data name="{0} has been released from your home." xml:space="preserve"><value>{0} has been released from your home.</value></data>
+  <data name="Write a review" xml:space="preserve"><value>Write a review</value></data>
+  <data name="Couldn&apos;t load helpers" xml:space="preserve"><value>Couldn&apos;t load helpers</value></data>
+  <data name="helpers" xml:space="preserve"><value>helpers</value></data>
+  <data name="Clear all filters" xml:space="preserve"><value>Clear all filters</value></data>
+  <data name="Show more reviews" xml:space="preserve"><value>Show more reviews</value></data>
+  <data name="How many of you live there, what you eat, anything she should know." xml:space="preserve"><value>How many of you live there, what you eat, anything she should know.</value></data>
+  <data name="Retry" xml:space="preserve"><value>Retry</value></data>
+  <data name="Clear filters" xml:space="preserve"><value>Clear filters</value></data>
+  <data name="Next" xml:space="preserve"><value>Next</value></data>
+  <data name="Any" xml:space="preserve"><value>Any</value></data>
+  <data name="This profile is not available" xml:space="preserve"><value>This profile is not available</value></data>
+  <data name="Marked complete." xml:space="preserve"><value>Marked complete.</value></data>
+  <data name="Find a helper near you and pick the hours you need." xml:space="preserve"><value>Find a helper near you and pick the hours you need.</value></data>
+  <data name="PENDING REQUESTS" xml:space="preserve"><value>PENDING REQUESTS</value></data>
+  <data name="Tap the hours you need each week — up to {0} per day." xml:space="preserve"><value>Tap the hours you need each week — up to {0} per day.</value></data>
+  <data name="{0} said:" xml:space="preserve"><value>{0} said:</value></data>
+  <data name="Submitting…" xml:space="preserve"><value>Submitting…</value></data>
+  <data name="Weekly hours" xml:space="preserve"><value>Weekly hours</value></data>
+  <data name="Remove {0}" xml:space="preserve"><value>Remove {0}</value></data>
+  <data name="View in My engagements →" xml:space="preserve"><value>View in My engagements →</value></data>
+  <data name="Releasing…" xml:space="preserve"><value>Releasing…</value></data>
+  <data name="About {0}" xml:space="preserve"><value>About {0}</value></data>
+  <data name="Request rejected." xml:space="preserve"><value>Request rejected.</value></data>
+  <data name="Something went wrong. Try again in a moment." xml:space="preserve"><value>Something went wrong. Try again in a moment.</value></data>
+  <data name="Request withdrawn." xml:space="preserve"><value>Request withdrawn.</value></data>
+  <data name="Write a line or two about how it went." xml:space="preserve"><value>Write a line or two about how it went.</value></data>
+  <data name="Release {0}" xml:space="preserve"><value>Release {0}</value></data>
+  <data name="Pick the hours you need each week on the board — up to 3 a day." xml:space="preserve"><value>Pick the hours you need each week on the board — up to 3 a day.</value></data>
+  <data name="Sending…" xml:space="preserve"><value>Sending…</value></data>
+  <data name="{0} is currently working for your home." xml:space="preserve"><value>{0} is currently working for your home.</value></data>
+  <data name="What do you need?" xml:space="preserve"><value>What do you need?</value></data>
+  <data name="Service" xml:space="preserve"><value>Service</value></data>
+  <data name="Request {0}" xml:space="preserve"><value>Request {0}</value></data>
+  <data name="My engagements" xml:space="preserve"><value>My engagements</value></data>
+  <data name="Most experienced" xml:space="preserve"><value>Most experienced</value></data>
+  <data name="{0} hour a week picked" xml:space="preserve"><value>{0} hour a week picked</value></data>
+  <data name="Released" xml:space="preserve"><value>Released</value></data>
+  <data name="Clear" xml:space="preserve"><value>Clear</value></data>
+  <data name="Release {0}?" xml:space="preserve"><value>Release {0}?</value></data>
+  <data name="Only a home&apos;s manager or co-manager can send this; she sees your name, the home&apos;s area and this note." xml:space="preserve"><value>Only a home&apos;s manager or co-manager can send this; she sees your name, the home&apos;s area and this note.</value></data>
+  <data name="Confirm complete" xml:space="preserve"><value>Confirm complete</value></data>
+  <data name="Send request" xml:space="preserve"><value>Send request</value></data>
+  <data name="{0} review(s)" xml:space="preserve"><value>{0} review(s)</value></data>
+  <data name="CURRENT MAID" xml:space="preserve"><value>CURRENT MAID</value></data>
+  <data name="Page {0} of {1}" xml:space="preserve"><value>Page {0} of {1}</value></data>
+  <data name="You can review this helper after your own accepted engagement is active or completed. A review can be submitted once per engagement." xml:space="preserve"><value>You can review this helper after your own accepted engagement is active or completed. A review can be submitted once per engagement.</value></data>
+  <data name="{0}&apos;s phone number is shared only after she accepts." xml:space="preserve"><value>{0}&apos;s phone number is shared only after she accepts.</value></data>
+  <data name="Your rating" xml:space="preserve"><value>Your rating</value></data>
+  <data name="{0} hours a week picked" xml:space="preserve"><value>{0} hours a week picked</value></data>
+  <data name="Booked ({0})" xml:space="preserve"><value>Booked ({0})</value></data>
+  <data name="Requested" xml:space="preserve"><value>Requested</value></data>
+  <data name="How was your experience?" xml:space="preserve"><value>How was your experience?</value></data>
+  <data name="Max rate (৳/mo)" xml:space="preserve"><value>Max rate (৳/mo)</value></data>
+  <data name="Your request was sent to {0}. You will see her answer under My engagements." xml:space="preserve"><value>Your request was sent to {0}. You will see her answer under My engagements.</value></data>
+  <data name="{0} AM" xml:space="preserve"><value>{0} AM</value></data>
+  <data name="{0} · asked by {1}{2}" xml:space="preserve"><value>{0} · asked by {1}{2}</value></data>
+  <data name="{0} picked" xml:space="preserve"><value>{0} picked</value></data>
+  <data name="{0} - {1}" xml:space="preserve"><value>{0} - {1}</value></data>
+  <data name="Browse helpers" xml:space="preserve"><value>Browse helpers</value></data>
+  <data name="Sent {0}, waiting for her answer." xml:space="preserve"><value>Sent {0}, waiting for her answer.</value></data>
+  <data name="/month" xml:space="preserve"><value>/month</value></data>
+  <data name="Loading helpers…" xml:space="preserve"><value>Loading helpers…</value></data>
+  <data name="You reviewed this engagement." xml:space="preserve"><value>You reviewed this engagement.</value></data>
+  <data name="/mo" xml:space="preserve"><value>/mo</value></data>
+  <data name="{0} is not taking new bookings right now." xml:space="preserve"><value>{0} is not taking new bookings right now.</value></data>
+  <data name="Helpers your home has asked for, and every helper who worked at a home while you lived there. Anyone who took her service can review her." xml:space="preserve"><value>Helpers your home has asked for, and every helper who worked at a home while you lived there. Anyone who took her service can review her.</value></data>
+  <data name="Sort" xml:space="preserve"><value>Sort</value></data>
+  <data name="Picked ({0})" xml:space="preserve"><value>Picked ({0})</value></data>
+  <data name="Select a rating" xml:space="preserve"><value>Select a rating</value></data>
+  <data name="A note for {0}" xml:space="preserve"><value>A note for {0}</value></data>
+  <data name="This will end her engagement immediately, free up her weekly hours for other homes, and allow home members to leave a review." xml:space="preserve"><value>This will end her engagement immediately, free up her weekly hours for other homes, and allow home members to leave a review.</value></data>
+  <data name="Filters" xml:space="preserve"><value>Filters</value></data>
+  <data name="{0} has not written a bio yet." xml:space="preserve"><value>{0} has not written a bio yet.</value></data>
+  <data name="Thanks!" xml:space="preserve"><value>Thanks!</value></data>
+  <data name="You marked this complete — waiting for {0} to confirm." xml:space="preserve"><value>You marked this complete — waiting for {0} to confirm.</value></data>
+  <data name="Available ({0})" xml:space="preserve"><value>Available ({0})</value></data>
+  <data name="{0} / 500" xml:space="preserve"><value>{0} / 500</value></data>
+  <data name="18 hourly slots a day, 6:00 AM to 12:00 AM." xml:space="preserve"><value>18 hourly slots a day, 6:00 AM to 12:00 AM.</value></data>
+  <data name="Share your experience with {0}. Your review will appear on her profile." xml:space="preserve"><value>Share your experience with {0}. Your review will appear on her profile.</value></data>
+  <data name="Verified helpers only" xml:space="preserve"><value>Verified helpers only</value></data>
+  <data name="No limit" xml:space="preserve"><value>No limit</value></data>
+  <data name="Write a comment before submitting." xml:space="preserve"><value>Write a comment before submitting.</value></data>
+  <data name="Pagination" xml:space="preserve"><value>Pagination</value></data>
+  <data name="Reject request" xml:space="preserve"><value>Reject request</value></data>
+  <data name="Booking" xml:space="preserve"><value>Booking</value></data>
+  <data name="{0} hours already picked for this day" xml:space="preserve"><value>{0} hours already picked for this day</value></data>
+  <data name="No helpers match those filters" xml:space="preserve"><value>No helpers match those filters</value></data>
+  <data name="Thanks — your review has been posted." xml:space="preserve"><value>Thanks — your review has been posted.</value></data>
+  <data name="PAST MAIDS" xml:space="preserve"><value>PAST MAIDS</value></data>
+  <data name="Scroll sideways to see the whole day. The same hours repeat every week for as long as the engagement runs." xml:space="preserve"><value>Scroll sideways to see the whole day. The same hours repeat every week for as long as the engagement runs.</value></data>
+  <data name="{0} has been released." xml:space="preserve"><value>{0} has been released.</value></data>
+  <data name="Your review" xml:space="preserve"><value>Your review</value></data>
+  <data name="{0} marked this complete. Confirm to close it." xml:space="preserve"><value>{0} marked this complete. Confirm to close it.</value></data>
+  <data name="Request {0} {1} a week" xml:space="preserve"><value>Request {0} {1} a week</value></data>
+  <data name="Breadcrumb" xml:space="preserve"><value>Breadcrumb</value></data>
+  <data name="Withdraw request" xml:space="preserve"><value>Withdraw request</value></data>
+  <data name="A review can be at most 500 characters." xml:space="preserve"><value>A review can be at most 500 characters.</value></data>
+  <data name="worked there {0} – {1}" xml:space="preserve"><value>worked there {0} – {1}</value></data>
+  <data name="[{0}]" xml:space="preserve"><value>[{0}]</value></data>
+  <data name="Request withdrawn" xml:space="preserve"><value>Request withdrawn</value></data>
+  <data name="Available" xml:space="preserve"><value>Available</value></data>
+  <data name="{0} hours a week at {1}/month, booked for your home. {2}" xml:space="preserve"><value>{0} hours a week at {1}/month, booked for your home. {2}</value></data>
+  <data name="Request rejected" xml:space="preserve"><value>Request rejected</value></data>
+  <data name="the helper" xml:space="preserve"><value>the helper</value></data>
+  <data name="{0} — {1} hours already picked for this day" xml:space="preserve"><value>{0} — {1} hours already picked for this day</value></data>
+  <data name="Picked" xml:space="preserve"><value>Picked</value></data>
+  <data name="Are you sure you want to release {0} from {1}?" xml:space="preserve"><value>Are you sure you want to release {0} from {1}?</value></data>
+  <data name="Could not post the review." xml:space="preserve"><value>Could not post the review.</value></data>
+  <data name="You aren&apos;t part of this engagement." xml:space="preserve"><value>You aren&apos;t part of this engagement.</value></data>
+  <data name="You aren&apos;t currently authorized to complete this engagement." xml:space="preserve"><value>You aren&apos;t currently authorized to complete this engagement.</value></data>
+  <data name="Could not release the helper." xml:space="preserve"><value>Could not release the helper.</value></data>
+  <data name="No current helper placement was found for this engagement." xml:space="preserve"><value>No current helper placement was found for this engagement.</value></data>
+  <data name="Could not mark the engagement complete." xml:space="preserve"><value>Could not mark the engagement complete.</value></data>
+  <data name="Could not send the request." xml:space="preserve"><value>Could not send the request.</value></data>
+  <data name="Rating must be between 1 and 5." xml:space="preserve"><value>Rating must be between 1 and 5.</value></data>
+  <data name="Request not found." xml:space="preserve"><value>Request not found.</value></data>
+  <data name="This engagement isn&apos;t active." xml:space="preserve"><value>This engagement isn&apos;t active.</value></data>
+  <data name="This request was already answered." xml:space="preserve"><value>This request was already answered.</value></data>
+  <data name="This request can&apos;t be withdrawn any more." xml:space="preserve"><value>This request can&apos;t be withdrawn any more.</value></data>
+  <data name="Could not reject the request." xml:space="preserve"><value>Could not reject the request.</value></data>
+  <data name="Could not withdraw the request." xml:space="preserve"><value>Could not withdraw the request.</value></data>
+  <data name="Engagement not found." xml:space="preserve"><value>Engagement not found.</value></data>
+  <data name="Only a current manager or co-manager can reject a pending request for this home." xml:space="preserve"><value>Only a current manager or co-manager can reject a pending request for this home.</value></data>
+  <data name="Only the requester on an accepted, active, or completed engagement can review this helper." xml:space="preserve"><value>Only the requester on an accepted, active, or completed engagement can review this helper.</value></data>
+  <data name="You&apos;ve already reviewed this engagement." xml:space="preserve"><value>You&apos;ve already reviewed this engagement.</value></data>
+  <data name="Only a current manager or co-manager can release an active helper for this home." xml:space="preserve"><value>Only a current manager or co-manager can release an active helper for this home.</value></data>
 </root>

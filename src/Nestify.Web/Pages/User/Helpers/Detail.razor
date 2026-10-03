@@ -4,17 +4,18 @@
 @using Nestify.Web.Components
 @using Nestify.Web.Components.Helper
 @inject IHelperService Helpers
+@inject IStringLocalizer<SharedResource> L
 @inject Nestify.Web.Services.ToastService Toast
 @inject Nestify.Web.Services.MoneyFormatterService Money
 
-<PageTitle>@(_helper?.Name ?? "Helper") — Nestify</PageTitle>
+<PageTitle>@(_helper?.Name ?? L["Helper"].Value) — Nestify</PageTitle>
 
 <div class="dh">
     <div class="dh__inner">
-        <nav class="dh-crumbs" aria-label="Breadcrumb">
-            <a href="helpers">Domestic Help</a>
+        <nav class="dh-crumbs" aria-label="@L["Breadcrumb"]">
+            <a href="helpers">@L["Domestic Help"]</a>
             <span class="dh-crumbs__sep">/</span>
-            <span>@(_helper?.Name ?? "Profile")</span>
+            <span>@(_helper?.Name ?? L["Profile"].Value)</span>
         </nav>
 
         @if (_loading)
@@ -31,9 +32,9 @@
                     <span class="dh-empty__art" aria-hidden="true">
                         <svg class="nx-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 8v5M12 16h.01" /></svg>
                     </span>
-                    <h2>This profile is not available</h2>
-                    <p>It may have been removed, or the link may be out of date.</p>
-                    <a class="nx-btn nx-btn--accent" href="helpers">Back to Domestic Help</a>
+                    <h2>@L["This profile is not available"]</h2>
+                    <p>@L["It may have been removed, or the link may be out of date."]</p>
+                    <a class="nx-btn nx-btn--accent" href="helpers">@L["Back to Domestic Help"]</a>
                 </div>
             </div>
         }
@@ -42,15 +43,15 @@
             <article class="dh-detail dh-detail--split">
                 <header class="dh-profile dh-rise">
                     <div class="dh-profile__glow" aria-hidden="true"></div>
-                    <img class="dh-portrait" src="@_helper.PhotoUrl" alt="Photo of @_helper.Name" />
+                    <img class="dh-portrait" src="@_helper.PhotoUrl" alt='@L["Photo of {0}", _helper.Name]' />
                     <div class="dh-profile__body">
                         <h1>
                             @_helper.Name
                             @if (_helper.IsVerified)
                             {
-                                <span class="dh-verified" title="Verified by Nestify">
+                                <span class="dh-verified" title='@L["Verified by Nestify"]'>
                                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 12 2 2 4-4" /><circle cx="12" cy="12" r="9" /></svg>
-                                    Verified
+                                    @L["Verified"]
                                 </span>
                             }
                         </h1>
@@ -77,21 +78,21 @@
 
                 <div class="dh-detail__main">
                     <section class="dh-panel dh-rise" style="--d:120ms">
-                        <div class="dh-panel__head"><h2>About @FirstName</h2></div>
-                        <p class="dh-bio">@(string.IsNullOrWhiteSpace(_helper.Bio) ? $"{FirstName} has not written a bio yet." : _helper.Bio)</p>
+                        <div class="dh-panel__head"><h2>@L["About {0}", FirstName]</h2></div>
+                        <p class="dh-bio">@(string.IsNullOrWhiteSpace(_helper.Bio) ? L["{0} has not written a bio yet.", FirstName] : _helper.Bio)</p>
                         <div class="dh-facts">
-                            <div class="dh-fact"><span>Experience</span><strong>@_helper.ExperienceYears year(s)</strong></div>
-                            <div class="dh-fact"><span>Languages</span><strong>@_helper.Languages</strong></div>
-                            <div class="dh-fact"><span>On Nestify since</span><strong>@_helper.MemberSinceUtc.ToLocalTime().ToString("MMM yyyy")</strong></div>
+                            <div class="dh-fact"><span>@L["Experience"]</span><strong>@L["{0} year(s)", _helper.ExperienceYears]</strong></div>
+                            <div class="dh-fact"><span>@L["Languages"]</span><strong>@_helper.Languages</strong></div>
+                            <div class="dh-fact"><span>@L["On Nestify since"]</span><strong>@_helper.MemberSinceUtc.ToLocalTime().ToString("MMM yyyy")</strong></div>
                         </div>
                     </section>
 
                     <section class="dh-panel dh-rise" style="--d:160ms">
                         <div class="dh-panel__head">
-                            <h2>Weekly hours</h2>
+                            <h2>@L["Weekly hours"]</h2>
                             @if (_slots.Count > 0)
                             {
-                                <span class="dh-count">@_slots.Count picked</span>
+                                <span class="dh-count">@L["{0} picked", _slots.Count]</span>
                             }
                         </div>
                         <AvailabilityGrid Slots="_helper.Availability" Selectable="@(!_helper.IsMine && !_helper.IsWorkingForMyHome && _helper.IsAcceptingBookings)"
@@ -100,7 +101,7 @@
 
                     <section class="dh-panel dh-rise" style="--d:220ms">
                         <div class="dh-panel__head">
-                            <h2>Reviews</h2>
+                            <h2>@L["Reviews"]</h2>
                             @if (_reviews is not null && _reviews.TotalCount > 0)
                             {
                                 <span class="dh-count">@_reviews.TotalCount</span>
@@ -108,42 +109,42 @@
                         </div>
                         @if (_canWriteReview && _reviewableEngagement is not null)
                         {
-                            <button class="nx-btn nx-btn--accent" @onclick="OpenReviewForm">Write a review</button>
+                            <button class="nx-btn nx-btn--accent" @onclick="OpenReviewForm">@L["Write a review"]</button>
                         }
                         else if (_reviewEligibilityLoaded)
                         {
-                            <p class="dh-muted">You can review this helper after your own accepted engagement is active or completed. A review can be submitted once per engagement.</p>
+                            <p class="dh-muted">@L["You can review this helper after your own accepted engagement is active or completed. A review can be submitted once per engagement."]</p>
                         }
                         @if (_showReviewForm)
                         {
                             <div class="dh-review-box">
-                                <h3>Review @FirstName</h3>
-                                <label class="dh-muted">Your rating</label>
+                                <h3>@L["Review {0}", FirstName]</h3>
+                                <label class="dh-muted">@L["Your rating"]</label>
                                 <RatingStars Value="_reviewRating" ReadOnly="false" ShowCount="false" ValueChanged="SetReviewRating" />
                                 @if (_ratingError is not null)
                                 {
                                     <p class="md-msg md-msg--bad" role="alert">@_ratingError</p>
                                 }
-                                <label for="helper-review-comment">Your review</label>
-                                <textarea id="helper-review-comment" rows="4" maxlength="500" @bind="_reviewComment" placeholder="How was your experience?"></textarea>
-                                <small>@_reviewComment.Length / 500</small>
+                                <label for="helper-review-comment">@L["Your review"]</label>
+                                <textarea id="helper-review-comment" rows="4" maxlength="500" @bind="_reviewComment" placeholder='@L["How was your experience?"]'></textarea>
+                                <small>@L["{0} / 500", _reviewComment.Length]</small>
                                 @if (_reviewError is not null)
                                 {
                                     <p class="md-msg md-msg--bad">@_reviewError</p>
                                 }
                                 <div class="dh-engagement__actions">
-                                    <button class="nx-btn nx-btn--accent" disabled="@_submittingReview" @onclick="SubmitReviewAsync">@(_submittingReview ? "Submitting…" : "Submit review")</button>
-                                    <button class="nx-btn nx-btn--ghost" disabled="@_submittingReview" @onclick="() => _showReviewForm = false">Cancel</button>
+                                    <button class="nx-btn nx-btn--accent" disabled="@_submittingReview" @onclick="SubmitReviewAsync">@(_submittingReview ? L["Submitting…"] : L["Submit review"])</button>
+                                    <button class="nx-btn nx-btn--ghost" disabled="@_submittingReview" @onclick="() => _showReviewForm = false">@L["Cancel"]</button>
                                 </div>
                             </div>
                         }
                         @if (_reviewSuccess)
                         {
-                            <p class="md-msg">Thanks — your review has been posted.</p>
+                            <p class="md-msg">@L["Thanks — your review has been posted."]</p>
                         }
                         @if (_reviews is null || _reviews.Items.Count == 0)
                         {
-                            <p class="dh-muted">No reviews yet.</p>
+                            <p class="dh-muted">@L["No reviews yet."]</p>
                         }
                         else
                         {
@@ -159,45 +160,45 @@
                                         <p>@r.Comment</p>
                                         @if (!string.IsNullOrWhiteSpace(r.Reply))
                                         {
-                                            <p class="dh-review__reply"><strong>@FirstName replied:</strong> @r.Reply</p>
+                                        <p class="dh-review__reply"><strong>@L["{0} replied:", FirstName]</strong> @r.Reply</p>
                                         }
                                     </div>
                                 }
                             </div>
                             @if (_reviews.HasNext)
                             {
-                                <button class="nx-btn nx-btn--ghost" @onclick="MoreReviews">Show more reviews</button>
+                                <button class="nx-btn nx-btn--ghost" @onclick="MoreReviews">@L["Show more reviews"]</button>
                             }
                         }
                     </section>
                 </div>
 
-                <aside class="dh-book dh-rise" style="--d:100ms" aria-label="Booking">
+                <aside class="dh-book dh-rise" style="--d:100ms" aria-label="@L["Booking"]">
                     <p class="dh-book__price">
-                        @Money.Format(_helper.MonthlyRate)<span>/month</span>
+                        @Money.Format(_helper.MonthlyRate)<span>@L["/month"]</span>
                     </p>
 
                     <dl class="dh-book__facts">
                         <div>
                             <dt>
                                 <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
-                                Open hours
+                                @L["Open hours"]
                             </dt>
-                            <dd>@_helper.Availability.Count(s => s.IsOpen && !s.IsBooked) free a week</dd>
+                            <dd>@L["{0} free a week", _helper.Availability.Count(s => s.IsOpen && !s.IsBooked)]</dd>
                         </div>
                         <div>
                             <dt>
                                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>
-                                Area
+                                @L["Area"]
                             </dt>
                             <dd>@_helper.AreaName</dd>
                         </div>
                         <div>
                             <dt>
                                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 14.5 9h6l-5 4 2 6-5.5-4-5.5 4 2-6-5-4h6Z" /></svg>
-                                Rating
+                                @L["Rating"]
                             </dt>
-                            <dd>@_helper.RatingAverage.ToString("0.0") · @_helper.RatingCount review(s)</dd>
+                            <dd>@_helper.RatingAverage.ToString("0.0") · @L["{0} review(s)", _helper.RatingCount]</dd>
                         </div>
                     </dl>
 
@@ -205,44 +206,43 @@
                     {
                         <div class="dh-book__picks">
                             <p class="dh-book__hint dh-book__hint--on" style="background:rgba(34,197,94,0.1);color:#16a34a;border:1px solid rgba(34,197,94,0.25);border-radius:12px;padding:.75rem;">
-                                <strong>@FirstName is currently working for your home.</strong>
+                                <strong>@L["{0} is currently working for your home.", FirstName]</strong>
                             </p>
                         </div>
 
                         @if (_helper.CanManageEngagement)
                         {
                             <button class="nx-btn nx-btn--block" style="background:#dc2626;color:#fff;border-color:#dc2626;font-weight:600;" @onclick="OpenReleaseModal">
-                                Release @FirstName
+                                @L["Release {0}", FirstName]
                             </button>
                         }
 
-                        <p class="dh-book__note"><a href="engagements/mine" style="text-decoration:underline;">View in My engagements &rarr;</a></p>
+                        <p class="dh-book__note"><a href="engagements/mine" style="text-decoration:underline;">@L["View in My engagements →"]</a></p>
                     }
                     else
                     {
                         <div class="dh-book__picks">
                             @if (!_helper.IsAcceptingBookings)
                             {
-                                <p class="dh-book__hint">@FirstName is not taking new bookings right now.</p>
+                                <p class="dh-book__hint">@L["{0} is not taking new bookings right now.", FirstName]</p>
                             }
                             else if (_slots.Count == 0)
                             {
-                                <p class="dh-book__hint">Pick the hours you need each week on the board — up to 3 a day.</p>
+                                <p class="dh-book__hint">@L["Pick the hours you need each week on the board — up to 3 a day."]</p>
                             }
                             else
                             {
                                 <p class="dh-book__hint dh-book__hint--on">
-                                    <strong>@_slots.Count</strong> @(_slots.Count == 1 ? "hour" : "hours") a week across
-                                    @_slots.Select(s => s.DayOfWeek).Distinct().Count() day(s)
+                                    @L["{0} hours a week across {1} day(s)", _slots.Count, _slots.Select(s => s.DayOfWeek).Distinct().Count()]
                                 </p>
                             }
                         </div>
 
                         <button class="nx-btn nx-btn--accent nx-btn--block" disabled="@(_helper.IsMine || !_helper.IsAcceptingBookings || _slots.Count == 0)" @onclick="OpenRequest">
-                            @(_slots.Count == 0 ? "Request engagement" : $"Request {_slots.Count} {(_slots.Count == 1 ? "hour" : "hours")} a week")
+                            @(_slots.Count == 0 ? L["Request engagement"] : L["Request {0} {1} a week", _slots.Count, _slots.Count == 1 ? L["hour"].Value : L["hours"].Value])
                         </button>
 
-                        <p class="dh-book__note">@FirstName's phone number is shared only after she accepts.</p>
+                        <p class="dh-book__note">@L["{0}'s phone number is shared only after she accepts.", FirstName]</p>
                     }
                 </aside>
             </article>
@@ -255,14 +255,14 @@
     <div class="md-overlay" @onclick="CloseRequest">
         <div class="md-modal md-modal--sm" role="dialog" aria-modal="true" @onclick:stopPropagation="true">
             <header class="md-modal__head">
-                <h2>Request @FirstName</h2>
-                <button type="button" class="md-modal__close" @onclick="CloseRequest" aria-label="Close">&times;</button>
+                <h2>@L["Request {0}", FirstName]</h2>
+                <button type="button" class="md-modal__close" @onclick="CloseRequest" aria-label="@L["Close"]">&times;</button>
             </header>
             <div class="md-modal__body md-modal__body--stack">
-                <p class="dh-muted">@_slots.Count hour(s) a week at @Money.Format(_helper.MonthlyRate)/month, booked for your home. Only a home's manager or co-manager can send this; she sees your name, the home's area and this note.</p>
+                <p class="dh-muted">@L["{0} hours a week at {1}/month, booked for your home. {2}", _slots.Count, Money.Format(_helper.MonthlyRate), L["Only a home's manager or co-manager can send this; she sees your name, the home's area and this note."]]</p>
 
                 <div class="md-field">
-                    <span class="md-field__label">What do you need?</span>
+                    <span class="md-field__label">@L["What do you need?"]</span>
                     <div class="dh-chips">
                         @foreach (var s in _helper.Services)
                         {
@@ -276,19 +276,19 @@
                 </div>
 
                 <div class="md-field">
-                    <label for="req-message">A note for @FirstName</label>
-                    <textarea id="req-message" rows="4" maxlength="1000" @bind="_request.Message" placeholder="How many of you live there, what you eat, anything she should know."></textarea>
+                    <label for="req-message">@L["A note for {0}", FirstName]</label>
+                    <textarea id="req-message" rows="4" maxlength="1000" @bind="_request.Message" placeholder='@L["How many of you live there, what you eat, anything she should know."]'></textarea>
                 </div>
 
                 <div class="md-slots">
-                    <span class="md-slots__label">Weekly hours · @_slots.Count</span>
+                    <span class="md-slots__label">@L["Weekly hours · {0}", _slots.Count]</span>
                     <ul class="md-slots__list">
                         @foreach (var day in AvailabilityGrid.Week)
                         {
                             var picks = _slots.Where(s => s.DayOfWeek == (int)day).OrderBy(s => s.Hour).ToList();
                             if (picks.Count == 0) continue;
                             <li>
-                                <span class="md-slots__day">@day</span>
+                                <span class="md-slots__day">@DayName(day)</span>
                                 @foreach (var s in picks)
                                 {
                                     <span class="md-slots__chip">@AvailabilityGrid.HourLabel(s.Hour)</span>
@@ -304,8 +304,8 @@
                 }
             </div>
             <footer class="md-modal__foot">
-                <button type="button" class="nx-btn nx-btn--ghost" @onclick="CloseRequest" disabled="@_requesting">Cancel</button>
-                <button type="button" class="nx-btn nx-btn--accent" @onclick="SendRequest" disabled="@_requesting">@(_requesting ? "Sending…" : "Send request")</button>
+                <button type="button" class="nx-btn nx-btn--ghost" @onclick="CloseRequest" disabled="@_requesting">@L["Cancel"]</button>
+                <button type="button" class="nx-btn nx-btn--accent" @onclick="SendRequest" disabled="@_requesting">@(_requesting ? L["Sending…"] : L["Send request"])</button>
             </footer>
         </div>
     </div>
@@ -316,21 +316,21 @@
     <div class="md-overlay" @onclick="CloseReleaseModal">
         <div class="md-modal md-modal--sm" role="dialog" aria-modal="true" @onclick:stopPropagation="true">
             <header class="md-modal__head">
-                <h2>Release @FirstName?</h2>
-                <button type="button" class="md-modal__close" @onclick="CloseReleaseModal" aria-label="Close">&times;</button>
+                <h2>@L["Release {0}?", FirstName]</h2>
+                <button type="button" class="md-modal__close" @onclick="CloseReleaseModal" aria-label="@L["Close"]">&times;</button>
             </header>
             <div class="md-modal__body md-modal__body--stack">
-                <p>Are you sure you want to release <strong>@FirstName</strong> from your home?</p>
-                <p class="dh-muted">This will end her engagement immediately, free up her weekly hours for other homes, and allow home members to leave a review.</p>
+                <p>@L["Are you sure you want to release {0} from your home?", FirstName]</p>
+                <p class="dh-muted">@L["This will end her engagement immediately, free up her weekly hours for other homes, and allow home members to leave a review."]</p>
                 @if (_releaseError is not null)
                 {
                     <p class="md-msg md-msg--bad">@_releaseError</p>
                 }
             </div>
             <footer class="md-modal__foot">
-                <button type="button" class="nx-btn nx-btn--ghost" @onclick="CloseReleaseModal" disabled="@_releasing">Cancel</button>
+                <button type="button" class="nx-btn nx-btn--ghost" @onclick="CloseReleaseModal" disabled="@_releasing">@L["Cancel"]</button>
                 <button type="button" class="nx-btn nx-btn--accent" style="background:#dc2626;border-color:#dc2626;" @onclick="ConfirmReleaseAsync" disabled="@_releasing">
-                    @(_releasing ? "Releasing…" : "Release helper")
+                    @(_releasing ? L["Releasing…"] : L["Release helper"])
                 </button>
             </footer>
         </div>
@@ -364,7 +364,9 @@
     private string? _releaseError;
 
     private string FirstName =>
-        _helper?.Name.Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? "the helper";
+        _helper?.Name.Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? L["the helper"].Value;
+
+    private static string DayName(DayOfWeek day) => CultureInfo.CurrentCulture.DateTimeFormat.GetDayName(day);
 
     protected override Task OnParametersSetAsync() => LoadAsync();
 
@@ -438,18 +440,18 @@
         if (_reviewableEngagement is null) return;
         if (_reviewRating == 0)
         {
-            _ratingError = "Select a rating";
+            _ratingError = L["Select a rating"];
             return;
         }
         var comment = _reviewComment.Trim();
         if (comment.Length == 0)
         {
-            _reviewError = "Write a comment before submitting.";
+            _reviewError = L["Write a comment before submitting."];
             return;
         }
         if (comment.Length > 500)
         {
-            _reviewError = "A review can be at most 500 characters.";
+            _reviewError = L["A review can be at most 500 characters."];
             return;
         }
 
@@ -466,7 +468,7 @@
         }
         catch (Exception ex)
         {
-            _reviewError = ex.Message;
+            _reviewError = L[ex.Message];
         }
         finally
         {
@@ -513,7 +515,7 @@
     {
         if (_request.Services.Count == 0)
         {
-            _requestError = "Pick at least one service.";
+            _requestError = L["Pick at least one service."];
             return;
         }
 
@@ -524,12 +526,12 @@
         {
             await Helpers.RequestEngagementAsync(Id.ToString(), _request);
             _showRequest = false;
-            Toast.ShowSuccess($"Your request was sent to {FirstName}. You will see her answer under My engagements.", "Requested");
+            Toast.ShowSuccess(L["Your request was sent to {0}. You will see her answer under My engagements.", FirstName], L["Requested"]);
             await LoadAsync();
         }
         catch (Exception ex)
         {
-            _requestError = ex.Message;
+            _requestError = L[ex.Message];
         }
         finally
         {
@@ -558,12 +560,12 @@
         {
             await Helpers.ReleaseEngagementAsync(_helper.ActiveEngagementId);
             _showRelease = false;
-            Toast.ShowSuccess($"{FirstName} has been released from your home.", "Released");
+            Toast.ShowSuccess(L["{0} has been released from your home.", FirstName], L["Released"]);
             await LoadAsync();
         }
         catch (Exception ex)
         {
-            _releaseError = ex.Message;
+            _releaseError = L[ex.Message];
         }
         finally
         {
