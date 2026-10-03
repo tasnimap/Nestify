@@ -1,3 +1,4 @@
+@inject Microsoft.Extensions.Localization.IStringLocalizer<SharedResource> L
 @inject IMarketplaceService Marketplace
 @inject Nestify.Web.Services.MoneyFormatterService Money
 @inject Nestify.Web.Services.ToastService Toast
@@ -26,30 +27,30 @@
                         </svg>
                     </div>
 
-                    <h3 class="mk-pin-receipt__title">Listing Pinned Successfully!</h3>
+                    <h3 class="mk-pin-receipt__title">@L["Listing Pinned Successfully!"]</h3>
                     <p class="mk-pin-receipt__subtitle">
                         Your item is featured with priority ranking at the top of Marketplace browse results.
                     </p>
 
                     <div class="mk-pin-receipt__card">
                         <div class="mk-pin-receipt__row">
-                            <span>Item</span>
+                            <span>@L["Item"]</span>
                             <strong>@ListingTitle</strong>
                         </div>
                         <div class="mk-pin-receipt__row">
-                            <span>Amount Paid</span>
+                            <span>@L["Amount Paid"]</span>
                             <strong class="mk-pin-receipt__amount">৳@_receipt.AmountBdt.ToString("N0") BDT</strong>
                         </div>
                         <div class="mk-pin-receipt__row">
-                            <span>bKash Number</span>
+                            <span>@L["bKash Number"]</span>
                             <span>@_receipt.BkashNumber</span>
                         </div>
                         <div class="mk-pin-receipt__row">
-                            <span>Transaction ID</span>
+                            <span>@L["Transaction ID"]</span>
                             <span class="mk-pin-receipt__mono">@_receipt.TransactionId</span>
                         </div>
                         <div class="mk-pin-receipt__row">
-                            <span>Pinned Until</span>
+                            <span>@L["Pinned Until"]</span>
                             <strong class="mk-pin-receipt__highlight">@_receipt.PinnedUntilUtc.ToLocalTime().ToString("d MMMM yyyy, h:mm tt")</strong>
                         </div>
                     </div>
@@ -82,29 +83,29 @@
                         <div class="mk-pin-perk">
                             <div class="mk-pin-perk__icon">📌</div>
                             <div>
-                                <strong>Top of Browse & Search</strong>
-                                <p>Appears first before standard listings for maximum buyer discovery.</p>
+                                <strong>@L["Top of Browse & Search"]</strong>
+                                <p>@L["Appears first before standard listings for maximum buyer discovery."]</p>
                             </div>
                         </div>
                         <div class="mk-pin-perk">
                             <div class="mk-pin-perk__icon">✨</div>
                             <div>
-                                <strong>Golden Pinned Badge</strong>
-                                <p>Distinctive badge highlights your item across all category feeds.</p>
+                                <strong>@L["Golden Pinned Badge"]</strong>
+                                <p>@L["Distinctive badge highlights your item across all category feeds."]</p>
                             </div>
                         </div>
                         <div class="mk-pin-perk">
                             <div class="mk-pin-perk__icon">⚡</div>
                             <div>
                                 <strong>@_fee.Days Days Boost</strong>
-                                <p>Accelerates buyer inquiries and helps close sales up to 3x faster.</p>
+                                <p>@L["Accelerates buyer inquiries and helps close sales up to 3x faster."]</p>
                             </div>
                         </div>
                     </div>
 
                     <div class="mk-pin-pricing">
                         <div class="mk-pin-pricing__head">
-                            <span>Promotion Fee</span>
+                            <span>@L["Promotion Fee"]</span>
                             <strong class="mk-pin-pricing__amount">৳@_fee.AmountBdt.ToString("N0") <small>BDT</small></strong>
                         </div>
                         <span class="mk-pin-pricing__detail">Duration: @_fee.Days days priority spotlight</span>
@@ -114,14 +115,14 @@
                         <div class="mk-bkash-checkout__banner">
                             <div class="mk-bkash-checkout__logo">
                                 <span class="mk-bkash-logo-text">bKash</span>
-                                <span class="mk-bkash-sub">Payment Gateway</span>
+                                <span class="mk-bkash-sub">@L["Payment Gateway"]</span>
                             </div>
                             <span class="mk-bkash-secure">🔒 Secure Demo</span>
                         </div>
 
                         <div class="mk-bkash-form">
                             <div class="mk-bkash-field">
-                                <label for="mk-bkash-phone">bKash Account Number</label>
+                                <label for="mk-bkash-phone">@L["bKash Account Number"]</label>
                                 <div class="mk-bkash-input-wrap">
                                     <input id="mk-bkash-phone" type="tel" placeholder="01712345678"
                                            @bind="_bkashNumber" @bind:event="oninput"
@@ -130,7 +131,7 @@
                             </div>
 
                             <div class="mk-bkash-field">
-                                <label for="mk-bkash-pin">bKash PIN</label>
+                                <label for="mk-bkash-pin">@L["bKash PIN"]</label>
                                 <div class="mk-bkash-input-wrap">
                                     <input id="mk-bkash-pin" type="password" inputmode="numeric"
                                            placeholder="••••" maxlength="5"
@@ -157,7 +158,7 @@
                                     @if (_busy)
                                     {
                                         <span class="mk-spinner" aria-hidden="true"></span>
-                                        <span>Processing…</span>
+                                        <span>@L["Processing…"]</span>
                                     }
                                     else
                                     {

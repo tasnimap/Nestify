@@ -1,3 +1,4 @@
+@inject Microsoft.Extensions.Localization.IStringLocalizer<SharedResource> L
 @* "Post an item" without leaving the page you are on. It hosts the same form
    the /marketplace/sell page uses, so the two stay in step. *@
 @inject IMarketplaceService Marketplace
@@ -6,7 +7,7 @@
 <div class="mk-modal-overlay" @onclick="Cancel">
     <div class="mk-modal" @onclick:stopPropagation="true">
         <header class="mk-modal__header">
-            <h2>Post an item for sale</h2>
+            <h2>@L["Post an item for sale"]</h2>
             <button type="button" class="mk-modal__close" @onclick="Cancel" aria-label="Close">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                     <path d="M18 6 6 18M6 6l12 12" />

@@ -1,3 +1,4 @@
+@inject Microsoft.Extensions.Localization.IStringLocalizer<SharedResource> L
 @using Nestify.Shared.Dtos.Area
 @inject IAreaService Areas
 @inject Nestify.Web.Services.MoneyFormatterService Money
@@ -12,43 +13,43 @@
     <div class="mk-form__grid">
         <div class="mk-form__fields">
             <div class="field">
-                <label for="mk-title" class="field__label--required">Title</label>
+                <label for="mk-title" class="field__label--required">@L["Title"]</label>
                 <InputText id="mk-title" class="field__input" @bind-Value="Model.Title"
                            placeholder="Solid wood study table with drawer" />
                 <ValidationMessage For="@(() => Model.Title)" />
             </div>
 
             <div class="field">
-                <label for="mk-desc" class="field__label--required">Description</label>
+                <label for="mk-desc" class="field__label--required">@L["Description"]</label>
                 <InputTextArea id="mk-desc" class="field__input" @bind-Value="Model.Description" rows="6"
                                placeholder="What it is, how long you've used it, any wear, and what's included." />
                 <ValidationMessage For="@(() => Model.Description)" />
-                <p class="field__helper">Plain text only — links and formatting won't render.</p>
+                <p class="field__helper">@L["Plain text only — links and formatting won't render."]</p>
             </div>
 
             <div class="field-row">
                 <div class="field">
-                    <label for="mk-category">Category</label>
+                    <label for="mk-category">@L["Category"]</label>
                     <InputSelect id="mk-category" class="field__input" @bind-Value="Model.Category">
                         @foreach (var c in _categories)
                         {
-                            <option value="@c">@MarketplaceView.Label(c)</option>
+                            <option value="@c">@L[MarketplaceView.Label(c)]</option>
                         }
                     </InputSelect>
                 </div>
                 <div class="field">
-                    <label for="mk-condition">Condition</label>
+                    <label for="mk-condition">@L["Condition"]</label>
                     <InputSelect id="mk-condition" class="field__input" @bind-Value="Model.Condition">
                         @foreach (var c in _conditions)
                         {
-                            <option value="@c">@MarketplaceView.Label(c)</option>
+                            <option value="@c">@L[MarketplaceView.Label(c)]</option>
                         }
                     </InputSelect>
                 </div>
             </div>
 
             <div class="field">
-                <label for="mk-price" class="field__label--required">Price (৳)</label>
+                <label for="mk-price" class="field__label--required">@L["Price (৳)"]</label>
                 <InputNumber id="mk-price" class="field__input mk-form__price" @bind-Value="Model.PriceBdt" @bind-Value:after="ClampPrice"
                              min="1" step="any" />
                 <ValidationMessage For="@(() => Model.PriceBdt)" />
@@ -56,10 +57,10 @@
 
             <div class="field-row">
                 <div class="field">
-                    <label for="mk-division" class="field__label--required">Division</label>
+                    <label for="mk-division" class="field__label--required">@L["Division"]</label>
                     <select id="mk-division" class="field__input"
                             value="@(_area.DivisionId?.ToString() ?? string.Empty)" @onchange="OnDivisionChanged">
-                        <option value="">Select a division…</option>
+                        <option value="">@L["Select a division…"]</option>
                         @foreach (var d in _divisions)
                         {
                             <option value="@d.Id">@d.Name</option>
@@ -68,11 +69,11 @@
                     <ValidationMessage For="@(() => Model.Division)" />
                 </div>
                 <div class="field">
-                    <label for="mk-district" class="field__label--required">District</label>
+                    <label for="mk-district" class="field__label--required">@L["District"]</label>
                     <select id="mk-district" class="field__input"
                             value="@(_area.DistrictId?.ToString() ?? string.Empty)" @onchange="OnDistrictChanged"
                             disabled="@(_area.DivisionId is null)">
-                        <option value="">Select a district…</option>
+                        <option value="">@L["Select a district…"]</option>
                         @foreach (var d in _districts)
                         {
                             <option value="@d.Id">@d.Name</option>
@@ -80,11 +81,11 @@
                     </select>
                 </div>
                 <div class="field">
-                    <label for="mk-upazila" class="field__label--required">Upazila / thana</label>
+                    <label for="mk-upazila" class="field__label--required">@L["Upazila / thana"]</label>
                     <select id="mk-upazila" class="field__input"
                             value="@(_area.UpazilaId?.ToString() ?? string.Empty)" @onchange="OnUpazilaChanged"
                             disabled="@(_area.DistrictId is null)">
-                        <option value="">Select an upazila…</option>
+                        <option value="">@L["Select an upazila…"]</option>
                         @foreach (var u in _upazilas)
                         {
                             <option value="@u.Id">@u.Name</option>
@@ -99,14 +100,14 @@
             </p>
 
             <div class="field">
-                <label>Photos</label>
+                <label>@L["Photos"]</label>
                 <ImageUploader Value="Model.Images" ValueChanged="OnImagesChanged" />
             </div>
         </div>
 
         <aside class="mk-form__aside">
             <div class="mk-form__preview">
-                <span class="mk-form__preview-tag">Buyer's view</span>
+                <span class="mk-form__preview-tag">@L["Buyer's view"]</span>
                 <article class="mk-card mk-form__card">
                     <div class="mk-card__media">
                         <MediaTile Seed="@PreviewSeed" Label="@PreviewTitle"
@@ -122,14 +123,14 @@
                             </svg>
                             <span>@(string.IsNullOrWhiteSpace(Model.AreaName) ? "Area" : Model.AreaName)</span>
                             <span class="mk-dot"></span>
-                            <span class="mk-nowrap">just now</span>
+                            <span class="mk-nowrap">@L["just now"]</span>
                         </div>
                         <div class="mk-card__price-row">
                             <span class="mk-price mk-price--sm">@Money.Format(Model.PriceBdt)</span>
                         </div>
                         <div class="mk-card__foot">
                             <span class="mk-card__seller">
-                                <span class="mk-ava">You</span><span>You</span>
+                                <span class="mk-ava">@L["You"]</span><span>@L["You"]</span>
                             </span>
                             <span class="mk-verified">
                                 <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -137,19 +138,19 @@
                                     <path d="m8.5 12 2.4 2.4L15.5 10" fill="none" stroke="#fff" stroke-width="2.2"
                                           stroke-linecap="round" stroke-linejoin="round" />
                                 </svg>
-                                <span>Verified</span>
+                                <span>@L["Verified"]</span>
                             </span>
                         </div>
                     </div>
                 </article>
-                <p class="mk-muted mk-form__preview-hint">Updates as you type.</p>
+                <p class="mk-muted mk-form__preview-hint">@L["Updates as you type."]</p>
             </div>
         </aside>
     </div>
 
     <div class="mk-form__foot">
         <ValidationSummary class="mk-form__errors" />
-        <button type="button" class="nx-btn nx-btn--ghost" @onclick="OnCancel" disabled="@Busy">Cancel</button>
+        <button type="button" class="nx-btn nx-btn--ghost" @onclick="OnCancel" disabled="@Busy">@L["Cancel"]</button>
         <button type="submit" class="nx-btn nx-btn--primary" disabled="@Busy">
             @(Busy ? "Saving…" : SubmitLabel)
         </button>

@@ -1,3 +1,4 @@
+@inject Microsoft.Extensions.Localization.IStringLocalizer<SharedResource> L
 @* Rendered ONLY inside an Accepted branch. Before acceptance the DTO carries no
    contact at all, so this component is never even constructed (§11.4). *@
 
@@ -13,23 +14,23 @@
 
     <dl class="mk-contact__grid">
         <div>
-            <dt>Name</dt>
+            <dt>@L["Name"]</dt>
             <dd>@Contact.DisplayName</dd>
         </div>
         <div>
-            <dt>Phone</dt>
+            <dt>@L["Phone"]</dt>
             <dd><a href="tel:@Contact.Phone">@Contact.Phone</a></dd>
         </div>
         @if (!string.IsNullOrWhiteSpace(Contact.PreferredHandoverArea))
         {
             <div class="mk-contact__wide">
-                <dt>Preferred handover</dt>
+                <dt>@L["Preferred handover"]</dt>
                 <dd>@Contact.PreferredHandoverArea</dd>
             </div>
         }
     </dl>
 
-    <p class="mk-contact__foot">Arrange a public place and daytime handover. Nestify never handles payment.</p>
+    <p class="mk-contact__foot">@L["Arrange a public place and daytime handover. Nestify never handles payment."]</p>
 </div>
 
 @code {

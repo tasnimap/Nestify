@@ -1,23 +1,24 @@
+@inject Microsoft.Extensions.Localization.IStringLocalizer<SharedResource> L
 @page "/buy-interests/mine"
 @attribute [Authorize(Roles = "User")]
 @inject IMarketplaceService Marketplace
 @inject Nestify.Web.Services.MoneyFormatterService Money
 @inject Nestify.Web.Services.ToastService Toast
 
-<PageTitle>My buy requests — Nestify</PageTitle>
+<PageTitle>@L["My buy requests — Nestify"]</PageTitle>
 
 <section class="nx-section mk-page">
     <div class="nx-container mk-wrap mk-wrap--narrow">
         <nav class="mk-crumbs">
-            <a href="marketplace">Marketplace</a>
+            <a href="marketplace">@L["Marketplace"]</a>
             <span class="mk-crumbs__sep">/</span>
-            <span>My buy requests</span>
+            <span>@L["My buy requests"]</span>
         </nav>
 
         <header class="mk-head">
             <div class="mk-head__titles">
-                <p class="nx-eyebrow">Marketplace</p>
-                <h1>My buy requests</h1>
+                <p class="nx-eyebrow">@L["Marketplace"]</p>
+                <h1>@L["My buy requests"]</h1>
                 <p class="mk-head__lead">
                     Requests you've sent to sellers. Their contact details appear here once they accept.
                 </p>
@@ -35,7 +36,7 @@
         {
             <MarketplaceEmpty Title="You haven't sent any buy requests"
                               Message="Find something in the marketplace and send the seller a message to get started.">
-                <a class="nx-btn nx-btn--primary" href="marketplace">Browse the marketplace</a>
+                <a class="nx-btn nx-btn--primary" href="marketplace">@L["Browse the marketplace"]</a>
             </MarketplaceEmpty>
         }
         else
@@ -61,11 +62,11 @@
 
                                 @if (r.Status == BuyInterestStatus.Fulfilled)
                                 {
-                                    <p class="mk-outcome mk-outcome--won">Successfully purchased. The seller marked this item as sold to you — arrange the handover with them below.</p>
+                                    <p class="mk-outcome mk-outcome--won">@L["Successfully purchased. The seller marked this item as sold to you — arrange the handover with them below."]</p>
                                 }
                                 else if (r.Status == BuyInterestStatus.Closed)
                                 {
-                                    <p class="mk-outcome">This item was sold to another buyer, so your request is closed.</p>
+                                    <p class="mk-outcome">@L["This item was sold to another buyer, so your request is closed."]</p>
                                 }
 
                                 @if (r.Status is BuyInterestStatus.Accepted or BuyInterestStatus.Fulfilled && r.Contact is not null)
@@ -80,7 +81,7 @@
                             <div class="mk-row__actions">
                                 <span class="mk-row__actions-spacer"></span>
                                 <button class="nx-btn nx-btn--ghost mk-danger-btn" disabled="@_busy"
-                                        @onclick="() => Withdraw(r.Id)">Withdraw request</button>
+                                        @onclick="() => Withdraw(r.Id)">@L["Withdraw request"]</button>
                             </div>
                         }
                     </article>
