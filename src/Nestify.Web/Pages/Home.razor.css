@@ -353,3 +353,45 @@
     background: rgba(255, 255, 255, .1);
     color: #fff;
 }
+
+/* Bangla copy needs a little more line height and must use the local Bengali
+   font in display text, including the normally italic serif hero accent. */
+html[lang^="bn"] .hero__grid,
+html[lang^="bn"] .hero__copy,
+html[lang^="bn"] .hero__art,
+html[lang^="bn"] .mini > div,
+html[lang^="bn"] .problem,
+html[lang^="bn"] .svc-row,
+html[lang^="bn"] .step,
+html[lang^="bn"] .cta__inner { min-width: 0; }
+
+html[lang^="bn"] .hero__title,
+html[lang^="bn"] .hero__title .nx-display-accent,
+html[lang^="bn"] .stat__num,
+html[lang^="bn"] .step__num {
+    font-family: "Noto Sans Bengali", Inter, system-ui, sans-serif;
+}
+
+html[lang^="bn"] .hero__title { line-height: 1.35; overflow-wrap: break-word; }
+html[lang^="bn"] .hero__title .nx-display-accent { font-style: normal; font-weight: 700; }
+html[lang^="bn"] .hero__lead,
+html[lang^="bn"] .problem__body,
+html[lang^="bn"] .svc-row__body,
+html[lang^="bn"] .step p,
+html[lang^="bn"] .cta__inner { overflow-wrap: anywhere; line-height: 1.8; }
+html[lang^="bn"] .mini__title,
+html[lang^="bn"] .mini__meta,
+html[lang^="bn"] .stat__label { overflow-wrap: anywhere; line-height: 1.65; }
+html[lang^="bn"] .hero__actions .nx-btn,
+html[lang^="bn"] .cta__actions .nx-btn { max-width: 100%; height: auto; min-height: 3rem; white-space: normal; }
+html[lang^="bn"] .svc-row__bullets li { align-items: flex-start; line-height: 1.7; }
+
+@media (max-width: 640px) {
+    html[lang^="bn"] .hero__art { gap: .75rem; }
+    html[lang^="bn"] .mini { align-items: flex-start; padding: .9rem; }
+    html[lang^="bn"] .hero__trust { gap: .75rem 1rem; }
+    html[lang^="bn"] .hero__trust li { align-items: flex-start; max-width: 100%; }
+    html[lang^="bn"] .stats__grid { gap: 1.5rem .75rem; }
+    html[lang^="bn"] .stat__label { max-width: 100%; }
+    html[lang^="bn"] .steps { grid-template-columns: minmax(0, 1fr); }
+}
