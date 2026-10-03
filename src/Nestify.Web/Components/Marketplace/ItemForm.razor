@@ -63,7 +63,7 @@
                         <option value="">@L["Select a division…"]</option>
                         @foreach (var d in _divisions)
                         {
-                            <option value="@d.Id">@d.Name</option>
+                            <option value="@d.Id">@d.Label()</option>
                         }
                     </select>
                     <ValidationMessage For="@(() => Model.Division)" />
@@ -76,7 +76,7 @@
                         <option value="">@L["Select a district…"]</option>
                         @foreach (var d in _districts)
                         {
-                            <option value="@d.Id">@d.Name</option>
+                            <option value="@d.Id">@d.Label()</option>
                         }
                     </select>
                 </div>
@@ -88,7 +88,7 @@
                         <option value="">@L["Select an upazila…"]</option>
                         @foreach (var u in _upazilas)
                         {
-                            <option value="@u.Id">@u.Name</option>
+                            <option value="@u.Id">@u.Label()</option>
                         }
                     </select>
                     <ValidationMessage For="@(() => Model.AreaName)" />
