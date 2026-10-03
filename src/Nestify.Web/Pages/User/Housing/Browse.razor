@@ -119,7 +119,7 @@
                         }
                     </div>
 
-                    @if (_page.TotalPages > 1)
+                    @if (_page.TotalPages > 0)
                     {
                         <nav class="hs-pager" aria-label="Pagination">
                             <button class="nx-btn nx-btn--ghost" disabled="@(!_page.HasPrevious)" @onclick="PrevPage">@L["Previous"]</button>
