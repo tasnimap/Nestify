@@ -69,6 +69,33 @@ html[lang^="bn"] .hnav__link { padding-inline: .35rem; font-size: .78rem; white-
 html[lang^="bn"] .hnav__brand { font-size: 1rem; }
 html[lang^="bn"] .hnav__menu-trigger > span:not(.hnav__avatar) { max-width: 8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
+/* Longer Bengali labels wrap inside My Home cards, member actions, and dialogs. */
+html[lang^="bn"] .hm,
+html[lang^="bn"] .hm-wrap,
+html[lang^="bn"] .hm-card,
+html[lang^="bn"] .hm-member,
+html[lang^="bn"] .hm-member__id { min-width: 0; }
+
+html[lang^="bn"] .hm-lead,
+html[lang^="bn"] .hm-note,
+html[lang^="bn"] .hm-member__id,
+html[lang^="bn"] .hm-rolecard li,
+html[lang^="bn"] .hm-modal__body { overflow-wrap: anywhere; }
+
+html[lang^="bn"] .hm-rolebadge,
+html[lang^="bn"] .hm-tag { white-space: normal; }
+
+html[lang^="bn"] .hm-menu { width: min(280px, calc(100vw - 2rem)); min-width: 0; }
+html[lang^="bn"] .hm-menu button { white-space: normal; overflow-wrap: anywhere; }
+html[lang^="bn"] .hm-btn,
+html[lang^="bn"] .hm-mini { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+html[lang^="bn"] .hm-modal__foot { flex-wrap: wrap; }
+
+@media (max-width: 560px) {
+    html[lang^="bn"] .hm-member { grid-template-columns: auto minmax(0, 1fr) auto; }
+    html[lang^="bn"] .hm-request__actions { grid-column: 2 / -1; justify-content: flex-start; }
+}
+
 @media (min-width: 800px) {
     .site-footer__inner { grid-template-columns: 1fr auto; align-items: center; column-gap: 2rem; }
     .site-footer__legal { grid-column: 1 / -1; }
