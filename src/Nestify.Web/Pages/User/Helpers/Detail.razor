@@ -106,9 +106,40 @@
                                 <span class="dh-count">@_reviews.TotalCount</span>
                             }
                         </div>
+                        @if (_canWriteReview && _reviewableEngagement is not null)
+                        {
+                            <button class="nx-btn nx-btn--accent" @onclick="OpenReviewForm">Write a review</button>
+                        }
+                        else if (_reviewEligibilityLoaded)
+                        {
+                            <p class="dh-muted">You can review this helper after your own accepted engagement is active or completed. A review can be submitted once per engagement.</p>
+                        }
+                        @if (_showReviewForm)
+                        {
+                            <div class="dh-review-box">
+                                <h3>Review @FirstName</h3>
+                                <label class="dh-muted">Your rating</label>
+                                <RatingStars Value="_reviewRating" ReadOnly="false" ShowCount="false" ValueChanged="SetReviewRating" />
+                                <label for="helper-review-comment">Your review</label>
+                                <textarea id="helper-review-comment" rows="4" maxlength="500" @bind="_reviewComment" placeholder="How was your experience?"></textarea>
+                                <small>@_reviewComment.Length / 500</small>
+                                @if (_reviewError is not null)
+                                {
+                                    <p class="md-msg md-msg--bad">@_reviewError</p>
+                                }
+                                <div class="dh-engagement__actions">
+                                    <button class="nx-btn nx-btn--accent" disabled="@_submittingReview" @onclick="SubmitReviewAsync">@(_submittingReview ? "Submitting…" : "Submit review")</button>
+                                    <button class="nx-btn nx-btn--ghost" disabled="@_submittingReview" @onclick="() => _showReviewForm = false">Cancel</button>
+                                </div>
+                            </div>
+                        }
+                        @if (_reviewSuccess)
+                        {
+                            <p class="md-msg">Thanks — your review has been posted.</p>
+                        }
                         @if (_reviews is null || _reviews.Items.Count == 0)
                         {
-                            <p class="dh-muted">No reviews yet. Only bachelors who lived in a home while @FirstName worked there can leave one.</p>
+                            <p class="dh-muted">No reviews yet.</p>
                         }
                         else
                         {
@@ -307,6 +338,14 @@
 
     private HelperDetailDto? _helper;
     private HelperPageDto<ReviewDto>? _reviews;
+    private EngagementDto? _reviewableEngagement;
+    private bool _reviewEligibilityLoaded;
+    private bool _showReviewForm;
+    private bool _submittingReview;
+    private bool _reviewSuccess;
+    private int _reviewRating = 5;
+    private string _reviewComment = string.Empty;
+    private string? _reviewError;
     private List<EngagementSlotDto> _slots = new();
     private bool _loading = true;
 
@@ -328,6 +367,10 @@
     {
         _loading = true;
         _slots = new List<EngagementSlotDto>();
+        _reviewableEngagement = null;
+        _reviewEligibilityLoaded = false;
+        _showReviewForm = false;
+        _reviewSuccess = false;
         try
         {
             _helper = await Helpers.GetHelperAsync(Id.ToString());
@@ -341,6 +384,19 @@
                 {
                     _reviews = new HelperPageDto<ReviewDto>();
                 }
+
+                try
+                {
+                    var engagements = await Helpers.GetMyEngagementsAsync();
+                    _reviewableEngagement = engagements.FirstOrDefault(e =>
+                        e.HelperId == Id.ToString() && e.CanReview);
+                    _reviewEligibilityLoaded = true;
+                }
+                catch
+                {
+                    _reviewableEngagement = null;
+                    _reviewEligibilityLoaded = false;
+                }
             }
         }
         catch
@@ -350,6 +406,59 @@
         finally
         {
             _loading = false;
+        }
+    }
+
+    private bool _canWriteReview => _reviewableEngagement is not null;
+
+    private void OpenReviewForm()
+    {
+        _reviewRating = 5;
+        _reviewComment = string.Empty;
+        _reviewError = null;
+        _reviewSuccess = false;
+        _showReviewForm = true;
+    }
+
+    private Task SetReviewRating(int rating)
+    {
+        _reviewRating = rating;
+        return Task.CompletedTask;
+    }
+
+    private async Task SubmitReviewAsync()
+    {
+        if (_reviewableEngagement is null) return;
+        var comment = _reviewComment.Trim();
+        if (comment.Length == 0)
+        {
+            _reviewError = "Write a comment before submitting.";
+            return;
+        }
+        if (comment.Length > 500)
+        {
+            _reviewError = "A review can be at most 500 characters.";
+            return;
+        }
+
+        _submittingReview = true;
+        _reviewError = null;
+        try
+        {
+            await Helpers.SubmitReviewAsync(_reviewableEngagement.Id, _reviewRating, comment);
+            _showReviewForm = false;
+            _reviewSuccess = true;
+            _reviewableEngagement = null;
+            _reviews = await Helpers.GetReviewsAsync(Id.ToString());
+            _helper = await Helpers.GetHelperAsync(Id.ToString());
+        }
+        catch (Exception ex)
+        {
+            _reviewError = ex.Message;
+        }
+        finally
+        {
+            _submittingReview = false;
         }
     }
 
