@@ -3,6 +3,7 @@
 @attribute [Authorize(Roles = "DomesticHelper,DomesticHelp,Maid,Helper")]
 @using Nestify.Shared.Dtos.Helpers
 @inject IHelperService Helpers
+@inject IStringLocalizer<SharedResource> L
 
 <PageTitle>My schedule — Nestify</PageTitle>
 
@@ -58,7 +59,7 @@
                         <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
                     </button>
                 </div>
-                <button type="button" class="dh-chip" @onclick="GoToday">Today</button>
+                <button type="button" class="dh-chip" @onclick="GoToday">@L["Today"]</button>
             </div>
 
             <div class="md-days" role="tablist" aria-label="Days">
@@ -126,7 +127,7 @@
                                             <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
                                             @RangeLabel(v.StartHour, v.EndHour)
                                         </span>
-                                        <a class="md-visit__link" href="helpers/engagements">View engagement</a>
+                                        <a class="md-visit__link" href="helpers/engagements">@L["View engagement"]</a>
                                     </div>
                                 </div>
                             </li>
@@ -231,13 +232,13 @@
         await LoadWeek();
     }
 
-    private static string RelativeDay(DateTime date)
+    private string RelativeDay(DateTime date)
     {
         var days = (date - DateTime.Today).Days;
         return days switch
         {
-            0 => "Today",
-            1 => "Tomorrow",
+            0 => L["Today"].Value,
+            1 => L["Tomorrow"].Value,
             < 7 => date.ToString("dddd"),
             _ => date.ToString("d MMM")
         };

@@ -4,6 +4,7 @@
 @using Nestify.Web.Components
 @using Nestify.Shared.Dtos.Helpers
 @inject IHelperService Helpers
+@inject IStringLocalizer<SharedResource> L
 @inject Nestify.Web.Services.ToastService Toast
 @inject Nestify.Web.Services.MoneyFormatterService Money
 
@@ -67,7 +68,7 @@
         <div class="dh-grid">
             <section class="dh-panel dh-rise" style="--d:300ms">
                 <div class="dh-panel__head">
-                    <h2>Today</h2>
+                    <h2>@L["Today"]</h2>
                     <a class="md-link" href="helpers/schedule">Full schedule</a>
                 </div>
                 @if (TodayVisits.Count == 0)
