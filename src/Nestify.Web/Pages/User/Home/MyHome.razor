@@ -23,26 +23,27 @@
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
+@inject IStringLocalizer<SharedResource> L
 @implements IDisposable
 
-<PageTitle>My Home - Nestify</PageTitle>
+<PageTitle>@L["My Home"] - Nestify</PageTitle>
 
 <section class="hm">
     <div class="nx-container hm-wrap">
         <header class="hm-top">
             <div>
-                <p class="hm-kicker">Home</p>
-                <h1>@(_home is null ? "You have no home yet" : _home.Name)</h1>
+                <p class="hm-kicker">@L["Home"]</p>
+                <h1>@(_home is null ? L["You have no home yet"].Value : _home.Name)</h1>
                 <p class="hm-lead">
                     @(_home is null
-                        ? "A home is the shared house you run with your housemates — members, roles, and one place on the map."
+                        ? L["A home is the shared house you run with your housemates — members, roles, and one place on the map."].Value
                         : $"{_home.AddressLine}, {_home.AreaName}, {_home.Division}")
                 </p>
             </div>
             @if (_home is not null)
             {
                 <span class="hm-rolebadge hm-role--@_home.MyRole.ToString().ToLowerInvariant()">
-                    You are @HomeRules.RoleLabel(_home.MyRole)
+                    @L[RoleLabel(_home.MyRole)]
                 </span>
             }
         </header>
@@ -54,16 +55,16 @@
 
         @if (_loading)
         {
-            <p class="hm-loading">Loading your home...</p>
+            <p class="hm-loading">@L["Loading your home..."]</p>
         }
         else if (_loadError is not null)
         {
             <div class="hm-choices">
                 <article class="hm-card hm-choice" style="--d: 60ms">
                     <span class="hm-choice__icon">!</span>
-                    <h2>Could not load your home</h2>
+                    <h2>@L["Could not load your home"]</h2>
                     <p>@_loadError</p>
-                    <button type="button" class="hm-btn hm-btn--solid" @onclick="Retry">Try again</button>
+                    <button type="button" class="hm-btn hm-btn--solid" @onclick="Retry">@L["Try again"]</button>
                 </article>
             </div>
         }
@@ -72,13 +73,11 @@
             <div class="hm-choices">
                 <article class="hm-card hm-choice hm-choice--wait" style="--d: 60ms">
                     <span class="hm-choice__icon">...</span>
-                    <h2>Waiting for an answer</h2>
+                    <h2>@L["Waiting for an answer"]</h2>
                     <p>
-                        You asked to join <b>@_myRequest.HomeName</b> on
-                        @_myRequest.RequestedAtUtc.ToLocalTime().ToString("d MMM yyyy").
-                        The manager or a co-manager has to approve it before you are in.
+                        @L["You asked to join {0} on {1}. The manager or a co-manager must approve your request before you can join.", _myRequest.HomeName, _myRequest.RequestedAtUtc.ToLocalTime().ToString("d MMM yyyy")]
                     </p>
-                    <button type="button" class="hm-btn" @onclick="CancelMyRequest">Cancel request</button>
+                    <button type="button" class="hm-btn" @onclick="CancelMyRequest">@L["Cancel request"]</button>
                 </article>
             </div>
         }
@@ -87,16 +86,16 @@
             <div class="hm-choices">
                 <article class="hm-card hm-choice" style="--d: 60ms">
                     <span class="hm-choice__icon">+</span>
-                    <h2>Create a house</h2>
-                    <p>Set the name and location, then add your housemates. You become the manager.</p>
-                    <button type="button" class="hm-btn hm-btn--solid" @onclick="OpenCreate">Create a house</button>
+                    <h2>@L["Create a home"]</h2>
+                    <p>@L["Set the name and location, then add your housemates. You will be the manager."]</p>
+                    <button type="button" class="hm-btn hm-btn--solid" @onclick="OpenCreate">@L["Create a home"]</button>
                 </article>
 
                 <article class="hm-card hm-choice" style="--d: 140ms">
                     <span class="hm-choice__icon">#</span>
-                    <h2>Join a house</h2>
-                    <p>Got a join code from your manager? Enter it to ask them to let you in.</p>
-                    <button type="button" class="hm-btn" @onclick="OpenJoin">Join a house</button>
+                    <h2>@L["Join a home"]</h2>
+                    <p>@L["Have a join code? Enter it to ask the home manager to approve your request."]</p>
+                    <button type="button" class="hm-btn" @onclick="OpenJoin">@L["Join a home"]</button>
                 </article>
             </div>
         }
@@ -105,40 +104,40 @@
             <div class="hm-grid">
                 <section class="hm-card hm-panel" style="--d: 60ms">
                     <div class="hm-panel__top">
-                        <h2>House details</h2>
+                        <h2>@L["Home details"]</h2>
                         @if (HomeRules.CanEditDetails(_home.MyRole))
                         {
-                            <button type="button" class="hm-mini" @onclick="OpenEditDetails">Edit details</button>
+                            <button type="button" class="hm-mini" @onclick="OpenEditDetails">@L["Edit details"]</button>
                         }
                     </div>
                     <dl class="hm-details">
-                        <div><dt>Name</dt><dd>@_home.Name</dd></div>
-                        <div><dt>Join code</dt><dd class="hm-code">@_home.JoinCode</dd></div>
-                        <div class="hm-details__wide"><dt>Location</dt><dd>@_home.AddressLine, @_home.AreaName, @_home.Division</dd></div>
-                        <div><dt>Coordinates</dt><dd>@_home.Latitude.ToString("0.0000"), @_home.Longitude.ToString("0.0000")</dd></div>
-                        <div><dt>Max occupants</dt><dd>@_home.MaxOccupants</dd></div>
-                        <div><dt>Living here now</dt><dd>@_home.Members.Count</dd></div>
-                        <div><dt>Free seats</dt><dd>@_home.FreeSeats</dd></div>
+                        <div><dt>@L["Name"]</dt><dd>@_home.Name</dd></div>
+                        <div><dt>@L["Join code"]</dt><dd class="hm-code">@_home.JoinCode</dd></div>
+                        <div class="hm-details__wide"><dt>@L["Location"]</dt><dd>@_home.AddressLine, @_home.AreaName, @_home.Division</dd></div>
+                        <div><dt>@L["Coordinates"]</dt><dd>@_home.Latitude.ToString("0.0000"), @_home.Longitude.ToString("0.0000")</dd></div>
+                        <div><dt>@L["Maximum occupants"]</dt><dd>@_home.MaxOccupants</dd></div>
+                        <div><dt>@L["Living here now"]</dt><dd>@_home.Members.Count</dd></div>
+                        <div><dt>@L["Free seats"]</dt><dd>@_home.FreeSeats</dd></div>
                     </dl>
                     <a class="hm-maplink" target="_blank" rel="noopener"
                        href="@($"https://www.openstreetmap.org/?mlat={_home.Latitude}&mlon={_home.Longitude}#map=17/{_home.Latitude}/{_home.Longitude}")">
-                        Open on map &rarr;
+                        @L["Open on map"] &rarr;
                     </a>
                 </section>
 
                 <section class="hm-card hm-panel" style="--d: 130ms">
-                    <h2>Your role</h2>
-                    <p class="hm-note">You are @HomeRules.RoleLabel(_home.MyRole) of this house.</p>
+                    <h2>@L["Your role"]</h2>
+                    <p class="hm-note">@L["You are {0} of this home.", L[RoleLabel(_home.MyRole)].Value]</p>
                     <div class="hm-panel__buttons">
-                        <button type="button" class="hm-btn" @onclick="() => _showRoles = true">What can I do?</button>
+                        <button type="button" class="hm-btn" @onclick="() => _showRoles = true">@L["What can I do?"]</button>
                         <button type="button" class="hm-btn hm-btn--danger" @onclick="OpenLeave"
                                 disabled="@(!HomeRules.CanLeave(_home.MyRole))">
-                            Leave house
+                            @L["Leave home"]
                         </button>
                     </div>
                     @if (!HomeRules.CanLeave(_home.MyRole))
                     {
-                        <p class="hm-note">Transfer the manager role to someone else first.</p>
+                        <p class="hm-note">@L["Transfer the manager role to someone else first."]</p>
                     }
                 </section>
 
@@ -146,12 +145,12 @@
                 {
                     <section class="hm-card hm-panel hm-panel--wide" style="--d: 170ms">
                         <div class="hm-panel__top">
-                            <h2>Join requests (@_home.PendingRequests.Count)</h2>
+                            <h2>@L["Join requests ({0})", _home.PendingRequests.Count]</h2>
                         </div>
 
                         @if (_home.PendingRequests.Count == 0)
                         {
-                            <p class="hm-note">Nobody is waiting to join right now.</p>
+                            <p class="hm-note">@L["Nobody is waiting to join right now."]</p>
                         }
                         else
                         {
@@ -167,13 +166,13 @@
                                             <small>@request.Email</small>
                                         </div>
                                         <span class="hm-tag">
-                                            Asked @request.RequestedAtUtc.ToLocalTime().ToString("d MMM")
+                                            @L["Asked {0}", request.RequestedAtUtc.ToLocalTime().ToString("d MMM")]
                                         </span>
                                         <div class="hm-request__actions">
                                             <button type="button" class="hm-btn hm-btn--solid"
-                                                    @onclick="() => ApproveRequest(request)">Approve</button>
+                                                    @onclick="() => ApproveRequest(request)">@L["Approve"]</button>
                                             <button type="button" class="hm-btn hm-btn--danger"
-                                                    @onclick="() => RejectRequest(request)">Reject</button>
+                                                    @onclick="() => RejectRequest(request)">@L["Reject"]</button>
                                         </div>
                                     </li>
                                 }
@@ -184,10 +183,10 @@
 
                 <section class="hm-card hm-panel hm-panel--wide" style="--d: 200ms">
                     <div class="hm-panel__top">
-                        <h2>Members (@_home.Members.Count)</h2>
+                            <h2>@L["Members ({0})", _home.Members.Count]</h2>
                         @if (HomeRules.CanAddMembers(_home.MyRole))
                         {
-                            <button type="button" class="hm-btn hm-btn--solid" @onclick="OpenAdd">Add member</button>
+                            <button type="button" class="hm-btn hm-btn--solid" @onclick="OpenAdd">@L["Add member"]</button>
                         }
                     </div>
 
@@ -199,17 +198,17 @@
                                     <img src="@member.ProfilePictureUrl" alt="@member.Name" />
                                 </span>
                                 <div class="hm-member__id">
-                                    <b>@member.Name @(member.IsMe ? "(you)" : "")</b>
+                                    <b>@member.Name @(member.IsMe ? $"({L["You"]})" : "")</b>
                                     <small>@member.Email</small>
                                 </div>
                                 <span class="hm-tag hm-role--@member.Role.ToString().ToLowerInvariant()">
-                                    @HomeRules.RoleLabel(member.Role)
+                                    @L[RoleLabel(member.Role)]
                                 </span>
                                 <div class="hm-member__actions">
                                     @if (HasActions(member))
                                     {
                                         <button type="button" class="hm-kebab @(_openMenuId == member.Id ? "is-on" : "")"
-                                                title="Member actions" aria-label="Member actions"
+                                                title='@L["Member actions"]' aria-label='@L["Member actions"]'
                                                 aria-expanded="@((_openMenuId == member.Id).ToString().ToLowerInvariant())"
                                                 @onclick="() => ToggleMenu(member)">
                                             &#8942;
@@ -220,19 +219,19 @@
                                             <div class="hm-menu" role="menu">
                                                 @if (HomeRules.CanPromote(_home.MyRole, member))
                                                 {
-                                                    <button type="button" role="menuitem" @onclick="() => Promote(member)">Make co-manager</button>
+                                                    <button type="button" role="menuitem" @onclick="() => Promote(member)">@L["Make co-manager"]</button>
                                                 }
                                                 @if (HomeRules.CanDemote(_home.MyRole, member))
                                                 {
-                                                    <button type="button" role="menuitem" @onclick="() => Demote(member)">Make member</button>
+                                                    <button type="button" role="menuitem" @onclick="() => Demote(member)">@L["Make member"]</button>
                                                 }
                                                 @if (HomeRules.CanTransferManager(_home.MyRole, member))
                                                 {
-                                                    <button type="button" role="menuitem" @onclick="() => OpenTransfer(member)">Transfer manager</button>
+                                                    <button type="button" role="menuitem" @onclick="() => OpenTransfer(member)">@L["Transfer manager"]</button>
                                                 }
                                                 @if (HomeRules.CanRemove(_home.MyRole, member))
                                                 {
-                                                    <button type="button" role="menuitem" class="hm-menu__danger" @onclick="() => Remove(member)">Remove from house</button>
+                                                    <button type="button" role="menuitem" class="hm-menu__danger" @onclick="() => Remove(member)">@L["Remove from home"]</button>
                                                 }
                                             </div>
                                         }
@@ -266,35 +265,35 @@
     <div class="hm-overlay" @onclick="CancelCreate">
         <div class="hm-modal" @onclick:stopPropagation="true">
             <header class="hm-modal__head">
-                <h2>Create a house</h2>
-                <button type="button" class="hm-modal__close" @onclick="CancelCreate" aria-label="Close">&times;</button>
+                <h2>@L["Create a home"]</h2>
+                <button type="button" class="hm-modal__close" @onclick="CancelCreate" aria-label='@L["Close"]'>&times;</button>
             </header>
             <div class="hm-modal__body">
                 <div class="hm-field hm-field--wide">
-                    <label for="ch-name">House name</label>
+                    <label for="ch-name">@L["Home name"]</label>
                     <input id="ch-name" @bind="_create.Name" placeholder="Mirpur Boys Nest" />
                 </div>
                 <div class="hm-field hm-field--wide">
-                    <label for="ch-address">Address</label>
+                    <label for="ch-address">@L["Address"]</label>
                     <input id="ch-address" @bind="_create.AddressLine" placeholder="House 24, Road 7" />
                 </div>
                 <div class="hm-field">
-                    <label for="ch-area">Area</label>
+                    <label for="ch-area">@L["Area"]</label>
                     <input id="ch-area" @bind="_create.AreaName" placeholder="Mirpur" />
                 </div>
                 <div class="hm-field">
-                    <label for="ch-division">Division</label>
+                    <label for="ch-division">@L["Division"]</label>
                     <input id="ch-division" @bind="_create.Division" />
                 </div>
                 <div class="hm-field">
-                    <label for="ch-max">Max occupants</label>
+                    <label for="ch-max">@L["Maximum occupants"]</label>
                     <input id="ch-max" type="number" min="1" @bind="_create.MaxOccupants" />
-                    <p class="hm-note">How many people can live here at most. Free seats are worked out from the current members.</p>
+                    <p class="hm-note">@L["Set the maximum number of people who may live here. Available seats are calculated from the current members."]</p>
                 </div>
                 <div class="hm-field hm-field--wide">
-                    <label>Location on map</label>
+                    <label>@L["Location on map"]</label>
                     <div id="create-map" class="hm-map"></div>
-                    <p class="hm-note">Click the map or drag the pin to set the coordinates.</p>
+                    <p class="hm-note">@L["Click the map or drag the pin to set the coordinates."]</p>
                     <p class="hm-coords">@_create.Latitude.ToString("0.0000"), @_create.Longitude.ToString("0.0000")</p>
                 </div>
                 @if (_formError is not null)
@@ -303,8 +302,8 @@
                 }
             </div>
             <footer class="hm-modal__foot">
-                <button type="button" class="hm-btn" @onclick="CancelCreate">Cancel</button>
-                <button type="button" class="hm-btn hm-btn--solid" @onclick="CreateHome">Create house</button>
+                <button type="button" class="hm-btn" @onclick="CancelCreate">@L["Cancel"]</button>
+                <button type="button" class="hm-btn hm-btn--solid" @onclick="CreateHome">@L["Create home"]</button>
             </footer>
         </div>
     </div>
@@ -315,23 +314,23 @@
     <div class="hm-overlay" @onclick="() => _showJoin = false">
         <div class="hm-modal hm-modal--sm" @onclick:stopPropagation="true">
             <header class="hm-modal__head">
-                <h2>Join a house</h2>
-                <button type="button" class="hm-modal__close" @onclick="() => _showJoin = false" aria-label="Close">&times;</button>
+                <h2>@L["Join a home"]</h2>
+                <button type="button" class="hm-modal__close" @onclick="() => _showJoin = false" aria-label='@L["Close"]'>&times;</button>
             </header>
             <div class="hm-modal__body hm-modal__body--stack">
                 <div class="hm-field">
-                    <label for="jn-code">Join code</label>
+                    <label for="jn-code">@L["Join code"]</label>
                     <input id="jn-code" @bind="_joinCode" placeholder="NST-4821" />
                 </div>
-                <p class="hm-note">Try NST-4821 or NST-1907. Any other code drops you into the sample house.</p>
+                <p class="hm-note">@L["Enter the join code provided by a manager or co-manager of the home."]</p>
                 @if (_formError is not null)
                 {
                     <p class="hm-msg hm-msg--bad">@_formError</p>
                 }
             </div>
             <footer class="hm-modal__foot">
-                <button type="button" class="hm-btn" @onclick="() => _showJoin = false">Cancel</button>
-                <button type="button" class="hm-btn hm-btn--solid" @onclick="JoinHome">Join</button>
+                <button type="button" class="hm-btn" @onclick="() => _showJoin = false">@L["Cancel"]</button>
+                <button type="button" class="hm-btn hm-btn--solid" @onclick="JoinHome">@L["Send join request"]</button>
             </footer>
         </div>
     </div>
@@ -342,35 +341,35 @@
     <div class="hm-overlay" @onclick="CancelEditDetails">
         <div class="hm-modal" @onclick:stopPropagation="true">
             <header class="hm-modal__head">
-                <h2>Edit house details</h2>
-                <button type="button" class="hm-modal__close" @onclick="CancelEditDetails" aria-label="Close">&times;</button>
+                <h2>@L["Edit home details"]</h2>
+                <button type="button" class="hm-modal__close" @onclick="CancelEditDetails" aria-label='@L["Close"]'>&times;</button>
             </header>
             <div class="hm-modal__body">
                 <div class="hm-field hm-field--wide">
-                    <label for="eh-name">House name</label>
+                    <label for="eh-name">@L["Home name"]</label>
                     <input id="eh-name" @bind="_edit.Name" />
                 </div>
                 <div class="hm-field hm-field--wide">
-                    <label for="eh-address">Address</label>
+                    <label for="eh-address">@L["Address"]</label>
                     <input id="eh-address" @bind="_edit.AddressLine" />
                 </div>
                 <div class="hm-field">
-                    <label for="eh-area">Area</label>
+                    <label for="eh-area">@L["Area"]</label>
                     <input id="eh-area" @bind="_edit.AreaName" />
                 </div>
                 <div class="hm-field">
-                    <label for="eh-division">Division</label>
+                    <label for="eh-division">@L["Division"]</label>
                     <input id="eh-division" @bind="_edit.Division" />
                 </div>
                 <div class="hm-field">
-                    <label for="eh-max">Max occupants</label>
+                    <label for="eh-max">@L["Maximum occupants"]</label>
                     <input id="eh-max" type="number" min="1" @bind="_edit.MaxOccupants" />
-                    <p class="hm-note">How many people can live here at most. Free seats are worked out from the current members.</p>
+                    <p class="hm-note">@L["Set the maximum number of people who may live here. Available seats are calculated from the current members."]</p>
                 </div>
                 <div class="hm-field hm-field--wide">
-                    <label>Location on map</label>
+                    <label>@L["Location on map"]</label>
                     <div id="edit-map" class="hm-map"></div>
-                    <p class="hm-note">Click the map or drag the pin to set the coordinates.</p>
+                    <p class="hm-note">@L["Click the map or drag the pin to set the coordinates."]</p>
                     <p class="hm-coords">@_edit.Latitude.ToString("0.0000"), @_edit.Longitude.ToString("0.0000")</p>
                 </div>
                 @if (_formError is not null)
@@ -379,8 +378,8 @@
                 }
             </div>
             <footer class="hm-modal__foot">
-                <button type="button" class="hm-btn" @onclick="CancelEditDetails">Cancel</button>
-                <button type="button" class="hm-btn hm-btn--solid" @onclick="SaveDetails">Save changes</button>
+                <button type="button" class="hm-btn" @onclick="CancelEditDetails">@L["Cancel"]</button>
+                <button type="button" class="hm-btn hm-btn--solid" @onclick="SaveDetails">@L["Save changes"]</button>
             </footer>
         </div>
     </div>
@@ -391,16 +390,16 @@
     <div class="hm-overlay" @onclick="() => _showAdd = false">
         <div class="hm-modal hm-modal--sm" @onclick:stopPropagation="true">
             <header class="hm-modal__head">
-                <h2>Add member</h2>
-                <button type="button" class="hm-modal__close" @onclick="() => _showAdd = false" aria-label="Close">&times;</button>
+                <h2>@L["Add member"]</h2>
+                <button type="button" class="hm-modal__close" @onclick="() => _showAdd = false" aria-label='@L["Close"]'>&times;</button>
             </header>
             <div class="hm-modal__body hm-modal__body--stack">
                 <div class="hm-field">
-                    <label for="am-name">Name</label>
+                    <label for="am-name">@L["Name"]</label>
                     <input id="am-name" @bind="_newMemberName" />
                 </div>
                 <div class="hm-field">
-                    <label for="am-email">Email</label>
+                    <label for="am-email">@L["Email"]</label>
                     <input id="am-email" @bind="_newMemberEmail" />
                 </div>
                 @if (_formError is not null)
@@ -409,8 +408,8 @@
                 }
             </div>
             <footer class="hm-modal__foot">
-                <button type="button" class="hm-btn" @onclick="() => _showAdd = false">Cancel</button>
-                <button type="button" class="hm-btn hm-btn--solid" @onclick="AddMember">Add member</button>
+                <button type="button" class="hm-btn" @onclick="() => _showAdd = false">@L["Cancel"]</button>
+                <button type="button" class="hm-btn hm-btn--solid" @onclick="AddMember">@L["Add member"]</button>
             </footer>
         </div>
     </div>
@@ -421,15 +420,15 @@
     <div class="hm-overlay" @onclick="() => _transferTarget = null">
         <div class="hm-modal hm-modal--sm" @onclick:stopPropagation="true">
             <header class="hm-modal__head">
-                <h2>Transfer manager role</h2>
-                <button type="button" class="hm-modal__close" @onclick="() => _transferTarget = null" aria-label="Close">&times;</button>
+                <h2>@L["Transfer manager role"]</h2>
+                <button type="button" class="hm-modal__close" @onclick="() => _transferTarget = null" aria-label='@L["Close"]'>&times;</button>
             </header>
             <div class="hm-modal__body hm-modal__body--stack">
-                <p>@_transferTarget.Name becomes the manager of this house. You stay on as a co-manager and can then leave if you want.</p>
+                <p>@L["{0} will become the manager of this home. You will remain a co-manager and may leave afterward.", _transferTarget.Name]</p>
             </div>
             <footer class="hm-modal__foot">
-                <button type="button" class="hm-btn" @onclick="() => _transferTarget = null">Cancel</button>
-                <button type="button" class="hm-btn hm-btn--solid" @onclick="ConfirmTransfer">Transfer</button>
+                <button type="button" class="hm-btn" @onclick="() => _transferTarget = null">@L["Cancel"]</button>
+                <button type="button" class="hm-btn hm-btn--solid" @onclick="ConfirmTransfer">@L["Transfer"]</button>
             </footer>
         </div>
     </div>
@@ -440,31 +439,31 @@
     <div class="hm-overlay" @onclick="() => _showRoles = false">
         <div class="hm-modal" @onclick:stopPropagation="true">
             <header class="hm-modal__head">
-                <h2>What each role can do</h2>
-                <button type="button" class="hm-modal__close" @onclick="() => _showRoles = false" aria-label="Close">&times;</button>
+                <h2>@L["What each role can do"]</h2>
+                <button type="button" class="hm-modal__close" @onclick="() => _showRoles = false" aria-label='@L["Close"]'>&times;</button>
             </header>
             <div class="hm-modal__body hm-modal__body--stack">
                 @foreach (var role in new[] { HomeRole.Manager, HomeRole.CoManager, HomeRole.Member })
                 {
                     <div class="hm-rolecard @(_home?.MyRole == role ? "is-mine" : "")">
                         <div class="hm-rolecard__top">
-                            <b>@HomeRules.RoleLabel(role)</b>
+                            <b>@L[RoleLabel(role)]</b>
                             @if (_home?.MyRole == role)
                             {
-                                <span class="hm-tag hm-role--@role.ToString().ToLowerInvariant()">You</span>
+                                <span class="hm-tag hm-role--@role.ToString().ToLowerInvariant()">@L["You"]</span>
                             }
                         </div>
                         <ul>
                             @foreach (var line in RoleAbilities(role))
                             {
-                                <li>@line</li>
+                                <li>@L[line]</li>
                             }
                         </ul>
                     </div>
                 }
             </div>
             <footer class="hm-modal__foot">
-                <button type="button" class="hm-btn hm-btn--solid" @onclick="() => _showRoles = false">Got it</button>
+                <button type="button" class="hm-btn hm-btn--solid" @onclick="() => _showRoles = false">@L["Got it"]</button>
             </footer>
         </div>
     </div>
@@ -475,15 +474,15 @@
     <div class="hm-overlay" @onclick="() => _showLeave = false">
         <div class="hm-modal hm-modal--sm" @onclick:stopPropagation="true">
             <header class="hm-modal__head">
-                <h2>Leave this house</h2>
-                <button type="button" class="hm-modal__close" @onclick="() => _showLeave = false" aria-label="Close">&times;</button>
+                <h2>@L["Leave this home"]</h2>
+                <button type="button" class="hm-modal__close" @onclick="() => _showLeave = false" aria-label='@L["Close"]'>&times;</button>
             </header>
             <div class="hm-modal__body hm-modal__body--stack">
-                <p>You will lose access to this house's members, meals and expenses. You can join again with the code.</p>
+                <p>@L["You will lose access to this home's members, meals, and expenses. You can request to join again with its code."]</p>
             </div>
             <footer class="hm-modal__foot">
-                <button type="button" class="hm-btn" @onclick="() => _showLeave = false">Cancel</button>
-                <button type="button" class="hm-btn hm-btn--danger" @onclick="ConfirmLeave">Leave house</button>
+                <button type="button" class="hm-btn" @onclick="() => _showLeave = false">@L["Cancel"]</button>
+                <button type="button" class="hm-btn hm-btn--danger" @onclick="ConfirmLeave">@L["Leave home"]</button>
             </footer>
         </div>
     </div>
@@ -555,25 +554,25 @@
     {
         HomeRole.Manager => new[]
         {
-            "Edit the house details",
+            "Edit the home details",
             "Add members",
-            "Promote a member to co-manager, or take a co-manager back to member",
-            "Remove anyone from the house",
+            "Promote a member to co-manager, or change a co-manager back to member",
+            "Remove members from the home",
             "Transfer the manager role to someone else",
-            "Cannot leave the house before transferring the manager role"
+            "Transfer the manager role before leaving"
         },
         HomeRole.CoManager => new[]
         {
-            "Edit the house details",
+            "Edit the home details",
             "Add members",
             "Promote a member to co-manager",
-            "Remove plain members",
-            "Leave the house any time"
+            "Remove regular members",
+            "Leave the home at any time"
         },
         _ => new[]
         {
-            "See the house details and its members",
-            "Leave the house any time"
+            "View the home details and its members",
+            "Leave the home at any time"
         }
     };
 
@@ -610,7 +609,7 @@
             // user may well be in a house already.
             _home = null;
             _myRequest = null;
-            _loadError = ex.Message;
+            _loadError = LocalizeMessage(ex.Message);
         }
     }
 
@@ -663,12 +662,12 @@
     {
         if (string.IsNullOrWhiteSpace(_create.Name) || string.IsNullOrWhiteSpace(_create.AddressLine))
         {
-            _formError = "House name and address are required.";
+            _formError = L["Home name and address are required."];
             return;
         }
         if (_create.MaxOccupants < 1)
         {
-            _formError = "Max occupants must be at least 1.";
+            _formError = L["Maximum occupants must be at least 1."];
             return;
         }
 
@@ -678,14 +677,14 @@
         }
         catch (Exception ex)
         {
-            _formError = ex.Message;
+            _formError = LocalizeMessage(ex.Message);
             return;
         }
 
         _create = new HomeDetailsRequest();
         _showCreate = false;
         await CloseMap("create-map");
-        Report(true, "House created. You are the manager.");
+        Report(true, L["Home created. You are the manager."]);
     }
 
     private async Task JoinHome()
@@ -693,28 +692,28 @@
         var result = await HomeService.JoinHomeAsync(_joinCode, _myName, _myEmail);
         if (!result.Ok)
         {
-            _formError = result.Message;
+            _formError = LocalizeMessage(result.Message);
             return;
         }
 
         await ReloadAsync();
         _joinCode = string.Empty;
         _showJoin = false;
-        Report(true, result.Message);
+        Report(true, LocalizeMessage(result.Message));
     }
 
     private async Task CancelMyRequest()
     {
         var result = await HomeService.CancelMyJoinRequestAsync();
         await ReloadAsync();
-        Report(result.Ok, result.Message);
+        Report(result.Ok, LocalizeMessage(result.Message));
     }
 
     private async Task ApproveRequest(HomeJoinRequestView request)
     {
         var result = await HomeService.ApproveJoinRequestAsync(request.Id);
         await ReloadAsync();
-        Report(result.Ok, result.Message);
+        Report(result.Ok, LocalizeMessage(result.Message));
     }
 
     private async Task RejectRequest(HomeJoinRequestView request)
@@ -755,26 +754,26 @@
     {
         if (string.IsNullOrWhiteSpace(_edit.Name) || string.IsNullOrWhiteSpace(_edit.AddressLine))
         {
-            _formError = "House name and address are required.";
+            _formError = L["Home name and address are required."];
             return;
         }
         if (_edit.MaxOccupants < _home!.Members.Count)
         {
-            _formError = $"Max occupants cannot be lower than the {_home.Members.Count} people already living here.";
+            _formError = L["Maximum occupants cannot be lower than the {0} people already living here.", _home.Members.Count];
             return;
         }
 
         var result = await HomeService.UpdateHomeDetailsAsync(_edit);
         if (!result.Ok)
         {
-            _formError = result.Message;
+            _formError = LocalizeMessage(result.Message);
             return;
         }
 
         await ReloadAsync();
         _showEditDetails = false;
         await CloseMap("edit-map");
-        Report(true, result.Message);
+        Report(true, LocalizeMessage(result.Message));
     }
 
     private void OpenAdd()
@@ -788,20 +787,20 @@
     {
         if (string.IsNullOrWhiteSpace(_newMemberName) || string.IsNullOrWhiteSpace(_newMemberEmail))
         {
-            _formError = "Name and email are required.";
+            _formError = L["Name and email are required."];
             return;
         }
 
         var result = await HomeService.AddMemberAsync(_newMemberName.Trim(), _newMemberEmail.Trim());
         if (!result.Ok)
         {
-            _formError = result.Message;
+            _formError = LocalizeMessage(result.Message);
             return;
         }
 
         await ReloadAsync();
         _showAdd = false;
-        Report(true, result.Message);
+        Report(true, LocalizeMessage(result.Message));
     }
 
     private async Task Promote(HomeMemberView member)
@@ -809,7 +808,7 @@
         _openMenuId = null;
         var result = await HomeService.PromoteToCoManagerAsync(member.Id);
         await ReloadAsync();
-        Report(result.Ok, result.Message);
+        Report(result.Ok, LocalizeMessage(result.Message));
     }
 
     private async Task Demote(HomeMemberView member)
@@ -817,7 +816,7 @@
         _openMenuId = null;
         var result = await HomeService.DemoteToMemberAsync(member.Id);
         await ReloadAsync();
-        Report(result.Ok, result.Message);
+        Report(result.Ok, LocalizeMessage(result.Message));
     }
 
     private async Task Remove(HomeMemberView member)
@@ -825,7 +824,7 @@
         _openMenuId = null;
         var result = await HomeService.RemoveMemberAsync(member.Id);
         await ReloadAsync();
-        Report(result.Ok, result.Message);
+        Report(result.Ok, LocalizeMessage(result.Message));
     }
 
     private void OpenTransfer(HomeMemberView member)
@@ -840,7 +839,7 @@
         var result = await HomeService.TransferManagerAsync(target.Id);
         await ReloadAsync();
         _transferTarget = null;
-        Report(result.Ok, result.Message);
+        Report(result.Ok, LocalizeMessage(result.Message));
     }
 
     private void OpenLeave() => _showLeave = true;
@@ -850,14 +849,14 @@
         var result = await HomeService.LeaveHomeAsync();
         await ReloadAsync();
         _showLeave = false;
-        Report(result.Ok, result.Message);
+        Report(result.Ok, LocalizeMessage(result.Message));
     }
 
     private void Report(bool ok, string message)
     {
         _formError = null;
         _messageOk = ok;
-        _message = message;
+        _message = LocalizeMessage(message);
     }
 
     // Manager first, then co-managers, then members, alphabetical inside each group.
@@ -868,6 +867,100 @@
     {
         var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         return parts.Length == 0 ? "?" : string.Concat(parts.Take(2).Select(p => char.ToUpperInvariant(p[0])));
+    }
+
+    private string RoleLabel(HomeRole role) => role switch
+    {
+        HomeRole.Manager => L["Manager"],
+        HomeRole.CoManager => L["Co-manager"],
+        _ => L["Member"]
+    };
+
+    private string LocalizeMessage(string message) => message switch
+    {
+        "Could not reach the server." => L["Could not reach the server."],
+        "Could not load your home." => L["Could not load your home."],
+        "Could not create the home." => L["Could not create the home."],
+        "Your session has ended. Please sign in again." => L["Your session has ended. Please sign in again."],
+        "House name and address are required." => L["Home name and address are required."],
+        "Max occupants must be at least 1." => L["Maximum occupants must be at least 1."],
+        "Your account is no longer available. Please sign out and register again." => L["Your account is no longer available. Please sign out and register again."],
+        "You are already in a home." => L["You are already in a home."],
+        "Enter a join code." => L["Enter a join code."],
+        "You already have a request waiting for an answer." => L["You already have a request waiting for an answer."],
+        "No home uses that join code." => L["No home uses that join code."],
+        "You have no request waiting." => L["You have no request waiting."],
+        "Request cancelled." => L["Join request cancelled."],
+        "The house is full. Raise max occupants first." => L["This home is full. Increase the maximum occupants first."],
+        "Only the manager or a co-manager can edit house details." => L["Only a manager or co-manager can edit home details."],
+        "Enter the email the person registered with." => L["Enter the email address used to register the person."],
+        "Only the manager or a co-manager can add members." => L["Only a manager or co-manager can add members."],
+        "No Nestify account uses that email." => L["No Nestify account uses that email."],
+        "You cannot promote this member." => L["You cannot promote this member."],
+        "You cannot demote this member." => L["You cannot change this member's role."],
+        "You cannot remove this member." => L["You cannot remove this member."],
+        "Only the manager can transfer the manager role." => L["Only the manager can transfer the manager role."],
+        "Transfer the manager role before leaving." => L["Transfer the manager role to someone else first."],
+        "You are not in a home." => L["You are not a member of a home."],
+        "You left the home." => L["You left the home."],
+        "House details updated." => L["Home details updated."],
+        "Could not load your join request." => L["Could not load your join request."],
+        "Only the manager or a co-manager can answer join requests." => L["Only the manager or a co-manager can answer join requests."],
+        "Member not found." => L["Member not found."],
+        "You cannot do that to yourself." => L["You cannot do that to yourself."],
+        "That request is no longer waiting." => L["That request is no longer waiting."],
+        "Done." => L["Done."],
+        _ => LocalizeDynamicMessage(message)
+    };
+
+    private string LocalizeDynamicMessage(string message)
+    {
+        const string occupiedPrefix = "Max occupants cannot be lower than the ";
+        const string occupiedSuffix = " occupied or reserved seats.";
+        if (message.StartsWith(occupiedPrefix, StringComparison.Ordinal) && message.EndsWith(occupiedSuffix, StringComparison.Ordinal))
+        {
+            var count = message[occupiedPrefix.Length..^occupiedSuffix.Length];
+            return L["Maximum occupants cannot be lower than the {0} occupied or reserved seats.", count];
+        }
+
+        const string requestSent = "Request sent to ";
+        const string requestSentSuffix = ". A manager has to approve it.";
+        if (message.StartsWith(requestSent, StringComparison.Ordinal) && message.EndsWith(requestSentSuffix, StringComparison.Ordinal))
+        {
+            var homeName = message[requestSent.Length..^requestSentSuffix.Length];
+            return L["Request sent to {0}. A manager must approve it.", homeName];
+        }
+
+        const string joinedSuffix = " joined the house.";
+        if (message.EndsWith(joinedSuffix, StringComparison.Ordinal))
+            return L["{0} joined the home.", message[..^joinedSuffix.Length]];
+
+        const string rejectedPrefix = "Request from ";
+        const string rejectedSuffix = " was rejected.";
+        if (message.StartsWith(rejectedPrefix, StringComparison.Ordinal) && message.EndsWith(rejectedSuffix, StringComparison.Ordinal))
+            return L["The request from {0} was rejected.", message[rejectedPrefix.Length..^rejectedSuffix.Length]];
+
+        const string addedSuffix = " was added.";
+        if (message.EndsWith(addedSuffix, StringComparison.Ordinal))
+            return L["{0} was added to the home.", message[..^addedSuffix.Length]];
+
+        const string coManagerSuffix = " is now a co-manager.";
+        if (message.EndsWith(coManagerSuffix, StringComparison.Ordinal))
+            return L["{0} is now a co-manager.", message[..^coManagerSuffix.Length]];
+
+        const string memberSuffix = " is now a member.";
+        if (message.EndsWith(memberSuffix, StringComparison.Ordinal))
+            return L["{0} is now a member.", message[..^memberSuffix.Length]];
+
+        const string removedSuffix = " was removed.";
+        if (message.EndsWith(removedSuffix, StringComparison.Ordinal))
+            return L["{0} was removed from the home.", message[..^removedSuffix.Length]];
+
+        const string managerSuffix = " is now the manager.";
+        if (message.EndsWith(managerSuffix, StringComparison.Ordinal))
+            return L["{0} is now the manager.", message[..^managerSuffix.Length]];
+
+        return message;
     }
 
     private static string? Claim(ClaimsPrincipal user, params string[] types) =>
