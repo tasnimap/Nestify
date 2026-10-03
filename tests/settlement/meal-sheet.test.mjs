@@ -42,7 +42,7 @@ test("the daily total remains in its dedicated table column", () => {
 
 test("members can submit their own payments while managers can choose the payer", () => {
     assert.match(razor, /@if \(IsOpen\)\s*\{\s*<aside class="stl__card stl__card--form"/);
-    assert.match(razor, /@if \(_ws!\.CanManage\)/);
+    assert.match(razor, /@if \(CanChoosePaymentMember\)/);
     assert.match(razor, /value="@CurrentMemberName" readonly/);
     assert.match(settlementService, /var canRecordForOthers = membership\.Role is HomeService\.RoleManager or HomeService\.RoleCoManager;/);
     assert.match(settlementService, /request\.UserId = userId;/);
