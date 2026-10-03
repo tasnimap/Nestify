@@ -1320,7 +1320,8 @@ CREATE TABLE nestify.helper_reviews (
     CONSTRAINT ck_review_rating CHECK (rating BETWEEN 1 AND 5)
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS nestify.ux_review_placement_reviewer
+CREATE UNIQUE INDEX IF NOT EXISTS ux_review_placement_reviewer
     ON nestify.helper_reviews (placement_id, reviewer_user_id);
-CREATE INDEX IF NOT EXISTS nestify.ix_review_helper
-    ON nestify.helper_reviews (helper_profile_id, created_at_utc DESC) WHERE NOT is_hidden;
+CREATE INDEX IF NOT EXISTS ix_review_helper
+    ON nestify.helper_reviews (helper_profile_id, created_at_utc DESC)
+    WHERE NOT is_hidden;
