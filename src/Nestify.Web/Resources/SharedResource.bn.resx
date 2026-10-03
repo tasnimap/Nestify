@@ -1122,6 +1122,12 @@
   <data name="Newest" xml:space="preserve"><value>নতুন আগে</value></data>
   <data name="Post your first item" xml:space="preserve"><value>আপনার প্রথম পণ্যটি দিন</value></data>
   <data name="Sold outside Nestify" xml:space="preserve"><value>Nestify-এর বাইরে বিক্রি হয়েছে</value></data>
+  <data name="All divisions" xml:space="preserve"><value>সব বিভাগ</value></data>
+  <data name="All division" xml:space="preserve"><value>সব বিভাগ</value></data>
+  <data name="Select division" xml:space="preserve"><value>বিভাগ নির্বাচন করুন</value></data>
+  <data name="Select district" xml:space="preserve"><value>জেলা নির্বাচন করুন</value></data>
+  <data name="Select upazila" xml:space="preserve"><value>উপজেলা নির্বাচন করুন</value></data>
+  <data name="Distance" xml:space="preserve"><value>দূরত্ব</value></data>
   <data name="All districts" xml:space="preserve"><value>সব জেলা</value></data>
   <data name="Suspected scam" xml:space="preserve"><value>প্রতারণার সন্দেহ</value></data>
   <data name="This listing isn&apos;t available" xml:space="preserve"><value>এই বিজ্ঞাপনটি পাওয়া যাচ্ছে না</value></data>
