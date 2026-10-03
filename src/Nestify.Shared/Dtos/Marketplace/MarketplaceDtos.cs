@@ -129,7 +129,7 @@ public sealed class MarketplaceItemFilterDto
 
     public MarketplaceSort Sort { get; set; } = MarketplaceSort.Newest;
     public int Page { get; set; } = 1;
-    public int PageSize { get; set; } = 12;
+    public int PageSize { get; set; } = 12; // 12 posts per page
 }
 
 /// <summary>A page of results plus the counters the grid header needs.</summary>
