@@ -6,6 +6,7 @@
 @using Nestify.Web.Components
 @using Nestify.Web.Components.Helper
 @inject IHelperService Helpers
+@inject IStringLocalizer<SharedResource> L
 @inject Nestify.Web.Services.Interfaces.IAuthService AuthService
 @inject Nestify.Web.Services.MoneyFormatterService Money
 @inject Nestify.Web.Services.ToastService Toast
@@ -14,7 +15,7 @@
 @using Nestify.Shared.Dtos.Area
 @implements IAsyncDisposable
 
-<PageTitle>My profile — Nestify</PageTitle>
+<PageTitle>@L["My profile"] — Nestify</PageTitle>
 
 <div class="dh md">
     <div class="dh__inner">
@@ -29,9 +30,9 @@
         {
             <div class="dh-panel dh-rise">
                 <div class="dh-empty">
-                    <h2>Your profile could not be loaded</h2>
-                    <p>@(_loadError ?? "Try again in a moment.")</p>
-                    <button class="nx-btn nx-btn--accent" type="button" @onclick="Load">Try again</button>
+                    <h2>@L["Your profile could not be loaded"]</h2>
+                    <p>@(_loadError ?? L["Try again in a moment."].Value)</p>
+                    <button class="nx-btn nx-btn--accent" type="button" @onclick="Load">@L["Try again"]</button>
                 </div>
             </div>
         }
@@ -41,20 +42,20 @@
             {
                 <div class="md-callout dh-rise">
                     <div>
-                        <strong>Finish your profile so bachelors can find you</strong>
-                        <span>Sign-up only asked for your name, phone and email. Still missing: @string.Join(", ", Missing). Use the Edit links on each card.</span>
+                        <strong>@L["Finish your profile so clients can find you"]</strong>
+                        <span>@L["Sign-up only asked for your name, phone and email. Still missing: {0}. Use the Edit links on each card.", string.Join(", ", Missing)]</span>
                     </div>
-                    <button class="nx-btn nx-btn--accent" type="button" @onclick="() => OpenEdit(FirstMissing)">Fill in @FirstMissingLabel</button>
+                    <button class="nx-btn nx-btn--accent" type="button" @onclick="() => OpenEdit(FirstMissing)">@L["Fill in {0}", FirstMissingLabel]</button>
                 </div>
             }
             else if (!P.IsAcceptingBookings)
             {
                 <div class="md-callout md-callout--ok dh-rise">
                     <div>
-                        <strong>Your profile is complete</strong>
-                        <span>You are still hidden from bachelors. Turn on accepting bookings whenever you are ready for requests.</span>
+                        <strong>@L["Your profile is complete"]</strong>
+                        <span>@L["Your profile is hidden from clients. Turn on bookings when you are ready to receive requests."]</span>
                     </div>
-                    <button class="nx-btn nx-btn--accent" type="button" disabled="@_goingLive" @onclick="GoLive">@(_goingLive ? "Turning on…" : "Accept bookings")</button>
+                    <button class="nx-btn nx-btn--accent" type="button" disabled="@_goingLive" @onclick="GoLive">@L[_goingLive ? "Turning on…" : "Accept bookings"]</button>
                 </div>
             }
 
@@ -62,30 +63,30 @@
                 <div class="md-profile__glow" aria-hidden="true"></div>
 
                 <div class="md-profile__ring">
-                    <button type="button" class="md-photo" @onclick="OpenPhoto" title="View photo" aria-label="View profile photo">
+                    <button type="button" class="md-photo" @onclick="OpenPhoto" title='@L["View photo"]' aria-label='@L["View profile photo"]'>
                         <img src="@P.PhotoUrl" alt="Profile photo of @P.FullName" />
-                        <span class="md-photo__hint">View</span>
+                        <span class="md-photo__hint">@L["View"]</span>
                     </button>
-                    <span class="md-profile__status @(P.IsAcceptingBookings ? "md-profile__status--on" : null)" title="@(P.IsAcceptingBookings ? "Accepting bookings" : "Paused")"></span>
+                    <span class="md-profile__status @(P.IsAcceptingBookings ? "md-profile__status--on" : null)" title="@L[P.IsAcceptingBookings ? "Accepting bookings" : "Paused"]"></span>
                     <label class="md-photo__change">
                         <InputFile OnChange="PickPhoto" accept="image/*" class="md-photo__file" disabled="@_uploading" />
                         <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2Z" /><circle cx="12" cy="13" r="4" /></svg>
-                        <span>@(_uploading ? "Uploading…" : "Change")</span>
+                        <span>@L[_uploading ? "Uploading…" : "Change"]</span>
                     </label>
                 </div>
 
                 <div class="md-profile__body">
-                    <p class="dh-kicker">Domestic Helper</p>
+                    <p class="dh-kicker">@L["Domestic Helper"]</p>
                     <h1>
                         @P.FullName
                         @if (P.IsVerified)
                         {
-                            <span class="md-verified" title="Verified by Nestify">
+                            <span class="md-verified" title='@L["Verified by Nestify"]'>
                                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 12 2 2 4-4" /><circle cx="12" cy="12" r="9" /></svg>
                             </span>
                         }
                     </h1>
-                    <p class="md-profile__headline">@(string.IsNullOrWhiteSpace(P.Headline) ? "Add a headline so bachelors know what you do best." : P.Headline)</p>
+                    <p class="md-profile__headline">@(string.IsNullOrWhiteSpace(P.Headline) ? L["Add a headline so clients know what you do best."].Value : P.Headline)</p>
                     <div class="md-profile__meta">
                         <RatingStars Value="P.RatingAverage" Count="P.RatingCount" />
                         <span class="dh-profile__dot" aria-hidden="true"></span>
@@ -95,20 +96,20 @@
                         </span>
                     </div>
                     <div class="dh-badges">
-                        <span>@(P.IsAcceptingBookings ? "Accepting bookings" : "Paused")</span>
-                        <span>Member since @P.JoinedAtUtc.ToLocalTime().ToString("MMM yyyy")</span>
+                        <span>@L[P.IsAcceptingBookings ? "Accepting bookings" : "Paused"]</span>
+                        <span>@L["Member since {0}", P.JoinedAtUtc.ToLocalTime().ToString("MMM yyyy")]</span>
                         @switch (P.Verification.State)
                         {
                             case HelperVerificationState.Verified:
-                                <span>Verified</span>
+                                <span>@L["Verified"]</span>
                                 break;
                             case HelperVerificationState.Pending:
-                                <span>Verification pending</span>
+                                <span>@L["Verification pending"]</span>
                                 break;
                             default:
                                 if (P.IsComplete)
                                 {
-                                    <button type="button" class="dh-chip dh-chip--on" @onclick="OpenVerification">Apply for verification</button>
+                                    <button type="button" class="dh-chip dh-chip--on" @onclick="OpenVerification">@L["Apply for verification"]</button>
                                 }
                                 break;
                         }
@@ -118,62 +119,62 @@
                 <div class="md-profile__actions">
                     <button class="nx-btn nx-btn--light" type="button" @onclick="() => OpenEdit(EditSection.Account)">
                         <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" /></svg>
-                        Edit profile
+                        @L["Edit profile"]
                     </button>
-                    <button class="nx-btn nx-btn--ghost" type="button" @onclick="OpenPassword">Change password</button>
-                    <button class="nx-btn nx-btn--ghost" type="button" @onclick="SignOut">Log out</button>
+                    <button class="nx-btn nx-btn--ghost" type="button" @onclick="OpenPassword">@L["Change password"]</button>
+                    <button class="nx-btn nx-btn--ghost" type="button" @onclick="SignOut">@L["Log out"]</button>
                 </div>
             </header>
 
             <div class="md-stats dh-rise" style="--d:60ms">
                 <div class="md-stat">
                     <span class="md-stat__value">@P.RatingAverage.ToString("0.0")</span>
-                    <span class="md-stat__label">rating</span>
+                    <span class="md-stat__label">@L["Rating"]</span>
                 </div>
                 <div class="md-stat">
                     <span class="md-stat__value">@P.CompletedCount</span>
-                    <span class="md-stat__label">completed</span>
+                    <span class="md-stat__label">@L["Completed"]</span>
                 </div>
                 <div class="md-stat">
                     <span class="md-stat__value">@P.ActiveCount</span>
-                    <span class="md-stat__label">active</span>
+                    <span class="md-stat__label">@L["Active"]</span>
                 </div>
                 <div class="md-stat md-stat--soft">
-                    <span class="md-stat__value">@P.ExperienceYears<small> yrs</small></span>
-                    <span class="md-stat__label">experience</span>
+                    <span class="md-stat__value">@P.ExperienceYears<small> @L["years short"]</small></span>
+                    <span class="md-stat__label">@L["Experience"]</span>
                 </div>
             </div>
 
             <div class="dh-grid md-profile-grid">
                 <section class="dh-panel dh-rise" style="--d:120ms">
                     <div class="dh-panel__head">
-                        <h2>Account</h2>
-                        <button type="button" class="md-link" @onclick="() => OpenEdit(EditSection.Account)">Edit</button>
+                        <h2>@L["Account"]</h2>
+                        <button type="button" class="md-link" @onclick="() => OpenEdit(EditSection.Account)">@L["Edit"]</button>
                     </div>
                     <div class="dh-facts">
-                        <div class="dh-fact"><span>Full name</span><strong>@P.FullName</strong></div>
-                        <div class="dh-fact"><span>Email</span><strong>@P.Email</strong></div>
-                        <div class="dh-fact"><span>Phone</span><strong>@P.PhoneNumber</strong></div>
-                        <div class="dh-fact"><span>Joined</span><strong>@P.JoinedAtUtc.ToLocalTime().ToString("d MMMM yyyy")</strong></div>
+                        <div class="dh-fact"><span>@L["Full name"]</span><strong>@P.FullName</strong></div>
+                        <div class="dh-fact"><span>@L["Email"]</span><strong>@P.Email</strong></div>
+                        <div class="dh-fact"><span>@L["Phone"]</span><strong>@P.PhoneNumber</strong></div>
+                        <div class="dh-fact"><span>@L["Joined"]</span><strong>@P.JoinedAtUtc.ToLocalTime().ToString("d MMMM yyyy")</strong></div>
                     </div>
                 </section>
 
                 <section class="dh-panel dh-rise" style="--d:180ms">
                     <div class="dh-panel__head">
-                        <h2>About me</h2>
-                        <button type="button" class="md-link" @onclick="() => OpenEdit(EditSection.About)">Edit</button>
+                        <h2>@L["About me"]</h2>
+                        <button type="button" class="md-link" @onclick="() => OpenEdit(EditSection.About)">@L["Edit"]</button>
                     </div>
-                    <p class="md-bio">@(string.IsNullOrWhiteSpace(P.Bio) ? "Nothing written yet. A few lines about your work help bachelors pick you." : P.Bio)</p>
+                    <p class="md-bio">@(string.IsNullOrWhiteSpace(P.Bio) ? L["Nothing written yet. A few lines about your work help clients choose you."].Value : P.Bio)</p>
                     <div class="dh-facts">
-                        <div class="dh-fact"><span>Languages</span><strong>@P.Languages</strong></div>
-                        <div class="dh-fact"><span>Experience</span><strong>@P.ExperienceYears year(s)</strong></div>
+                        <div class="dh-fact"><span>@L["Languages"]</span><strong>@P.Languages</strong></div>
+                        <div class="dh-fact"><span>@L["Experience"]</span><strong>@L["{0} years", P.ExperienceYears]</strong></div>
                     </div>
                 </section>
 
                 <section class="dh-panel dh-rise" style="--d:240ms">
                     <div class="dh-panel__head">
-                        <h2>Services and rate</h2>
-                        <button type="button" class="md-link" @onclick="() => OpenEdit(EditSection.Services)">Edit</button>
+                        <h2>@L["Services and rate"]</h2>
+                        <button type="button" class="md-link" @onclick="() => OpenEdit(EditSection.Services)">@L["Edit"]</button>
                     </div>
                     <div class="dh-tags">
                         @foreach (var s in P.Services)
@@ -182,37 +183,37 @@
                         }
                         @if (P.Services.Count == 0)
                         {
-                            <span class="dh-muted">No services picked yet.</span>
+                            <span class="dh-muted">@L["No services picked yet."]</span>
                         }
                     </div>
-                    <p class="md-rate">@(P.MonthlyRate > 0 ? Money.Format(P.MonthlyRate) : "Rate not set")<span>@(P.MonthlyRate > 0 ? "/month" : "")</span></p>
+                    <p class="md-rate">@(P.MonthlyRate > 0 ? Money.Format(P.MonthlyRate) : L["Rate not set"].Value)<span>@(P.MonthlyRate > 0 ? $"/{L["month"]}" : "")</span></p>
                     <div class="dh-facts">
-                        <div class="dh-fact"><span>Open hours per week</span><strong>@P.OpenHoursPerWeek h</strong></div>
+                        <div class="dh-fact"><span>@L["Open hours per week"]</span><strong>@P.OpenHoursPerWeek @L["hours short"]</strong></div>
                     </div>
-                    <a class="md-link" href="helpers/availability">Change my hours</a>
+                    <a class="md-link" href="helpers/availability">@L["Change my hours"]</a>
                 </section>
 
                 <section class="dh-panel dh-rise" style="--d:300ms">
                     <div class="dh-panel__head">
-                        <h2>Where I live</h2>
-                        <button type="button" class="md-link" @onclick="() => OpenEdit(EditSection.Address)">Edit</button>
+                        <h2>@L["Where I live"]</h2>
+                        <button type="button" class="md-link" @onclick="() => OpenEdit(EditSection.Address)">@L["Edit"]</button>
                     </div>
                     <div class="dh-facts">
-                        <div class="dh-fact"><span>Area</span><strong>@(string.IsNullOrWhiteSpace(P.AreaName) ? "Not set" : P.AreaName)</strong></div>
-                        <div class="dh-fact"><span>Address</span><strong>@(string.IsNullOrWhiteSpace(P.AddressLine) ? "Not set" : P.AddressLine)</strong></div>
-                        <div class="dh-fact"><span>Pin</span><strong>@P.Latitude.ToString("0.0000"), @P.Longitude.ToString("0.0000")</strong></div>
+                        <div class="dh-fact"><span>@L["Area"]</span><strong>@(string.IsNullOrWhiteSpace(P.AreaName) ? L["Not set"].Value : P.AreaName)</strong></div>
+                        <div class="dh-fact"><span>@L["Address"]</span><strong>@(string.IsNullOrWhiteSpace(P.AddressLine) ? L["Not set"].Value : P.AddressLine)</strong></div>
+                        <div class="dh-fact"><span>@L["Pin"]</span><strong>@P.Latitude.ToString("0.0000"), @P.Longitude.ToString("0.0000")</strong></div>
                     </div>
                     @if (!string.IsNullOrWhiteSpace(P.AddressLine))
                     {
                         <a class="md-link" target="_blank" rel="noopener"
-                           href="@($"https://www.openstreetmap.org/?mlat={P.Latitude}&mlon={P.Longitude}#map=17/{P.Latitude}/{P.Longitude}")">Open on map →</a>
+                           href="@($"https://www.openstreetmap.org/?mlat={P.Latitude}&mlon={P.Longitude}#map=17/{P.Latitude}/{P.Longitude}")">@L["Open on map"] →</a>
                     }
-                    <p class="dh-muted">Only the area is shown to bachelors. The address and pin stay private.</p>
+                    <p class="dh-muted">@L["Only your area is shown to clients. Your address and map pin remain private."]</p>
                 </section>
 
                 <section class="dh-panel dh-rise" style="--d:360ms">
                     <div class="dh-panel__head">
-                        <h2>Verification</h2>
+                        <h2>@L["Verification"]</h2>
                     </div>
                     <div class="md-verify">
                         <span class="md-verify__icon @(P.Verification.State == HelperVerificationState.Pending ? "md-verify__icon--pending" : null) @(P.Verification.State == HelperVerificationState.Verified ? "md-verify__icon--ok" : null)" aria-hidden="true">
@@ -222,38 +223,38 @@
                             @switch (P.Verification.State)
                             {
                                 case HelperVerificationState.Verified:
-                                    <strong>Verified</strong>
-                                    <p class="dh-muted">An admin checked your photo and NID. Bachelors see the verified badge on your profile.</p>
+                                    <strong>@L["Verified"]</strong>
+                                    <p class="dh-muted">@L["An admin checked your photo and NID. Clients can see the verified badge on your profile."]</p>
                                     break;
                                 case HelperVerificationState.Pending:
-                                    <strong>Under review</strong>
-                                    <p class="dh-muted">Your photo and NID were sent @P.Verification.SubmittedAtUtc?.ToLocalTime().ToString("d MMM"). An admin will look at them soon.</p>
+                                    <strong>@L["Under review"]</strong>
+                                    <p class="dh-muted">@L["Your photo and NID were submitted on {0}. An admin will review them soon.", P.Verification.SubmittedAtUtc?.ToLocalTime().ToString("d MMM") ?? ""] </p>
                                     break;
                                 case HelperVerificationState.Rejected:
-                                    <strong>Not approved</strong>
-                                    <p class="dh-muted">@(P.Verification.RejectionReason ?? "The admin could not approve your documents.") You can apply again with better photos.</p>
+                                    <strong>@L["Not approved"]</strong>
+                                    <p class="dh-muted">@(P.Verification.RejectionReason ?? L["The admin could not approve your documents."].Value) @L["You can apply again with clearer photos."]</p>
                                     break;
                                 default:
-                                    <strong>Not applied yet</strong>
-                                    <p class="dh-muted">Verified helpers are shown first and get more requests. Pay the fee through bKash, then send a photo of yourself and your NID.</p>
+                                    <strong>@L["Not applied yet"]</strong>
+                                    <p class="dh-muted">@L["Verified helpers appear first and may receive more requests. Pay the fee through bKash, then submit a photo of yourself and your NID."]</p>
                                     break;
                             }
                         </div>
                     </div>
                     @if (P.Verification.State == HelperVerificationState.Pending)
                     {
-                        <button class="nx-btn nx-btn--ghost" type="button" disabled="@_cancellingVerification" @onclick="CancelVerification">@(_cancellingVerification ? "Withdrawing…" : "Withdraw application")</button>
+                        <button class="nx-btn nx-btn--ghost" type="button" disabled="@_cancellingVerification" @onclick="CancelVerification">@L[_cancellingVerification ? "Withdrawing…" : "Withdraw application"]</button>
                     }
                     else if (P.Verification.State != HelperVerificationState.Verified)
                     {
                         if (P.IsComplete)
                         {
-                            <button class="nx-btn nx-btn--accent" type="button" @onclick="OpenVerification">@(P.Verification.State == HelperVerificationState.Rejected ? "Apply again" : "Apply for verification")</button>
+                            <button class="nx-btn nx-btn--accent" type="button" @onclick="OpenVerification">@L[P.Verification.State == HelperVerificationState.Rejected ? "Apply again" : "Apply for verification"]</button>
                         }
                         else
                         {
-                            <p class="dh-muted">Complete your profile first — services, rate and address — then you can apply.</p>
-                            <button class="nx-btn nx-btn--ghost" type="button" @onclick="() => OpenEdit(FirstMissing)">Fill in @FirstMissingLabel</button>
+                            <p class="dh-muted">@L["Complete your profile first: add your services, rate and address before applying."]</p>
+                            <button class="nx-btn nx-btn--ghost" type="button" @onclick="() => OpenEdit(FirstMissing)">@L["Fill in {0}", FirstMissingLabel]</button>
                         }
                     }
                 </section>
@@ -269,7 +270,7 @@
         <figure class="md-lightbox" @onclick:stopPropagation="true">
             <img src="@P.PhotoUrl" alt="Profile photo of @P.FullName" />
             <figcaption>@P.FullName</figcaption>
-            <button type="button" class="md-modal__close md-lightbox__close" @onclick="ClosePhoto" aria-label="Close">&times;</button>
+            <button type="button" class="md-modal__close md-lightbox__close" @onclick="ClosePhoto" aria-label='@L["Close"]'>&times;</button>
         </figure>
     </div>
 }
@@ -281,7 +282,7 @@
         <div class="md-modal @(_edit == EditSection.Address ? null : "md-modal--sm")" role="dialog" aria-modal="true" aria-labelledby="edit-title" @onclick:stopPropagation="true">
             <header class="md-modal__head">
                 <h2 id="edit-title">@EditTitle</h2>
-                <button type="button" class="md-modal__close" @onclick="CloseEdit" aria-label="Close">&times;</button>
+                <button type="button" class="md-modal__close" @onclick="CloseEdit" aria-label='@L["Close"]'>&times;</button>
             </header>
 
             <div class="md-modal__body md-modal__body--stack">
@@ -290,17 +291,17 @@
                     case EditSection.Account:
                         <div class="md-form">
                             <div class="md-field md-field--wide">
-                                <label for="ed-name">Full name</label>
+                                <label for="ed-name">@L["Full name"]</label>
                                 <input id="ed-name" maxlength="120" @bind="_draft.FullName" />
                             </div>
                             <div class="md-field md-field--wide">
-                                <label for="ed-phone">Phone</label>
+                                <label for="ed-phone">@L["Phone"]</label>
                                 <input id="ed-phone" type="tel" maxlength="20" @bind="_draft.PhoneNumber" />
                             </div>
                             <div class="md-field md-field--wide">
-                                <label for="ed-email">Email</label>
+                                <label for="ed-email">@L["Email"]</label>
                                 <input id="ed-email" value="@P?.Email" disabled />
-                                <small>Email can't be changed here.</small>
+                                <small>@L["Email can't be changed here."]</small>
                             </div>
                         </div>
                         break;
@@ -308,19 +309,19 @@
                     case EditSection.About:
                         <div class="md-form">
                             <div class="md-field md-field--wide">
-                                <label for="ed-headline">Headline</label>
-                                <input id="ed-headline" maxlength="120" @bind="_draft.Headline" placeholder="One line about what you do best, e.g. Cooking and cleaning for bachelor flats" />
+                                <label for="ed-headline">@L["Headline"]</label>
+                                <input id="ed-headline" maxlength="120" @bind="_draft.Headline" placeholder='@L["Describe your strongest skills in one line."]' />
                             </div>
                             <div class="md-field md-field--wide">
-                                <label for="ed-bio">About me</label>
-                                <textarea id="ed-bio" rows="5" maxlength="1000" @bind="_draft.Bio" placeholder="Where you have worked, what you cook, how you like to work."></textarea>
+                                <label for="ed-bio">@L["About me"]</label>
+                                <textarea id="ed-bio" rows="5" maxlength="1000" @bind="_draft.Bio" placeholder='@L["Share your experience and how you prefer to work."]'></textarea>
                             </div>
                             <div class="md-field">
-                                <label for="ed-lang">Languages</label>
-                                <input id="ed-lang" maxlength="120" @bind="_draft.Languages" placeholder="Bangla, basic English" />
+                                <label for="ed-lang">@L["Languages"]</label>
+                                <input id="ed-lang" maxlength="120" @bind="_draft.Languages" placeholder='@L["For example, Bangla and basic English"]' />
                             </div>
                             <div class="md-field">
-                                <label for="ed-exp">Years of experience</label>
+                                <label for="ed-exp">@L["Years of experience"]</label>
                                 <input id="ed-exp" type="number" min="0" max="60" @bind="_draft.ExperienceYears" />
                             </div>
                         </div>
@@ -328,7 +329,7 @@
 
                     case EditSection.Services:
                         <div class="md-field">
-                            <span class="md-field__label">Services you offer</span>
+                            <span class="md-field__label">@L["Services you offer"]</span>
                             <div class="dh-chips">
                                 @foreach (var type in Enum.GetValues<ServiceType>())
                                 {
@@ -342,9 +343,9 @@
                         </div>
                         <div class="md-form">
                             <div class="md-field md-field--wide">
-                                <label for="ed-rate">Monthly rate (৳)</label>
+                                <label for="ed-rate">@L["Monthly rate (৳)"]</label>
                                 <input id="ed-rate" type="number" min="0" step="100" @bind="_draft.MonthlyRate" />
-                                <small>What you charge one home for a month of the hours they book.</small>
+                                <small>@L["Set the monthly amount you charge for the agreed hours."]</small>
                             </div>
                         </div>
                         break;
@@ -352,17 +353,17 @@
                     case EditSection.Address:
                         <div class="md-form">
                             <div class="md-field md-field--wide">
-                                <span class="md-field__label">Area</span>
+                                <span class="md-field__label">@L["Area"]</span>
                                 <AreaCascade Selection="_area" SelectionChanged="OnAreaChanged" />
                             </div>
                             <div class="md-field md-field--wide">
-                                <label for="ed-address">Address</label>
-                                <input id="ed-address" maxlength="300" @bind="_draft.AddressLine" placeholder="House, road, block — the way you would tell a rickshaw puller" />
+                                <label for="ed-address">@L["Address"]</label>
+                                <input id="ed-address" maxlength="300" @bind="_draft.AddressLine" placeholder='@L["Enter a clear address that someone can follow."]' />
                             </div>
                             <div class="md-field md-field--wide">
-                                <span class="md-field__label">Your home on the map</span>
+                                <span class="md-field__label">@L["Your home on the map"]</span>
                                 <div id="edit-map" class="md-map"></div>
-                                <small>Click the map or drag the pin to where you live. (@_draft.Latitude.ToString("0.0000"), @_draft.Longitude.ToString("0.0000"))</small>
+                                <small>@L["Click the map or drag the pin to your home."] (@_draft.Latitude.ToString("0.0000"), @_draft.Longitude.ToString("0.0000"))</small>
                             </div>
                         </div>
                         break;
@@ -375,8 +376,8 @@
             </div>
 
             <footer class="md-modal__foot">
-                <button type="button" class="nx-btn nx-btn--ghost" @onclick="CloseEdit" disabled="@_saving">Cancel</button>
-                <button type="button" class="nx-btn nx-btn--accent" @onclick="SaveEdit" disabled="@_saving">@(_saving ? "Saving…" : "Save changes")</button>
+                <button type="button" class="nx-btn nx-btn--ghost" @onclick="CloseEdit" disabled="@_saving">@L["Cancel"]</button>
+                <button type="button" class="nx-btn nx-btn--accent" @onclick="SaveEdit" disabled="@_saving">@L[_saving ? "Saving…" : "Save changes"]</button>
             </footer>
         </div>
     </div>
@@ -388,29 +389,29 @@
     <div class="md-overlay" @onclick="ClosePassword">
         <div class="md-modal md-modal--sm" role="dialog" aria-modal="true" @onclick:stopPropagation="true">
             <header class="md-modal__head">
-                <h2>Change password</h2>
-                <button type="button" class="md-modal__close" @onclick="ClosePassword" aria-label="Close">&times;</button>
+                <h2>@L["Change password"]</h2>
+                <button type="button" class="md-modal__close" @onclick="ClosePassword" aria-label='@L["Close"]'>&times;</button>
             </header>
             <div class="md-modal__body md-modal__body--stack">
                 <div class="md-field">
-                    <label for="pw-current">Current password</label>
+                    <label for="pw-current">@L["Current password"]</label>
                     <div class="md-pw">
                         <input id="pw-current" type="@(_showCurrent ? "text" : "password")" @bind="_currentPassword" />
-                        <button type="button" class="md-pw__toggle" @onclick="() => _showCurrent = !_showCurrent">@(_showCurrent ? "Hide" : "Show")</button>
+                        <button type="button" class="md-pw__toggle" @onclick="() => _showCurrent = !_showCurrent">@L[_showCurrent ? "Hide" : "Show"]</button>
                     </div>
                 </div>
                 <div class="md-field">
-                    <label for="pw-new">New password</label>
+                    <label for="pw-new">@L["New password"]</label>
                     <div class="md-pw">
                         <input id="pw-new" type="@(_showNew ? "text" : "password")" @bind="_newPassword" />
-                        <button type="button" class="md-pw__toggle" @onclick="() => _showNew = !_showNew">@(_showNew ? "Hide" : "Show")</button>
+                        <button type="button" class="md-pw__toggle" @onclick="() => _showNew = !_showNew">@L[_showNew ? "Hide" : "Show"]</button>
                     </div>
                 </div>
                 <div class="md-field">
-                    <label for="pw-confirm">Confirm new password</label>
+                    <label for="pw-confirm">@L["Confirm new password"]</label>
                     <div class="md-pw">
                         <input id="pw-confirm" type="@(_showConfirm ? "text" : "password")" @bind="_confirmPassword" />
-                        <button type="button" class="md-pw__toggle" @onclick="() => _showConfirm = !_showConfirm">@(_showConfirm ? "Hide" : "Show")</button>
+                        <button type="button" class="md-pw__toggle" @onclick="() => _showConfirm = !_showConfirm">@L[_showConfirm ? "Hide" : "Show"]</button>
                     </div>
                 </div>
                 @if (_passwordError is not null)
@@ -419,8 +420,8 @@
                 }
             </div>
             <footer class="md-modal__foot">
-                <button type="button" class="nx-btn nx-btn--ghost" @onclick="ClosePassword" disabled="@_savingPassword">Cancel</button>
-                <button type="button" class="nx-btn nx-btn--accent" @onclick="SavePassword" disabled="@_savingPassword">@(_savingPassword ? "Updating…" : "Update password")</button>
+                <button type="button" class="nx-btn nx-btn--ghost" @onclick="ClosePassword" disabled="@_savingPassword">@L["Cancel"]</button>
+                <button type="button" class="nx-btn nx-btn--accent" @onclick="SavePassword" disabled="@_savingPassword">@L[_savingPassword ? "Updating…" : "Update password"]</button>
             </footer>
         </div>
     </div>
@@ -434,42 +435,42 @@
             @if (_verificationStep == VerificationStep.Documents)
             {
                 <header class="md-modal__head">
-                    <h2>Verify your profile</h2>
-                    <button type="button" class="md-modal__close" @onclick="CloseVerification" aria-label="Close">&times;</button>
+                    <h2>@L["Verify your profile"]</h2>
+                    <button type="button" class="md-modal__close" @onclick="CloseVerification" aria-label='@L["Close"]'>&times;</button>
                 </header>
                 <div class="md-modal__body md-modal__body--stack">
-                    <p class="dh-muted">Upload a clear photo of yourself and a photo of your NID. An admin compares them with your profile before the verified badge is added.</p>
+                    <p class="dh-muted">@L["Upload a clear photo of yourself and your NID. An admin will compare them with your profile before adding the verified badge."]</p>
 
                     <div class="md-field">
-                        <label for="vf-photo">Your photo</label>
+                        <label for="vf-photo">@L["Your photo"]</label>
                         <label class="md-picker @(_photoPreview is not null ? "md-picker--has" : null)" for="vf-photo">
                             <InputFile id="vf-photo" OnChange="PickPhotoDocument" accept="image/*" class="md-photo__file" />
                             @if (_photoPreview is not null)
                             {
-                                <img src="@_photoPreview" alt="Your photo preview" />
-                                <span class="md-picker__label">Replace photo</span>
+                                <img src="@_photoPreview" alt='@L["Your photo preview"]' />
+                                <span class="md-picker__label">@L["Replace photo"]</span>
                             }
                             else
                             {
                                 <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 4-6 8-6s8 2 8 6" /></svg>
-                                <span class="md-picker__label">Choose a clear photo of your face</span>
+                                <span class="md-picker__label">@L["Choose a clear photo of your face"]</span>
                             }
                         </label>
                     </div>
 
                     <div class="md-field">
-                        <label for="vf-nid">National ID (NID)</label>
+                        <label for="vf-nid">@L["National ID (NID)"]</label>
                         <label class="md-picker @(_nidPreview is not null ? "md-picker--has" : null)" for="vf-nid">
                             <InputFile id="vf-nid" OnChange="PickNidDocument" accept="image/*" class="md-photo__file" />
                             @if (_nidPreview is not null)
                             {
-                                <img src="@_nidPreview" alt="NID preview" />
-                                <span class="md-picker__label">Replace photo</span>
+                                <img src="@_nidPreview" alt='@L["NID preview"]' />
+                                <span class="md-picker__label">@L["Replace photo"]</span>
                             }
                             else
                             {
                                 <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><circle cx="9" cy="12" r="2.5" /><path d="M14 10h4M14 14h4" /></svg>
-                                <span class="md-picker__label">Choose a clear photo of your NID</span>
+                                <span class="md-picker__label">@L["Choose a clear photo of your NID"]</span>
                             }
                         </label>
                     </div>
@@ -480,61 +481,61 @@
                     }
                 </div>
                 <footer class="md-modal__foot">
-                    <button type="button" class="nx-btn nx-btn--ghost" @onclick="CloseVerification">Cancel</button>
-                    <button type="button" class="nx-btn nx-btn--accent" @onclick="GoToPayment">Continue to payment</button>
+                    <button type="button" class="nx-btn nx-btn--ghost" @onclick="CloseVerification">@L["Cancel"]</button>
+                    <button type="button" class="nx-btn nx-btn--accent" @onclick="GoToPayment">@L["Continue to payment"]</button>
                 </footer>
             }
             else if (_verificationStep == VerificationStep.Payment)
             {
                 <header class="md-modal__head md-bkash__head">
-                    <div class="md-bkash__brand"><span class="md-bkash__logo">bKash</span><span>Payment</span></div>
-                    <button type="button" class="md-modal__close" @onclick="CloseVerification" aria-label="Close">&times;</button>
+                    <div class="md-bkash__brand"><span class="md-bkash__logo">bKash</span><span>@L["Payment"]</span></div>
+                    <button type="button" class="md-modal__close" @onclick="CloseVerification" aria-label='@L["Close"]'>&times;</button>
                 </header>
                 <div class="md-modal__body md-modal__body--stack">
                     <div class="md-bkash__summary">
-                        <div><span>Merchant</span><b>Nestify</b></div>
-                        <div><span>Purpose</span><b>Helper verification fee</b></div>
-                        <div><span>Amount</span><b class="md-bkash__amount">৳@_verificationFee.ToString("N0")</b></div>
+                        <div><span>@L["Merchant"]</span><b>Nestify</b></div>
+                        <div><span>@L["Purpose"]</span><b>@L["Helper verification fee"]</b></div>
+                        <div><span>@L["Amount"]</span><b class="md-bkash__amount">৳@_verificationFee.ToString("N0")</b></div>
                     </div>
                     <div class="md-field">
-                        <label for="bkash-number">Your bKash account number</label>
+                        <label for="bkash-number">@L["Your bKash account number"]</label>
                         <input id="bkash-number" inputmode="numeric" placeholder="01XXXXXXXXX" maxlength="14" @bind="_bkashNumber" />
                     </div>
                     <div class="md-field">
-                        <label for="bkash-pin">bKash PIN</label>
-                        <input id="bkash-pin" type="password" inputmode="numeric" placeholder="4 or 5 digits" maxlength="5" @bind="_bkashPin" />
+                        <label for="bkash-pin">@L["bKash PIN"]</label>
+                        <input id="bkash-pin" type="password" inputmode="numeric" placeholder='@L["4 or 5 digits"]' maxlength="5" @bind="_bkashPin" />
                     </div>
-                    <p class="dh-muted">This is a practice payment portal. Any Bangladeshi mobile number and any 4-5 digit PIN will be accepted.</p>
+                    <p class="dh-muted">@L["This is a practice payment page. Any Bangladeshi mobile number and a 4- or 5-digit PIN will be accepted."]</p>
                     @if (_verificationError is not null)
                     {
                         <p class="md-msg md-msg--bad">@_verificationError</p>
                     }
                 </div>
                 <footer class="md-modal__foot">
-                    <button type="button" class="nx-btn nx-btn--ghost" disabled="@_paying" @onclick="BackToDocuments">Back</button>
-                    <button type="button" class="nx-btn md-btn--bkash" disabled="@_paying" @onclick="PayAndSubmit">@(_paying ? "Processing…" : $"Pay ৳{_verificationFee:N0}")</button>
+                    <button type="button" class="nx-btn nx-btn--ghost" disabled="@_paying" @onclick="BackToDocuments">@L["Back"]</button>
+                    <button type="button" class="nx-btn md-btn--bkash" disabled="@_paying" @onclick="PayAndSubmit">@(_paying ? L["Processing…"] : L["Pay ৳{0}", _verificationFee.ToString("N0")])</button>
                 </footer>
             }
             else
             {
                 var payment = _payment!;
                 <header class="md-modal__head">
-                    <h2>Payment successful</h2>
-                    <button type="button" class="md-modal__close" @onclick="CloseVerification" aria-label="Close">&times;</button>
+                    <h2>@L["Payment successful"]</h2>
+                    <button type="button" class="md-modal__close" @onclick="CloseVerification" aria-label='@L["Close"]'>&times;</button>
                 </header>
                 <div class="md-modal__body md-modal__body--stack">
                     <div class="md-bkash__done">
                         <span class="md-bkash__tick" aria-hidden="true">&#10003;</span>
-                        <p class="md-bkash__done-title">৳@payment.AmountBdt.ToString("N0") paid from @payment.BkashNumber</p>
-                        <p class="dh-muted">Transaction ID <b>@payment.TransactionId</b> &middot; @payment.PaidAtUtc.ToLocalTime().ToString("d MMM yyyy, h:mm tt")</p>
+                        <p class="md-bkash__done-title">@L["৳{0} paid from {1}", payment.AmountBdt.ToString("N0"), payment.BkashNumber]</p>
+                        <p class="dh-muted">@L["Transaction ID"] <b>@payment.TransactionId</b> &middot; @payment.PaidAtUtc.ToLocalTime().ToString("d MMM yyyy, h:mm tt")</p>
                     </div>
                     @if (_applicationSent)
                     {
-                        <p class="md-msg md-msg--good">Your photo and NID have been sent. An admin will review them soon.</p>
+                        <p class="md-msg md-msg--good">@L["Your photo and NID have been sent. An admin will review them soon."]</p>
                     }
                     else if (_submittingVerification)
                     {
-                        <p class="dh-muted">Sending your application…</p>
+                        <p class="dh-muted">@L["Sending your application…"]</p>
                     }
                     else if (_verificationError is not null)
                     {
@@ -544,12 +545,12 @@
                 <footer class="md-modal__foot">
                     @if (_applicationSent)
                     {
-                        <button type="button" class="nx-btn nx-btn--accent" @onclick="CloseVerification">Done</button>
+                        <button type="button" class="nx-btn nx-btn--accent" @onclick="CloseVerification">@L["Done"]</button>
                     }
                     else
                     {
-                        <button type="button" class="nx-btn nx-btn--ghost" @onclick="CloseVerification">Close</button>
-                        <button type="button" class="nx-btn nx-btn--accent" disabled="@_submittingVerification" @onclick="SendApplication">@(_submittingVerification ? "Sending…" : "Send application again")</button>
+                        <button type="button" class="nx-btn nx-btn--ghost" @onclick="CloseVerification">@L["Close"]</button>
+                        <button type="button" class="nx-btn nx-btn--accent" disabled="@_submittingVerification" @onclick="SendApplication">@L[_submittingVerification ? "Sending…" : "Send application again"]</button>
                     }
                 </footer>
             }
@@ -604,22 +605,22 @@
     private EditSection FirstMissing => MissingSections.FirstOrDefault(EditSection.Services);
     private string FirstMissingLabel => SectionLabel(FirstMissing).ToLowerInvariant();
 
-    private static string SectionLabel(EditSection section) => section switch
+    private string SectionLabel(EditSection section) => L[section switch
     {
         EditSection.Account => "Account",
         EditSection.About => "About me",
         EditSection.Services => "Services and rate",
         EditSection.Address => "Where you live",
         _ => "Profile"
-    };
+    }];
 
     private string EditTitle => _edit switch
     {
-        EditSection.Account => "Edit account",
-        EditSection.About => "Edit about me",
-        EditSection.Services => "Edit services and rate",
-        EditSection.Address => "Edit where you live",
-        _ => "Edit"
+        EditSection.Account => L["Edit account"].Value,
+        EditSection.About => L["Edit about me"].Value,
+        EditSection.Services => L["Edit services and rate"].Value,
+        EditSection.Address => L["Edit where you live"].Value,
+        _ => L["Edit"].Value
     };
 
     private enum VerificationStep { Documents, Payment, Done }
@@ -657,10 +658,10 @@
         {
             P = await Helpers.GetMyProfileAsync();
         }
-        catch (Exception ex)
+        catch
         {
             P = null;
-            _loadError = ex.Message;
+            _loadError = L["We could not load your profile. Please try again."].Value;
         }
         _loading = false;
     }
@@ -674,7 +675,7 @@
     {
         if (e.File.Size > 5 * 1024 * 1024)
         {
-            Toast.ShowWarning("The picture must be 5 MB or smaller.", "Photo");
+            Toast.ShowWarning(L["The photo must be 5 MB or smaller."], L["Photo"]);
             return;
         }
 
@@ -682,11 +683,11 @@
         try
         {
             P = await Helpers.UploadPhotoAsync(e.File);
-            Toast.ShowSuccess("Profile photo updated.", "Photo");
+            Toast.ShowSuccess(L["Profile photo updated."], L["Photo"]);
         }
-        catch (Exception ex)
+        catch
         {
-            Toast.ShowWarning(ex.Message, "Photo");
+            Toast.ShowWarning(L["Could not update your photo. Please try again."], L["Photo"]);
         }
         finally
         {
@@ -776,10 +777,10 @@
 
         _editError = _edit switch
         {
-            EditSection.Services when _draft.Services.Count == 0 => "Pick at least one service.",
-            EditSection.Services when _draft.MonthlyRate <= 0 => "Set a monthly rate.",
-            EditSection.Address when _draft.UpazilaId is null => "Pick the area where you live.",
-            EditSection.Address when string.IsNullOrWhiteSpace(_draft.AddressLine) => "Write your address.",
+            EditSection.Services when _draft.Services.Count == 0 => L["Choose at least one service."].Value,
+            EditSection.Services when _draft.MonthlyRate <= 0 => L["Enter a monthly rate."].Value,
+            EditSection.Address when _draft.UpazilaId is null => L["Choose the area where you live."].Value,
+            EditSection.Address when string.IsNullOrWhiteSpace(_draft.AddressLine) => L["Enter your address."].Value,
             _ => null
         };
         if (_editError is not null) return;
@@ -791,11 +792,11 @@
             P = await Helpers.UpdateProfileAsync(_draft);
             _saving = false;
             await CloseEdit();
-            Toast.ShowSuccess($"{SectionLabel(section)} saved.", "Profile");
+            Toast.ShowSuccess(L["{0} saved.", SectionLabel(section)], L["Profile"]);
         }
-        catch (Exception ex)
+        catch
         {
-            _editError = ex.Message;
+            _editError = L["Could not save your profile changes. Please try again."];
         }
         finally
         {
@@ -814,11 +815,11 @@
             availability.IsAvailable = true;
             await Helpers.SaveAvailabilityAsync(availability);
             P = await Helpers.GetMyProfileAsync();
-            Toast.ShowSuccess("Bachelors can now find and book you.", "Accepting bookings");
+            Toast.ShowSuccess(L["Clients can now find and request you."], L["Accepting bookings"]);
         }
-        catch (Exception ex)
+        catch
         {
-            Toast.ShowWarning(ex.Message, "Accepting bookings");
+            Toast.ShowWarning(L["Could not enable bookings. Please try again."], L["Accepting bookings"]);
         }
         finally
         {
@@ -844,10 +845,10 @@
 
     private async Task SavePassword()
     {
-        if (string.IsNullOrWhiteSpace(_currentPassword)) { _passwordError = "Enter your current password."; return; }
-        if (_newPassword.Length < 8) { _passwordError = "The new password needs at least 8 characters."; return; }
-        if (_newPassword != _confirmPassword) { _passwordError = "The two new passwords don't match."; return; }
-        if (_newPassword == _currentPassword) { _passwordError = "The new password must be different from the current one."; return; }
+        if (string.IsNullOrWhiteSpace(_currentPassword)) { _passwordError = L["Enter your current password."]; return; }
+        if (_newPassword.Length < 8) { _passwordError = L["The new password needs at least 8 characters."]; return; }
+        if (_newPassword != _confirmPassword) { _passwordError = L["The two new passwords do not match."]; return; }
+        if (_newPassword == _currentPassword) { _passwordError = L["The new password must differ from your current password."]; return; }
 
         _passwordError = null;
         _savingPassword = true;
@@ -855,11 +856,11 @@
         {
             await AuthService.ChangePasswordAsync(_currentPassword, _newPassword);
             _showPassword = false;
-            Toast.ShowSuccess("Password updated.", "Security");
+            Toast.ShowSuccess(L["Password updated."], L["Security"]);
         }
-        catch (Exception ex)
+        catch
         {
-            _passwordError = ex.Message;
+            _passwordError = L["Could not update your password. Please try again."];
         }
         finally
         {
@@ -923,7 +924,7 @@
     {
         if (_photoFile is null || _nidFile is null)
         {
-            _verificationError = "Add both photos to continue.";
+            _verificationError = L["Add both photos to continue."];
             return;
         }
 
@@ -953,9 +954,9 @@
             _nidContentType = _nidFile.ContentType;
             _nidName = _nidFile.Name;
         }
-        catch (Exception ex)
+        catch
         {
-            _verificationError = ex.Message;
+            _verificationError = L["Could not prepare your documents. Please select both photos again."];
             return;
         }
 
@@ -982,12 +983,12 @@
         var number = _bkashNumber.Trim();
         if (!LooksLikeBangladeshiNumber(number))
         {
-            _verificationError = "Enter a valid number like 01712345678.";
+            _verificationError = L["Enter a valid Bangladeshi mobile number, such as 01712345678."];
             return;
         }
         if (_bkashPin.Length is < 4 or > 5 || !_bkashPin.All(char.IsDigit))
         {
-            _verificationError = "The bKash PIN must be 4 or 5 digits.";
+            _verificationError = L["The bKash PIN must contain 4 or 5 digits."];
             return;
         }
 
@@ -999,9 +1000,9 @@
             _bkashPin = string.Empty;
             _verificationStep = VerificationStep.Done;
         }
-        catch (Exception ex)
+        catch
         {
-            _verificationError = ex.Message;
+            _verificationError = L["Payment could not be completed. Please check your details and try again."];
             return;
         }
         finally
@@ -1029,9 +1030,9 @@
             _applicationSent = true;
             P = await Helpers.GetMyProfileAsync();
         }
-        catch (Exception ex)
+        catch
         {
-            _verificationError = ex.Message;
+            _verificationError = L["Could not submit your verification request. Please try again."];
         }
         finally
         {
@@ -1046,11 +1047,11 @@
         {
             await Helpers.CancelVerificationAsync();
             P = await Helpers.GetMyProfileAsync();
-            Toast.ShowInfo("Your verification application was withdrawn.", "Verification");
+            Toast.ShowInfo(L["Your verification application was withdrawn."], L["Verification"]);
         }
-        catch (Exception ex)
+        catch
         {
-            Toast.ShowWarning(ex.Message, "Verification");
+            Toast.ShowWarning(L["Could not withdraw your application. Please try again."], L["Verification"]);
         }
         finally
         {

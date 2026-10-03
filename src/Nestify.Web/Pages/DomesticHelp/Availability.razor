@@ -2,28 +2,29 @@
 @layout HelperLayout
 @attribute [Authorize(Roles = "DomesticHelper,DomesticHelp,Maid,Helper")]
 @using Nestify.Shared.Dtos.Helpers
+@inject IStringLocalizer<SharedResource> L
 @inject IHelperService Helpers
 @inject Nestify.Web.Services.ToastService Toast
 
-<PageTitle>Availability — Nestify</PageTitle>
+<PageTitle>@L["Availability"] — Nestify</PageTitle>
 
 <div class="dh md">
     <div class="dh__inner">
         <header class="dh-head md-head dh-rise">
             <div>
-                <p class="dh-kicker">Helper workspace</p>
-                <h1>Set your hours</h1>
-                <p>Tap the hours you can work each week, Saturday to Friday. Bachelors see this board when they book you, so keep it honest and up to date.</p>
+                <p class="dh-kicker">@L["HELPER WORKSPACE"]</p>
+                <h1>@L["Set your hours"]</h1>
+                <p>@L["Choose the hours you can work each week, from Saturday to Friday. Clients see this schedule when they request you, so keep it accurate and up to date."]</p>
             </div>
 
             <div class="md-switch-card">
                 <div class="md-switch-card__text">
-                    <strong>@(_available ? "Accepting bookings" : "Paused")</strong>
-                    <span>@(_available ? "You appear in search and can receive requests." : "Hidden from search. Current jobs continue as normal.")</span>
+                    <strong>@L[_available ? "Accepting bookings" : "Paused"]</strong>
+                    <span>@L[_available ? "You appear in search and can receive requests." : "Hidden from search. Current jobs continue as normal."]</span>
                 </div>
                 <button type="button" class="md-switch @(_available ? "md-switch--on" : null)"
                         role="switch" aria-checked="@_available.ToString().ToLowerInvariant()"
-                        aria-label="Available for new bookings" disabled="@(!CanEdit)" @onclick="ToggleAvailable">
+                        aria-label='@L["Available for new bookings"]' disabled="@(!CanEdit)" @onclick="ToggleAvailable">
                     <span class="md-switch__knob"></span>
                 </button>
             </div>
@@ -32,19 +33,19 @@
         <div class="md-stats dh-rise" style="--d:60ms">
             <div class="md-stat">
                 <span class="md-stat__value">@_openCount</span>
-                <span class="md-stat__label">open hours / week</span>
+                <span class="md-stat__label">@L["Open hours per week"]</span>
             </div>
             <div class="md-stat">
                 <span class="md-stat__value">@_bookedCount</span>
-                <span class="md-stat__label">booked hours</span>
+                <span class="md-stat__label">@L["Booked hours"]</span>
             </div>
             <div class="md-stat">
                 <span class="md-stat__value">@_daysWorking</span>
-                <span class="md-stat__label">working days</span>
+                <span class="md-stat__label">@L["Working days"]</span>
             </div>
             <div class="md-stat md-stat--soft">
                 <span class="md-stat__value">@_dirtyCount</span>
-                <span class="md-stat__label">unsaved changes</span>
+                <span class="md-stat__label">@L["Unsaved changes"]</span>
             </div>
         </div>
 
@@ -55,38 +56,38 @@
                     @_availabilityError
                     @if (!_loading)
                     {
-                        <button type="button" class="dh-picks__clear" @onclick="LoadAvailabilityAsync">Try again</button>
+                        <button type="button" class="dh-picks__clear" @onclick="LoadAvailabilityAsync">@L["Try again"]</button>
                     }
                 </div>
             }
 
             <div class="md-board__top">
                 <div class="md-weeknav__label">
-                    <strong>Weekly pattern</strong>
-                    <span>Saturday to Friday, repeats every week</span>
+                    <strong>@L["Weekly pattern"]</strong>
+                    <span>@L["Saturday to Friday, repeats every week"]</span>
                 </div>
 
                 <ul class="dh-legend md-legend">
-                    <li><span class="dh-key dh-key--free"></span>Open</li>
-                    <li><span class="dh-key dh-key--booked"></span>Booked</li>
-                    <li><span class="dh-key dh-key--off"></span>Off</li>
+                    <li><span class="dh-key dh-key--free"></span>@L["Open"]</li>
+                    <li><span class="dh-key dh-key--booked"></span>@L["Booked"]</li>
+                    <li><span class="dh-key dh-key--off"></span>@L["Off"]</li>
                 </ul>
             </div>
 
             <div class="md-presets">
-                <span class="md-presets__label">Quick fill</span>
+                <span class="md-presets__label">@L["Quick fill"]</span>
                 <div class="md-presets__row">
-                    <button type="button" class="dh-chip" disabled="@(!CanEdit)" @onclick="() => ApplyPreset(6, 12)">Mornings</button>
-                    <button type="button" class="dh-chip" disabled="@(!CanEdit)" @onclick="() => ApplyPreset(12, 17)">Afternoons</button>
-                    <button type="button" class="dh-chip" disabled="@(!CanEdit)" @onclick="() => ApplyPreset(17, 22)">Evenings</button>
-                    <button type="button" class="dh-chip" disabled="@(!CanEdit)" @onclick="() => ApplyPreset(8, 18)">Office hours</button>
-                    <button type="button" class="dh-chip" disabled="@(!CanEdit)" @onclick="() => ApplyPreset(6, 24)">Full days</button>
-                    <button type="button" class="dh-chip md-chip--clear" disabled="@(!CanEdit)" @onclick="ClearWeek">Clear week</button>
+                    <button type="button" class="dh-chip" disabled="@(!CanEdit)" @onclick="() => ApplyPreset(6, 12)">@L["Mornings"]</button>
+                    <button type="button" class="dh-chip" disabled="@(!CanEdit)" @onclick="() => ApplyPreset(12, 17)">@L["Afternoons"]</button>
+                    <button type="button" class="dh-chip" disabled="@(!CanEdit)" @onclick="() => ApplyPreset(17, 22)">@L["Evenings"]</button>
+                    <button type="button" class="dh-chip" disabled="@(!CanEdit)" @onclick="() => ApplyPreset(8, 18)">@L["Office hours"]</button>
+                    <button type="button" class="dh-chip" disabled="@(!CanEdit)" @onclick="() => ApplyPreset(6, 24)">@L["Full days"]</button>
+                    <button type="button" class="dh-chip md-chip--clear" disabled="@(!CanEdit)" @onclick="ClearWeek">@L["Clear week"]</button>
                 </div>
             </div>
 
             <div class="md-grid-wrap" @onpointerup="StopPaint" @onpointerleave="StopPaint">
-                <div class="md-grid" role="grid" aria-label="Weekly availability" style="--cols:@Week.Length">
+                <div class="md-grid" role="grid" aria-label='@L["Weekly availability"]' style="--cols:@Week.Length">
                     <div class="md-grid__corner" role="columnheader"></div>
                     @foreach (var day in Week)
                     {
@@ -95,12 +96,12 @@
                         var open = OpenCountForDay(d);
                         <button type="button" role="columnheader"
                                 class="md-grid__day @(isToday ? "md-grid__day--today" : null) @(open > 0 ? "md-grid__day--on" : null)"
-                                title="Toggle the whole day"
+                                title='@L["Toggle the whole day"]'
                                 disabled="@(!CanEdit)"
                                 @onclick="() => ToggleDay(d)">
                             <span class="md-grid__dow">@DayShort(d)</span>
                             <span class="md-grid__date">@DayLetter(d)</span>
-                            <span class="md-grid__tally">@open<span>h</span></span>
+                            <span class="md-grid__tally">@open<span>@L["hours short"]</span></span>
                         </button>
                     }
 
@@ -114,7 +115,7 @@
                             var state = _week.GetValueOrDefault(key);
                             var booked = state == SlotState.Booked;
                             var changed = _saved.GetValueOrDefault(key) != state;
-                            var label = $"{day}, {RangeLabel(h, h + 1)} — {StateLabel(state)}";
+                            var label = L["{0}, {1} — {2}", DayName(day), RangeLabel(h, h + 1), StateLabel(state)].Value;
 
                             <button type="button" role="gridcell"
                                     class="md-cell md-cell--@state.ToString().ToLowerInvariant() @(changed ? "md-cell--changed" : null)"
@@ -135,17 +136,17 @@
                 </div>
             </div>
 
-            <p class="dh-sched__note">Booked hours are locked by the home that booked them. The same pattern repeats every week.</p>
+            <p class="dh-sched__note">@L["Booked hours are locked by the home that booked them. The same pattern repeats every week."]</p>
         </section>
     </div>
 
     <div class="md-savebar @(_dirtyCount > 0 ? "md-savebar--show" : null)" aria-live="polite">
         <div class="md-savebar__inner">
             <span class="md-savebar__text">
-                <strong>@_dirtyCount</strong> @(_dirtyCount == 1 ? "hour" : "hours") changed
+                @L["{0} hours changed", _dirtyCount]
             </span>
-            <button type="button" class="nx-btn nx-btn--ghost" @onclick="Discard" disabled="@(!CanEdit || _saving)">Discard</button>
-            <button type="button" class="nx-btn nx-btn--accent" @onclick="Save" disabled="@(!CanEdit || _saving)">@(_saving ? "Saving…" : "Save hours")</button>
+            <button type="button" class="nx-btn nx-btn--ghost" @onclick="Discard" disabled="@(!CanEdit || _saving)">@L["Discard"]</button>
+            <button type="button" class="nx-btn nx-btn--accent" @onclick="Save" disabled="@(!CanEdit || _saving)">@L[_saving ? "Saving…" : "Save hours"]</button>
         </div>
     </div>
 </div>
@@ -184,13 +185,13 @@
             var availability = await Helpers.GetAvailabilityAsync();
             if (availability is null)
             {
-                throw new InvalidOperationException("The availability service did not return a schedule.");
+                throw new InvalidOperationException(L["The availability service did not return a schedule."]);
             }
             if (availability.Slots is null || availability.Slots.Count != 7 * 18
                 || availability.Slots.Any(s => s.DayOfWeek is < 0 or > 6 || s.Hour is < StartHour or >= EndHour)
                 || availability.Slots.Select(s => (s.DayOfWeek, s.Hour)).Distinct().Count() != 7 * 18)
             {
-                throw new InvalidOperationException("The availability service returned an incomplete weekly board.");
+                throw new InvalidOperationException(L["The availability service returned an incomplete weekly board."]);
             }
 
             _available = availability.IsAvailable;
@@ -207,8 +208,8 @@
         }
         catch
         {
-            _availabilityError = "Could not load your saved hours. Check your connection and try again.";
-            Toast.ShowError(_availabilityError, "Availability not loaded");
+            _availabilityError = L["Could not load your saved hours. Check your connection and try again."];
+            Toast.ShowError(_availabilityError, L["Availability not loaded"]);
         }
         finally
         {
@@ -239,15 +240,21 @@
     private int OpenCountForDay(DayOfWeek day) =>
         _week.Count(kv => kv.Key.Day == day && kv.Value != SlotState.Off);
 
-    private static string DayShort(DayOfWeek day) => day.ToString()[..3];
-    private static string DayLetter(DayOfWeek day) => day.ToString()[..1];
+    private static string DayShort(DayOfWeek day) => System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedDayName(day);
+    private static string DayLetter(DayOfWeek day)
+    {
+        var abbreviated = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedDayName(day);
+        var elements = System.Globalization.StringInfo.GetTextElementEnumerator(abbreviated);
+        return elements.MoveNext() ? (string)elements.Current! : abbreviated;
+    }
+    private static string DayName(DayOfWeek day) => System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetDayName(day);
 
-    private static string StateLabel(SlotState state) => state switch
+    private string StateLabel(SlotState state) => L[state switch
     {
         SlotState.Open => "Open",
         SlotState.Booked => "Booked",
         _ => "Off"
-    };
+    }].Value;
 
     private bool Editable((DayOfWeek Day, int Hour) key) => _week[key] != SlotState.Booked;
 
@@ -337,12 +344,12 @@
             // This also keeps subsequent edits and Discard aligned with the API.
             _saved = new(_week);
             Recount();
-            Toast.ShowSuccess($"{_openCount} open hours a week published.", "Hours saved");
+            Toast.ShowSuccess(L["{0} open hours a week published.", _openCount], L["Hours saved"]);
         }
-        catch (Exception ex)
+        catch
         {
-            _availabilityError = $"Could not save your hours: {ex.Message}";
-            Toast.ShowError(_availabilityError, "Hours not saved");
+            _availabilityError = L["Could not save your hours. Please try again."];
+            Toast.ShowError(_availabilityError, L["Hours not saved"]);
         }
         finally
         {
@@ -376,13 +383,13 @@
                 }).ToList()
             };
             await Helpers.SaveAvailabilityAsync(dto);
-            Toast.ShowInfo(_available ? "You are visible to bachelors again." : "You are hidden from new bookings.",
-                _available ? "Accepting bookings" : "Paused");
+            Toast.ShowInfo(L[_available ? "You are visible to clients again." : "You are hidden from new bookings."],
+                L[_available ? "Accepting bookings" : "Paused"]);
         }
-        catch (Exception ex)
+        catch
         {
             _available = !_available; // revert optimistic change
-            Toast.ShowWarning(ex.Message, "Availability");
+            Toast.ShowWarning(L["Could not update your availability. Please try again."], L["Availability"]);
         }
     }
 

@@ -5,20 +5,20 @@
 @inject IHelperService Helpers
 @inject IStringLocalizer<SharedResource> L
 
-<PageTitle>My schedule — Nestify</PageTitle>
+<PageTitle>@L["My schedule"] — Nestify</PageTitle>
 
 <div class="dh md md-schedule">
     <div class="dh__inner">
         <header class="dh-head md-head dh-rise">
             <div>
-                <p class="dh-kicker">Helper workspace</p>
-                <h1>My schedule</h1>
-                <p>Every visit you have agreed to, day by day. Booked hours here are locked on your availability board.</p>
+                <p class="dh-kicker">@L["HELPER WORKSPACE"]</p>
+                <h1>@L["My schedule"]</h1>
+                <p>@L["Review your agreed visits by day. Booked hours are locked on your availability board."]</p>
             </div>
             @if (NextVisit is { } next)
             {
                 <div class="md-next">
-                    <span class="md-next__label">Next up</span>
+                    <span class="md-next__label">@L["Next up"]</span>
                     <strong class="md-next__title">@next.ClientName</strong>
                     <span class="md-next__meta">@RelativeDay(next.Date) · @RangeLabel(next.StartHour, next.EndHour)</span>
                     <span class="md-next__meta">@next.Service · @next.Area</span>
@@ -29,40 +29,40 @@
         <div class="md-stats dh-rise" style="--d:60ms">
             <div class="md-stat">
                 <span class="md-stat__value">@WeekVisits.Count</span>
-                <span class="md-stat__label">visits this week</span>
+                <span class="md-stat__label">@L["Visits this week"]</span>
             </div>
             <div class="md-stat">
                 <span class="md-stat__value">@WeekHours</span>
-                <span class="md-stat__label">hours this week</span>
+                <span class="md-stat__label">@L["Hours this week"]</span>
             </div>
             <div class="md-stat">
                 <span class="md-stat__value">@WeekVisits.Select(v => v.ClientName).Distinct().Count()</span>
-                <span class="md-stat__label">homes</span>
+                <span class="md-stat__label">@L["Homes"]</span>
             </div>
             <div class="md-stat md-stat--soft">
                 <span class="md-stat__value">@WeekVisits.Count(v => v.IsDone)</span>
-                <span class="md-stat__label">done</span>
+                <span class="md-stat__label">@L["Completed"]</span>
             </div>
         </div>
 
         <section class="dh-panel dh-rise" style="--d:120ms">
             <div class="md-board__top">
-                <div class="md-weeknav" role="group" aria-label="Week">
-                    <button type="button" class="md-weeknav__btn" @onclick="() => MoveWeek(-1)" aria-label="Previous week">
+                <div class="md-weeknav" role="group" aria-label='@L["Week"]'>
+                    <button type="button" class="md-weeknav__btn" @onclick="() => MoveWeek(-1)" aria-label='@L["Previous week"]'>
                         <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
                     </button>
                     <div class="md-weeknav__label">
                         <strong>@WeekTitle</strong>
                         <span>@_weekStart.ToString("d MMM") – @_weekStart.AddDays(6).ToString("d MMM yyyy")</span>
                     </div>
-                    <button type="button" class="md-weeknav__btn" @onclick="() => MoveWeek(1)" aria-label="Next week">
+                    <button type="button" class="md-weeknav__btn" @onclick="() => MoveWeek(1)" aria-label='@L["Next week"]'>
                         <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
                     </button>
                 </div>
                 <button type="button" class="dh-chip" @onclick="GoToday">@L["Today"]</button>
             </div>
 
-            <div class="md-days" role="tablist" aria-label="Days">
+            <div class="md-days" role="tablist" aria-label='@L["Days"]'>
                 @for (var d = 0; d < 7; d++)
                 {
                     var date = _weekStart.AddDays(d);
@@ -79,7 +79,7 @@
                                 <i></i>
                             }
                         </span>
-                        <span class="nx-sr-only">@count visits</span>
+                        <span class="nx-sr-only">@L["{0} visits", count]</span>
                     </button>
                 }
             </div>
@@ -87,7 +87,7 @@
             <div class="md-agenda" @key="_selected">
                 <div class="md-agenda__head">
                     <h2>@_selected.ToString("dddd, d MMMM")</h2>
-                    <span class="dh-pill">@(DayVisits.Count == 0 ? "Free day" : $"{DayHours} h · {DayVisits.Count} visit{(DayVisits.Count == 1 ? "" : "s")}")</span>
+                    <span class="dh-pill">@(DayVisits.Count == 0 ? L["Free day"].Value : L["{0} hours · {1} visits", DayHours, DayVisits.Count].Value)</span>
                 </div>
 
                 @if (DayVisits.Count == 0)
@@ -96,9 +96,9 @@
                         <span class="dh-empty__art" aria-hidden="true">
                             <svg class="nx-icon" viewBox="0 0 24 24"><path d="M3 12h4l2-6 4 12 2-6h6" /></svg>
                         </span>
-                        <h3>Nothing booked</h3>
-                        <p>Keep hours open on your availability board and bachelors can book this day.</p>
-                        <a class="nx-btn nx-btn--ghost" href="helpers/availability">Open availability</a>
+                        <h3>@L["Nothing booked"]</h3>
+                        <p>@L["Keep hours open on your availability board so clients can book this day."]</p>
+                        <a class="nx-btn nx-btn--ghost" href="helpers/availability">@L["Open availability"]</a>
                     </div>
                 }
                 else
@@ -110,7 +110,7 @@
                             <li class="md-visit md-visit--@(v.IsDone ? "done" : "upcoming") dh-rise" style="--d:@(i * 60)ms">
                                 <div class="md-visit__time">
                                     <strong>@HourLabel(v.StartHour)</strong>
-                                    <span>@(v.EndHour - v.StartHour) h</span>
+                                    <span>@L["{0} hours short", v.EndHour - v.StartHour]</span>
                                 </div>
                                 <div class="md-visit__rail" aria-hidden="true"><i></i></div>
                                 <div class="md-visit__card">
@@ -120,7 +120,7 @@
                                             <strong>@v.ClientName</strong>
                                             <span>@v.Service · @v.Area</span>
                                         </div>
-                                        <span class="md-status md-status--@(v.IsDone ? "done" : "upcoming")">@(v.IsDone ? "Done" : "Upcoming")</span>
+                                <span class="md-status md-status--@(v.IsDone ? "done" : "upcoming")">@L[v.IsDone ? "Completed" : "Upcoming"]</span>
                                     </div>
                                     <div class="md-visit__foot">
                                         <span>
@@ -139,8 +139,8 @@
 
         <section class="dh-panel dh-rise" style="--d:180ms">
             <div class="dh-panel__head">
-                <h2>Week at a glance</h2>
-                <span class="dh-count">@WeekHours h</span>
+                <h2>@L["Week at a glance"]</h2>
+                <span class="dh-count">@L["{0} hours short", WeekHours]</span>
             </div>
             <div class="md-week">
                 @for (var d = 0; d < 7; d++)
@@ -162,11 +162,11 @@
                                       title="@v.ClientName · @RangeLabel(v.StartHour, v.EndHour)"></span>
                             }
                         </div>
-                        <span class="md-week__sum">@(visits.Count == 0 ? "—" : $"{visits.Sum(v => v.EndHour - v.StartHour)} h")</span>
+                        <span class="md-week__sum">@(visits.Count == 0 ? "—" : $"{visits.Sum(v => v.EndHour - v.StartHour)} {L["hours short"]}")</span>
                     </div>
                 }
                 <div class="md-week__axis" aria-hidden="true">
-                    <span>6 AM</span><span>12 PM</span><span>6 PM</span><span>12 AM</span>
+                    <span>@L["6 AM"]</span><span>@L["12 PM"]</span><span>@L["6 PM"]</span><span>@L["12 AM"]</span>
                 </div>
             </div>
         </section>
@@ -184,9 +184,9 @@
             var diff = (_weekStart - StartOfWeek(DateTime.Today)).Days / 7;
             return diff switch
             {
-                0 => "This week",
-                1 => "Next week",
-                -1 => "Last week",
+                0 => L["This week"].Value,
+                1 => L["Next week"].Value,
+                -1 => L["Last week"].Value,
                 _ => _weekStart.ToString("MMMM")
             };
         }

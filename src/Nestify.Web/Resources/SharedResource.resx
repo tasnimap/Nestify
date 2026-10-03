@@ -109,4 +109,302 @@
   <data name="{0}h ago" xml:space="preserve"><value>{0}h ago</value></data>
   <data name="{0}d ago" xml:space="preserve"><value>{0}d ago</value></data>
   <data name="." xml:space="preserve"><value>.</value></data>
+  <data name="{0} days ago" xml:space="preserve"><value>{0} days ago</value></data>
+  <data name="{0} hours · {1} visits" xml:space="preserve"><value>{0} hours · {1} visits</value></data>
+  <data name="{0} hours per week" xml:space="preserve"><value>{0} hours per week</value></data>
+  <data name="{0} is now a current engagement." xml:space="preserve"><value>{0} is now a current engagement.</value></data>
+  <data name="{0} is now a current engagement. {1} hours a week were added to your schedule." xml:space="preserve"><value>{0} is now a current engagement. {1} hours a week were added to your schedule.</value></data>
+  <data name="{0} months ago" xml:space="preserve"><value>{0} months ago</value></data>
+  <data name="{0} of {1} visits" xml:space="preserve"><value>{0} of {1} visits</value></data>
+  <data name="{0} open hours a week published." xml:space="preserve"><value>{0} open hours a week published.</value></data>
+  <data name="{0} out of 5 stars" xml:space="preserve"><value>{0} out of 5 stars</value></data>
+  <data name="{0} out of 5 stars, {1} reviews" xml:space="preserve"><value>{0} out of 5 stars, {1} reviews</value></data>
+  <data name="{0} per month" xml:space="preserve"><value>{0} per month</value></data>
+  <data name="{0} reviews" xml:space="preserve"><value>{0} reviews</value></data>
+  <data name="{0} reviews · {1} average rating" xml:space="preserve"><value>{0} reviews · {1} average rating</value></data>
+  <data name="{0} saved." xml:space="preserve"><value>{0} saved.</value></data>
+  <data name="{0} stars" xml:space="preserve"><value>{0} stars</value></data>
+  <data name="{0} visits" xml:space="preserve"><value>{0} visits</value></data>
+  <data name="{0} visits booked" xml:space="preserve"><value>{0} visits booked</value></data>
+  <data name="{0} weeks ago" xml:space="preserve"><value>{0} weeks ago</value></data>
+  <data name="{0} will be told you are not available." xml:space="preserve"><value>{0} will be told you are not available.</value></data>
+  <data name="{0} will see your note." xml:space="preserve"><value>{0} will see your note.</value></data>
+  <data name="{0} years" xml:space="preserve"><value>{0} years</value></data>
+  <data name="{0}–{1} of {2}" xml:space="preserve"><value>{0}–{1} of {2}</value></data>
+  <data name="৳{0} paid from {1}" xml:space="preserve"><value>৳{0} paid from {1}</value></data>
+  <data name="3 stars and below" xml:space="preserve"><value>3 stars and below</value></data>
+  <data name="4 or 5 digits" xml:space="preserve"><value>4 or 5 digits</value></data>
+  <data name="A thoughtful, concise reply helps new clients see that you listen." xml:space="preserve"><value>A thoughtful, concise reply helps new clients see that you listen.</value></data>
+  <data name="Accept" xml:space="preserve"><value>Accept</value></data>
+  <data name="Accept a request and it will appear here." xml:space="preserve"><value>Accept a request and it will appear here.</value></data>
+  <data name="Accept request" xml:space="preserve"><value>Accept request</value></data>
+  <data name="Accepted" xml:space="preserve"><value>Accepted</value></data>
+  <data name="Accepting bookings" xml:space="preserve"><value>Accepting bookings</value></data>
+  <data name="Active" xml:space="preserve"><value>Active</value></data>
+  <data name="Active jobs" xml:space="preserve"><value>Active jobs</value></data>
+  <data name="Add a headline so clients know what you do best." xml:space="preserve"><value>Add a headline so clients know what you do best.</value></data>
+  <data name="Add both photos to continue." xml:space="preserve"><value>Add both photos to continue.</value></data>
+  <data name="Add your services, monthly rate and area to your profile. Then you can accept bookings and apply for verification." xml:space="preserve"><value>Add your services, monthly rate and area to your profile. Then you can accept bookings and apply for verification.</value></data>
+  <data name="Address" xml:space="preserve"><value>Address</value></data>
+  <data name="Afternoons" xml:space="preserve"><value>Afternoons</value></data>
+  <data name="All ({0})" xml:space="preserve"><value>All ({0})</value></data>
+  <data name="All reviews" xml:space="preserve"><value>All reviews</value></data>
+  <data name="Already booked by another home" xml:space="preserve"><value>Already booked by another home</value></data>
+  <data name="Amount" xml:space="preserve"><value>Amount</value></data>
+  <data name="An admin checked your photo and NID. Clients can see the verified badge on your profile." xml:space="preserve"><value>An admin checked your photo and NID. Clients can see the verified badge on your profile.</value></data>
+  <data name="Apply for verification" xml:space="preserve"><value>Apply for verification</value></data>
+  <data name="Area" xml:space="preserve"><value>Area</value></data>
+  <data name="Availability not loaded" xml:space="preserve"><value>Availability not loaded</value></data>
+  <data name="Available for new bookings" xml:space="preserve"><value>Available for new bookings</value></data>
+  <data name="bKash PIN" xml:space="preserve"><value>bKash PIN</value></data>
+  <data name="Booked" xml:space="preserve"><value>Booked</value></data>
+  <data name="Booked hours" xml:space="preserve"><value>Booked hours</value></data>
+  <data name="Booked hours are locked by the home that booked them. The same pattern repeats every week." xml:space="preserve"><value>Booked hours are locked by the home that booked them. The same pattern repeats every week.</value></data>
+  <data name="Change my hours" xml:space="preserve"><value>Change my hours</value></data>
+  <data name="Change password" xml:space="preserve"><value>Change password</value></data>
+  <data name="Choose a clear photo of your face" xml:space="preserve"><value>Choose a clear photo of your face</value></data>
+  <data name="Choose a clear photo of your NID" xml:space="preserve"><value>Choose a clear photo of your NID</value></data>
+  <data name="Choose at least one service." xml:space="preserve"><value>Choose at least one service.</value></data>
+  <data name="Choose the area where you live." xml:space="preserve"><value>Choose the area where you live.</value></data>
+  <data name="Choose the hours you can work each week, from Saturday to Friday. Clients see this schedule when they request you, so keep it accurate and up to date." xml:space="preserve"><value>Choose the hours you can work each week, from Saturday to Friday. Clients see this schedule when they request you, so keep it accurate and up to date.</value></data>
+  <data name="Clear week" xml:space="preserve"><value>Clear week</value></data>
+  <data name="Click the map or drag the pin to your home." xml:space="preserve"><value>Click the map or drag the pin to your home.</value></data>
+  <data name="Clients can now find and request you." xml:space="preserve"><value>Clients can now find and request you.</value></data>
+  <data name="Complete" xml:space="preserve"><value>Complete</value></data>
+  <data name="Complete your profile first: add your services, rate and address before applying." xml:space="preserve"><value>Complete your profile first: add your services, rate and address before applying.</value></data>
+  <data name="Completed" xml:space="preserve"><value>Completed</value></data>
+  <data name="Confirm new password" xml:space="preserve"><value>Confirm new password</value></data>
+  <data name="Continue to payment" xml:space="preserve"><value>Continue to payment</value></data>
+  <data name="Could not accept this request. Please try again." xml:space="preserve"><value>Could not accept this request. Please try again.</value></data>
+  <data name="Could not decline this request. Please try again." xml:space="preserve"><value>Could not decline this request. Please try again.</value></data>
+  <data name="Could not enable bookings. Please try again." xml:space="preserve"><value>Could not enable bookings. Please try again.</value></data>
+  <data name="Could not load your saved hours. Check your connection and try again." xml:space="preserve"><value>Could not load your saved hours. Check your connection and try again.</value></data>
+  <data name="Could not mark this engagement complete. Please try again." xml:space="preserve"><value>Could not mark this engagement complete. Please try again.</value></data>
+  <data name="Could not post your reply. Please try again." xml:space="preserve"><value>Could not post your reply. Please try again.</value></data>
+  <data name="Could not prepare your documents. Please select both photos again." xml:space="preserve"><value>Could not prepare your documents. Please select both photos again.</value></data>
+  <data name="Could not save your hours: {0}" xml:space="preserve"><value>Could not save your hours: {0}</value></data>
+  <data name="Could not save your profile changes. Please try again." xml:space="preserve"><value>Could not save your profile changes. Please try again.</value></data>
+  <data name="Could not submit your verification request. Please try again." xml:space="preserve"><value>Could not submit your verification request. Please try again.</value></data>
+  <data name="Could not update your password. Please try again." xml:space="preserve"><value>Could not update your password. Please try again.</value></data>
+  <data name="Could not update your photo. Please try again." xml:space="preserve"><value>Could not update your photo. Please try again.</value></data>
+  <data name="Could not withdraw your application. Please try again." xml:space="preserve"><value>Could not withdraw your application. Please try again.</value></data>
+  <data name="Current" xml:space="preserve"><value>Current</value></data>
+  <data name="Current password" xml:space="preserve"><value>Current password</value></data>
+  <data name="Days" xml:space="preserve"><value>Days</value></data>
+  <data name="Decline" xml:space="preserve"><value>Decline</value></data>
+  <data name="Declined" xml:space="preserve"><value>Declined</value></data>
+  <data name="Describe your strongest skills in one line." xml:space="preserve"><value>Describe your strongest skills in one line.</value></data>
+  <data name="Discard" xml:space="preserve"><value>Discard</value></data>
+  <data name="District" xml:space="preserve"><value>District</value></data>
+  <data name="Division" xml:space="preserve"><value>Division</value></data>
+  <data name="Domestic Helper" xml:space="preserve"><value>Domestic Helper</value></data>
+  <data name="Done" xml:space="preserve"><value>Done</value></data>
+  <data name="Edit about me" xml:space="preserve"><value>Edit about me</value></data>
+  <data name="Edit account" xml:space="preserve"><value>Edit account</value></data>
+  <data name="Edit profile" xml:space="preserve"><value>Edit profile</value></data>
+  <data name="Edit services and rate" xml:space="preserve"><value>Edit services and rate</value></data>
+  <data name="Edit where you live" xml:space="preserve"><value>Edit where you live</value></data>
+  <data name="Email can&apos;t be changed here." xml:space="preserve"><value>Email can&apos;t be changed here.</value></data>
+  <data name="Enter a clear address that someone can follow." xml:space="preserve"><value>Enter a clear address that someone can follow.</value></data>
+  <data name="Enter a monthly rate." xml:space="preserve"><value>Enter a monthly rate.</value></data>
+  <data name="Enter a valid Bangladeshi mobile number, such as 01712345678." xml:space="preserve"><value>Enter a valid Bangladeshi mobile number, such as 01712345678.</value></data>
+  <data name="Enter your address." xml:space="preserve"><value>Enter your address.</value></data>
+  <data name="Enter your current password." xml:space="preserve"><value>Enter your current password.</value></data>
+  <data name="Evenings" xml:space="preserve"><value>Evenings</value></data>
+  <data name="Experience" xml:space="preserve"><value>Experience</value></data>
+  <data name="Fill in {0}" xml:space="preserve"><value>Fill in {0}</value></data>
+  <data name="Filter reviews" xml:space="preserve"><value>Filter reviews</value></data>
+  <data name="Finish your profile so clients can find you" xml:space="preserve"><value>Finish your profile so clients can find you</value></data>
+  <data name="For example, Bangla and basic English" xml:space="preserve"><value>For example, Bangla and basic English</value></data>
+  <data name="For example, those hours are already taken or the area is too far." xml:space="preserve"><value>For example, those hours are already taken or the area is too far.</value></data>
+  <data name="Free day" xml:space="preserve"><value>Free day</value></data>
+  <data name="Full days" xml:space="preserve"><value>Full days</value></data>
+  <data name="Full schedule" xml:space="preserve"><value>Full schedule</value></data>
+  <data name="Go to my profile" xml:space="preserve"><value>Go to my profile</value></data>
+  <data name="Headline" xml:space="preserve"><value>Headline</value></data>
+  <data name="Helper dashboard" xml:space="preserve"><value>Helper dashboard</value></data>
+  <data name="Helper verification fee" xml:space="preserve"><value>Helper verification fee</value></data>
+  <data name="HELPER WORKSPACE" xml:space="preserve"><value>HELPER WORKSPACE</value></data>
+  <data name="Highest rated" xml:space="preserve"><value>Highest rated</value></data>
+  <data name="Homes" xml:space="preserve"><value>Homes</value></data>
+  <data name="hours changed" xml:space="preserve"><value>hours changed</value></data>
+  <data name="Hours not saved" xml:space="preserve"><value>Hours not saved</value></data>
+  <data name="Hours saved" xml:space="preserve"><value>Hours saved</value></data>
+  <data name="hours short" xml:space="preserve"><value>hours short</value></data>
+  <data name="Hours this week" xml:space="preserve"><value>Hours this week</value></data>
+  <data name="Inbox is clear" xml:space="preserve"><value>Inbox is clear</value></data>
+  <data name="Joined" xml:space="preserve"><value>Joined</value></data>
+  <data name="Keep hours open on your availability board so clients can book this day." xml:space="preserve"><value>Keep hours open on your availability board so clients can book this day.</value></data>
+  <data name="Keep request" xml:space="preserve"><value>Keep request</value></data>
+  <data name="Languages" xml:space="preserve"><value>Languages</value></data>
+  <data name="Last week" xml:space="preserve"><value>Last week</value></data>
+  <data name="Lowest rated" xml:space="preserve"><value>Lowest rated</value></data>
+  <data name="Mark complete" xml:space="preserve"><value>Mark complete</value></data>
+  <data name="Marked complete" xml:space="preserve"><value>Marked complete</value></data>
+  <data name="Member since {0}" xml:space="preserve"><value>Member since {0}</value></data>
+  <data name="Merchant" xml:space="preserve"><value>Merchant</value></data>
+  <data name="month" xml:space="preserve"><value>month</value></data>
+  <data name="Monthly rate (৳)" xml:space="preserve"><value>Monthly rate (৳)</value></data>
+  <data name="Mornings" xml:space="preserve"><value>Mornings</value></data>
+  <data name="My reviews" xml:space="preserve"><value>My reviews</value></data>
+  <data name="My schedule" xml:space="preserve"><value>My schedule</value></data>
+  <data name="National ID (NID)" xml:space="preserve"><value>National ID (NID)</value></data>
+  <data name="Needs reply" xml:space="preserve"><value>Needs reply</value></data>
+  <data name="New password" xml:space="preserve"><value>New password</value></data>
+  <data name="New requests" xml:space="preserve"><value>New requests</value></data>
+  <data name="New requests from clients will appear here. Keep your hours open to receive more requests." xml:space="preserve"><value>New requests from clients will appear here. Keep your hours open to receive more requests.</value></data>
+  <data name="Newest first" xml:space="preserve"><value>Newest first</value></data>
+  <data name="Next page" xml:space="preserve"><value>Next page</value></data>
+  <data name="Next up" xml:space="preserve"><value>Next up</value></data>
+  <data name="Next week" xml:space="preserve"><value>Next week</value></data>
+  <data name="NID preview" xml:space="preserve"><value>NID preview</value></data>
+  <data name="No active engagements" xml:space="preserve"><value>No active engagements</value></data>
+  <data name="No home on file" xml:space="preserve"><value>No home on file</value></data>
+  <data name="No pending requests right now." xml:space="preserve"><value>No pending requests right now.</value></data>
+  <data name="No services picked yet." xml:space="preserve"><value>No services picked yet.</value></data>
+  <data name="No visits or new requests today." xml:space="preserve"><value>No visits or new requests today.</value></data>
+  <data name="Not applied yet" xml:space="preserve"><value>Not applied yet</value></data>
+  <data name="Not approved" xml:space="preserve"><value>Not approved</value></data>
+  <data name="Not set" xml:space="preserve"><value>Not set</value></data>
+  <data name="Nothing booked" xml:space="preserve"><value>Nothing booked</value></data>
+  <data name="Nothing booked today. Enjoy the day off." xml:space="preserve"><value>Nothing booked today. Enjoy the day off.</value></data>
+  <data name="Nothing completed yet" xml:space="preserve"><value>Nothing completed yet</value></data>
+  <data name="Nothing written yet. A few lines about your work help clients choose you." xml:space="preserve"><value>Nothing written yet. A few lines about your work help clients choose you.</value></data>
+  <data name="Off" xml:space="preserve"><value>Off</value></data>
+  <data name="Office hours" xml:space="preserve"><value>Office hours</value></data>
+  <data name="Only clients who shared a home with you during an engagement can leave a review. Every review is from someone you worked with." xml:space="preserve"><value>Only clients who shared a home with you during an engagement can leave a review. Every review is from someone you worked with.</value></data>
+  <data name="Only your area is shown to clients. Your address and map pin remain private." xml:space="preserve"><value>Only your area is shown to clients. Your address and map pin remain private.</value></data>
+  <data name="Open" xml:space="preserve"><value>Open</value></data>
+  <data name="Open availability" xml:space="preserve"><value>Open availability</value></data>
+  <data name="Open hours" xml:space="preserve"><value>Open hours</value></data>
+  <data name="Open hours per week" xml:space="preserve"><value>Open hours per week</value></data>
+  <data name="Open on map" xml:space="preserve"><value>Open on map</value></data>
+  <data name="Pages" xml:space="preserve"><value>Pages</value></data>
+  <data name="Password updated." xml:space="preserve"><value>Password updated.</value></data>
+  <data name="Past" xml:space="preserve"><value>Past</value></data>
+  <data name="Pay ৳{0}" xml:space="preserve"><value>Pay ৳{0}</value></data>
+  <data name="Payment" xml:space="preserve"><value>Payment</value></data>
+  <data name="Payment could not be completed. Please check your details and try again." xml:space="preserve"><value>Payment could not be completed. Please check your details and try again.</value></data>
+  <data name="Payment successful" xml:space="preserve"><value>Payment successful</value></data>
+  <data name="Per month" xml:space="preserve"><value>Per month</value></data>
+  <data name="Photo" xml:space="preserve"><value>Photo</value></data>
+  <data name="Pin" xml:space="preserve"><value>Pin</value></data>
+  <data name="Previous page" xml:space="preserve"><value>Previous page</value></data>
+  <data name="Previous week" xml:space="preserve"><value>Previous week</value></data>
+  <data name="Processing…" xml:space="preserve"><value>Processing…</value></data>
+  <data name="Profile photo updated." xml:space="preserve"><value>Profile photo updated.</value></data>
+  <data name="Purpose" xml:space="preserve"><value>Purpose</value></data>
+  <data name="Quick fill" xml:space="preserve"><value>Quick fill</value></data>
+  <data name="Rate" xml:space="preserve"><value>Rate</value></data>
+  <data name="Rate not set" xml:space="preserve"><value>Rate not set</value></data>
+  <data name="Rating" xml:space="preserve"><value>Rating</value></data>
+  <data name="Rating breakdown" xml:space="preserve"><value>Rating breakdown</value></data>
+  <data name="Replace photo" xml:space="preserve"><value>Replace photo</value></data>
+  <data name="Reply" xml:space="preserve"><value>Reply</value></data>
+  <data name="Reply posted" xml:space="preserve"><value>Reply posted</value></data>
+  <data name="Reply to {0}" xml:space="preserve"><value>Reply to {0}</value></data>
+  <data name="Requests" xml:space="preserve"><value>Requests</value></data>
+  <data name="Review all requests" xml:space="preserve"><value>Review all requests</value></data>
+  <data name="Review new requests here. Accepting a request books its hours and adds the visits to your schedule." xml:space="preserve"><value>Review new requests here. Accepting a request books its hours and adds the visits to your schedule.</value></data>
+  <data name="Review your agreed visits by day. Booked hours are locked on your availability board." xml:space="preserve"><value>Review your agreed visits by day. Booked hours are locked on your availability board.</value></data>
+  <data name="Saturday to Friday, repeats every week" xml:space="preserve"><value>Saturday to Friday, repeats every week</value></data>
+  <data name="Security" xml:space="preserve"><value>Security</value></data>
+  <data name="See visits" xml:space="preserve"><value>See visits</value></data>
+  <data name="Send decline" xml:space="preserve"><value>Send decline</value></data>
+  <data name="Sending your application…" xml:space="preserve"><value>Sending your application…</value></data>
+  <data name="Services and rate" xml:space="preserve"><value>Services and rate</value></data>
+  <data name="Services you offer" xml:space="preserve"><value>Services you offer</value></data>
+  <data name="Set the monthly amount you charge for the agreed hours." xml:space="preserve"><value>Set the monthly amount you charge for the agreed hours.</value></data>
+  <data name="Set your hours" xml:space="preserve"><value>Set your hours</value></data>
+  <data name="Share your experience and how you prefer to work." xml:space="preserve"><value>Share your experience and how you prefer to work.</value></data>
+  <data name="Sign-up only asked for your name, phone and email. Still missing: {0}. Use the Edit links on each card." xml:space="preserve"><value>Sign-up only asked for your name, phone and email. Still missing: {0}. Use the Edit links on each card.</value></data>
+  <data name="Since" xml:space="preserve"><value>Since</value></data>
+  <data name="Some of these hours are already booked. Accepting will double book you." xml:space="preserve"><value>Some of these hours are already booked. Accepting will double book you.</value></data>
+  <data name="Sort reviews" xml:space="preserve"><value>Sort reviews</value></data>
+  <data name="Tell {0} why (optional)" xml:space="preserve"><value>Tell {0} why (optional)</value></data>
+  <data name="Thank them, or explain what you changed." xml:space="preserve"><value>Thank them, or explain what you changed.</value></data>
+  <data name="The admin could not approve your documents." xml:space="preserve"><value>The admin could not approve your documents.</value></data>
+  <data name="The availability service did not return a schedule." xml:space="preserve"><value>The availability service did not return a schedule.</value></data>
+  <data name="The availability service returned an incomplete weekly board." xml:space="preserve"><value>The availability service returned an incomplete weekly board.</value></data>
+  <data name="The bKash PIN must contain 4 or 5 digits." xml:space="preserve"><value>The bKash PIN must contain 4 or 5 digits.</value></data>
+  <data name="The new password must differ from your current password." xml:space="preserve"><value>The new password must differ from your current password.</value></data>
+  <data name="The new password needs at least 8 characters." xml:space="preserve"><value>The new password needs at least 8 characters.</value></data>
+  <data name="The photo must be 5 MB or smaller." xml:space="preserve"><value>The photo must be 5 MB or smaller.</value></data>
+  <data name="The two new passwords do not match." xml:space="preserve"><value>The two new passwords do not match.</value></data>
+  <data name="This is a practice payment page. Any Bangladeshi mobile number and a 4- or 5-digit PIN will be accepted." xml:space="preserve"><value>This is a practice payment page. Any Bangladeshi mobile number and a 4- or 5-digit PIN will be accepted.</value></data>
+  <data name="This week" xml:space="preserve"><value>This week</value></data>
+  <data name="Tip" xml:space="preserve"><value>Tip</value></data>
+  <data name="Toggle the whole day" xml:space="preserve"><value>Toggle the whole day</value></data>
+  <data name="Transaction ID" xml:space="preserve"><value>Transaction ID</value></data>
+  <data name="Try again in a moment." xml:space="preserve"><value>Try again in a moment.</value></data>
+  <data name="Under review" xml:space="preserve"><value>Under review</value></data>
+  <data name="Unsaved changes" xml:space="preserve"><value>Unsaved changes</value></data>
+  <data name="Upazila / thana" xml:space="preserve"><value>Upazila / thana</value></data>
+  <data name="Update availability" xml:space="preserve"><value>Update availability</value></data>
+  <data name="Upload a clear photo of yourself and your NID. An admin will compare them with your profile before adding the verified badge." xml:space="preserve"><value>Upload a clear photo of yourself and your NID. An admin will compare them with your profile before adding the verified badge.</value></data>
+  <data name="Verification" xml:space="preserve"><value>Verification</value></data>
+  <data name="Verification pending" xml:space="preserve"><value>Verification pending</value></data>
+  <data name="Verified" xml:space="preserve"><value>Verified</value></data>
+  <data name="Verified by Nestify" xml:space="preserve"><value>Verified by Nestify</value></data>
+  <data name="Verified client" xml:space="preserve"><value>Verified client</value></data>
+  <data name="Verified helpers appear first and may receive more requests. Pay the fee through bKash, then submit a photo of yourself and your NID." xml:space="preserve"><value>Verified helpers appear first and may receive more requests. Pay the fee through bKash, then submit a photo of yourself and your NID.</value></data>
+  <data name="Verify your profile" xml:space="preserve"><value>Verify your profile</value></data>
+  <data name="View" xml:space="preserve"><value>View</value></data>
+  <data name="View photo" xml:space="preserve"><value>View photo</value></data>
+  <data name="View profile photo" xml:space="preserve"><value>View profile photo</value></data>
+  <data name="Visits this week" xml:space="preserve"><value>Visits this week</value></data>
+  <data name="Waiting" xml:space="preserve"><value>Waiting</value></data>
+  <data name="Waiting for the client to confirm" xml:space="preserve"><value>Waiting for the client to confirm</value></data>
+  <data name="Waiting for your answer" xml:space="preserve"><value>Waiting for your answer</value></data>
+  <data name="We asked {0} to confirm. You can be reviewed once they do." xml:space="preserve"><value>We asked {0} to confirm. You can be reviewed once they do.</value></data>
+  <data name="We could not load your profile. Please try again." xml:space="preserve"><value>We could not load your profile. Please try again.</value></data>
+  <data name="week" xml:space="preserve"><value>week</value></data>
+  <data name="Week at a glance" xml:space="preserve"><value>Week at a glance</value></data>
+  <data name="Weekly availability" xml:space="preserve"><value>Weekly availability</value></data>
+  <data name="Weekly hours · {0}" xml:space="preserve"><value>Weekly hours · {0}</value></data>
+  <data name="Weekly pattern" xml:space="preserve"><value>Weekly pattern</value></data>
+  <data name="What your clients say" xml:space="preserve"><value>What your clients say</value></data>
+  <data name="Where I live" xml:space="preserve"><value>Where I live</value></data>
+  <data name="Working days" xml:space="preserve"><value>Working days</value></data>
+  <data name="Years of experience" xml:space="preserve"><value>Years of experience</value></data>
+  <data name="years short" xml:space="preserve"><value>years short</value></data>
+  <data name="You can apply again with clearer photos." xml:space="preserve"><value>You can apply again with clearer photos.</value></data>
+  <data name="You have {0} requests waiting." xml:space="preserve"><value>You have {0} requests waiting.</value></data>
+  <data name="You have {0} visits today and {1} requests waiting." xml:space="preserve"><value>You have {0} visits today and {1} requests waiting.</value></data>
+  <data name="You have {0} visits today." xml:space="preserve"><value>You have {0} visits today.</value></data>
+  <data name="Your bKash account number" xml:space="preserve"><value>Your bKash account number</value></data>
+  <data name="Your home on the map" xml:space="preserve"><value>Your home on the map</value></data>
+  <data name="Your photo" xml:space="preserve"><value>Your photo</value></data>
+  <data name="Your photo and NID have been sent. An admin will review them soon." xml:space="preserve"><value>Your photo and NID have been sent. An admin will review them soon.</value></data>
+  <data name="Your photo and NID were submitted on {0}. An admin will review them soon." xml:space="preserve"><value>Your photo and NID were submitted on {0}. An admin will review them soon.</value></data>
+  <data name="Your photo preview" xml:space="preserve"><value>Your photo preview</value></data>
+  <data name="Your profile could not be loaded" xml:space="preserve"><value>Your profile could not be loaded</value></data>
+  <data name="Your profile is complete" xml:space="preserve"><value>Your profile is complete</value></data>
+  <data name="Your profile is hidden from clients. Turn on bookings when you are ready to receive requests." xml:space="preserve"><value>Your profile is hidden from clients. Turn on bookings when you are ready to receive requests.</value></data>
+  <data name="Your reply" xml:space="preserve"><value>Your reply</value></data>
+  <data name="Your reply to {0} has been posted." xml:space="preserve"><value>Your reply to {0} has been posted.</value></data>
+  <data name="Your verification application was withdrawn." xml:space="preserve"><value>Your verification application was withdrawn.</value></data>
+  <data name="About me" xml:space="preserve"><value>About me</value></data>
+  <data name="{0} hours changed" xml:space="preserve"><value>{0} hours changed</value></data>
+  <data name="{0} hours short" xml:space="preserve"><value>{0} h</value></data>
+  <data name="6 AM" xml:space="preserve"><value>6 AM</value></data>
+  <data name="12 PM" xml:space="preserve"><value>12 PM</value></data>
+  <data name="6 PM" xml:space="preserve"><value>6 PM</value></data>
+  <data name="12 AM" xml:space="preserve"><value>12 AM</value></data>
+  <data name="Enter your full name." xml:space="preserve"><value>Enter your full name.</value></data>
+  <data name="Name must be 2 to 120 characters." xml:space="preserve"><value>Name must be 2 to 120 characters.</value></data>
+  <data name="Enter your email address." xml:space="preserve"><value>Enter your email address.</value></data>
+  <data name="Enter a valid email address, e.g. name@example.com." xml:space="preserve"><value>Enter a valid email address, e.g. name@example.com.</value></data>
+  <data name="Enter your phone number." xml:space="preserve"><value>Enter your phone number.</value></data>
+  <data name="Enter an 11-digit number starting with 01." xml:space="preserve"><value>Enter an 11-digit number starting with 01.</value></data>
+  <data name="Choose a password." xml:space="preserve"><value>Choose a password.</value></data>
+  <data name="Password must be at least 8 characters." xml:space="preserve"><value>Password must be at least 8 characters.</value></data>
+  <data name="Re-enter your password." xml:space="preserve"><value>Re-enter your password.</value></data>
+  <data name="The two passwords do not match." xml:space="preserve"><value>The two passwords do not match.</value></data>
+  <data name="You need to accept the terms to continue." xml:space="preserve"><value>You need to accept the terms to continue.</value></data>
+  <data name="{0}, {1} — {2}" xml:space="preserve"><value>{0}, {1} — {2}</value></data>
+  <data name="Could not save your hours. Please try again." xml:space="preserve"><value>Could not save your hours. Please try again.</value></data>
+  <data name="Could not update your availability. Please try again." xml:space="preserve"><value>Could not update your availability. Please try again.</value></data>
+  <data name="there" xml:space="preserve"><value>there</value></data>
+  <data name="them" xml:space="preserve"><value>them</value></data>
 </root>

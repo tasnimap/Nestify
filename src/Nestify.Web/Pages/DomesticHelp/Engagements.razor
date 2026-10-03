@@ -4,49 +4,50 @@
 @using Nestify.Web.Components.Helper
 @using Nestify.Shared.Dtos.Helpers
 @inject IHelperService Helpers
+@inject IStringLocalizer<SharedResource> L
 @inject Nestify.Web.Services.ToastService Toast
 @inject Nestify.Web.Services.MoneyFormatterService Money
 
-<PageTitle>Engagements — Nestify</PageTitle>
+<PageTitle>@L["Engagements"] — Nestify</PageTitle>
 
 <div class="dh md">
     <div class="dh__inner">
         <header class="dh-head md-head dh-rise">
             <div>
-                <p class="dh-kicker">Helper workspace</p>
-                <h1>Engagements</h1>
-                <p>New requests wait for your answer here. Accepting one books the hours on your board and adds the visits to your schedule.</p>
+                <p class="dh-kicker">@L["HELPER WORKSPACE"]</p>
+                <h1>@L["Engagements"]</h1>
+                <p>@L["Review new requests here. Accepting a request books its hours and adds the visits to your schedule."]</p>
             </div>
             <div class="md-stats md-stats--inhead">
                 <div class="md-stat md-stat--glass">
                     <span class="md-stat__value">@Pending.Count</span>
-                    <span class="md-stat__label">waiting</span>
+                    <span class="md-stat__label">@L["Waiting"]</span>
                 </div>
                 <div class="md-stat md-stat--glass">
                     <span class="md-stat__value">@Current.Count</span>
-                    <span class="md-stat__label">active</span>
+                    <span class="md-stat__label">@L["Active"]</span>
                 </div>
                 <div class="md-stat md-stat--glass">
                     <span class="md-stat__value">@Money.Format(MonthlyIncome)</span>
-                    <span class="md-stat__label">per month</span>
+                    <span class="md-stat__label">@L["Per month"]</span>
                 </div>
             </div>
         </header>
 
         <div class="md-tabs dh-rise" role="tablist" style="--d:60ms">
             <button type="button" role="tab" class="md-tab @(_tab == "requests" ? "md-tab--on" : null)" aria-selected="@((_tab == "requests").ToString().ToLowerInvariant())" @onclick='() => SwitchTab("requests")'>
-                Requests
+                @L["Requests"]
                 @if (Pending.Count > 0)
                 {
                     <span class="md-tab__count md-tab__count--warn">@Pending.Count</span>
                 }
             </button>
             <button type="button" role="tab" class="md-tab @(_tab == "current" ? "md-tab--on" : null)" aria-selected="@((_tab == "current").ToString().ToLowerInvariant())" @onclick='() => SwitchTab("current")'>
-                Current
+                @L["Current"]
                 <span class="md-tab__count">@Current.Count</span>
             </button>
             <button type="button" role="tab" class="md-tab @(_tab == "past" ? "md-tab--on" : null)" aria-selected="@((_tab == "past").ToString().ToLowerInvariant())" @onclick='() => SwitchTab("past")'>
-                Past
+                @L["Past"]
                 <span class="md-tab__count">@Past.Count</span>
             </button>
         </div>
@@ -61,9 +62,9 @@
                             <span class="dh-empty__art" aria-hidden="true">
                                 <svg class="nx-icon" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2" /></svg>
                             </span>
-                            <h3>Inbox is clear</h3>
-                            <p>New requests from bachelors will show up here. Keep your hours open to get more.</p>
-                            <a class="nx-btn nx-btn--accent" href="helpers/availability">Update availability</a>
+                            <h3>@L["Inbox is clear"]</h3>
+                            <p>@L["New requests from clients will appear here. Keep your hours open to receive more requests."]</p>
+                            <a class="nx-btn nx-btn--accent" href="helpers/availability">@L["Update availability"]</a>
                         </div>
                     </div>
                 }
@@ -87,14 +88,14 @@
                                         @r.ClientName
                                         @if (r.ClientVerified)
                                         {
-                                            <span class="md-verified" title="Verified client">
+                                            <span class="md-verified" title='@L["Verified client"]'>
                                                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 12 2 2 4-4" /><circle cx="12" cy="12" r="9" /></svg>
                                             </span>
                                         }
                                     </strong>
                                     <span>@HomeLine(r.HomeName, r.Area) · @Ago(r.RequestedAtUtc)</span>
                                 </div>
-                                <span class="md-request__rate">@Money.Format(r.OfferedRate)<small>/month</small></span>
+                                <span class="md-request__rate">@Money.Format(r.OfferedRate)<small>/@L["month"]</small></span>
                             </div>
 
                             <div class="dh-tags">
@@ -112,23 +113,23 @@
                             @if (r.Slots.Count > 0)
                             {
                                 <div class="md-slots">
-                                    <span class="md-slots__label">Weekly hours · @r.Slots.Count</span>
+                                    <span class="md-slots__label">@L["Weekly hours · {0}", r.Slots.Count]</span>
                                     <ul class="md-slots__list">
                                         @foreach (var g in r.Slots.GroupBy(s => s.DayOfWeek).OrderBy(g => WeekOrder(g.Key)))
                                         {
                                             <li>
-                                                <span class="md-slots__day">@((DayOfWeek)g.Key)</span>
+                                                <span class="md-slots__day">@DayName((DayOfWeek)g.Key)</span>
                                                 @foreach (var s in g.OrderBy(s => s.Hour))
                                                 {
                                                     var clash = IsBooked(s.DayOfWeek, s.Hour);
-                                                    <span class="md-slots__chip @(clash ? "md-slots__chip--clash" : null)" title="@(clash ? "Already booked by another home" : "")">@HourLabel(s.Hour)</span>
+                                                    <span class="md-slots__chip @(clash ? "md-slots__chip--clash" : null)" title="@(clash ? L["Already booked by another home"].Value : "")">@HourLabel(s.Hour)</span>
                                                 }
                                             </li>
                                         }
                                     </ul>
                                     @if (HasClash(r))
                                     {
-                                        <p class="md-warn">Some of these hours are already booked. Accepting will double book you.</p>
+                                        <p class="md-warn">@L["Some of these hours are already booked. Accepting will double book you."]</p>
                                     }
                                 </div>
                             }
@@ -136,20 +137,20 @@
                             @if (_declining == r.Id)
                             {
                                 <div class="md-decline">
-                                    <label for="decline-@r.Id">Tell @FirstName(r.ClientName) why (optional)</label>
-                                    <textarea id="decline-@r.Id" rows="3" placeholder="e.g. Those hours are already taken, or the area is too far for me."
+                                    <label for="decline-@r.Id">@L["Tell {0} why (optional)", FirstName(r.ClientName)]</label>
+                                    <textarea id="decline-@r.Id" rows="3" placeholder='@L["For example, those hours are already taken or the area is too far."]'
                                               @bind="_declineNote" @bind:event="oninput"></textarea>
                                     <div class="md-request__actions">
-                                        <button type="button" class="nx-btn nx-btn--ghost" @onclick="CancelDecline">Keep request</button>
-                                        <button type="button" class="nx-btn nx-btn--danger" @onclick="() => Decline(r)">Send decline</button>
+                                        <button type="button" class="nx-btn nx-btn--ghost" @onclick="CancelDecline">@L["Keep request"]</button>
+                                        <button type="button" class="nx-btn nx-btn--danger" @onclick="() => Decline(r)">@L["Send decline"]</button>
                                     </div>
                                 </div>
                             }
                             else
                             {
                                 <div class="md-request__actions">
-                                    <button type="button" class="nx-btn nx-btn--ghost" @onclick="() => StartDecline(r)">Decline</button>
-                                    <button type="button" class="nx-btn nx-btn--accent" @onclick="() => Accept(r)">Accept request</button>
+                                    <button type="button" class="nx-btn nx-btn--ghost" @onclick="() => StartDecline(r)">@L["Decline"]</button>
+                                    <button type="button" class="nx-btn nx-btn--accent" @onclick="() => Accept(r)">@L["Accept request"]</button>
                                 </div>
                             }
                         </article>
@@ -165,8 +166,8 @@
                 {
                     <div class="dh-panel dh-rise">
                         <div class="dh-empty">
-                            <h3>No active engagements</h3>
-                            <p>Accept a request and it will appear here.</p>
+                            <h3>@L["No active engagements"]</h3>
+                            <p>@L["Accept a request and it will appear here."]</p>
                         </div>
                     </div>
                 }
@@ -190,7 +191,7 @@
                                     <strong>@e.ClientName</strong>
                                     <span>@(string.IsNullOrWhiteSpace(e.Address) ? HomeLine(e.HomeName, e.Area) : e.Address)</span>
                                 </div>
-                                <span class="md-status md-status--@e.Status.ToString().ToLowerInvariant()">@e.Status</span>
+                                <span class="md-status md-status--@e.Status.ToString().ToLowerInvariant()">@StatusLabel(e.Status)</span>
                             </div>
 
                             <div class="dh-tags">
@@ -201,10 +202,10 @@
                             </div>
 
                             <dl class="md-facts">
-                                <div><dt>Rate</dt><dd>@Money.Format(e.MonthlyRate)<small>/mo</small></dd></div>
-                                <div><dt>Hours</dt><dd>@e.WeeklyHours<small>/week</small></dd></div>
-                                <div><dt>Since</dt><dd>@e.StartedOn.ToString("d MMM")</dd></div>
-                                <div><dt>Phone</dt><dd><a href="tel:@e.Phone">@e.Phone</a></dd></div>
+                                <div><dt>@L["Rate"]</dt><dd>@Money.Format(e.MonthlyRate)<small>/@L["month"]</small></dd></div>
+                                <div><dt>@L["Hours"]</dt><dd>@e.WeeklyHours<small>/@L["week"]</small></dd></div>
+                                <div><dt>@L["Since"]</dt><dd>@e.StartedOn.ToString("d MMM")</dd></div>
+                                <div><dt>@L["Phone"]</dt><dd><a href="tel:@e.Phone">@e.Phone</a></dd></div>
                             </dl>
 
                             <div class="md-slots">
@@ -212,7 +213,7 @@
                                     @foreach (var g in e.Slots.GroupBy(s => s.DayOfWeek).OrderBy(g => WeekOrder(g.Key)))
                                     {
                                         <li>
-                                            <span class="md-slots__day">@((DayOfWeek)g.Key)</span>
+                                            <span class="md-slots__day">@DayName((DayOfWeek)g.Key)</span>
                                             @foreach (var s in g.OrderBy(s => s.Hour))
                                             {
                                                 <span class="md-slots__chip">@HourLabel(s.Hour)</span>
@@ -224,21 +225,21 @@
 
                             <div class="md-progress">
                                 <div class="md-progress__head">
-                                    <span>@e.VisitsDone of @e.VisitsPlanned visits</span>
+                                    <span>@L["{0} of {1} visits", e.VisitsDone, e.VisitsPlanned]</span>
                                     <strong>@pct%</strong>
                                 </div>
                                 <div class="md-progress__track"><span class="md-progress__fill" style="--w:@pct%"></span></div>
                             </div>
 
                             <div class="md-request__actions">
-                                <a class="nx-btn nx-btn--ghost" href="helpers/schedule">See visits</a>
+                                <a class="nx-btn nx-btn--ghost" href="helpers/schedule">@L["See visits"]</a>
                                 @if (e.HelperMarkedComplete)
                                 {
-                                    <span class="dh-pill">Waiting for the client to confirm</span>
+                                    <span class="dh-pill">@L["Waiting for the client to confirm"]</span>
                                 }
                                 else
                                 {
-                                    <button type="button" class="nx-btn nx-btn--accent" @onclick="() => Complete(e)">Mark complete</button>
+                                    <button type="button" class="nx-btn nx-btn--accent" @onclick="() => Complete(e)">@L["Mark complete"]</button>
                                 }
                             </div>
                         </article>
@@ -252,7 +253,7 @@
             <div class="md-cards" @key="_tab">
                 @if (Past.Count == 0)
                 {
-                    <div class="dh-panel dh-rise"><div class="dh-empty"><h3>Nothing completed yet</h3></div></div>
+                    <div class="dh-panel dh-rise"><div class="dh-empty"><h3>@L["Nothing completed yet"]</h3></div></div>
                 }
                 else
                 {
@@ -264,7 +265,7 @@
                                     <span class="dh-item__avatar" aria-hidden="true">@Initials(e.ClientName)</span>
                                     <div class="dh-item__main">
                                         <p class="dh-item__title">@e.ClientName</p>
-                                        <p class="dh-item__meta">@string.Join(", ", e.Services) · @e.Area · @e.VisitsDone visits</p>
+                                        <p class="dh-item__meta">@string.Join(", ", e.Services) · @e.Area · @L["{0} visits", e.VisitsDone]</p>
                                     </div>
                                     <div class="md-past__side">
                                         <strong>@Money.Format(e.MonthlyRate)</strong>
@@ -313,9 +314,9 @@
         _availability = await Helpers.GetAvailabilityAsync();
     }
 
-    private static string HomeLine(string home, string area)
+    private string HomeLine(string home, string area)
     {
-        if (string.IsNullOrWhiteSpace(home) && string.IsNullOrWhiteSpace(area)) return "No home on file";
+        if (string.IsNullOrWhiteSpace(home) && string.IsNullOrWhiteSpace(area)) return L["No home on file"];
         if (string.IsNullOrWhiteSpace(area)) return home;
         if (string.IsNullOrWhiteSpace(home)) return area;
         return $"{home} · {area}";
@@ -353,11 +354,11 @@
             await Helpers.AcceptWorkspaceEngagementAsync(r.Id);
             await Reload();
             ClampPage(Pending.Count);
-            Toast.ShowSuccess($"{r.ClientName} is now a current engagement. {r.Slots.Count} hour(s) a week added to your schedule.", "Accepted");
+            Toast.ShowSuccess(L["{0} is now a current engagement. {1} hours a week were added to your schedule.", r.ClientName, r.Slots.Count], L["Accepted"]);
         }
-        catch (Exception ex)
+        catch
         {
-            Toast.ShowWarning(ex.Message, "Accept");
+            Toast.ShowWarning(L["Could not accept this request. Please try again."], L["Accept"]);
         }
     }
 
@@ -381,18 +382,18 @@
             await Reload();
             ClampPage(Pending.Count);
             Toast.ShowInfo(string.IsNullOrWhiteSpace(_declineNote)
-                ? $"{r.ClientName} will be told you are not available."
-                : $"{r.ClientName} will see your note.", "Declined");
+                ? L["{0} will be told you are not available.", r.ClientName]
+                : L["{0} will see your note.", r.ClientName], L["Declined"]);
             CancelDecline();
         }
-        catch (Exception ex)
+        catch
         {
-            Toast.ShowWarning(ex.Message, "Decline");
+            Toast.ShowWarning(L["Could not decline this request. Please try again."], L["Decline"]);
         }
     }
 
-    private static string FirstName(string name) =>
-        name.Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? "them";
+    private string FirstName(string name) =>
+        name.Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? L["them"].Value;
 
     private async Task Complete(HelperWorkspaceEngagementDto e)
     {
@@ -400,21 +401,33 @@
         {
             await Helpers.MarkCompleteAsync(e.Id);
             await Reload();
-            Toast.ShowInfo($"We've asked {e.ClientName} to confirm. You can be reviewed once they do.", "Marked complete");
+            Toast.ShowInfo(L["We asked {0} to confirm. You can be reviewed once they do.", e.ClientName], L["Marked complete"]);
         }
-        catch (Exception ex)
+        catch
         {
-            Toast.ShowWarning(ex.Message, "Complete");
+            Toast.ShowWarning(L["Could not mark this engagement complete. Please try again."], L["Complete"]);
         }
     }
 
-    private static string Ago(DateTime utc)
+    private string Ago(DateTime utc)
     {
         var span = DateTime.UtcNow - utc;
-        if (span.TotalDays >= 1) return $"{(int)span.TotalDays}d ago";
-        if (span.TotalHours >= 1) return $"{(int)span.TotalHours}h ago";
-        return "just now";
+        if (span.TotalDays >= 1) return L["{0}d ago", (int)span.TotalDays];
+        if (span.TotalHours >= 1) return L["{0}h ago", (int)span.TotalHours];
+        return L["just now"];
     }
+
+    private string DayName(DayOfWeek day) => System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetDayName(day);
+
+    private string StatusLabel(EngagementStatus status) => L[status switch
+    {
+        EngagementStatus.Requested => "Pending",
+        EngagementStatus.Active => "Accepted",
+        EngagementStatus.Completed => "Completed",
+        EngagementStatus.Declined => "Declined",
+        EngagementStatus.Cancelled => "Cancelled",
+        _ => status.ToString()
+    }];
 
     private static string Initials(string name)
     {

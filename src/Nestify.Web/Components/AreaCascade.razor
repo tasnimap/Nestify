@@ -3,14 +3,15 @@
    do not copy this into a module folder; add features here instead. *@
 @using Nestify.Shared.Dtos.Area
 @using Nestify.Web.Services.Interfaces
+@inject IStringLocalizer<SharedResource> L
 @inject IAreaService AreaService
 
 <div class="area-cascade">
     <div class="field">
-        <label class="field__label">Division</label>
+        <label class="field__label">@L["Division"]</label>
         <select class="field__input" value="@Selection.DivisionId"
                 @onchange="OnDivisionChanged" disabled="@Disabled">
-            <option value="">@(Filter ? "All divisions" : "Select division")</option>
+            <option value="">@L[Filter ? "All divisions" : "Select division"]</option>
             @foreach (var d in _divisions)
             {
                 <option value="@d.Id">@d.Name</option>
@@ -23,10 +24,10 @@
     @if (Selection.DivisionId is not null)
     {
         <div class="field">
-            <label class="field__label">District</label>
+            <label class="field__label">@L["District"]</label>
             <select class="field__input" value="@Selection.DistrictId"
                     @onchange="OnDistrictChanged" disabled="@Disabled">
-                <option value="">@(Filter ? "All districts" : "Select district")</option>
+                <option value="">@L[Filter ? "All districts" : "Select district"]</option>
                 @foreach (var d in _districts)
                 {
                     <option value="@d.Id">@d.Name</option>
@@ -38,10 +39,10 @@
     @if (Selection.DistrictId is not null)
     {
         <div class="field">
-            <label class="field__label">Upazila / thana</label>
+            <label class="field__label">@L["Upazila / thana"]</label>
             <select class="field__input" value="@Selection.UpazilaId"
                     @onchange="OnUpazilaChanged" disabled="@Disabled">
-                <option value="">@(Filter ? "All upazilas" : "Select upazila")</option>
+                <option value="">@L[Filter ? "All upazilas" : "Select upazila"]</option>
                 @foreach (var u in _upazilas)
                 {
                     <option value="@u.Id">@u.Name</option>

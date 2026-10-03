@@ -310,28 +310,28 @@
     {
         public RegisterRole AccountType { get; set; } = RegisterRole.User;
 
-        [Required(ErrorMessage = "Enter your full name.")]
-        [StringLength(120, MinimumLength = 2, ErrorMessage = "Name must be 2 to 120 characters.")]
+        [Required(ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = nameof(SharedResource.RegisterNameRequired))]
+        [StringLength(120, MinimumLength = 2, ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = nameof(SharedResource.RegisterNameLength))]
         public string Name { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Enter your email address.")]
+        [Required(ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = nameof(SharedResource.RegisterEmailRequired))]
         [RegularExpression(@"^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}$",
-            ErrorMessage = "Enter a valid email address, e.g. name@example.com.")]
+            ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = nameof(SharedResource.RegisterEmailFormat))]
         public string Email { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Enter your phone number.")]
-        [RegularExpression(@"^01[0-9]{9}$", ErrorMessage = "Enter an 11-digit number starting with 01.")]
+        [Required(ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = nameof(SharedResource.RegisterPhoneRequired))]
+        [RegularExpression(@"^01[0-9]{9}$", ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = nameof(SharedResource.RegisterPhoneFormat))]
         public string Phone { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Choose a password.")]
-        [StringLength(100, MinimumLength = 8, ErrorMessage = "Password must be at least 8 characters.")]
+        [Required(ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = nameof(SharedResource.RegisterPasswordRequired))]
+        [StringLength(100, MinimumLength = 8, ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = nameof(SharedResource.RegisterPasswordLength))]
         public string Password { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Re-enter your password.")]
-        [Compare(nameof(Password), ErrorMessage = "The two passwords do not match.")]
+        [Required(ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = nameof(SharedResource.RegisterConfirmRequired))]
+        [Compare(nameof(Password), ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = nameof(SharedResource.RegisterConfirmMatch))]
         public string ConfirmPassword { get; set; } = string.Empty;
 
-        [Range(typeof(bool), "true", "true", ErrorMessage = "You need to accept the terms to continue.")]
+        [Range(typeof(bool), "true", "true", ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = nameof(SharedResource.RegisterTermsRequired))]
         public bool AcceptTerms { get; set; }
     }
 

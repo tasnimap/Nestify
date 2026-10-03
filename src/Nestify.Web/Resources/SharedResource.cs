@@ -1,4 +1,23 @@
 namespace Nestify.Web;
 
 /// <summary>Marker used to locate the shared Web UI localization resources.</summary>
-public sealed class SharedResource { }
+public sealed class SharedResource
+{
+    private static readonly System.Resources.ResourceManager Resources =
+        new("Nestify.Web.SharedResource", typeof(SharedResource).Assembly);
+
+    private static string Get(string key) =>
+        Resources.GetString(key, System.Globalization.CultureInfo.CurrentUICulture) ?? key;
+
+    public static string RegisterNameRequired => Get("Enter your full name.");
+    public static string RegisterNameLength => Get("Name must be 2 to 120 characters.");
+    public static string RegisterEmailRequired => Get("Enter your email address.");
+    public static string RegisterEmailFormat => Get("Enter a valid email address, e.g. name@example.com.");
+    public static string RegisterPhoneRequired => Get("Enter your phone number.");
+    public static string RegisterPhoneFormat => Get("Enter an 11-digit number starting with 01.");
+    public static string RegisterPasswordRequired => Get("Choose a password.");
+    public static string RegisterPasswordLength => Get("Password must be at least 8 characters.");
+    public static string RegisterConfirmRequired => Get("Re-enter your password.");
+    public static string RegisterConfirmMatch => Get("The two passwords do not match.");
+    public static string RegisterTermsRequired => Get("You need to accept the terms to continue.");
+}
