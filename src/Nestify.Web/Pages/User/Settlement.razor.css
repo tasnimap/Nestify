@@ -936,7 +936,7 @@
 .stl__slots {
     display: inline-flex;
     align-items: center;
-    gap: .25rem;
+    gap: .5rem;
     padding: .2rem .3rem;
     border: 1px solid transparent;
     border-radius: 11px;
@@ -951,58 +951,58 @@
 .stl__slot-stepper {
     display: inline-flex;
     align-items: center;
-    gap: .35rem;
-    min-width: 5.3rem;
+    gap: .25rem;
+    min-width: 4.6rem;
 }
 
 .stl__slot-step {
     display: inline-grid;
-    width: 2.25rem;
-    height: 2.25rem;
+    width: 1.8rem;
+    height: 1.8rem;
     place-items: center;
     padding: 0;
-    border: 2px solid #a6d5f1;
-    border-radius: 10px;
-    background: var(--nx-card);
-    color: #176fc0;
+    border: 1px solid #d7c9f4;
+    border-radius: 8px;
+    background: var(--nx-primary-soft);
+    color: var(--nx-primary);
     cursor: pointer;
     line-height: 1;
     overflow: visible;
-    box-shadow: 0 1px 3px rgb(37 126 196 / 18%);
+    box-shadow: 0 1px 3px rgb(109 40 217 / 14%);
     transition: background .2s ease, border-color .2s ease, color .2s ease, transform .2s ease;
 }
 
 .stl__slot-step:hover:not(:disabled),
 .stl__slot-step:focus-visible {
-    border-color: #a8d8f5;
-    background: #f7fcff;
-    color: #2472c1;
+    border-color: var(--nx-primary);
+    background: var(--nx-primary-softer);
+    color: var(--nx-primary-strong);
     outline: none;
     transform: translateY(-1px);
 }
 
 .stl__slot-step:disabled {
-    color: #176fc0;
+    color: var(--nx-primary);
     cursor: not-allowed;
     opacity: 1;
 }
 
 .stl__slot-step--up {
-    border-color: #d8eefb;
-    background: #dff2ff;
+    border-color: #d7c9f4;
+    background: var(--nx-primary-soft);
 }
 
 .stl__slot-step--down {
-    border-color: #d8eefb;
-    background: var(--nx-card);
+    border-color: #d7c9f4;
+    background: var(--nx-primary-softer);
 }
 
 .stl__chevron {
     display: block;
-    width: .7rem;
-    height: .7rem;
-    border-top: 4px solid currentColor;
-    border-right: 4px solid currentColor;
+    width: .45rem;
+    height: .45rem;
+    border-top: 2px solid currentColor;
+    border-right: 2px solid currentColor;
     flex: 0 0 auto;
 }
 

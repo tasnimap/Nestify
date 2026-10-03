@@ -23,8 +23,9 @@ test("meal sheet exposes one stepper for each daily meal slot", () => {
     assert.equal((razor.match(/class="stl__slot-step stl__slot-step--down"/g) ?? []).length, 1);
     assert.match(razor, /stl__chevron stl__chevron--left/);
     assert.match(razor, /stl__chevron stl__chevron--right/);
-    assert.match(styles, /\.stl__slot-step--down[\s\S]*?background: var\(--nx-card\)/);
-    assert.match(styles, /\.stl__slot-step--up[\s\S]*?background: #dff2ff/);
+    assert.match(styles, /\.stl__slot-step--down[\s\S]*?background: var\(--nx-primary-softer\)/);
+    assert.match(styles, /\.stl__slot-step--up[\s\S]*?background: var\(--nx-primary-soft\)/);
+    assert.match(styles, /\.stl__slots[\s\S]*?gap: \.5rem/);
     assert.doesNotMatch(razor, /class="stl__slot-sum"/);
     assert.doesNotMatch(razor, /SlotShortLabel/);
 });
@@ -59,5 +60,5 @@ test("meal sheet restores the personal and everyone views", () => {
     assert.match(settlementService, /CurrentUserId = userId/);
     assert.match(styles, /\.stl__view-toggle/);
     assert.match(styles, /\.stl__slot-step:disabled[\s\S]*?opacity: 1/);
-    assert.match(styles, /\.stl__chevron[\s\S]*?border-top: 4px/);
+    assert.match(styles, /\.stl__chevron[\s\S]*?border-top: 2px/);
 });
