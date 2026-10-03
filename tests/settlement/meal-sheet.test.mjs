@@ -27,7 +27,6 @@ test("meal sheet exposes one stepper for each daily meal slot", () => {
     assert.match(styles, /\.stl__slot-step--up[\s\S]*?background: #dff2ff/);
     assert.doesNotMatch(razor, /class="stl__slot-sum"/);
     assert.doesNotMatch(razor, /SlotShortLabel/);
-    assert.doesNotMatch(razor, /_onlyMyColumn/);
 });
 
 test("daily totals are calculated once from each date/member cell", () => {
@@ -48,4 +47,13 @@ test("members can submit their own payments while managers can choose the payer"
     assert.match(settlementService, /request\.UserId = userId;/);
     assert.match(razor, /@onclick="FinalizePeriod"/);
     assert.match(razor, /_ws is not null && _ws\.CanManage && IsOpen/);
+});
+
+test("meal sheet restores the personal and everyone views", () => {
+    assert.match(razor, /@L\["Only me"\]/);
+    assert.match(razor, /@L\["Everyone"\]/);
+    assert.match(razor, /private bool _onlyMyColumn;/);
+    assert.match(razor, /Members\.Where\(m => m\.IsMe\)/);
+    assert.match(styles, /\.stl__view-toggle/);
+    assert.match(styles, /\.stl__slot-step:disabled[\s\S]*?opacity: \.8/);
 });

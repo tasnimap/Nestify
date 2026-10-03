@@ -277,6 +277,22 @@
                     }
                 </div>
                 <div class="stl__card-actions">
+                    <div class="stl__view-toggle" role="radiogroup" aria-label='@L["Which columns to show"]'>
+                        <button type="button"
+                                role="radio"
+                                aria-checked="@_onlyMyColumn"
+                                class="stl__view-btn @(_onlyMyColumn ? "is-active" : null)"
+                                @onclick="() => _onlyMyColumn = true">
+                            @L["Only me"]
+                        </button>
+                        <button type="button"
+                                role="radio"
+                                aria-checked="@(!_onlyMyColumn)"
+                                class="stl__view-btn @(!_onlyMyColumn ? "is-active" : null)"
+                                @onclick="() => _onlyMyColumn = false">
+                            @L["Everyone"]
+                        </button>
+                    </div>
                     <span class="stl__tag">@L["{0} total", _sheet.Total]</span>
                     @if (IsOpen)
                     {
@@ -290,7 +306,7 @@
                 </div>
             </div>
 
-            <div class="stl__sheet-scroll">
+            <div class="stl__sheet-scroll @(_onlyMyColumn ? "stl__sheet-scroll--narrow" : null)">
                 <table class="stl__sheet">
                     <thead>
                         <tr>
@@ -306,7 +322,10 @@
                                     </span>
                                 </th>
                             }
-                            <th class="stl__sheet-total">@L["Day"]</th>
+                            @if (!_onlyMyColumn)
+                            {
+                                <th class="stl__sheet-total">@L["Day"]</th>
+                            }
                         </tr>
                     </thead>
                     <tbody>
@@ -350,7 +369,10 @@
                                         </div>
                                     </td>
                                 }
-                                <td class="stl__sheet-total">@_sheet.DayTotal(day).ToString("0.#")</td>
+                                @if (!_onlyMyColumn)
+                                {
+                                    <td class="stl__sheet-total">@_sheet.DayTotal(day).ToString("0.#")</td>
+                                }
                             </tr>
                         }
                     </tbody>
@@ -373,7 +395,10 @@
                                     <span class="stl__slot-grand">@_sheet.MemberTotal(member.UserId).ToString("0.##")</span>
                                 </th>
                             }
-                            <th class="stl__sheet-total">@_sheet.Total.ToString("0.#")</th>
+                            @if (!_onlyMyColumn)
+                            {
+                                <th class="stl__sheet-total">@_sheet.Total.ToString("0.#")</th>
+                            }
                         </tr>
                     </tfoot>
                 </table>
@@ -966,7 +991,11 @@
     private IEnumerable<DateOnly> Days =>
         Enumerable.Range(1, DateTime.DaysInMonth(_year, _month)).Select(d => new DateOnly(_year, _month, d));
 
-    private IEnumerable<SettlementMemberDto> VisibleMembers => Members;
+    private bool _onlyMyColumn;
+
+    private IEnumerable<SettlementMemberDto> VisibleMembers => _onlyMyColumn
+        ? Members.Where(m => m.IsMe)
+        : Members;
 
     private string CurrentMemberName => Members.FirstOrDefault(m => m.IsMe)?.Name ?? L["Member"].Value;
     private bool CanChoosePaymentMember => _ws?.CanManage == true;
