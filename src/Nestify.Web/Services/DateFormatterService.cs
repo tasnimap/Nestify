@@ -1,6 +1,8 @@
 // src/Nestify.Web/Services/DateFormatterService.cs
 namespace Nestify.Web.Services;
 
+using Microsoft.Extensions.Localization;
+
 /// <summary>
 /// Formats DateTime values to Asia/Dhaka timezone.
 /// Per §0.3 assumption: All timestamps are stored in UTC; display converts to Asia/Dhaka (UTC+6).
@@ -8,6 +10,13 @@ namespace Nestify.Web.Services;
 /// </summary>
 public sealed class DateFormatterService
 {
+    private readonly IStringLocalizer<SharedResource> _localizer;
+
+    public DateFormatterService(IStringLocalizer<SharedResource> localizer)
+    {
+        _localizer = localizer;
+    }
+
     private static readonly TimeZoneInfo DhakaTimeZone = ResolveDhakaTimeZone();
 
     private static TimeZoneInfo ResolveDhakaTimeZone()
@@ -58,7 +67,7 @@ public sealed class DateFormatterService
     public string FormatDate(DateTime utcTime)
     {
         var dhakaTime = ConvertToDhaka(utcTime);
-        return dhakaTime.ToString("dd MMM", System.Globalization.CultureInfo.InvariantCulture);
+        return dhakaTime.ToString("dd MMM", System.Globalization.CultureInfo.CurrentCulture);
     }
 
     /// <summary>
@@ -68,7 +77,7 @@ public sealed class DateFormatterService
     public string FormatDateTime(DateTime utcTime)
     {
         var dhakaTime = ConvertToDhaka(utcTime);
-        return dhakaTime.ToString("dd MMM · HH:mm", System.Globalization.CultureInfo.InvariantCulture);
+        return dhakaTime.ToString("dd MMM · HH:mm", System.Globalization.CultureInfo.CurrentCulture);
     }
 
     /// <summary>
@@ -78,7 +87,7 @@ public sealed class DateFormatterService
     public string FormatFullDateTime(DateTime utcTime)
     {
         var dhakaTime = ConvertToDhaka(utcTime);
-        return dhakaTime.ToString("dd MMMM yyyy, HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
+        return dhakaTime.ToString("dd MMMM yyyy, HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
     }
 
     /// <summary>
@@ -102,13 +111,13 @@ public sealed class DateFormatterService
         var diff = now - dhakaTime;
 
         if (diff.TotalSeconds < 60)
-            return "just now";
+            return _localizer["just now"];
         if (diff.TotalMinutes < 60)
-            return $"{(int)diff.TotalMinutes}m ago";
+            return _localizer["{0}m ago", (int)diff.TotalMinutes];
         if (diff.TotalHours < 24)
-            return $"{(int)diff.TotalHours}h ago";
+            return _localizer["{0}h ago", (int)diff.TotalHours];
         if (diff.TotalDays < 7)
-            return $"{(int)diff.TotalDays}d ago";
+            return _localizer["{0}d ago", (int)diff.TotalDays];
 
         return FormatDate(utcTime);
     }

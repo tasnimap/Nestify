@@ -3,17 +3,18 @@
 @using Nestify.Web.Components.Helper
 @inject Nestify.Web.Services.Interfaces.IAuthService AuthService
 @inject Nestify.Web.Services.Interfaces.IHelperService Helpers
+@inject IStringLocalizer<SharedResource> L
 
 <header class="hnav">
     <div class="nx-container hnav__inner">
         <a class="hnav__brand" href="helpers/dashboard" @onclick="Close">
             <span class="hnav__mark" aria-hidden="true">N</span>
             <span>Nestify</span>
-            <span class="hnav__badge">Helper</span>
+            <span class="hnav__badge">@L["Helper"]</span>
         </a>
 
         <button class="hnav__toggle" type="button"
-                aria-label="Toggle menu" aria-expanded="@_open.ToString().ToLowerInvariant()"
+                aria-label='@L["Toggle menu"]' aria-expanded="@_open.ToString().ToLowerInvariant()"
                 @onclick="Toggle">
             <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
         </button>
@@ -22,25 +23,25 @@
             <li>
                 <NavLink class="hnav__link" href="helpers/dashboard" @onclick="Close">
                     <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="9" /><rect x="14" y="3" width="7" height="5" /><rect x="14" y="12" width="7" height="9" /><rect x="3" y="16" width="7" height="5" /></svg>
-                    Dashboard
+                    @L["Dashboard"]
                 </NavLink>
             </li>
             <li>
                 <NavLink class="hnav__link" href="helpers/availability" @onclick="Close">
                     <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2" /><path d="M3 9h18M8 2v4M16 2v4" /><path d="m9 15 2 2 4-4" /></svg>
-                    Availability
+                    @L["Availability"]
                 </NavLink>
             </li>
             <li>
                 <NavLink class="hnav__link" href="helpers/schedule" @onclick="Close">
                     <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
-                    Schedule
+                    @L["Schedule"]
                 </NavLink>
             </li>
             <li>
                 <NavLink class="hnav__link" href="helpers/engagements" @onclick="Close">
                     <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2Z" /><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" /></svg>
-                    Engagements
+                    @L["Engagements"]
                     @if (_nav.PendingRequestCount > 0)
                     {
                         <span class="hnav__dot">@_nav.PendingRequestCount</span>
@@ -50,12 +51,13 @@
             <li>
                 <NavLink class="hnav__link" href="helpers/reviews" @onclick="Close">
                     <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 14.5 9h6l-5 4 2 6-5.5-4-5.5 4 2-6-5-4h6Z" /></svg>
-                    Reviews
+                    @L["Reviews"]
                 </NavLink>
             </li>
             <li class="hnav__theme">
                 <ThemeToggle />
             </li>
+            <li class="hnav__language"><LanguageSwitcher /></li>
 
             <li class="hnav__menu">
                 <button class="hnav__menu-trigger" type="button"
@@ -69,20 +71,20 @@
                     {
                         <span class="hnav__avatar" aria-hidden="true">@Initials(_name)</span>
                     }
-                    <span>@(_name ?? "Account")</span>
+                    <span>@(_name ?? L["Account"].Value)</span>
                     <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
                 </button>
                 @if (_menuOpen)
                 {
                     <div class="role-menu" role="menu">
-                        <p class="role-menu__name">Signed in as @(_name ?? "Helper")</p>
+                        <p class="role-menu__name">@L["Signed in as {0}", _name ?? L["Helper"].Value]</p>
                         <a role="menuitem" href="helpers/profile" @onclick="CloseAll">
                             <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 4-6 8-6s8 2 8 6" /></svg>
-                            My profile
+                            @L["My profile"]
                         </a>
                         <button role="menuitem" class="role-menu__danger" type="button" @onclick="HandleLogout">
                             <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><path d="m16 17 5-5-5-5" /><path d="M21 12H9" /></svg>
-                            Log out
+                            @L["Log out"]
                         </button>
                     </div>
                 }
@@ -93,22 +95,22 @@
 </header>
 
 @* Phone tab bar: the five places a helper goes most, always within thumb reach. *@
-<nav class="mtab" aria-label="Helper sections">
+<nav class="mtab" aria-label='@L["Helper sections"]'>
     <NavLink class="mtab__item" href="helpers/dashboard">
         <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="9" /><rect x="14" y="3" width="7" height="5" /><rect x="14" y="12" width="7" height="9" /><rect x="3" y="16" width="7" height="5" /></svg>
-        <span>Home</span>
+        <span>@L["Home"]</span>
     </NavLink>
     <NavLink class="mtab__item" href="helpers/availability">
         <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2" /><path d="M3 9h18M8 2v4M16 2v4" /><path d="m9 15 2 2 4-4" /></svg>
-        <span>Hours</span>
+        <span>@L["Hours"]</span>
     </NavLink>
     <NavLink class="mtab__item" href="helpers/schedule">
         <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
-        <span>Schedule</span>
+        <span>@L["Schedule"]</span>
     </NavLink>
     <NavLink class="mtab__item" href="helpers/engagements">
         <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2Z" /><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" /></svg>
-        <span>Jobs</span>
+        <span>@L["Jobs"]</span>
         @if (_nav.PendingRequestCount > 0)
         {
             <span class="mtab__dot">@_nav.PendingRequestCount</span>
@@ -116,7 +118,7 @@
     </NavLink>
     <NavLink class="mtab__item" href="helpers/reviews">
         <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 14.5 9h6l-5 4 2 6-5.5-4-5.5 4 2-6-5-4h6Z" /></svg>
-        <span>Reviews</span>
+        <span>@L["Reviews"]</span>
     </NavLink>
 </nav>
 

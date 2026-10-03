@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Home" xml:space="preserve"><value>হোম</value></data>
+  <data name="About Us" xml:space="preserve"><value>আমাদের সম্পর্কে</value></data>
+  <data name="My Home" xml:space="preserve"><value>আমার বাসা</value></data>
+  <data name="Housing" xml:space="preserve"><value>বাসা খুঁজুন</value></data>
+  <data name="Domestic Help" xml:space="preserve"><value>গৃহসহায়তা</value></data>
+  <data name="Marketplace" xml:space="preserve"><value>কেনাবেচা</value></data>
+  <data name="Settlement" xml:space="preserve"><value>মাসিক হিসাব</value></data>
+  <data name="My Dashboard" xml:space="preserve"><value>আমার ড্যাশবোর্ড</value></data>
+  <data name="Admin Console" xml:space="preserve"><value>অ্যাডমিন প্যানেল</value></data>
+  <data name="Verifications" xml:space="preserve"><value>যাচাই</value></data>
+  <data name="Profile" xml:space="preserve"><value>প্রোফাইল</value></data>
+  <data name="View profile" xml:space="preserve"><value>প্রোফাইল দেখুন</value></data>
+  <data name="Log out" xml:space="preserve"><value>লগ আউট</value></data>
+  <data name="Log in" xml:space="preserve"><value>লগ ইন</value></data>
+  <data name="Helper" xml:space="preserve"><value>সহায়তাকর্মী</value></data>
+  <data name="Dashboard" xml:space="preserve"><value>ড্যাশবোর্ড</value></data>
+  <data name="Availability" xml:space="preserve"><value>কাজের সময়</value></data>
+  <data name="Schedule" xml:space="preserve"><value>সময়সূচি</value></data>
+  <data name="Engagements" xml:space="preserve"><value>কাজের অনুরোধ</value></data>
+  <data name="Reviews" xml:space="preserve"><value>রিভিউ</value></data>
+  <data name="My profile" xml:space="preserve"><value>আমার প্রোফাইল</value></data>
+  <data name="Account" xml:space="preserve"><value>অ্যাকাউন্ট</value></data>
+  <data name="Helper sections" xml:space="preserve"><value>সহায়তাকর্মীর বিভাগ</value></data>
+  <data name="Hours" xml:space="preserve"><value>সময়</value></data>
+  <data name="Jobs" xml:space="preserve"><value>কাজ</value></data>
+  <data name="Skip to main content" xml:space="preserve"><value>মূল অংশে যান</value></data>
+  <data name="Terms of Use" xml:space="preserve"><value>ব্যবহারের শর্তাবলি</value></data>
+  <data name="Privacy Policy" xml:space="preserve"><value>গোপনীয়তা নীতি</value></data>
+  <data name="Bachelor life, unified." xml:space="preserve"><value>ব্যাচেলর জীবনের সবকিছু, একসাথে।</value></data>
+  <data name="A student project for Bangladeshi bachelors and job holders." xml:space="preserve"><value>বাংলাদেশের শিক্ষার্থী ও চাকরিজীবী ব্যাচেলরদের জন্য একটি শিক্ষামূলক প্রকল্প।</value></data>
+  <data name="Toggle navigation menu" xml:space="preserve"><value>নেভিগেশন মেনু খুলুন বা বন্ধ করুন</value></data>
+  <data name="Toggle menu" xml:space="preserve"><value>মেনু খুলুন বা বন্ধ করুন</value></data>
+  <data name="Signed in as {0}" xml:space="preserve"><value>লগ ইন করেছেন: {0}</value></data>
+  <data name="Overview" xml:space="preserve"><value>সারসংক্ষেপ</value></data>
+  <data name="Moderation" xml:space="preserve"><value>পর্যালোচনা ও নিয়ন্ত্রণ</value></data>
+  <data name="Platform" xml:space="preserve"><value>প্ল্যাটফর্ম</value></data>
+  <data name="Housing posts" xml:space="preserve"><value>বাসার বিজ্ঞাপন</value></data>
+  <data name="Marketplace posts" xml:space="preserve"><value>কেনাবেচার বিজ্ঞাপন</value></data>
+  <data name="Fees &amp; plans" xml:space="preserve"><value>ফি ও পরিকল্পনা</value></data>
+  <data name="Admin accounts" xml:space="preserve"><value>অ্যাডমিন অ্যাকাউন্ট</value></data>
+  <data name="Audit log" xml:space="preserve"><value>কার্যক্রমের নথি</value></data>
+  <data name="Nestify control room" xml:space="preserve"><value>Nestify নিয়ন্ত্রণকেন্দ্র</value></data>
+  <data name="Notifications" xml:space="preserve"><value>বিজ্ঞপ্তি</value></data>
+  <data name="{0} unread" xml:space="preserve"><value>{0}টি অপঠিত</value></data>
+  <data name="Notifications could not be loaded. Please try again." xml:space="preserve"><value>বিজ্ঞপ্তি লোড করা যায়নি। আবার চেষ্টা করুন।</value></data>
+  <data name="The notification could not be marked as read." xml:space="preserve"><value>বিজ্ঞপ্তিটি পঠিত হিসেবে চিহ্নিত করা যায়নি।</value></data>
+  <data name="Notifications could not be marked as read." xml:space="preserve"><value>বিজ্ঞপ্তিগুলো পঠিত হিসেবে চিহ্নিত করা যায়নি।</value></data>
+  <data name="Mark all as read" xml:space="preserve"><value>সব পঠিত হিসেবে চিহ্নিত করুন</value></data>
+  <data name="Loading notifications…" xml:space="preserve"><value>বিজ্ঞপ্তি লোড হচ্ছে…</value></data>
+  <data name="Try again" xml:space="preserve"><value>আবার চেষ্টা করুন</value></data>
+  <data name="You're all caught up" xml:space="preserve"><value>সব বিজ্ঞপ্তি দেখা হয়েছে</value></data>
+  <data name="Unread" xml:space="preserve"><value>অপঠিত</value></data>
+  <data name="Mark as read" xml:space="preserve"><value>পঠিত হিসেবে চিহ্নিত করুন</value></data>
+  <data name="Create an account" xml:space="preserve"><value>অ্যাকাউন্ট তৈরি করুন</value></data>
+  <data name="Welcome back" xml:space="preserve"><value>আবার স্বাগতম</value></data>
+  <data name="Log in to your Nestify account." xml:space="preserve"><value>আপনার Nestify অ্যাকাউন্টে লগ ইন করুন।</value></data>
+  <data name="Email address" xml:space="preserve"><value>ইমেইল ঠিকানা</value></data>
+  <data name="Password" xml:space="preserve"><value>পাসওয়ার্ড</value></data>
+  <data name="Forgot password?" xml:space="preserve"><value>পাসওয়ার্ড ভুলে গেছেন?</value></data>
+  <data name="Your password" xml:space="preserve"><value>আপনার পাসওয়ার্ড</value></data>
+  <data name="Hide" xml:space="preserve"><value>লুকান</value></data>
+  <data name="Show" xml:space="preserve"><value>দেখান</value></data>
+  <data name="Keep me signed in" xml:space="preserve"><value>লগ ইন অবস্থায় রাখুন</value></data>
+  <data name="Signing in..." xml:space="preserve"><value>লগ ইন হচ্ছে...</value></data>
+  <data name="New to Nestify?" xml:space="preserve"><value>Nestify-এ নতুন?</value></data>
+  <data name="Create account" xml:space="preserve"><value>অ্যাকাউন্ট তৈরি</value></data>
+  <data name="It takes about a minute." xml:space="preserve"><value>অ্যাকাউন্ট তৈরি করতে প্রায় এক মিনিট লাগবে।</value></data>
+  <data name="Full name" xml:space="preserve"><value>পুরো নাম</value></data>
+  <data name="Email" xml:space="preserve"><value>ইমেইল</value></data>
+  <data name="Phone" xml:space="preserve"><value>ফোন নম্বর</value></data>
+  <data name="Register as" xml:space="preserve"><value>যে পরিচয়ে নিবন্ধন করবেন</value></data>
+  <data name="User" xml:space="preserve"><value>ব্যবহারকারী</value></data>
+  <data name="Min 8 characters" xml:space="preserve"><value>কমপক্ষে ৮টি অক্ষর</value></data>
+  <data name="Confirm password" xml:space="preserve"><value>পাসওয়ার্ড নিশ্চিত করুন</value></data>
+  <data name="Re-enter password" xml:space="preserve"><value>আবার পাসওয়ার্ড লিখুন</value></data>
+  <data name="I agree to the Nestify" xml:space="preserve"><value>আমি Nestify-এর</value></data>
+  <data name=" and " xml:space="preserve"><value> এবং </value></data>
+  <data name="Creating account..." xml:space="preserve"><value>অ্যাকাউন্ট তৈরি হচ্ছে...</value></data>
+  <data name="Already have an account?" xml:space="preserve"><value>আগে থেকেই অ্যাকাউন্ট আছে?</value></data>
+  <data name="Sign in" xml:space="preserve"><value>সাইন ইন</value></data>
+  <data name="Log in and pick up where you left off — your seat, your khala, your settlements." xml:space="preserve"><value>লগ ইন করে আপনার আগের কাজ চালিয়ে যান—বাসার আসন, সহায়তাকর্মী ও মাসিক হিসাব সবই আপনার জন্য অপেক্ষা করছে।</value></data>
+  <data name="New here?" xml:space="preserve"><value>এখানে নতুন?</value></data>
+  <data name="One verified account for housing, domestic help, shared expenses, and the marketplace." xml:space="preserve"><value>বাসা, গৃহসহায়তা, যৌথ খরচ ও কেনাবেচার জন্য একটি যাচাইকৃত অ্যাকাউন্ট।</value></data>
+  <data name="Save" xml:space="preserve"><value>সংরক্ষণ</value></data>
+  <data name="Cancel" xml:space="preserve"><value>বাতিল</value></data>
+  <data name="Submit" xml:space="preserve"><value>জমা দিন</value></data>
+  <data name="Back" xml:space="preserve"><value>ফিরে যান</value></data>
+  <data name="Continue" xml:space="preserve"><value>এগিয়ে যান</value></data>
+  <data name="Close" xml:space="preserve"><value>বন্ধ করুন</value></data>
+  <data name="Edit" xml:space="preserve"><value>সম্পাদনা</value></data>
+  <data name="Delete" xml:space="preserve"><value>মুছুন</value></data>
+  <data name="Search" xml:space="preserve"><value>খুঁজুন</value></data>
+  <data name="Primary" xml:space="preserve"><value>প্রধান নেভিগেশন</value></data>
+  <data name="Footer" xml:space="preserve"><value>পাদলেখ</value></data>
+  <data name="Language" xml:space="preserve"><value>ভাষা</value></data>
+  <data name="Toggle color theme" xml:space="preserve"><value>রঙের ধরন পরিবর্তন করুন</value></data>
+  <data name="Toggle admin color theme" xml:space="preserve"><value>অ্যাডমিনের রঙের ধরন পরিবর্তন করুন</value></data>
+  <data name="just now" xml:space="preserve"><value>এইমাত্র</value></data>
+  <data name="{0}m ago" xml:space="preserve"><value>{0} মিনিট আগে</value></data>
+  <data name="{0}h ago" xml:space="preserve"><value>{0} ঘণ্টা আগে</value></data>
+  <data name="{0}d ago" xml:space="preserve"><value>{0} দিন আগে</value></data>
+  <data name="." xml:space="preserve"><value>।</value></data>
+</root>

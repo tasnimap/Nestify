@@ -1,24 +1,25 @@
 @using Nestify.Shared.Dtos.Notifications
+@inject IStringLocalizer<SharedResource> L
 
-<section class="notification-dropdown @(Show ? "show" : "hide")" role="dialog" aria-label="Notifications" aria-hidden="@(!Show)" @onclick:stopPropagation="true">
+<section class="notification-dropdown @(Show ? "show" : "hide")" role="dialog" aria-label='@L["Notifications"]' aria-hidden="@(!Show)" @onclick:stopPropagation="true">
     <header class="notification-dropdown__header">
-        <h2>Notifications</h2>
+        <h2>@L["Notifications"]</h2>
         <button type="button" class="notification-dropdown__mark-all"
                 disabled="@(Loading || UnreadCount == 0)" @onclick="OnMarkAllRead">
-            Mark all as read
+            @L["Mark all as read"]
         </button>
     </header>
 
     <div class="notification-dropdown__content">
         @if (Loading)
         {
-            <p class="notification-dropdown__state">Loading notifications…</p>
+            <p class="notification-dropdown__state">@L["Loading notifications…"]</p>
         }
         else if (Error is not null)
         {
             <div class="notification-dropdown__state notification-dropdown__state--error" role="alert">
                 <p>@Error</p>
-                <button type="button" class="notification-dropdown__mark-all" @onclick="OnRetry">Try again</button>
+                <button type="button" class="notification-dropdown__mark-all" @onclick="OnRetry">@L["Try again"]</button>
             </div>
         }
         else if (Notifications.Count > 0)
@@ -32,7 +33,7 @@
         }
         else
         {
-            <p class="notification-dropdown__state notification-dropdown__empty">You're all caught up</p>
+            <p class="notification-dropdown__state notification-dropdown__empty">@L["You're all caught up"]</p>
         }
     </div>
 </section>

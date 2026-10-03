@@ -2,7 +2,9 @@
 @inject ToastService ToastService
 @implements IDisposable
 
-<div class="toast-container" role="region" aria-live="polite" aria-label="Notifications">
+@inject IStringLocalizer<SharedResource> L
+
+<div class="toast-container" role="region" aria-live="polite" aria-label='@L["Notifications"]'>
     @foreach (var toast in ToastService.Toasts)
     {
         <div class="toast toast--@toast.Type.ToString().ToLowerInvariant()"

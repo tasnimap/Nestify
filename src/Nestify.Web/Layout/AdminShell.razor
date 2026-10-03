@@ -6,6 +6,7 @@
 @inject Nestify.Web.Services.Interfaces.IAdminService Admin
 @inject Nestify.Web.Services.Interfaces.IAuthService AuthService
 @inject IJSRuntime JS
+@inject IStringLocalizer<SharedResource> L
 
 <div class="adm">
     <a class="skip-link" href="#adm-main">Skip to main content</a>
@@ -19,16 +20,16 @@
             </span>
         </a>
 
-        <p class="adm__group">Overview</p>
+        <p class="adm__group">@L["Overview"]</p>
         <NavLink class="adm__link" href="admin" Match="NavLinkMatch.All" @onclick="CloseDrawer">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5" /><rect x="14" y="3" width="7" height="5" rx="1.5" /><rect x="14" y="12" width="7" height="9" rx="1.5" /><rect x="3" y="16" width="7" height="5" rx="1.5" /></svg>
-            Dashboard
+            @L["Dashboard"]
         </NavLink>
 
-        <p class="adm__group">Moderation</p>
+        <p class="adm__group">@L["Moderation"]</p>
         <NavLink class="adm__link" href="admin/housing" @onclick="CloseDrawer">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m3 10 9-7 9 7v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><path d="M9 21v-7h6v7" /></svg>
-            Housing posts
+            @L["Housing posts"]
             @if (_housingReports > 0)
             {
                 <span class="adm__link-pill">@_housingReports</span>
@@ -36,7 +37,7 @@
         </NavLink>
         <NavLink class="adm__link" href="admin/marketplace" @onclick="CloseDrawer">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 6h18l-1.5 9.5a2 2 0 0 1-2 1.7H6.5a2 2 0 0 1-2-1.7z" /><circle cx="9" cy="20" r="1.4" /><circle cx="17" cy="20" r="1.4" /></svg>
-            Marketplace posts
+            @L["Marketplace posts"]
             @if (_marketReports > 0)
             {
                 <span class="adm__link-pill">@_marketReports</span>
@@ -44,25 +45,25 @@
         </NavLink>
         <NavLink class="adm__link" href="admin/verifications" @onclick="CloseDrawer">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z" /><path d="m9 12 2 2 4-4" /></svg>
-            Verifications
+            @L["Verifications"]
             @if (_pending > 0)
             {
                 <span class="adm__link-pill">@_pending</span>
             }
         </NavLink>
 
-        <p class="adm__group">Platform</p>
+        <p class="adm__group">@L["Platform"]</p>
         <NavLink class="adm__link" href="admin/pricing" @onclick="CloseDrawer">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20.6 13.4 12 22l-9-9V4a1 1 0 0 1 1-1h8z" /><circle cx="7.5" cy="7.5" r="1.4" /></svg>
-            Fees &amp; plans
+            @L["Fees & plans"]
         </NavLink>
         <NavLink class="adm__link" href="admin/team" @onclick="CloseDrawer">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M19 8v6M22 11h-6" /></svg>
-            Admin accounts
+            @L["Admin accounts"]
         </NavLink>
         <NavLink class="adm__link" href="admin/audit" @onclick="CloseDrawer">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6" /><path d="M8 13h8M8 17h6" /></svg>
-            Audit log
+            @L["Audit log"]
         </NavLink>
 
         <span class="adm__side-spacer"></span>
@@ -72,12 +73,12 @@
                 <span class="adm__avatar" aria-hidden="true">@Initials(_name)</span>
                 <span>
                     <span class="adm__who-name">@(_name ?? "Admin")</span>
-                    <span class="adm__who-role">View profile</span>
+                    <span class="adm__who-role">@L["View profile"]</span>
                 </span>
             </a>
             <button class="adm__signout" type="button" @onclick="SignOut">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><path d="m16 17 5-5-5-5" /><path d="M21 12H9" /></svg>
-                Log out
+                @L["Log out"]
             </button>
         </div>
     </aside>
@@ -93,16 +94,16 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
             </button>
             <div>
-                <div class="adm__bar-title">Nestify control room</div>
-                <div class="adm__bar-sub">Signed in as @(_name ?? "Admin")</div>
+                <div class="adm__bar-title">@L["Nestify control room"]</div>
+                <div class="adm__bar-sub">@L["Signed in as {0}", _name ?? "Admin"]</div>
             </div>
             <div class="adm__bar-right">
                 <NotificationBell />
                 <button class="adm__theme-toggle"
                         type="button"
-                        aria-label="Toggle admin color theme"
+                        aria-label='@L["Toggle admin color theme"]'
                         aria-pressed="false"
-                        title="Toggle admin color theme"
+                        title='@L["Toggle admin color theme"]'
                         @onclick="ToggleAdminTheme">
                     <span class="adm__theme-track" aria-hidden="true">
                         <svg class="adm__theme-icon adm__theme-icon--sun" viewBox="0 0 24 24">
@@ -116,6 +117,7 @@
                         </svg>
                     </span>
                 </button>
+                <LanguageSwitcher />
                 <span class="adm__clock">@DateTime.Now.ToString("dddd, d MMM yyyy")</span>
             </div>
         </header>
