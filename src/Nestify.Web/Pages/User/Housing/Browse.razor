@@ -123,7 +123,7 @@
                     {
                         <nav class="hs-pager" aria-label="Pagination">
                             <button class="nx-btn nx-btn--ghost" disabled="@(!_page.HasPrevious)" @onclick="PrevPage">@L["Previous"]</button>
-                            <span class="hs-pager__pages">@L["Page @_page.Page of @_page.TotalPages"]</span>
+                            <span class="hs-pager__pages">@L["Page {0} of {1}", _page.Page, _page.TotalPages]</span>
                             <button class="nx-btn nx-btn--ghost" disabled="@(!_page.HasNext)" @onclick="NextPage">@L["Next"]</button>
                         </nav>
                     }
