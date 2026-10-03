@@ -1425,4 +1425,89 @@
   <data name="Saved" xml:space="preserve"><value>Saved</value></data>
   <data name="WhatsApp" xml:space="preserve"><value>WhatsApp</value></data>
   <data name="Could not load posting packages. Please try again." xml:space="preserve"><value>Could not load posting packages. Please try again.</value></data>
+  <data name="{0} · lightly used" xml:space="preserve"><value>{0} · lightly used</value></data>
+  <data name="{0} / month · {1} seat left" xml:space="preserve"><value>{0} / month · {1} seat left</value></data>
+  <data name="★ {0} · within {1} km" xml:space="preserve"><value>★ {0} · within {1} km</value></data>
+  <data name="A seat is found in a Facebook group. A helper is hired by word of mouth. The month's meal cost is argued over a torn notebook page. A used table is sold on yet another classifieds site — to a stranger nobody can verify." xml:space="preserve"><value>A seat is found in a Facebook group. A helper is hired by word of mouth. The month's meal cost is argued over a torn notebook page. A used table is sold on yet another classifieds site — to a stranger nobody can verify.</value></data>
+  <data name="A smiling woman from Bangladesh cooking in a flat" xml:space="preserve"><value>A smiling woman from Bangladesh cooking in a flat</value></data>
+  <data name="A spacious family apartment bedroom with a master bed" xml:space="preserve"><value>A spacious family apartment bedroom with a master bed</value></data>
+  <data name="AI price suggestion to list fairly" xml:space="preserve"><value>AI price suggestion to list fairly</value></data>
+  <data name="Argue less over meal costs. Nestify provides a transparent, immutable record for splitting daily utilities and calculating the per-meal rate at the end of the month." xml:space="preserve"><value>Argue less over meal costs. Nestify provides a transparent, immutable record for splitting daily utilities and calculating the per-meal rate at the end of the month.</value></data>
+  <data name="Automatic calculation of shared dues &amp; splits" xml:space="preserve"><value>Automatic calculation of shared dues &amp; splits</value></data>
+  <data name="Book, confirm &amp; rate in one place" xml:space="preserve"><value>Book, confirm &amp; rate in one place</value></data>
+  <data name="Browse by category, condition &amp; area" xml:space="preserve"><value>Browse by category, condition &amp; area</value></data>
+  <data name="Browse housing" xml:space="preserve"><value>Browse housing</value></data>
+  <data name="Buy &amp; sell second-hand, safely" xml:space="preserve"><value>Buy &amp; sell second-hand, safely</value></data>
+  <data name="Connect &amp; settle" xml:space="preserve"><value>Connect &amp; settle</value></data>
+  <data name="Contact details are shared only on a real match. Money owed is calculated for you and the record can't be quietly edited later." xml:space="preserve"><value>Contact details are shared only on a real match. Money owed is calculated for you and the record can't be quietly edited later.</value></data>
+  <data name="Cost Settlement" xml:space="preserve"><value>Cost Settlement</value></data>
+  <data name="Create your account" xml:space="preserve"><value>Create your account</value></data>
+  <data name="Create your Nestify account and stop juggling five apps to run one household." xml:space="preserve"><value>Create your Nestify account and stop juggling five apps to run one household.</value></data>
+  <data name="districts of Bangladesh mapped" xml:space="preserve"><value>districts of Bangladesh mapped</value></data>
+  <data name="End the monthly cost &amp; expense arguments" xml:space="preserve"><value>End the monthly cost &amp; expense arguments</value></data>
+  <data name="Every one of these needs the same things: trust, a verified identity, and local context. None of the current tools give you all three. Nestify is built to." xml:space="preserve"><value>Every one of these needs the same things: trust, a verified identity, and local context. None of the current tools give you all three. Nestify is built to.</value></data>
+  <data name="Every transaction logged with clear audit trail" xml:space="preserve"><value>Every transaction logged with clear audit trail</value></data>
+  <data name="everyday problems, one platform" xml:space="preserve"><value>everyday problems, one platform</value></data>
+  <data name="Everything a bachelor needs, in one place." xml:space="preserve"><value>Everything a bachelor needs, in one place.</value></data>
+  <data name="Everything is already in one place." xml:space="preserve"><value>Everything is already in one place.</value></data>
+  <data name="Expense &amp; Meal Settlement" xml:space="preserve"><value>Expense &amp; Meal Settlement</value></data>
+  <data name="Filter by division, district &amp; upazila" xml:space="preserve"><value>Filter by division, district &amp; upazila</value></data>
+  <data name="Find your next seat or shared house" xml:space="preserve"><value>Find your next seat or shared house</value></data>
+  <data name="Finding reliable domestic help used to mean asking neighbours and hoping for the best. Nestify's verified helper directory shows ratings, services offered, hourly or monthly rate, and availability — all earned through real, completed engagements." xml:space="preserve"><value>Finding reliable domestic help used to mean asking neighbours and hoping for the best. Nestify's verified helper directory shows ratings, services offered, hourly or monthly rate, and availability — all earned through real, completed engagements.</value></data>
+  <data name="For students &amp; job holders in Bangladesh" xml:space="preserve"><value>For students &amp; job holders in Bangladesh</value></data>
+  <data name="Four parts of bachelor life," xml:space="preserve"><value>Four parts of bachelor life,</value></data>
+  <data name="Four real problems. Four connected modules. One verified account to rule them all." xml:space="preserve"><value>Four real problems. Four connected modules. One verified account to rule them all.</value></data>
+  <data name="Get started free" xml:space="preserve"><value>Get started free</value></data>
+  <data name="Go to my dashboard" xml:space="preserve"><value>Go to my dashboard</value></data>
+  <data name="Helper — cooking &amp; cleaning" xml:space="preserve"><value>Helper — cooking &amp; cleaning</value></data>
+  <data name="Helpers &amp; Marketplace" xml:space="preserve"><value>Helpers &amp; Marketplace</value></data>
+  <data name="Hire a trusted helper" xml:space="preserve"><value>Hire a trusted helper</value></data>
+  <data name="Housing &amp; Seat Finding" xml:space="preserve"><value>Housing &amp; Seat Finding</value></data>
+  <data name="How it works" xml:space="preserve"><value>How it works</value></data>
+  <data name="I already have an account" xml:space="preserve"><value>I already have an account</value></data>
+  <data name="Immutable expense records" xml:space="preserve"><value>Immutable expense records</value></data>
+  <data name="Immutable monthly expense &amp; settlement record" xml:space="preserve"><value>Immutable monthly expense &amp; settlement record</value></data>
+  <data name="Local to your area" xml:space="preserve"><value>Local to your area</value></data>
+  <data name="Log shared flat expenses, groceries, utilities, and meal purchases throughout the month. At close, Nestify automatically calculates shared splits and who owes whom — down to the last Taka. Once finalised, the record is locked and tamper-evident." xml:space="preserve"><value>Log shared flat expenses, groceries, utilities, and meal purchases throughout the month. At close, Nestify automatically calculates shared splits and who owes whom — down to the last Taka. Once finalised, the record is locked and tamper-evident.</value></data>
+  <data name="Looking for a seat this week, a cook next month, and selling a fan today? Do all three from the same dashboard." xml:space="preserve"><value>Looking for a seat this week, a cook next month, and selling a fan today? Do all three from the same dashboard.</value></data>
+  <data name="Meet the team" xml:space="preserve"><value>Meet the team</value></data>
+  <data name="Module 1" xml:space="preserve"><value>Module 1</value></data>
+  <data name="Module 2" xml:space="preserve"><value>Module 2</value></data>
+  <data name="Module 3" xml:space="preserve"><value>Module 3</value></data>
+  <data name="Module 4" xml:space="preserve"><value>Module 4</value></data>
+  <data name="Monthly shared expense ledger, calculator, and cost settlement" xml:space="preserve"><value>Monthly shared expense ledger, calculator, and cost settlement</value></data>
+  <data name="Moving out? List your furniture, fan, or textbooks in minutes. Every buyer and seller on Nestify carries a verified badge — so you know exactly who you're dealing with before any number is exchanged." xml:space="preserve"><value>Moving out? List your furniture, fan, or textbooks in minutes. Every buyer and seller on Nestify carries a verified badge — so you know exactly who you're dealing with before any number is exchanged.</value></data>
+  <data name="Nestify brings your seat hunt, your domestic help, your monthly meal-cost settlement, and your second-hand deals together — behind a single account you actually trust." xml:space="preserve"><value>Nestify brings your seat hunt, your domestic help, your monthly meal-cost settlement, and your second-hand deals together — behind a single account you actually trust.</value></data>
+  <data name="No more scrolling through hundreds of unverified social media posts just to find a single mess seat or sublet. We make discovering your next home simple and secure." xml:space="preserve"><value>No more scrolling through hundreds of unverified social media posts just to find a single mess seat or sublet. We make discovering your next home simple and secure.</value></data>
+  <data name="One verified account. Four everyday problems, solved together." xml:space="preserve"><value>One verified account. Four everyday problems, solved together.</value></data>
+  <data name="one verified home." xml:space="preserve"><value>one verified home.</value></data>
+  <data name="Open admin console" xml:space="preserve"><value>Open admin console</value></data>
+  <data name="Open Settlement Workspace" xml:space="preserve"><value>Open Settlement Workspace</value></data>
+  <data name="Our motivation" xml:space="preserve"><value>Our motivation</value></data>
+  <data name="Our services" xml:space="preserve"><value>Our services</value></data>
+  <data name="Per-meal rate {0} · you get {1}" xml:space="preserve"><value>Per-meal rate {0} · you get {1}</value></data>
+  <data name="Pick a module" xml:space="preserve"><value>Pick a module</value></data>
+  <data name="Pick up where you left off — your interface is one click away." xml:space="preserve"><value>Pick up where you left off — your interface is one click away.</value></data>
+  <data name="Register with your details and student ID. One verification carries across every module — you never prove who you are twice." xml:space="preserve"><value>Register with your details and student ID. One verification carries across every module — you never prove who you are twice.</value></data>
+  <data name="Reviews locked to real engagements only" xml:space="preserve"><value>Reviews locked to real engagements only</value></data>
+  <data name="Right now, bachelor life is spread across five different places." xml:space="preserve"><value>Right now, bachelor life is spread across five different places.</value></data>
+  <data name="Safe contact disclosure after matching" xml:space="preserve"><value>Safe contact disclosure after matching</value></data>
+  <data name="Seat in Bakshi Bazar mess" xml:space="preserve"><value>Seat in Bakshi Bazar mess</value></data>
+  <data name="See rent, deposit &amp; available date instantly" xml:space="preserve"><value>See rent, deposit &amp; available date instantly</value></data>
+  <data name="September settlement" xml:space="preserve"><value>September settlement</value></data>
+  <data name="Settlement workspace" xml:space="preserve"><value>Settlement workspace</value></data>
+  <data name="Solving the fragmented bachelor life." xml:space="preserve"><value>Solving the fragmented bachelor life.</value></data>
+  <data name="spreadsheets you still have to keep" xml:space="preserve"><value>spreadsheets you still have to keep</value></data>
+  <data name="Study table + chair" xml:space="preserve"><value>Study table + chair</value></data>
+  <data name="Study table, chair, and room essentials listed for sale" xml:space="preserve"><value>Study table, chair, and room essentials listed for sale</value></data>
+  <data name="The problem" xml:space="preserve"><value>The problem</value></data>
+  <data name="Three steps, then everything is in one place." xml:space="preserve"><value>Three steps, then everything is in one place.</value></data>
+  <data name="Tired of scrolling through stale Facebook posts? Browse verified mess seats, sub-lets, and shared houses in your area — with rent in Taka, occupancy, and eligibility all up front. Contact details are released only once your request is accepted." xml:space="preserve"><value>Tired of scrolling through stale Facebook posts? Browse verified mess seats, sub-lets, and shared houses in your area — with rent in Taka, occupancy, and eligibility all up front. Contact details are released only once your request is accepted.</value></data>
+  <data name="University students and young professionals living away from home face a daily struggle: managing housing, meals, domestic help, and buying essentials across disconnected groups and apps. Nestify was built to solve this exact problem by bringing everything into one trusted platform." xml:space="preserve"><value>University students and young professionals living away from home face a daily struggle: managing housing, meals, domestic help, and buying essentials across disconnected groups and apps. Nestify was built to solve this exact problem by bringing everything into one trusted platform.</value></data>
+  <data name="verified account for all of them" xml:space="preserve"><value>verified account for all of them</value></data>
+  <data name="Verified badge on every profile" xml:space="preserve"><value>Verified badge on every profile</value></data>
+  <data name="Verified helper profiles with photo" xml:space="preserve"><value>Verified helper profiles with photo</value></data>
+  <data name="Verified profiles" xml:space="preserve"><value>Verified profiles</value></data>
+  <data name="Verify once" xml:space="preserve"><value>Verify once</value></data>
+  <data name="Whether you need to hire a reliable helper or sell your second-hand furniture when moving out, you can do it all safely within the same verified ecosystem." xml:space="preserve"><value>Whether you need to hire a reliable helper or sell your second-hand furniture when moving out, you can do it all safely within the same verified ecosystem.</value></data>
 </root>

@@ -304,3 +304,12 @@
 .spirit__icon--trust      { background: var(--nx-primary-soft); color: var(--nx-primary); }
 .spirit__icon--community  { background: var(--nx-accent-soft);  color: var(--nx-accent);  }
 .spirit__icon--simplicity { background: #fff5e5;                color: #d97706;            }
+
+html[lang^="bn"] .spirit__head,
+html[lang^="bn"] .spirit__grid,
+html[lang^="bn"] .spirit__card { min-width: 0; }
+
+html[lang^="bn"] .spirit__head,
+html[lang^="bn"] .spirit__card { overflow-wrap: anywhere; line-height: 1.8; }
+
+html[lang^="bn"] .spirit__grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr)); }

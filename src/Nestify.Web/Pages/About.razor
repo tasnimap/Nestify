@@ -1,7 +1,8 @@
 @page "/about"
 @implements IDisposable
+@inject IStringLocalizer<SharedResource> L
 
-<PageTitle>About Us — Nestify</PageTitle>
+<PageTitle>@L["About Us"] — Nestify</PageTitle>
 
 <!-- ============ TEAM CAROUSEL ============ -->
 <section class="nx-section team-section">
@@ -103,10 +104,10 @@
 <section class="nx-section nx-section--alt spirit-section">
     <div class="nx-container">
         <div class="spirit__head">
-            <p class="nx-eyebrow">Our motivation</p>
-            <h2 class="nx-section-title">Solving the fragmented bachelor life.</h2>
+            <p class="nx-eyebrow">@L["Our motivation"]</p>
+            <h2 class="nx-section-title">@L["Solving the fragmented bachelor life."]</h2>
             <p class="nx-lead">
-                University students and young professionals living away from home face a daily struggle: managing housing, meals, domestic help, and buying essentials across disconnected groups and apps. Nestify was built to solve this exact problem by bringing everything into one trusted platform.
+                @L["University students and young professionals living away from home face a daily struggle: managing housing, meals, domestic help, and buying essentials across disconnected groups and apps. Nestify was built to solve this exact problem by bringing everything into one trusted platform."]
             </p>
         </div>
 
@@ -118,8 +119,8 @@
                         <polyline points="9 22 9 12 15 12 15 22" />
                     </svg>
                 </div>
-                <h3>Housing & Seat Finding</h3>
-                <p>No more scrolling through hundreds of unverified social media posts just to find a single mess seat or sublet. We make discovering your next home simple and secure.</p>
+                <h3>@L["Housing & Seat Finding"]</h3>
+                <p>@L["No more scrolling through hundreds of unverified social media posts just to find a single mess seat or sublet. We make discovering your next home simple and secure."]</p>
             </div>
 
             <div class="spirit__card nx-card">
@@ -129,8 +130,8 @@
                         <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                     </svg>
                 </div>
-                <h3>Expense & Meal Settlement</h3>
-                <p>Argue less over meal costs. Nestify provides a transparent, immutable record for splitting daily utilities and calculating the per-meal rate at the end of the month.</p>
+                <h3>@L["Expense & Meal Settlement"]</h3>
+                <p>@L["Argue less over meal costs. Nestify provides a transparent, immutable record for splitting daily utilities and calculating the per-meal rate at the end of the month."]</p>
             </div>
 
             <div class="spirit__card nx-card">
@@ -142,8 +143,8 @@
                         <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                     </svg>
                 </div>
-                <h3>Helpers & Marketplace</h3>
-                <p>Whether you need to hire a reliable helper or sell your second-hand furniture when moving out, you can do it all safely within the same verified ecosystem.</p>
+                <h3>@L["Helpers & Marketplace"]</h3>
+                <p>@L["Whether you need to hire a reliable helper or sell your second-hand furniture when moving out, you can do it all safely within the same verified ecosystem."]</p>
             </div>
         </div>
     </div>

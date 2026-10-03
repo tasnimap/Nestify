@@ -1,64 +1,64 @@
 @page "/"
+@inject IStringLocalizer<SharedResource> L
+@inject Nestify.Web.Services.MoneyFormatterService Money
 
-<PageTitle>Nestify — Bachelor Life, Unified</PageTitle>
+<PageTitle>Nestify — @L["Bachelor life, unified."]</PageTitle>
 
 <!-- ============ HERO ============ -->
 <section class="hero">
     <div class="hero__glow" aria-hidden="true"></div>
     <div class="nx-container hero__grid">
         <div class="hero__copy">
-            <p class="nx-eyebrow">For students &amp; job holders in Bangladesh</p>
+            <p class="nx-eyebrow">@L["For students & job holders in Bangladesh"]</p>
             <h1 class="hero__title">
-                Four parts of bachelor life,
-                <span class="nx-display-accent">one verified home.</span>
+                @L["Four parts of bachelor life,"]
+                <span class="nx-display-accent">@L["one verified home."]</span>
             </h1>
             <p class="hero__lead">
-                Nestify brings your seat hunt, your domestic help, your monthly meal-cost
-                settlement, and your second-hand deals together — behind a single account
-                you actually trust.
+                @L["Nestify brings your seat hunt, your domestic help, your monthly meal-cost settlement, and your second-hand deals together — behind a single account you actually trust."]
             </p>
             <AuthorizeView Roles="User">
                 <Authorized>
                     <div class="hero__actions">
-                        <a class="nx-btn nx-btn--primary nx-btn--lg" href="housing">Browse housing</a>
-                        <a class="nx-btn nx-btn--ghost nx-btn--lg" href="settlement">Settlement workspace</a>
+                        <a class="nx-btn nx-btn--primary nx-btn--lg" href="housing">@L["Browse housing"]</a>
+                        <a class="nx-btn nx-btn--ghost nx-btn--lg" href="settlement">@L["Settlement workspace"]</a>
                     </div>
                 </Authorized>
             </AuthorizeView>
             <AuthorizeView Roles="DomesticHelper,DomesticHelp,Maid,Helper">
                 <Authorized>
                     <div class="hero__actions">
-                        <a class="nx-btn nx-btn--primary nx-btn--lg" href="helpers/dashboard">Go to my dashboard</a>
+                        <a class="nx-btn nx-btn--primary nx-btn--lg" href="helpers/dashboard">@L["Go to my dashboard"]</a>
                     </div>
                 </Authorized>
             </AuthorizeView>
             <AuthorizeView Roles="Admin">
                 <Authorized>
                     <div class="hero__actions">
-                        <a class="nx-btn nx-btn--primary nx-btn--lg" href="admin">Open admin console</a>
+                        <a class="nx-btn nx-btn--primary nx-btn--lg" href="admin">@L["Open admin console"]</a>
                     </div>
                 </Authorized>
             </AuthorizeView>
             <AuthorizeView>
                 <NotAuthorized>
                     <div class="hero__actions">
-                        <a class="nx-btn nx-btn--primary nx-btn--lg" href="register">Create your account</a>
-                        <a class="nx-btn nx-btn--ghost nx-btn--lg" href="about">Meet the team</a>
+                        <a class="nx-btn nx-btn--primary nx-btn--lg" href="register">@L["Create your account"]</a>
+                        <a class="nx-btn nx-btn--ghost nx-btn--lg" href="about">@L["Meet the team"]</a>
                     </div>
                 </NotAuthorized>
             </AuthorizeView>
             <ul class="hero__trust">
                 <li>
                     <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
-                    Verified profiles
+                    @L["Verified profiles"]
                 </li>
                 <li>
                     <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
-                    Local to your area
+                    @L["Local to your area"]
                 </li>
                 <li>
                     <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
-                    Immutable expense records
+                    @L["Immutable expense records"]
                 </li>
             </ul>
         </div>
@@ -69,8 +69,8 @@
                     <svg class="nx-icon" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5" /><path d="M5 9.5V21h14V9.5" /><path d="M9.5 21v-6h5v6" /></svg>
                 </span>
                 <div>
-                    <p class="mini__title">Seat in Bakshi Bazar mess</p>
-                    <p class="mini__meta">৳4,500 / month · 1 seat left</p>
+                    <p class="mini__title">@L["Seat in Bakshi Bazar mess"]</p>
+                    <p class="mini__meta">@L["{0} / month · {1} seat left", Money.Format(4500m), Number(1)]</p>
                 </div>
             </div>
             <div class="mini mini--helper">
@@ -78,8 +78,8 @@
                     <svg class="nx-icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4 4-6 8-6s8 2 8 6" /></svg>
                 </span>
                 <div>
-                    <p class="mini__title">Helper — cooking &amp; cleaning</p>
-                    <p class="mini__meta">★ 4.8 · within 2 km</p>
+                    <p class="mini__title">@L["Helper — cooking & cleaning"]</p>
+                    <p class="mini__meta">@L["★ {0} · within {1} km", 4.8m.ToString("N1", System.Globalization.CultureInfo.CurrentCulture), Number(2)]</p>
                 </div>
             </div>
             <div class="mini mini--split">
@@ -87,8 +87,8 @@
                     <svg class="nx-icon" viewBox="0 0 24 24"><path d="M12 3v18" /><path d="M5 8h9a3 3 0 0 1 0 6H8" /></svg>
                 </span>
                 <div>
-                    <p class="mini__title">September settlement</p>
-                    <p class="mini__meta">Per-meal rate ৳48.60 · you get ৳312</p>
+                    <p class="mini__title">@L["September settlement"]</p>
+                    <p class="mini__meta">@L["Per-meal rate {0} · you get {1}", Money.Format(48.60m), Money.Format(312m)]</p>
                 </div>
             </div>
             <div class="mini mini--market">
@@ -96,8 +96,8 @@
                     <svg class="nx-icon" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" /><path d="M3 6h18" /><path d="M16 10a4 4 0 0 1-8 0" /></svg>
                 </span>
                 <div>
-                    <p class="mini__title">Study table + chair</p>
-                    <p class="mini__meta">৳1,200 · lightly used</p>
+                    <p class="mini__title">@L["Study table + chair"]</p>
+                    <p class="mini__meta">@L["{0} · lightly used", Money.Format(1200m)]</p>
                 </div>
             </div>
         </div>
@@ -108,20 +108,20 @@
 <section class="nx-section--tight stats">
     <div class="nx-container stats__grid">
         <div class="stat">
-            <p class="stat__num">4</p>
-            <p class="stat__label">everyday problems, one platform</p>
+            <p class="stat__num">@Number(4)</p>
+            <p class="stat__label">@L["everyday problems, one platform"]</p>
         </div>
         <div class="stat">
-            <p class="stat__num">1</p>
-            <p class="stat__label">verified account for all of them</p>
+            <p class="stat__num">@Number(1)</p>
+            <p class="stat__label">@L["verified account for all of them"]</p>
         </div>
         <div class="stat">
-            <p class="stat__num">64</p>
-            <p class="stat__label">districts of Bangladesh mapped</p>
+            <p class="stat__num">@Number(64)</p>
+            <p class="stat__label">@L["districts of Bangladesh mapped"]</p>
         </div>
         <div class="stat">
-            <p class="stat__num">0</p>
-            <p class="stat__label">spreadsheets you still have to keep</p>
+            <p class="stat__num">@Number(0)</p>
+            <p class="stat__label">@L["spreadsheets you still have to keep"]</p>
         </div>
     </div>
 </section>
@@ -130,19 +130,15 @@
 <section class="nx-section">
     <div class="nx-container problem">
         <div>
-            <p class="nx-eyebrow">The problem</p>
-            <h2 class="nx-section-title">Right now, bachelor life is spread across five different places.</h2>
+            <p class="nx-eyebrow">@L["The problem"]</p>
+            <h2 class="nx-section-title">@L["Right now, bachelor life is spread across five different places."]</h2>
         </div>
         <div class="problem__body">
             <p>
-                A seat is found in a Facebook group. A <em>helper</em> is hired by word of mouth.
-                The month's meal cost is argued over a torn notebook page. A used table is sold
-                on yet another classifieds site — to a stranger nobody can verify.
+                @L["A seat is found in a Facebook group. A helper is hired by word of mouth. The month's meal cost is argued over a torn notebook page. A used table is sold on yet another classifieds site — to a stranger nobody can verify."]
             </p>
             <p>
-                Every one of these needs the same things: <strong>trust, a verified identity,
-                and local context.</strong> None of the current tools give you all three.
-                Nestify is built to.
+                @L["Every one of these needs the same things: trust, a verified identity, and local context. None of the current tools give you all three. Nestify is built to."]
             </p>
         </div>
     </div>
@@ -152,9 +148,9 @@
 <section class="nx-section svc-section">
     <div class="nx-container">
         <div class="features__head">
-            <p class="nx-eyebrow">Our services</p>
-            <h2 class="nx-section-title">Everything a bachelor needs, in one place.</h2>
-            <p class="nx-lead">Four real problems. Four connected modules. One verified account to rule them all.</p>
+            <p class="nx-eyebrow">@L["Our services"]</p>
+            <h2 class="nx-section-title">@L["Everything a bachelor needs, in one place."]</h2>
+            <p class="nx-lead">@L["Four real problems. Four connected modules. One verified account to rule them all."]</p>
         </div>
 
         <!-- Service 1 — Housing: image LEFT, text RIGHT -->
@@ -163,24 +159,19 @@
                 <img
                     class="svc-row__img"
                     src="https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=800&auto=format&fit=crop&q=75"
-                    alt="A spacious family apartment bedroom with a master bed"
+                    alt="@L["A spacious family apartment bedroom with a master bed"]"
                     loading="lazy"
                     width="640" height="420" />
-                <span class="svc-row__badge svc-row__badge--a">Housing</span>
+                <span class="svc-row__badge svc-row__badge--a">@L["Housing"]</span>
             </div>
             <div class="svc-row__body">
-                <p class="nx-eyebrow">Module 1</p>
-                <h3 class="svc-row__title">Find your next seat or shared house</h3>
-                <p class="svc-row__lead">
-                    Tired of scrolling through stale Facebook posts? Browse verified mess seats,
-                    sub-lets, and shared houses in your area — with rent in Taka, occupancy,
-                    and eligibility all up front. Contact details are released only once your
-                    request is accepted.
-                </p>
+                <p class="nx-eyebrow">@L["Module 1"]</p>
+                <h3 class="svc-row__title">@L["Find your next seat or shared house"]</h3>
+                <p class="svc-row__lead">@L["Tired of scrolling through stale Facebook posts? Browse verified mess seats, sub-lets, and shared houses in your area — with rent in Taka, occupancy, and eligibility all up front. Contact details are released only once your request is accepted."]</p>
                 <ul class="svc-row__bullets">
-                    <li>Filter by division, district &amp; upazila</li>
-                    <li>See rent, deposit &amp; available date instantly</li>
-                    <li>Safe contact disclosure after matching</li>
+                    <li>@L["Filter by division, district & upazila"]</li>
+                    <li>@L["See rent, deposit & available date instantly"]</li>
+                    <li>@L["Safe contact disclosure after matching"]</li>
                 </ul>
             </div>
         </div>
@@ -191,24 +182,19 @@
                 <img
                     class="svc-row__img"
                     src="images/khala.jpg"
-                    alt="A smiling woman from Bangladesh cooking in a flat"
+                    alt="@L["A smiling woman from Bangladesh cooking in a flat"]"
                     loading="lazy"
                     width="640" height="420" />
-                <span class="svc-row__badge svc-row__badge--b">Domestic Help</span>
+                <span class="svc-row__badge svc-row__badge--b">@L["Domestic Help"]</span>
             </div>
             <div class="svc-row__body">
-                <p class="nx-eyebrow">Module 2</p>
-                <h3 class="svc-row__title">Hire a trusted <em>helper</em></h3>
-                <p class="svc-row__lead">
-                    Finding reliable domestic help used to mean asking neighbours and hoping for
-                    the best. Nestify's verified helper directory shows ratings, services offered,
-                    hourly or monthly rate, and availability — all earned through real, completed
-                    engagements.
-                </p>
+                <p class="nx-eyebrow">@L["Module 2"]</p>
+                <h3 class="svc-row__title">@L["Hire a trusted helper"]</h3>
+                <p class="svc-row__lead">@L["Finding reliable domestic help used to mean asking neighbours and hoping for the best. Nestify's verified helper directory shows ratings, services offered, hourly or monthly rate, and availability — all earned through real, completed engagements."]</p>
                 <ul class="svc-row__bullets">
-                    <li>Verified helper profiles with photo</li>
-                    <li>Reviews locked to real engagements only</li>
-                    <li>Book, confirm &amp; rate in one place</li>
+                    <li>@L["Verified helper profiles with photo"]</li>
+                    <li>@L["Reviews locked to real engagements only"]</li>
+                    <li>@L["Book, confirm & rate in one place"]</li>
                 </ul>
             </div>
         </div>
@@ -219,24 +205,19 @@
                 <img
                     class="svc-row__img"
                     src="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&auto=format&fit=crop&q=75"
-                    alt="Monthly shared expense ledger, calculator, and cost settlement"
+                    alt="@L["Monthly shared expense ledger, calculator, and cost settlement"]"
                     loading="lazy"
                     width="640" height="420" />
-                <span class="svc-row__badge svc-row__badge--c">Cost Settlement</span>
+                <span class="svc-row__badge svc-row__badge--c">@L["Cost Settlement"]</span>
             </div>
             <div class="svc-row__body">
-                <p class="nx-eyebrow">Module 3</p>
-                <h3 class="svc-row__title">End the monthly cost &amp; expense arguments</h3>
-                <p class="svc-row__lead">
-                    Log shared flat expenses, groceries, utilities, and meal purchases throughout the month.
-                    At close, Nestify automatically calculates shared splits and who owes whom —
-                    down to the last Taka. Once finalised, the record is locked and
-                    tamper-evident.
-                </p>
+                <p class="nx-eyebrow">@L["Module 3"]</p>
+                <h3 class="svc-row__title">@L["End the monthly cost & expense arguments"]</h3>
+                <p class="svc-row__lead">@L["Log shared flat expenses, groceries, utilities, and meal purchases throughout the month. At close, Nestify automatically calculates shared splits and who owes whom — down to the last Taka. Once finalised, the record is locked and tamper-evident."]</p>
                 <ul class="svc-row__bullets">
-                    <li>Automatic calculation of shared dues &amp; splits</li>
-                    <li>Immutable monthly expense &amp; settlement record</li>
-                    <li>Every transaction logged with clear audit trail</li>
+                    <li>@L["Automatic calculation of shared dues & splits"]</li>
+                    <li>@L["Immutable monthly expense & settlement record"]</li>
+                    <li>@L["Every transaction logged with clear audit trail"]</li>
                 </ul>
             </div>
         </div>
@@ -247,23 +228,19 @@
                 <img
                     class="svc-row__img"
                     src="https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?w=800&auto=format&fit=crop&q=75"
-                    alt="Study table, chair, and room essentials listed for sale"
+                    alt="@L["Study table, chair, and room essentials listed for sale"]"
                     loading="lazy"
                     width="640" height="420" />
-                <span class="svc-row__badge svc-row__badge--d">Marketplace</span>
+                <span class="svc-row__badge svc-row__badge--d">@L["Marketplace"]</span>
             </div>
             <div class="svc-row__body">
-                <p class="nx-eyebrow">Module 4</p>
-                <h3 class="svc-row__title">Buy &amp; sell second-hand, safely</h3>
-                <p class="svc-row__lead">
-                    Moving out? List your furniture, fan, or textbooks in minutes. Every buyer
-                    and seller on Nestify carries a verified badge — so you know exactly who
-                    you're dealing with before any number is exchanged.
-                </p>
+                <p class="nx-eyebrow">@L["Module 4"]</p>
+                <h3 class="svc-row__title">@L["Buy & sell second-hand, safely"]</h3>
+                <p class="svc-row__lead">@L["Moving out? List your furniture, fan, or textbooks in minutes. Every buyer and seller on Nestify carries a verified badge — so you know exactly who you're dealing with before any number is exchanged."]</p>
                 <ul class="svc-row__bullets">
-                    <li>Browse by category, condition &amp; area</li>
-                    <li>Verified badge on every profile</li>
-                    <li>AI price suggestion to list fairly</li>
+                    <li>@L["Browse by category, condition & area"]</li>
+                    <li>@L["Verified badge on every profile"]</li>
+                    <li>@L["AI price suggestion to list fairly"]</li>
                 </ul>
             </div>
         </div>
@@ -275,28 +252,25 @@
 <section class="nx-section nx-section--alt">
     <div class="nx-container">
         <div class="features__head">
-            <p class="nx-eyebrow">How it works</p>
-            <h2 class="nx-section-title">Three steps, then everything is in one place.</h2>
+            <p class="nx-eyebrow">@L["How it works"]</p>
+            <h2 class="nx-section-title">@L["Three steps, then everything is in one place."]</h2>
         </div>
 
         <ol class="steps">
             <li class="step">
                 <span class="step__num">1</span>
-                <h3>Verify once</h3>
-                <p>Register with your details and student ID. One verification carries across every
-                module — you never prove who you are twice.</p>
+                <h3>@L["Verify once"]</h3>
+                <p>@L["Register with your details and student ID. One verification carries across every module — you never prove who you are twice."]</p>
             </li>
             <li class="step">
                 <span class="step__num">2</span>
-                <h3>Pick a module</h3>
-                <p>Looking for a seat this week, a cook next month, and selling a fan today? Do all
-                three from the same dashboard.</p>
+                <h3>@L["Pick a module"]</h3>
+                <p>@L["Looking for a seat this week, a cook next month, and selling a fan today? Do all three from the same dashboard."]</p>
             </li>
             <li class="step">
                 <span class="step__num">3</span>
-                <h3>Connect &amp; settle</h3>
-                <p>Contact details are shared only on a real match. Money owed is calculated for you
-                and the record can't be quietly edited later.</p>
+                <h3>@L["Connect & settle"]</h3>
+                <p>@L["Contact details are shared only on a real match. Money owed is calculated for you and the record can't be quietly edited later."]</p>
             </li>
         </ol>
     </div>
@@ -307,45 +281,49 @@
     <div class="nx-container cta__inner">
         <AuthorizeView>
             <Authorized>
-                <h2>Everything is already in one place.</h2>
-                <p>Pick up where you left off — your interface is one click away.</p>
+                <h2>@L["Everything is already in one place."]</h2>
+                <p>@L["Pick up where you left off — your interface is one click away."]</p>
             </Authorized>
             <NotAuthorized>
-                <h2>One verified account. Four everyday problems, solved together.</h2>
-                <p>Create your Nestify account and stop juggling five apps to run one household.</p>
+                <h2>@L["One verified account. Four everyday problems, solved together."]</h2>
+                <p>@L["Create your Nestify account and stop juggling five apps to run one household."]</p>
             </NotAuthorized>
         </AuthorizeView>
         <AuthorizeView Roles="User">
             <Authorized>
                 <div class="cta__actions">
-                    <a class="nx-btn nx-btn--light nx-btn--lg" href="settlement">Open Settlement Workspace</a>
-                    <a class="nx-btn nx-btn--ghost nx-btn--lg cta__ghost" href="about">Meet the team</a>
+                    <a class="nx-btn nx-btn--light nx-btn--lg" href="settlement">@L["Open Settlement Workspace"]</a>
+                    <a class="nx-btn nx-btn--ghost nx-btn--lg cta__ghost" href="about">@L["Meet the team"]</a>
                 </div>
             </Authorized>
         </AuthorizeView>
         <AuthorizeView Roles="DomesticHelper,DomesticHelp,Maid,Helper">
             <Authorized>
                 <div class="cta__actions">
-                    <a class="nx-btn nx-btn--light nx-btn--lg" href="helpers/dashboard">Go to my dashboard</a>
-                    <a class="nx-btn nx-btn--ghost nx-btn--lg cta__ghost" href="about">Meet the team</a>
+                    <a class="nx-btn nx-btn--light nx-btn--lg" href="helpers/dashboard">@L["Go to my dashboard"]</a>
+                    <a class="nx-btn nx-btn--ghost nx-btn--lg cta__ghost" href="about">@L["Meet the team"]</a>
                 </div>
             </Authorized>
         </AuthorizeView>
         <AuthorizeView Roles="Admin">
             <Authorized>
                 <div class="cta__actions">
-                    <a class="nx-btn nx-btn--light nx-btn--lg" href="admin">Open admin console</a>
-                    <a class="nx-btn nx-btn--ghost nx-btn--lg cta__ghost" href="about">Meet the team</a>
+                    <a class="nx-btn nx-btn--light nx-btn--lg" href="admin">@L["Open admin console"]</a>
+                    <a class="nx-btn nx-btn--ghost nx-btn--lg cta__ghost" href="about">@L["Meet the team"]</a>
                 </div>
             </Authorized>
         </AuthorizeView>
         <AuthorizeView>
             <NotAuthorized>
                 <div class="cta__actions">
-                    <a class="nx-btn nx-btn--light nx-btn--lg" href="register">Get started free</a>
-                    <a class="nx-btn nx-btn--ghost nx-btn--lg cta__ghost" href="login">I already have an account</a>
+                    <a class="nx-btn nx-btn--light nx-btn--lg" href="register">@L["Get started free"]</a>
+                    <a class="nx-btn nx-btn--ghost nx-btn--lg cta__ghost" href="login">@L["I already have an account"]</a>
                 </div>
             </NotAuthorized>
         </AuthorizeView>
     </div>
 </section>
+
+@code {
+    private static string Number(int value) => value.ToString("N0", System.Globalization.CultureInfo.CurrentCulture);
+}

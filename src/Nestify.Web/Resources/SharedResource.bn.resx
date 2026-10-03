@@ -1425,4 +1425,89 @@
   <data name="Saved" xml:space="preserve"><value>সংরক্ষিত</value></data>
   <data name="WhatsApp" xml:space="preserve"><value>হোয়াটসঅ্যাপ</value></data>
   <data name="Could not load posting packages. Please try again." xml:space="preserve"><value>পোস্টিং প্যাকেজ আনা যায়নি। আবার চেষ্টা করুন।</value></data>
+  <data name="{0} · lightly used" xml:space="preserve"><value>{0} · হালকা ব্যবহৃত</value></data>
+  <data name="{0} / month · {1} seat left" xml:space="preserve"><value>মাসে {0} · {1}টি আসন খালি</value></data>
+  <data name="★ {0} · within {1} km" xml:space="preserve"><value>★ {0} · {1} কিমির মধ্যে</value></data>
+  <data name="A seat is found in a Facebook group. A helper is hired by word of mouth. The month's meal cost is argued over a torn notebook page. A used table is sold on yet another classifieds site — to a stranger nobody can verify." xml:space="preserve"><value>ফেসবুক গ্রুপে আসন খোঁজা হয়, পরিচিতের মাধ্যমে সহায়ক নিয়োগ করা হয়। মাসের খাবারের খরচ নিয়ে পুরোনো খাতার পাতায় চলে তর্ক। ব্যবহৃত টেবি বিক্রি হয় আরেকটি বিজ্ঞাপন সাইটে—এমন কারও কাছে, যার পরিচয় যাচাই করা যায় না।</value></data>
+  <data name="A smiling woman from Bangladesh cooking in a flat" xml:space="preserve"><value>একটি ফ্ল্যাটে রান্না করছেন বাংলাদেশের এক হাস্যোজ্জ্বল নারী</value></data>
+  <data name="A spacious family apartment bedroom with a master bed" xml:space="preserve"><value>প্রশস্ত পারিবারিক অ্যাপার্টমেন্টের শোবার ঘর</value></data>
+  <data name="AI price suggestion to list fairly" xml:space="preserve"><value>ন্যায্য দামে বিজ্ঞাপন দিতে এআই-এর মূল্য পরামর্শ</value></data>
+  <data name="Argue less over meal costs. Nestify provides a transparent, immutable record for splitting daily utilities and calculating the per-meal rate at the end of the month." xml:space="preserve"><value>খাবারের খরচ নিয়ে তর্ক কমান। Nestify দৈনন্দিন বিল ভাগ করা এবং মাস শেষে প্রতি বেলার খরচ হিসাব করার জন্য স্বচ্ছ ও অপরিবর্তনীয় রেকর্ড রাখে।</value></data>
+  <data name="Automatic calculation of shared dues &amp; splits" xml:space="preserve"><value>সবার পাওনা ও খরচের ভাগ স্বয়ংক্রিয়ভাবে হিসাব</value></data>
+  <data name="Book, confirm &amp; rate in one place" xml:space="preserve"><value>এক জায়গায় বুক করুন, নিশ্চিত করুন ও মূল্যায়ন দিন</value></data>
+  <data name="Browse by category, condition &amp; area" xml:space="preserve"><value>ধরন, অবস্থা ও এলাকা অনুযায়ী খুঁজুন</value></data>
+  <data name="Browse housing" xml:space="preserve"><value>বাসার বিজ্ঞাপন দেখুন</value></data>
+  <data name="Buy &amp; sell second-hand, safely" xml:space="preserve"><value>নিরাপদে ব্যবহৃত পণ্য কেনাবেচা করুন</value></data>
+  <data name="Connect &amp; settle" xml:space="preserve"><value>সংযুক্ত হোন ও হিসাব মেটান</value></data>
+  <data name="Contact details are shared only on a real match. Money owed is calculated for you and the record can't be quietly edited later." xml:space="preserve"><value>সফলভাবে যোগাযোগ স্থাপিত হলেই কেবল যোগাযোগের তথ্য ভাগ করা হয়। পাওনা স্বয়ংক্রিয়ভাবে হিসাব হয়, আর পরে গোপনে রেকর্ড বদলানো যায় না।</value></data>
+  <data name="Cost Settlement" xml:space="preserve"><value>খরচের হিসাব</value></data>
+  <data name="Create your account" xml:space="preserve"><value>অ্যাকাউন্ট তৈরি করুন</value></data>
+  <data name="Create your Nestify account and stop juggling five apps to run one household." xml:space="preserve"><value>একটি বাসা পরিচালনায় একাধিক অ্যাপ সামলানো বন্ধ করে Nestify অ্যাকাউন্ট তৈরি করুন।</value></data>
+  <data name="districts of Bangladesh mapped" xml:space="preserve"><value>বাংলাদেশের জেলার তথ্য যুক্ত</value></data>
+  <data name="End the monthly cost &amp; expense arguments" xml:space="preserve"><value>মাসিক খরচের তর্কের অবসান ঘটান</value></data>
+  <data name="Every one of these needs the same things: trust, a verified identity, and local context. None of the current tools give you all three. Nestify is built to." xml:space="preserve"><value>প্রতিটি ক্ষেত্রেই দরকার আস্থা, যাচাইকৃত পরিচয় এবং এলাকার প্রাসঙ্গিক তথ্য। প্রচলিত কোনো মাধ্যমেই এই তিনটি একসঙ্গে মেলে না। Nestify সেই প্রয়োজন পূরণে তৈরি।</value></data>
+  <data name="Every transaction logged with clear audit trail" xml:space="preserve"><value>প্রতিটি লেনদেনের স্বচ্ছ নিরীক্ষা-তথ্য</value></data>
+  <data name="everyday problems, one platform" xml:space="preserve"><value>দৈনন্দিন সমস্যার সমাধান, এক প্ল্যাটফর্মে</value></data>
+  <data name="Everything a bachelor needs, in one place." xml:space="preserve"><value>একজন শিক্ষার্থী বা কর্মজীবীর প্রয়োজন—সব এক জায়গায়।</value></data>
+  <data name="Everything is already in one place." xml:space="preserve"><value>সবকিছু এখনই এক জায়গায় আছে।</value></data>
+  <data name="Expense &amp; Meal Settlement" xml:space="preserve"><value>খরচ ও খাবারের হিসাব</value></data>
+  <data name="Filter by division, district &amp; upazila" xml:space="preserve"><value>বিভাগ, জেলা ও উপজেলা অনুযায়ী ছাঁকুন</value></data>
+  <data name="Find your next seat or shared house" xml:space="preserve"><value>আপনার পরবর্তী আসন বা শেয়ারড বাসা খুঁজুন</value></data>
+  <data name="Finding reliable domestic help used to mean asking neighbours and hoping for the best. Nestify's verified helper directory shows ratings, services offered, hourly or monthly rate, and availability — all earned through real, completed engagements." xml:space="preserve"><value>নির্ভরযোগ্য গৃহসহায়ক খুঁজতে আগে প্রতিবেশীদের কাছে জানতে হতো, তারপর ভরসা করে অপেক্ষা করতে হতো। Nestify-এর যাচাইকৃত সহায়ক তালিকায় প্রকৃত সম্পন্ন কাজের ভিত্তিতে রেটিং, সেবা, ঘণ্টা বা মাসিক পারিশ্রমিক এবং সময়সূচি দেখা যায়।</value></data>
+  <data name="For students &amp; job holders in Bangladesh" xml:space="preserve"><value>বাংলাদেশের শিক্ষার্থী ও কর্মজীবীদের জন্য</value></data>
+  <data name="Four parts of bachelor life," xml:space="preserve"><value>শিক্ষার্থী ও কর্মজীবনের চারটি প্রয়োজন,</value></data>
+  <data name="Four real problems. Four connected modules. One verified account to rule them all." xml:space="preserve"><value>চারটি বাস্তব সমস্যা। পরস্পর সংযুক্ত চারটি সেবা। সবকিছুর জন্য একটি যাচাইকৃত অ্যাকাউন্ট।</value></data>
+  <data name="Get started free" xml:space="preserve"><value>বিনামূল্যে শুরু করুন</value></data>
+  <data name="Go to my dashboard" xml:space="preserve"><value>আমার ড্যাশবোর্ডে যান</value></data>
+  <data name="Helper — cooking &amp; cleaning" xml:space="preserve"><value>সহায়ক — রান্না ও ঘর পরিষ্কার</value></data>
+  <data name="Helpers &amp; Marketplace" xml:space="preserve"><value>সহায়ক ও কেনাবেচা</value></data>
+  <data name="Hire a trusted helper" xml:space="preserve"><value>বিশ্বস্ত সহায়ক খুঁজে নিন</value></data>
+  <data name="Housing &amp; Seat Finding" xml:space="preserve"><value>বাসা ও আসন খোঁজা</value></data>
+  <data name="How it works" xml:space="preserve"><value>যেভাবে কাজ করে</value></data>
+  <data name="I already have an account" xml:space="preserve"><value>আমার অ্যাকাউন্ট আছে</value></data>
+  <data name="Immutable expense records" xml:space="preserve"><value>অপরিবর্তনীয় খরচের রেকর্ড</value></data>
+  <data name="Immutable monthly expense &amp; settlement record" xml:space="preserve"><value>অপরিবর্তনীয় মাসিক খরচ ও হিসাবের রেকর্ড</value></data>
+  <data name="Local to your area" xml:space="preserve"><value>আপনার এলাকার সেবা</value></data>
+  <data name="Log shared flat expenses, groceries, utilities, and meal purchases throughout the month. At close, Nestify automatically calculates shared splits and who owes whom — down to the last Taka. Once finalised, the record is locked and tamper-evident." xml:space="preserve"><value>মাসজুড়ে বাসার খরচ, বাজার, বিল এবং খাবারের ব্যয় লিখে রাখুন। মাস শেষে Nestify স্বয়ংক্রিয়ভাবে সবার খরচের ভাগ ও কে কার কাছে কত পাবেন তা হিসাব করে। চূড়ান্ত হলে রেকর্ডটি লক হয় এবং পরিবর্তনের প্রমাণ থেকে যায়।</value></data>
+  <data name="Looking for a seat this week, a cook next month, and selling a fan today? Do all three from the same dashboard." xml:space="preserve"><value>এই সপ্তাহে আসন খুঁজছেন, আগামী মাসের জন্য রান্নার সহায়ক চাই, আর আজই একটি পাখা বিক্রি করবেন? একই ড্যাশবোর্ড থেকে সব করুন।</value></data>
+  <data name="Meet the team" xml:space="preserve"><value>দলের সঙ্গে পরিচিত হোন</value></data>
+  <data name="Module 1" xml:space="preserve"><value>সেবা ১</value></data>
+  <data name="Module 2" xml:space="preserve"><value>সেবা ২</value></data>
+  <data name="Module 3" xml:space="preserve"><value>সেবা ৩</value></data>
+  <data name="Module 4" xml:space="preserve"><value>সেবা ৪</value></data>
+  <data name="Monthly shared expense ledger, calculator, and cost settlement" xml:space="preserve"><value>মাসিক যৌথ খরচের খাতা, হিসাবযন্ত্র ও খরচ নিষ্পত্তি</value></data>
+  <data name="Moving out? List your furniture, fan, or textbooks in minutes. Every buyer and seller on Nestify carries a verified badge — so you know exactly who you're dealing with before any number is exchanged." xml:space="preserve"><value>বাসা ছাড়ছেন? কয়েক মিনিটেই আসবাব, পাখা বা বইয়ের বিজ্ঞাপন দিন। Nestify-এর প্রতিটি ক্রেতা ও বিক্রেতার পরিচয় যাচাইকৃত—যোগাযোগের তথ্য দেওয়ার আগেই আপনি জানতে পারবেন কার সঙ্গে লেনদেন করছেন।</value></data>
+  <data name="Nestify brings your seat hunt, your domestic help, your monthly meal-cost settlement, and your second-hand deals together — behind a single account you actually trust." xml:space="preserve"><value>Nestify বাসার আসন খোঁজা, সহায়ক সেবা, মাসিক খাবারের হিসাব এবং ব্যবহৃত পণ্যের কেনাবেচা—সব একত্র করেছে একটি নির্ভরযোগ্য অ্যাকাউন্টে।</value></data>
+  <data name="No more scrolling through hundreds of unverified social media posts just to find a single mess seat or sublet. We make discovering your next home simple and secure." xml:space="preserve"><value>একটি মেসের আসন বা সাবলেট খুঁজতে আর শত শত অযাচাইকৃত সামাজিক মাধ্যমের পোস্ট ঘাঁটতে হবে না। আপনার পরবর্তী বাসা খোঁজা এখন সহজ ও নিরাপদ।</value></data>
+  <data name="One verified account. Four everyday problems, solved together." xml:space="preserve"><value>একটি যাচাইকৃত অ্যাকাউন্ট। দৈনন্দিন চার সমস্যার সমাধান একসঙ্গে।</value></data>
+  <data name="one verified home." xml:space="preserve"><value>একটি যাচাইকৃত বাসা।</value></data>
+  <data name="Open admin console" xml:space="preserve"><value>অ্যাডমিন কনসোল খুলুন</value></data>
+  <data name="Open Settlement Workspace" xml:space="preserve"><value>হিসাবের কর্মক্ষেত্র খুলুন</value></data>
+  <data name="Our motivation" xml:space="preserve"><value>আমাদের প্রেরণা</value></data>
+  <data name="Our services" xml:space="preserve"><value>আমাদের সেবাসমূহ</value></data>
+  <data name="Per-meal rate {0} · you get {1}" xml:space="preserve"><value>প্রতি বেলার খরচ {0} · আপনার পাওনা {1}</value></data>
+  <data name="Pick a module" xml:space="preserve"><value>একটি সেবা বেছে নিন</value></data>
+  <data name="Pick up where you left off — your interface is one click away." xml:space="preserve"><value>যেখান থেকে কাজ থেমেছিল, সেখান থেকেই শুরু করুন—আপনার ড্যাশবোর্ড এক ক্লিক দূরে।</value></data>
+  <data name="Register with your details and student ID. One verification carries across every module — you never prove who you are twice." xml:space="preserve"><value>আপনার তথ্য ও শিক্ষার্থী পরিচয়পত্র দিয়ে নিবন্ধন করুন। একবার পরিচয় যাচাই হলেই সব সেবায় তা প্রযোজ্য হবে—বারবার পরিচয় প্রমাণ করতে হবে না।</value></data>
+  <data name="Reviews locked to real engagements only" xml:space="preserve"><value>প্রকৃত কাজ সম্পন্ন হলেই কেবল পর্যালোচনা</value></data>
+  <data name="Right now, bachelor life is spread across five different places." xml:space="preserve"><value>এখন শিক্ষার্থী ও কর্মজীবীদের দৈনন্দিন কাজ ছড়িয়ে আছে পাঁচটি আলাদা জায়গায়।</value></data>
+  <data name="Safe contact disclosure after matching" xml:space="preserve"><value>মিল নিশ্চিত হওয়ার পরই নিরাপদে যোগাযোগের তথ্য প্রকাশ</value></data>
+  <data name="Seat in Bakshi Bazar mess" xml:space="preserve"><value>বকশী বাজারের মেসে একটি আসন</value></data>
+  <data name="See rent, deposit &amp; available date instantly" xml:space="preserve"><value>ভাড়া, জামানত ও প্রাপ্যতার তারিখ সঙ্গে সঙ্গে দেখুন</value></data>
+  <data name="September settlement" xml:space="preserve"><value>সেপ্টেম্বরের হিসাব</value></data>
+  <data name="Settlement workspace" xml:space="preserve"><value>হিসাবের কর্মক্ষেত্র</value></data>
+  <data name="Solving the fragmented bachelor life." xml:space="preserve"><value>বিচ্ছিন্ন জীবনযাপনের ঝামেলা একসঙ্গে সমাধান</value></data>
+  <data name="spreadsheets you still have to keep" xml:space="preserve"><value>আর হিসাবের জন্য স্প্রেডশিট রাখতে হবে না</value></data>
+  <data name="Study table + chair" xml:space="preserve"><value>পড়ার টেবিল ও চেয়ার</value></data>
+  <data name="Study table, chair, and room essentials listed for sale" xml:space="preserve"><value>বিক্রির জন্য পড়ার টেবিল, চেয়ার ও ঘরের প্রয়োজনীয় সামগ্রী</value></data>
+  <data name="The problem" xml:space="preserve"><value>সমস্যাটি</value></data>
+  <data name="Three steps, then everything is in one place." xml:space="preserve"><value>তিনটি ধাপেই সবকিছু এক জায়গায়</value></data>
+  <data name="Tired of scrolling through stale Facebook posts? Browse verified mess seats, sub-lets, and shared houses in your area — with rent in Taka, occupancy, and eligibility all up front. Contact details are released only once your request is accepted." xml:space="preserve"><value>পুরোনো ফেসবুক পোস্ট ঘাঁটতে ক্লান্ত? আপনার এলাকার যাচাইকৃত মেসের আসন, সাবলেট ও শেয়ারড বাসা দেখুন—ভাড়া, বাসিন্দার সংখ্যা ও শর্তাবলি শুরুতেই স্পষ্ট থাকবে। আপনার অনুরোধ গৃহীত হলেই কেবল যোগাযোগের তথ্য দেওয়া হবে।</value></data>
+  <data name="University students and young professionals living away from home face a daily struggle: managing housing, meals, domestic help, and buying essentials across disconnected groups and apps. Nestify was built to solve this exact problem by bringing everything into one trusted platform." xml:space="preserve"><value>বাড়ি থেকে দূরে থাকা বিশ্ববিদ্যালয়ের শিক্ষার্থী ও তরুণ কর্মজীবীদের প্রতিদিন বাসা, খাবার, গৃহসহায়ক এবং নিত্যপ্রয়োজনীয় জিনিসের ব্যবস্থা করতে বিচ্ছিন্ন গ্রুপ ও অ্যাপ সামলাতে হয়। এই সমস্যার সমাধানে সবকিছু একটি নির্ভরযোগ্য প্ল্যাটফর্মে আনতে Nestify তৈরি করা হয়েছে।</value></data>
+  <data name="verified account for all of them" xml:space="preserve"><value>সব সেবার জন্য একটি যাচাইকৃত অ্যাকাউন্ট</value></data>
+  <data name="Verified badge on every profile" xml:space="preserve"><value>প্রতিটি প্রোফাইলে যাচাইকৃত পরিচয়ের ব্যাজ</value></data>
+  <data name="Verified helper profiles with photo" xml:space="preserve"><value>ছবিসহ যাচাইকৃত সহায়কের প্রোফাইল</value></data>
+  <data name="Verified profiles" xml:space="preserve"><value>যাচাইকৃত প্রোফাইল</value></data>
+  <data name="Verify once" xml:space="preserve"><value>একবারই পরিচয় যাচাই</value></data>
+  <data name="Whether you need to hire a reliable helper or sell your second-hand furniture when moving out, you can do it all safely within the same verified ecosystem." xml:space="preserve"><value>নির্ভরযোগ্য সহায়ক নিয়োগ করা হোক বা বাসা ছাড়ার সময় ব্যবহৃত আসবাব বিক্রি—একই যাচাইকৃত ব্যবস্থায় সবকিছু নিরাপদে করতে পারবেন।</value></data>
 </root>
