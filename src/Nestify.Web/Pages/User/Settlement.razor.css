@@ -803,12 +803,21 @@
     scrollbar-width: thin;
 }
 
+.stl__sheet-scroll--narrow {
+    max-width: min(100%, max-content);
+    margin-inline: auto;
+}
+
 .stl__sheet {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
     font-size: .9rem;
 }
+
+.stl__sheet-scroll--narrow .stl__sheet { width: auto; }
+
+.stl__sheet-scroll--narrow .stl__sheet-date { min-width: 7rem; }
 
 .stl__sheet th,
 .stl__sheet td {
@@ -878,6 +887,35 @@
     font-weight: 600;
 }
 
+.stl__view-toggle {
+    display: inline-flex;
+    padding: .2rem;
+    border: 1px solid var(--nx-border);
+    border-radius: 999px;
+    background: var(--nx-bg-alt);
+}
+
+.stl__view-btn {
+    padding: .35rem .85rem;
+    border: 0;
+    border-radius: 999px;
+    background: none;
+    color: var(--nx-muted);
+    font: inherit;
+    font-size: .8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .28s ease, color .28s ease, box-shadow .28s ease;
+}
+
+.stl__view-btn:hover { color: var(--nx-primary-strong); }
+
+.stl__view-btn.is-active {
+    background: var(--nx-card);
+    color: var(--nx-primary-strong);
+    box-shadow: var(--nx-shadow-sm);
+}
+
 /* breakfast + lunch + dinner, three horizontal steppers per member per day */
 
 .stl__sheet-member { display: block; }
@@ -941,9 +979,9 @@
 }
 
 .stl__slot-step:disabled {
-    color: var(--nx-muted);
+    color: #347fcf;
     cursor: not-allowed;
-    opacity: .45;
+    opacity: .8;
 }
 
 .stl__slot-step--up {
