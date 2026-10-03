@@ -1000,6 +1000,7 @@
     height: .6rem;
     border-top: 3px solid currentColor;
     border-right: 3px solid currentColor;
+    flex: 0 0 auto;
 }
 
 .stl__chevron--left { transform: rotate(-135deg); }
