@@ -23,3 +23,8 @@ test("daily totals are calculated once from each date/member cell", () => {
     assert.match(state, /public decimal Total => Breakfast \+ Lunch \+ Dinner;/);
     assert.match(state, /public decimal DayTotal\(DateOnly date\) =>\s*_cells\.Where\(c => c\.Key\.Date == date\)\.Sum\(c => c\.Value\.Total\);/);
 });
+
+test("the daily total remains in its dedicated table column", () => {
+    assert.match(razor, /<th class="stl__sheet-total">@L\["Day"\]<\/th>/);
+    assert.match(razor, /<td class="stl__sheet-total">@_sheet\.DayTotal\(day\)/);
+});
