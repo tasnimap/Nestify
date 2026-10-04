@@ -1274,6 +1274,16 @@ button.dh-slot:focus-visible {
     line-height: 1;
 }
 .rt-star--filled { color: #f5b301; }
+.rt-star--half { position: relative; display: inline-block; }
+.rt-star--half::before {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 50%;
+    overflow: hidden;
+    color: #f5b301;
+    content: "★";
+    white-space: nowrap;
+}
 .rt-star--input {
     cursor: pointer;
     appearance: none;
