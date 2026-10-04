@@ -1518,4 +1518,23 @@
   <data name="Verified profiles" xml:space="preserve"><value>Verified profiles</value></data>
   <data name="Verify once" xml:space="preserve"><value>Verify once</value></data>
   <data name="Whether you need to hire a reliable helper or sell your second-hand furniture when moving out, you can do it all safely within the same verified ecosystem." xml:space="preserve"><value>Whether you need to hire a reliable helper or sell your second-hand furniture when moving out, you can do it all safely within the same verified ecosystem.</value></data>
+  <data name="{0} review" xml:space="preserve"><value>{0} review</value></data>
+  <data name="{0} years ago" xml:space="preserve"><value>{0} years ago</value></data>
+  <data name="{0}/500 characters" xml:space="preserve"><value>{0}/500 characters</value></data>
+  <data name="{0}% of reviews" xml:space="preserve"><value>{0}% of reviews</value></data>
+  <data name="1 day ago" xml:space="preserve"><value>1 day ago</value></data>
+  <data name="1 month ago" xml:space="preserve"><value>1 month ago</value></data>
+  <data name="1 week ago" xml:space="preserve"><value>1 week ago</value></data>
+  <data name="1 year ago" xml:space="preserve"><value>1 year ago</value></data>
+  <data name="3 stars and below ({0})" xml:space="preserve"><value>3 stars and below ({0})</value></data>
+  <data name="4 ★ ({0})" xml:space="preserve"><value>4 ★ ({0})</value></data>
+  <data name="5 ★ ({0})" xml:space="preserve"><value>5 ★ ({0})</value></data>
+  <data name="All ({0} review)" xml:space="preserve"><value>All ({0} review)</value></data>
+  <data name="All ({0} reviews)" xml:space="preserve"><value>All ({0} reviews)</value></data>
+  <data name="Needs reply ({0})" xml:space="preserve"><value>Needs reply ({0})</value></data>
+  <data name="No reviews match" xml:space="preserve"><value>No reviews match</value></data>
+  <data name="No reviews yet" xml:space="preserve"><value>No reviews yet</value></data>
+  <data name="Reviews appear here after an engagement is completed." xml:space="preserve"><value>Reviews appear here after an engagement is completed.</value></data>
+  <data name="Show all reviews" xml:space="preserve"><value>Show all reviews</value></data>
+  <data name="Try a different filter." xml:space="preserve"><value>Try a different filter.</value></data>
 </root>

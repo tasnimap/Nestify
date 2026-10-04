@@ -1518,4 +1518,23 @@
   <data name="Verified profiles" xml:space="preserve"><value>যাচাইকৃত প্রোফাইল</value></data>
   <data name="Verify once" xml:space="preserve"><value>একবারই পরিচয় যাচাই</value></data>
   <data name="Whether you need to hire a reliable helper or sell your second-hand furniture when moving out, you can do it all safely within the same verified ecosystem." xml:space="preserve"><value>নির্ভরযোগ্য সহায়ক নিয়োগ করা হোক বা বাসা ছাড়ার সময় ব্যবহৃত আসবাব বিক্রি—একই যাচাইকৃত ব্যবস্থায় সবকিছু নিরাপদে করতে পারবেন।</value></data>
+  <data name="{0} review" xml:space="preserve"><value>{0}টি রিভিউ</value></data>
+  <data name="{0} years ago" xml:space="preserve"><value>{0} বছর আগে</value></data>
+  <data name="{0}/500 characters" xml:space="preserve"><value>{0}/৫০০ অক্ষর</value></data>
+  <data name="{0}% of reviews" xml:space="preserve"><value>রিভিউয়ের {0}%</value></data>
+  <data name="1 day ago" xml:space="preserve"><value>১ দিন আগে</value></data>
+  <data name="1 month ago" xml:space="preserve"><value>১ মাস আগে</value></data>
+  <data name="1 week ago" xml:space="preserve"><value>১ সপ্তাহ আগে</value></data>
+  <data name="1 year ago" xml:space="preserve"><value>১ বছর আগে</value></data>
+  <data name="3 stars and below ({0})" xml:space="preserve"><value>৩ তারকা ও কম ({0})</value></data>
+  <data name="4 ★ ({0})" xml:space="preserve"><value>৪ ★ ({0})</value></data>
+  <data name="5 ★ ({0})" xml:space="preserve"><value>৫ ★ ({0})</value></data>
+  <data name="All ({0} review)" xml:space="preserve"><value>সব ({0}টি রিভিউ)</value></data>
+  <data name="All ({0} reviews)" xml:space="preserve"><value>সব ({0}টি রিভিউ)</value></data>
+  <data name="Needs reply ({0})" xml:space="preserve"><value>উত্তর প্রয়োজন ({0})</value></data>
+  <data name="No reviews match" xml:space="preserve"><value>কোনো রিভিউ মেলেনি</value></data>
+  <data name="No reviews yet" xml:space="preserve"><value>এখনো কোনো রিভিউ নেই</value></data>
+  <data name="Reviews appear here after an engagement is completed." xml:space="preserve"><value>কাজ সম্পন্ন হওয়ার পর এখানে রিভিউ দেখা যাবে।</value></data>
+  <data name="Show all reviews" xml:space="preserve"><value>সব রিভিউ দেখুন</value></data>
+  <data name="Try a different filter." xml:space="preserve"><value>অন্য কোনো ফিল্টার ব্যবহার করে দেখুন।</value></data>
 </root>

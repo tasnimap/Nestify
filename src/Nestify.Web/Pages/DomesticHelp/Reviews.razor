@@ -20,8 +20,8 @@
             </div>
             <div class="md-score">
                 <span class="md-score__num">@_data.RatingAverage.ToString("0.0")</span>
-                <RatingStars Value="_data.RatingAverage" ShowCount="false" />
-                <span class="md-score__count">@L["{0} reviews", _data.RatingCount]</span>
+                <RatingStars Value="_data.RatingAverage" ShowCount="false" HalfStars="true" />
+                <span class="md-score__count">@ReviewCount(_data.RatingCount)</span>
             </div>
         </header>
 
@@ -47,7 +47,9 @@
                                 <button type="button" class="md-bar @(_filter == s ? "md-bar--on" : null)" @onclick="() => ToggleFilter(s)"
                                         aria-pressed="@((_filter == s).ToString().ToLowerInvariant())">
                                     <span class="md-bar__star">@s <i aria-hidden="true">★</i></span>
-                                    <span class="md-bar__track"><span class="md-bar__fill" style="--w:@pct.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)%"></span></span>
+                                    <span class="md-bar__track" title='@L["{0}% of reviews", pct.ToString("0.#", System.Globalization.CultureInfo.CurrentCulture)]'>
+                                        <span class="md-bar__fill" style="--w:@pct.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)%"></span>
+                                    </span>
                                     <span class="md-bar__count">@count</span>
                                 </button>
                             </li>
@@ -63,17 +65,24 @@
                 <section class="md-reviews__list">
                     <div class="md-filters dh-rise" style="--d:120ms">
                         <div class="md-filters__chips" role="group" aria-label='@L["Filter reviews"]'>
-                            <button type="button" class="dh-chip @(_filter is null ? "dh-chip--on" : null)" @onclick="() => SetFilter(null)">@L["All ({0})", _data.RatingCount]</button>
-                            <button type="button" class="dh-chip @(_filter == 5 ? "dh-chip--on" : null)" @onclick="() => ToggleFilter(5)">5 ★</button>
-                            <button type="button" class="dh-chip @(_filter == 4 ? "dh-chip--on" : null)" @onclick="() => ToggleFilter(4)">4 ★</button>
-                            <button type="button" class="dh-chip @(_filter == 3 ? "dh-chip--on" : null)" @onclick="() => ToggleFilter(3)">@L["3 stars and below"]</button>
-                            <button type="button" class="dh-chip @(_unreplied ? "dh-chip--on" : null)" @onclick="ToggleUnreplied">@L["Needs reply"]</button>
+                            <button type="button" class="dh-chip @(_filter is null && !_unreplied ? "dh-chip--on" : null)"
+                                    disabled="@(_data.RatingCount == 0)" @onclick="ShowAllReviews">@AllReviewsLabel</button>
+                            <button type="button" class="dh-chip @(_filter == 5 ? "dh-chip--on" : null)" disabled="@(FiveStarCount == 0)"
+                                    @onclick="() => ToggleFilter(5)">@L["5 ★ ({0})", Number(FiveStarCount)]</button>
+                            <button type="button" class="dh-chip @(_filter == 4 ? "dh-chip--on" : null)" disabled="@(FourStarCount == 0)"
+                                    @onclick="() => ToggleFilter(4)">@L["4 ★ ({0})", Number(FourStarCount)]</button>
+                            <button type="button" class="dh-chip @(_filter == 3 ? "dh-chip--on" : null)" disabled="@(ThreeAndBelowCount == 0)"
+                                    @onclick="() => ToggleFilter(3)">@L["3 stars and below ({0})", Number(ThreeAndBelowCount)]</button>
+                            <button type="button" class="dh-chip @(_unreplied ? "dh-chip--on" : null)" disabled="@(NeedsReplyCount == 0)"
+                                    @onclick="ToggleUnreplied">@L["Needs reply ({0})", Number(NeedsReplyCount)]</button>
                         </div>
-                        <select class="md-select" value="@_sort" @onchange="OnSortChanged" aria-label='@L["Sort reviews"]'>
-                            <option value="new">@L["Newest first"]</option>
-                            <option value="high">@L["Highest rated"]</option>
-                            <option value="low">@L["Lowest rated"]</option>
-                        </select>
+                        <div class="md-select-wrap">
+                            <select class="md-select" value="@_sort" @onchange="OnSortChanged" aria-label='@L["Sort reviews"]'>
+                                <option value="new">@L["Newest first"]</option>
+                                <option value="high">@L["Highest rated"]</option>
+                                <option value="low">@L["Lowest rated"]</option>
+                            </select>
+                        </div>
                     </div>
 
                     @if (Filtered.Count == 0)
@@ -81,10 +90,19 @@
                         <div class="dh-panel dh-rise">
                             <div class="dh-empty">
                                 <span class="dh-empty__art" aria-hidden="true">
-                                    <svg class="nx-icon" viewBox="0 0 24 24"><path d="M12 3 14.5 9h6l-5 4 2 6-5.5-4-5.5 4 2-6-5-4h6Z" /></svg>
+                                    <svg class="nx-icon" width="24" height="24" viewBox="0 0 24 24"><path d="M12 3 14.5 9h6l-5 4 2 6-5.5-4-5.5 4 2-6-5-4h6Z" /></svg>
                                 </span>
-                                <h3>@L[_data.RatingCount == 0 ? "No reviews yet" : "No reviews match"]</h3>
-                                <p>@L[_data.RatingCount == 0 ? "Reviews will appear here after a client completes an engagement and writes one." : "Try a different filter."]</p>
+                                @if (_data.RatingCount == 0)
+                                {
+                                    <h3>@L["No reviews yet"]</h3>
+                                    <p>@L["Reviews appear here after an engagement is completed."]</p>
+                                }
+                                else
+                                {
+                                    <h3>@L["No reviews match"]</h3>
+                                    <p>@L["Try a different filter."]</p>
+                                    <button type="button" class="nx-btn nx-btn--ghost" @onclick="ShowAllReviews">@L["Show all reviews"]</button>
+                                }
                             </div>
                         </div>
                     }
@@ -106,7 +124,7 @@
                                         }
                                         <div class="md-review__who">
                                             <strong>@r.ReviewerName</strong>
-                                            <span>@r.HomeName · @string.Join(", ", r.Services) · @Ago(r.CreatedAtUtc)</span>
+                                            <span>@r.HomeName · @string.Join(" · ", r.Services) · @Ago(r.CreatedAtUtc)</span>
                                         </div>
                                         <RatingStars Value="r.Rating" ShowCount="false" />
                                     </div>
@@ -116,8 +134,12 @@
                                     {
                                         <div class="md-reply">
                                             <span class="md-reply__label">@L["Your reply"]</span>
+                                            @if (r.RepliedAtUtc is { } repliedAt)
+                                            {
+                                                <time class="md-reply__date" datetime="@repliedAt.ToString("O")">@repliedAt.ToLocalTime().ToString("d MMM yyyy", System.Globalization.CultureInfo.CurrentCulture)</time>
+                                            }
                                             <p>@r.Reply</p>
-                                            <button type="button" class="md-link" @onclick="() => StartReply(r)">@L["Edit"]</button>
+                                            <button type="button" class="md-reply-btn" @onclick="() => StartReply(r)">@L["Edit"]</button>
                                         </div>
                                     }
                                     else if (_replying == r.Id)
@@ -125,16 +147,17 @@
                                         <div class="md-reply md-reply--edit">
                                             <label class="nx-sr-only" for="reply-@r.Id">@L["Reply to {0}", r.ReviewerName]</label>
                                             <textarea id="reply-@r.Id" rows="3" maxlength="500" placeholder='@L["Thank them, or explain what you changed."]' @bind="_replyText" @bind:event="oninput"></textarea>
+                                            <div class="md-reply__counter" aria-live="polite">@L["{0}/500 characters", Number(_replyText.Length)]</div>
                                             <div class="md-reply__actions">
                                                 <button type="button" class="nx-btn nx-btn--ghost" @onclick="CancelReply">@L["Cancel"]</button>
-                                                <button type="button" class="nx-btn nx-btn--accent" disabled="@(string.IsNullOrWhiteSpace(_replyText) || _saving)" @onclick="() => SaveReply(r)">@L[_saving ? "Posting…" : "Post reply"]</button>
+                                                <button type="button" class="nx-btn nx-btn--accent" disabled="@(string.IsNullOrWhiteSpace(_replyText) || _saving)" @onclick="() => SaveReply(r)">@L[_saving ? "Posting…" : "Send"]</button>
                                             </div>
                                         </div>
                                     }
                                     else
                                     {
-                                        <button type="button" class="md-link md-review__replybtn" @onclick="() => StartReply(r)">
-                                            <svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 17-5-5 5-5" /><path d="M20 18v-2a4 4 0 0 0-4-4H4" /></svg>
+                                        <button type="button" class="md-reply-btn md-review__replybtn" @onclick="() => StartReply(r)">
+                                            <svg class="nx-icon" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 17-5-5 5-5" /><path d="M20 18v-2a4 4 0 0 0-4-4H4" /></svg>
                                             @L["Reply"]
                                         </button>
                                     }
@@ -181,6 +204,20 @@
 
     private List<ReviewDto> PageItems => Filtered.Skip((_page - 1) * PageSize).Take(PageSize).ToList();
 
+    private int FiveStarCount => _data.Reviews.Count(r => r.Rating == 5);
+    private int FourStarCount => _data.Reviews.Count(r => r.Rating == 4);
+    private int ThreeAndBelowCount => _data.Reviews.Count(r => r.Rating <= 3);
+    private int NeedsReplyCount => _data.Reviews.Count(r => r.Reply is null);
+    private string AllReviewsLabel => _data.RatingCount == 1
+        ? L["All ({0} review)", Number(_data.RatingCount)]
+        : L["All ({0} reviews)", Number(_data.RatingCount)];
+
+    private string ReviewCount(int count) => count == 1
+        ? L["{0} review", Number(count)]
+        : L["{0} reviews", Number(count)];
+
+    private static string Number(int value) => value.ToString("N0", System.Globalization.CultureInfo.CurrentCulture);
+
     protected override async Task OnInitializedAsync()
     {
         _data = await Helpers.GetMyReviewsAsync() ?? new();
@@ -192,6 +229,13 @@
     private void SetFilter(int? star)
     {
         _filter = star;
+        _page = 1;
+    }
+
+    private void ShowAllReviews()
+    {
+        _filter = null;
+        _unreplied = false;
         _page = 1;
     }
 
@@ -248,9 +292,26 @@
     private string Ago(DateTime utc)
     {
         var span = DateTime.UtcNow - utc;
-        if (span.TotalDays >= 60) return L["{0} months ago", (int)(span.TotalDays / 30)];
-        if (span.TotalDays >= 14) return L["{0} weeks ago", (int)(span.TotalDays / 7)];
-        if (span.TotalDays >= 1) return L["{0} days ago", (int)span.TotalDays];
+        if (span.TotalDays >= 365)
+        {
+            var years = (int)(span.TotalDays / 365);
+            return years == 1 ? L["1 year ago"] : L["{0} years ago", Number(years)];
+        }
+        if (span.TotalDays >= 30)
+        {
+            var months = (int)(span.TotalDays / 30);
+            return months == 1 ? L["1 month ago"] : L["{0} months ago", Number(months)];
+        }
+        if (span.TotalDays >= 14)
+        {
+            var weeks = (int)(span.TotalDays / 7);
+            return weeks == 1 ? L["1 week ago"] : L["{0} weeks ago", Number(weeks)];
+        }
+        if (span.TotalDays >= 1)
+        {
+            var days = (int)span.TotalDays;
+            return days == 1 ? L["1 day ago"] : L["{0} days ago", Number(days)];
+        }
         return L["today"];
     }
 
